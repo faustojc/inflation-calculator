@@ -11,7 +11,7 @@ import ResultsDrawer from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataStore, initializeData } from "@/stores/dataStore";
-import { expenses, isCalculationDisabled, locateCategory, settings, totalDisplayLabel, uiState } from "@/stores/inflationStore";
+import { clearExpenses, expenses, isCalculationDisabled, locateCategory, settings, totalDisplayLabel, uiState } from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
 
 export default function App() {
@@ -58,6 +58,7 @@ export default function App() {
 			} else {
 				setErrorMsg("No CPI data found for the selected period. Please try again later.");
 			}
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			setErrorMsg(err.message || "An unexpected error occurred");
 		}
@@ -120,8 +121,12 @@ export default function App() {
 
 				<Tabs defaultValue="general" className="w-full">
 					<TabsList className="grid w-full grid-cols-2 mb-6">
-						<TabsTrigger value="general">General Categories</TabsTrigger>
-						<TabsTrigger value="detailed">Detailed Search</TabsTrigger>
+						<TabsTrigger value="general" onClick={clearExpenses}>
+							General Categories
+						</TabsTrigger>
+						<TabsTrigger value="detailed" onClick={clearExpenses}>
+							Detailed Search
+						</TabsTrigger>
 					</TabsList>
 
 					{/* GENERAL */}
