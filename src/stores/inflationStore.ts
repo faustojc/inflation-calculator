@@ -6,6 +6,7 @@ export type ExpenseItem = {
 	code: string;
 	name: string;
 	value: number;
+	example?: string;
 };
 
 export type AppSettings = {
@@ -92,6 +93,7 @@ INITIAL_CATEGORIES.forEach((item) => {
 		code: item.code,
 		name: item.name,
 		value: 0,
+		example: item.example,
 	};
 });
 
@@ -135,7 +137,9 @@ export function updateExpenseValue(id: string, newValue: number) {
 	}
 }
 
-export function clearBasket() {
+export function clearExpenses() {
+	if (!hasInputs.get()) return;
+
 	const current = expenses.get();
 	const resetExpense = { ...current };
 
@@ -200,4 +204,30 @@ export const totalDisplayLabel = computed([uiState, totalAllocation], (ui, total
 			isOver: false,
 		};
 	}
+});
+
+export const categoryTotals = computed(expenses, (items) => {
+	const totals: Record<string, number> = {};
+
+	// Sort keys by length DESCENDING (Deepest children first)
+	const sortedCodes = Object.keys(items).sort((a, b) => b.length - a.length);
+
+	for (const code of sortedCodes) {
+		const itemValue = items[code]?.value || 0;
+		totals[code] = (totals[code] || 0) + itemValue;
+
+		if (code.includes(".")) {
+			const parentCode = code.substring(0, code.lastIndexOf("."));
+
+			if (items[parentCode]) {
+				totals[parentCode] = (totals[parentCode] || 0) + totals[code];
+			}
+		}
+	}
+
+	return totals;
+});
+
+export const hasInputs = computed(expenses, (items) => {
+	return Object.values(items).some((i) => i.value > 0);
 });
