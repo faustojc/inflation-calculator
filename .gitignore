@@ -25,3 +25,4 @@ dist-ssr
 
 info.md
 public/inflation_data.json
+generate-cpi.ts
