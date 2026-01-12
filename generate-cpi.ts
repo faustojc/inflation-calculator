@@ -15,7 +15,7 @@ interface CpiRecord {
 	v: number; // CPI Value
 }
 
-const START_YEAR = 2018;
+const START_YEAR = 1950;
 const END_YEAR = 2026;
 const CURRENT_MONTH = 1; // Jan 2026
 
