@@ -8,3 +8,17 @@ A personal inflation calculator for the Philippines.
 - Vite
 - React
 - Shadcn UI
+
+## How to Run
+
+```bash
+bun install
+bun run dev
+```
+
+## How to build
+
+```bash
+bun run build
+bun run preview
+```
