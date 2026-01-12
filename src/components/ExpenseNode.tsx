@@ -69,10 +69,10 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 						{node.example && (
 							<Popover>
 								<PopoverTrigger asChild>
-									<HelpCircle className="h-4 w-4 text-slate-400 hover:text-slate-600" />
+									<HelpCircle className="h-4 w-4 text-slate-400 hover:text-slate-600 cursor-pointer" />
 								</PopoverTrigger>
 								<PopoverContent>
-									<p className="text-xs">{node.example}</p>
+									<p className="text-sm">{node.example}</p>
 								</PopoverContent>
 							</Popover>
 						)}

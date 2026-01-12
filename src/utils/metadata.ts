@@ -105,7 +105,7 @@ export const INITIAL_CATEGORIES: CategoryDef[] = [
 	{ code: "07.3", name: "Passenger Transport Services", example: "e.g. jeepney, taxi, bus, train, airplane" },
 	{ code: "07.4", name: "Transport Services Of Goods", example: "e.g. delivery fee for ready-to-eat food, courier fee" },
 
-	{ code: "08", name: "Information And Communication", example: "e.g. computer, cellular phone, mobile phone load, internet access fee" },
+	{ code: "08", name: "Information And Communication" },
 	{ code: "08.1", name: "Information And Communication Equipment", example: "e.g. computer, cellular phone, mobile phone, tablet" },
 	{ code: "08.3", name: "Information And Communication Services", example: "e.g. internet access fee, mobile phone load, landline phone fee" },
 
@@ -116,8 +116,8 @@ export const INITIAL_CATEGORIES: CategoryDef[] = [
 	{ code: "09.4", name: "Recreational Services", example: "e.g. gym membership, swimming pool membership, zoo entrance fee" },
 	{ code: "09.5", name: "Cultural Goods", example: "e.g. books, magazines, CDs, DVDs, video games" },
 	{ code: "09.6", name: "Cultural Services", example: "e.g. movie ticket, concert ticket, museum entrance fee" },
-	{ code: "09.7", name: "Newspapers, Books And Stationery", example: "e.g. newspapers, books, stationery" },
-	{ code: "09.8", name: "Package Holidays (S)", example: "e.g. package holiday" },
+	{ code: "09.7", name: "Newspapers, Books And Stationery", example: "e.g. newspapers, books, stationery, ball pen, textbooks" },
+	{ code: "09.8", name: "Package Holidays (S)", example: "e.g. tour package" },
 
 	{ code: "10", name: "Education Services", example: "e.g. tuition fee" },
 	{ code: "10.1", name: "Early Childhood And Primary Education" },
