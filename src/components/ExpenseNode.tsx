@@ -1,13 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { highlightState, uiState, updateExpenseValue } from "@/stores/inflationStore";
+import { categoryTotals, highlightState, uiState, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { TreeNode } from "./ExpenseList";
 
 const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
+	const totals = useStore(categoryTotals);
 	const highlight = useStore(highlightState);
+
 	const inputRef = useRef<HTMLInputElement>(null);
 	const rowRef = useRef<HTMLDivElement>(null);
 
@@ -15,6 +17,7 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 
 	const hasChildren = node.children.length > 0;
 	const isMatch = highlight.code === node.code;
+	const displayValue = totals[node.code] || 0;
 
 	const [isOpen, setIsOpen] = useState(() => {
 		if (level < 1) return true;
@@ -72,26 +75,37 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 					</div>
 				</div>
 
-				<div className="w-30 relative">
-					<span className="absolute left-3 top-2.5 text-muted-foreground text-xs font-bold">{mode === "percent" ? "%" : "₱"}</span>
-					<Input
-						ref={inputRef}
-						type="number"
-						className={`
-							h-9 pl-3 text-right font-mono text-sm transition-all
-							${
-								isMatch
-									? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-950 scale-105"
-									: node.value > 0
-									? "bg-blue-50 border-blue-200 dark:bg-blue-900/20"
-									: "bg-transparent border-transparent hover:border-slate-200"
-							}
-						`}
-						placeholder="-"
-						value={node.value || ""}
-						min={0}
-						onChange={(e) => updateExpenseValue(node.id, Number.parseFloat(e.target.value) || 0)}
-					/>
+				<div className="w-32 relative">
+					<span className={`absolute left-3 top-2.5 text-xs font-bold ${hasChildren ? "text-slate-400" : "text-muted-foreground"}`}>
+						{mode === "percent" ? "%" : "₱"}
+					</span>
+
+					{hasChildren ? (
+						// PARENT: Read from O(1) computed store
+						<div className="h-9 pl-3 pr-3 flex items-center justify-end text-sm font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100/50 dark:bg-slate-800/50 rounded-md border border-transparent">
+							{displayValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+						</div>
+					) : (
+						// LEAF: Updates store
+						<Input
+							ref={inputRef}
+							type="number"
+							className={`
+								h-9 pl-3 text-right font-mono text-sm transition-all
+								${
+									isMatch
+										? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-950 scale-105"
+										: node.value > 0
+										? "bg-blue-50 border-blue-200 dark:bg-blue-900/20"
+										: "bg-transparent border-transparent hover:border-slate-200"
+								}
+							`}
+							placeholder="-"
+							value={node.value || ""}
+							min={0}
+							onChange={(e) => updateExpenseValue(node.id, Number.parseFloat(e.target.value) || 0)}
+						/>
+					)}
 				</div>
 			</div>
 
