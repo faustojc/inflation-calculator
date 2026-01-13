@@ -39,15 +39,9 @@ export default function App() {
 
 			const result = calculatePersonalInflation(
 				items,
-				appSettings.region,
-				startYear,
-				startMonth,
-				endYear,
-				endMonth,
-				ui.mode,
-				ui.totalBudget,
-				undefined,
-				appSettings.incomeClass,
+				{ regionCode: appSettings.region },
+				{ startYear, startMonth, endYear, endMonth },
+				{ mode: ui.mode, totalBudget: ui.totalBudget },
 				rawMap
 			);
 

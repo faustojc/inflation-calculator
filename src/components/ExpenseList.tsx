@@ -1,5 +1,5 @@
 import { type ExpenseItem } from "@/stores/inflationStore";
-import { INITIAL_CATEGORIES } from "@/utils/metadata";
+import { COMMODITIES } from "@/utils/metadata";
 import { useMemo } from "react";
 import ExpenseNode from "./ExpenseNode";
 
@@ -13,7 +13,7 @@ function buildTree(items: ExpenseItem[]): TreeNode[] {
 
 	const nodeMap = new Map<string, TreeNode>();
 	const roots: TreeNode[] = [];
-	const staticCodes = new Set(INITIAL_CATEGORIES.map((c) => c.code));
+	const staticCodes = new Set(COMMODITIES.map((c) => c.code));
 
 	sorted.forEach((item) => {
 		nodeMap.set(item.code, {

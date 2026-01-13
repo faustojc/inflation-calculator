@@ -81,12 +81,10 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 					</span>
 
 					{hasChildren ? (
-						// PARENT: Read from O(1) computed store
 						<div className="h-9 pl-3 pr-3 flex items-center justify-end text-sm font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100/50 dark:bg-slate-800/50 rounded-md border border-transparent">
 							{displayValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
 						</div>
 					) : (
-						// LEAF: Updates store
 						<Input
 							ref={inputRef}
 							type="number"

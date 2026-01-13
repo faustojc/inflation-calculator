@@ -1,4 +1,4 @@
-import { INITIAL_CATEGORIES } from "@/utils/metadata";
+import { COMMODITIES } from "@/utils/metadata";
 import { computed, map } from "nanostores";
 
 export type ExpenseItem = {
@@ -62,7 +62,7 @@ export function locateCategory(searchCode: string, searchName: string) {
 	let bestMatch = null;
 	let maxLen = -1;
 
-	for (const cat of INITIAL_CATEGORIES) {
+	for (const cat of COMMODITIES) {
 		if (searchCode.startsWith(cat.code)) {
 			if (cat.code.length > maxLen) {
 				maxLen = cat.code.length;
@@ -85,7 +85,7 @@ export function locateCategory(searchCode: string, searchName: string) {
 
 const initialExpenses: Record<string, ExpenseItem> = {};
 
-INITIAL_CATEGORIES.forEach((item) => {
+COMMODITIES.forEach((item) => {
 	const id = item.code;
 	initialExpenses[id] = {
 		id,
@@ -117,7 +117,7 @@ export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: n
 
 export function removeExpense(id: string) {
 	const current = expenses.get();
-	const isInitial = INITIAL_CATEGORIES.some((c) => c.code === current[id]?.code);
+	const isInitial = COMMODITIES.some((c) => c.code === current[id]?.code);
 
 	if (isInitial) {
 		updateExpenseValue(id, 0);
@@ -143,7 +143,7 @@ export function clearExpenses() {
 
 	Object.entries(resetExpense).forEach((key) => {
 		const [id, item] = key;
-		if (INITIAL_CATEGORIES.some((c) => c.code === item.code)) {
+		if (COMMODITIES.some((c) => c.code === item.code)) {
 			resetExpense[id] = { ...item, value: 0 };
 		} else {
 			delete resetExpense[id];
