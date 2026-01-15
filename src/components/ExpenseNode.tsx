@@ -81,12 +81,12 @@ const ExpenseNode = ({ node, level }: { node: ConfigNode; level: number }) => {
 				</div>
 
 				<div className="w-32 relative">
-					<span className={`absolute left-3 top-2.5 text-xs font-bold ${hasChildren ? "text-slate-400" : "text-muted-foreground"}`}>
-						{mode === "percent" ? "%" : "₱"}
+					<span className={`absolute left-3 top-2.5 text-xs font-bold ${hasChildren ? "text-slate-900" : "text-muted-foreground"}`}>
+						{hasChildren ? "=" : mode === "percent" ? "%" : "₱"}
 					</span>
 
 					{hasChildren ? (
-						<div className="h-9 pl-3 pr-3 flex items-center justify-end text-sm font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100/50 dark:bg-slate-800/50 rounded-md border border-transparent">
+						<div className="h-9 pl-3 pr-3 flex items-center justify-end text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100/50 dark:bg-slate-800/50">
 							{displayValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
 						</div>
 					) : (

@@ -192,20 +192,7 @@ export function removeExpense(id: string) {
 }
 
 export function clearExpenses() {
-	if (!hasInputs.get()) return;
-
-	const { commodities } = dataStore.get();
-	const resetExpense = { ...expenses.get() };
-
-	Object.entries(resetExpense).forEach(([id, item]) => {
-		if (commodities.some((c) => c.code === item.code)) {
-			resetExpense[id] = { ...item, value: 0 };
-		} else {
-			delete resetExpense[id];
-		}
-	});
-
-	expenses.set(resetExpense);
+	expenses.set({});
 }
 
 export const totalAllocation = computed(expenses, (items) => {
@@ -260,8 +247,4 @@ export const categoryTotals = computed([expenses, dataStore], (items, data) => {
 	}
 
 	return totals;
-});
-
-export const hasInputs = computed(expenses, (items) => {
-	return Object.values(items).some((i) => i.value > 0);
 });
