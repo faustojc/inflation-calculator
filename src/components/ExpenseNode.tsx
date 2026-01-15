@@ -55,11 +55,11 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 				</button>
 
 				<div className="flex-1 flex flex-col justify-center">
-					<div className="flex flex-wrap items-center gap-2">
+					<div className="flex items-center gap-2">
 						<Badge variant="outline" className="font-mono text-[10px] text-muted-foreground h-5 px-1 bg-white dark:bg-slate-950">
 							{node.code}
 						</Badge>
-						<span className={`text-sm ${level === 0 ? "font-bold" : "font-medium"}`}>{node.name}</span>
+						<span className={`text-sm text-left ${level === 0 ? "font-bold" : "font-normal"}`}>{node.name}</span>
 
 						{isMatch && (
 							<span className="text-xs font-bold text-blue-600 dark:text-blue-400 animate-in fade-in slide-in-from-left-2">

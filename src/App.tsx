@@ -31,6 +31,7 @@ export default function App() {
 
 	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
 	const appSettings = useStore(settings);
+	const ui = useStore(uiState);
 
 	const itemsMap = useStore(expenses);
 	const items = Object.values(itemsMap);
@@ -157,10 +158,12 @@ export default function App() {
 						<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
 							<div className="mb-4 flex justify-between items-center">
 								<div>
-									<h2 className="font-bold text-lg">Standard Basket</h2>
-									<p className="text-sm text-muted-foreground">13 Major Commodity Groups</p>
+									<h2 className="font-bold text-lg">General Commodities</h2>
+									<p className="text-sm text-muted-foreground">13 General Commodity Groups</p>
 								</div>
-								<div className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</div>
+								{ui.mode === "amount" && (
+									<div className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</div>
+								)}
 							</div>
 							<GeneralTab />
 						</div>
@@ -184,8 +187,8 @@ export default function App() {
 						<div className="bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
 							<div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50 rounded-t-xl">
 								<div>
-									<h2 className="font-bold text-base">Detailed Basket</h2>
-									<p className="text-xs text-muted-foreground">Expand categories to add expenses</p>
+									<h2 className="font-bold text-base">Detailed Commodities</h2>
+									<p className="text-xs text-muted-foreground">Expand commodities to add expenses</p>
 								</div>
 								<div className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</div>
 							</div>
