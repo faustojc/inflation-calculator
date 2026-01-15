@@ -6,6 +6,7 @@ export type ExpenseItem = {
 	code: string;
 	name: string;
 	value: number;
+	example?: string;
 };
 
 export type AppSettings = {
