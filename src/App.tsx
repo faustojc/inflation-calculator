@@ -172,9 +172,9 @@ export default function App() {
 					<TabsContent value="detailed" className="space-y-6">
 						<div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
 							<div className="mb-2">
-								<h2 className="font-bold text-lg">Find & Edit Expenses</h2>
+								<h2 className="font-bold text-lg">Find and Input Expenses</h2>
 								<p className="text-sm text-muted-foreground">
-									Search for specific items (e.g. "Rice", "Electricity") to locate them in the basket.
+									Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.
 								</p>
 							</div>
 							<SmartSearch
@@ -184,8 +184,8 @@ export default function App() {
 							/>
 						</div>
 
-						<div className="bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-							<div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50 rounded-t-xl">
+						<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+							<div className="p-4 border-b flex justify-between items-center">
 								<div>
 									<h2 className="font-bold text-base">Detailed Commodities</h2>
 									<p className="text-xs text-muted-foreground">Expand commodities to add expenses</p>
