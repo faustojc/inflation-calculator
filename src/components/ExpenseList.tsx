@@ -1,13 +1,25 @@
-import { commodityTree } from "@/stores/dataStore";
+import { COMMODITY_DISPLAY_CONFIG, type ConfigNode, type UICommodity } from "@/config/commodityDisplay";
+import { expenses, type ExpenseItem } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import ExpenseNode from "./ExpenseNode";
 
-export function ExpenseList() {
-	const tree = useStore(commodityTree);
+function mapConfigToNode(config: UICommodity, userExpenses: Record<string, ExpenseItem>): ConfigNode {
+	const userItem = userExpenses[config.code];
+	const value = userItem ? userItem.value : 0;
 
-	if (tree.length === 0) {
-		return <div className="p-8 text-center text-muted-foreground border rounded-xl border-dashed">Loading categories...</div>;
-	}
+	return {
+		code: config.code,
+		name: config.label || "Unknown Category",
+		description: config.description,
+		value: value,
+		id: config.code,
+		children: config.children ? config.children.map((c) => mapConfigToNode(c, userExpenses)) : [],
+		depth: config.code.split(".").length,
+	};
+}
+
+export function ExpenseList() {
+	const userExpenses = useStore(expenses);
 
 	return (
 		<div className="bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
@@ -16,8 +28,8 @@ export function ExpenseList() {
 				<span>Expense</span>
 			</div>
 			<div className="pb-2">
-				{tree.map((node) => (
-					<ExpenseNode key={node.code} node={node} level={0} />
+				{COMMODITY_DISPLAY_CONFIG.map((config) => (
+					<ExpenseNode key={config.code} node={mapConfigToNode(config, userExpenses)} level={0} />
 				))}
 			</div>
 		</div>

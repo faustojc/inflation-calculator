@@ -1,3 +1,4 @@
+import { COMMODITY_DISPLAY_CONFIG, type UICommodity } from "@/config/commodityDisplay";
 import { dataStore } from "@/stores/dataStore";
 import { computed, map } from "nanostores";
 
@@ -50,6 +51,24 @@ export const highlightState = map<HighlightState>({
 export const expenses = map<Record<string, ExpenseItem>>({});
 export const expandedNodes = map<Record<string, boolean>>({});
 
+// for fast lookup of parent nodes
+const uiParentIndex = new Map<string, string | null>();
+(() => {
+	const stack: { node: UICommodity; parent: string | null }[] = COMMODITY_DISPLAY_CONFIG.map((node) => ({ node, parent: null }));
+
+	while (stack.length > 0) {
+		const { node, parent } = stack.pop()!;
+
+		uiParentIndex.set(node.code, parent);
+
+		if (node.children) {
+			for (const child of node.children) {
+				stack.push({ node: child, parent: node.code });
+			}
+		}
+	}
+})();
+
 export function initializeExpenses() {
 	const { commodities } = dataStore.get();
 
@@ -83,40 +102,40 @@ export function setTotalBudget(amount: number) {
 }
 
 export function locateCategory(searchCode: string, searchName: string) {
-	const { commodities } = dataStore.get();
+	let currentCode = searchCode;
 
-	let bestMatch = null;
-	let maxLen = -1;
-
-	for (const cat of commodities) {
-		if (searchCode.startsWith(cat.code)) {
-			if (cat.code.length > maxLen) {
-				maxLen = cat.code.length;
-				bestMatch = cat;
-			}
-		}
+	while (currentCode.length > 0 && !uiParentIndex.has(currentCode)) {
+		const lastDot = currentCode.lastIndexOf(".");
+		if (lastDot === -1) break; // No more parents
+		currentCode = currentCode.substring(0, lastDot);
 	}
 
-	if (bestMatch) {
-		highlightState.set({ code: bestMatch.code, label: searchName });
+	if (uiParentIndex.has(currentCode)) {
+		const foundCode = currentCode;
 
-		const updates: Record<string, boolean> = { ...expandedNodes.get() };
-		let currentCode = bestMatch.code;
+		// Backtracking using Parent Map
+		// Node -> Parent -> Grandparent
+		const path: string[] = [];
+		let ptr = uiParentIndex.get(foundCode);
 
-		while (currentCode.includes(".")) {
-			const parts = currentCode.split(".");
-			parts.pop();
-			currentCode = parts.join(".");
-			updates[currentCode] = true;
+		while (ptr) {
+			path.push(ptr);
+			ptr = uiParentIndex.get(ptr) || null;
 		}
 
+		const updates = { ...expandedNodes.get() };
+		path.forEach((code) => {
+			updates[code] = true;
+		});
+
 		expandedNodes.set(updates);
+		highlightState.set({ code: foundCode, label: searchName });
 
 		setTimeout(() => {
 			highlightState.set({ code: "", label: "" });
-		}, 5000);
+		}, 4000);
 	} else {
-		console.warn("No matching category found for", searchName);
+		console.warn("Item not found in UI Config:", searchName);
 	}
 }
 

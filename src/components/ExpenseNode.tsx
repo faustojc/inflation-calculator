@@ -1,12 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import type { TreeNode } from "@/stores/dataStore";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { ConfigNode } from "@/config/commodityDisplay";
 import { categoryTotals, expandedNodes, highlightState, toggleExpansion, uiState, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
+const ExpenseNode = ({ node, level }: { node: ConfigNode; level: number }) => {
 	const highlight = useStore(highlightState);
 	const { mode } = useStore(uiState);
 	const totals = useStore(categoryTotals);
@@ -59,6 +60,16 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 						<Badge variant="outline" className="font-mono text-[10px] text-muted-foreground h-5 px-1 bg-white dark:bg-slate-950">
 							{node.code}
 						</Badge>
+						{node.description && (
+							<Popover>
+								<PopoverTrigger asChild>
+									<InfoIcon className="h-5 w-5 text-blue-600 cursor-pointer" />
+								</PopoverTrigger>
+								<PopoverContent className="w-72 p-1">
+									<p className="text-sm text-muted-foreground">{node.description}</p>
+								</PopoverContent>
+							</Popover>
+						)}
 						<span className={`text-sm text-left ${level === 0 ? "font-bold" : "font-normal"}`}>{node.name}</span>
 
 						{isMatch && (
