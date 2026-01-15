@@ -24,5 +24,8 @@ dist-ssr
 *.sw?
 
 info.md
-public/inflation_data.json
-generate-cpi.ts
+.env
+cpi-database.db
+cpi-database.db-info
+cpi-database.db-shm
+cpi-database.db-wal
