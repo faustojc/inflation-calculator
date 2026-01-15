@@ -5,22 +5,14 @@ import { useStore } from "@nanostores/react";
 import { AlertTriangle, Calculator, Info, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import CalculationFooter from "@/components/CalculationFooter";
 import ExpenseList from "@/components/ExpenseList";
 import { GeneralTab } from "@/components/GeneralTab";
 import ResultsDrawer from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataStore, getCalculationData, initializeApp } from "@/stores/dataStore";
-import {
-	clearExpenses,
-	expenses,
-	initializeExpenses,
-	isCalculationDisabled,
-	locateCategory,
-	settings,
-	totalDisplayLabel,
-	uiState,
-} from "@/stores/inflationStore";
+import { clearExpenses, expenses, initializeExpenses, isCalculationDisabled, locateCategory, settings, uiState } from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
 
 export default function App() {
@@ -31,22 +23,14 @@ export default function App() {
 
 	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
 	const appSettings = useStore(settings);
-	const ui = useStore(uiState);
 
 	const itemsMap = useStore(expenses);
 	const items = Object.values(itemsMap);
 	const isDisabled = useStore(isCalculationDisabled);
-	const totalBadge = useStore(totalDisplayLabel);
 
 	useEffect(() => {
-		initializeApp();
+		initializeApp().then(() => initializeExpenses());
 	}, []);
-
-	useEffect(() => {
-		if (commodities.length > 0) {
-			initializeExpenses();
-		}
-	}, [commodities]);
 
 	const handleCalculate = async () => {
 		setErrorMsg(null);
@@ -118,7 +102,7 @@ export default function App() {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-32">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-52">
 			<header className="bg-white dark:bg-slate-900 border-b px-4 py-4 sticky top-0 z-20 shadow-sm">
 				<div className="max-w-3xl mx-auto flex justify-between items-center">
 					<div className="flex items-center gap-2">
@@ -161,9 +145,6 @@ export default function App() {
 									<h2 className="font-bold text-lg">General Commodities</h2>
 									<p className="text-sm text-muted-foreground">13 General Commodity Groups</p>
 								</div>
-								{ui.mode === "amount" && (
-									<div className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</div>
-								)}
 							</div>
 							<GeneralTab />
 						</div>
@@ -190,7 +171,6 @@ export default function App() {
 									<h2 className="font-bold text-base">Detailed Commodities</h2>
 									<p className="text-xs text-muted-foreground">Expand commodities to add expenses</p>
 								</div>
-								<div className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</div>
 							</div>
 							<ExpenseList />
 						</div>
@@ -200,6 +180,7 @@ export default function App() {
 
 			<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 transition-all">
 				<div className="max-w-3xl mx-auto">
+					<CalculationFooter />
 					<Button
 						size="lg"
 						onClick={handleCalculate}
