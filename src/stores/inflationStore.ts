@@ -12,6 +12,7 @@ export type ExpenseItem = {
 
 export type AppSettings = {
 	region: string;
+	province?: string;
 	incomeClass: "all" | "bottom30";
 	startDate: Date;
 	endDate: Date;
@@ -33,6 +34,7 @@ lastYear.setFullYear(today.getFullYear() - 1);
 
 export const settings = map<AppSettings>({
 	region: "NCR",
+	province: "Manila, Metro (NCR)",
 	incomeClass: "all",
 	startDate: lastYear,
 	endDate: today,
@@ -183,12 +185,13 @@ export const totalAllocation = computed(expenses, (items) => {
 });
 
 export const isCalculationDisabled = computed([expenses, uiState, totalAllocation], (items, ui, total) => {
-	if (ui.mode === "percent" && (ui.totalBudget <= 0 || Number.isNaN(ui.totalBudget))) return true;
-	if (ui.mode === "amount" && ui.totalBudget <= 0) return true;
-
 	const hasExpense = Object.values(items).some((i) => i.value > 0);
 	if (!hasExpense) return true;
-	if (ui.mode === "percent" && total > 100) return true;
+
+	if (ui.mode === "percent") {
+		if (ui.totalBudget <= 0 || Number.isNaN(ui.totalBudget)) return true;
+		if (total > 100.01) return true;
+	}
 
 	return false;
 });

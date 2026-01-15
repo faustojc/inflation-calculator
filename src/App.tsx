@@ -1,28 +1,26 @@
 import { GlobalControls } from "@/components/GlobalControls";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@nanostores/react";
-import { AlertTriangle, Calculator, Info, Loader2 } from "lucide-react";
+import { AlertTriangle, Calculator, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import CalculationFooter from "@/components/CalculationFooter";
 import ExpenseList from "@/components/ExpenseList";
 import { GeneralTab } from "@/components/GeneralTab";
-import ResultsDrawer from "@/components/ResultsDrawer";
+import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataStore, getCalculationData, initializeApp } from "@/stores/dataStore";
 import { clearExpenses, expenses, initializeExpenses, isCalculationDisabled, locateCategory, settings, uiState } from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
+import { toast } from "sonner";
 
 export default function App() {
 	const [isCalculating, setIsCalculating] = useState(false);
 	const [showResults, setShowResults] = useState(false);
 	const [calculationData, setCalculationData] = useState<CalculationResult | null>(null);
-	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
 	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
-	const appSettings = useStore(settings);
 
 	const itemsMap = useStore(expenses);
 	const items = Object.values(itemsMap);
@@ -33,7 +31,6 @@ export default function App() {
 	}, []);
 
 	const handleCalculate = async () => {
-		setErrorMsg(null);
 		setIsCalculating(true);
 
 		try {
@@ -43,36 +40,48 @@ export default function App() {
 
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
-			const activeProvince = undefined;
+			const activeProvince = currentSettings.province;
+			const userDate = currentSettings.startDate;
+
+			const endYear = userDate.getFullYear();
+			const endMonth = userDate.getMonth() + 1;
+			const startYear = endYear - 1;
+			const startMonth = endMonth;
 
 			const dates = {
-				startYear: currentSettings.startDate.getFullYear(),
-				startMonth: currentSettings.startDate.getMonth() + 1,
-				endYear: currentSettings.endDate.getFullYear(),
-				endMonth: currentSettings.endDate.getMonth() + 1,
+				startYear,
+				startMonth,
+				endYear,
+				endMonth,
 			};
 
 			const batchMap = await getCalculationData(currentSettings.region, activeProvince, dates, activeCodes);
 			const result = calculatePersonalInflation(
 				items,
-				{ regionCode: currentSettings.region, areaCode: activeProvince, incomeClass: currentSettings.incomeClass },
+				{ regionCode: currentSettings.region, provinceName: activeProvince },
 				dates,
 				{ mode: currentUi.mode, totalBudget: currentUi.totalBudget },
 				batchMap
 			);
 
-			if (result?.error) {
-				setErrorMsg(result.error);
-			} else if (result) {
-				setCalculationData(result);
-				setShowResults(true);
+			if (result) {
+				if (result.missingItems && result.missingItems.length > 0) {
+					const missingList = result.missingItems.slice(0, 3).join(", ");
+					const suffix = result.missingItems.length > 3 ? "..." : "";
+
+					toast.error(`Cannot calculate: Historical data missing for ${missingList}${suffix}. Please remove these items or choose a different date.`);
+					// Don't show results drawer
+				} else {
+					setCalculationData(result);
+					setShowResults(true);
+				}
 			} else {
-				setErrorMsg("Calculation yielded no results. Please check data availability.");
+				toast.error("Calculation failed. Please check inputs.");
 			}
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			console.error(err);
-			setErrorMsg(err.message || "Calculation failed.");
+			toast.error(err.message || "Calculation failed.");
 		} finally {
 			setIsCalculating(false);
 		}
@@ -119,14 +128,6 @@ export default function App() {
 
 			<main className="max-w-3xl mx-auto p-4 space-y-6 mt-4">
 				<GlobalControls />
-
-				{errorMsg && (
-					<Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
-						<Info className="h-4 w-4" />
-						<AlertTitle>Calculation Issue</AlertTitle>
-						<AlertDescription>{errorMsg}</AlertDescription>
-					</Alert>
-				)}
 
 				<Tabs defaultValue="general" className="w-full">
 					<TabsList className="grid w-full grid-cols-2 mb-6">
@@ -199,12 +200,7 @@ export default function App() {
 				</div>
 			</div>
 
-			<ResultsDrawer
-				open={showResults}
-				onOpenChange={setShowResults}
-				data={calculationData}
-				dates={{ start: appSettings.startDate, end: appSettings.endDate }}
-			/>
+			<ResultsDrawer open={showResults} onOpenChange={setShowResults} data={calculationData} />
 		</div>
 	);
 }

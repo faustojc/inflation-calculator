@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,8 @@ export function GlobalControls() {
 	const [openYear, setOpenYear] = useState(false);
 
 	const [selectedProvince, setSelectedProvince] = useState<string>(() => {
+		if (appSettings.province) return appSettings.province;
+
 		if (appSettings.region && provinces.length > 0) {
 			const match = provinces.find((p) => p.region_code === appSettings.region);
 			if (match) {
@@ -39,10 +42,13 @@ export function GlobalControls() {
 
 	const handleProvinceSelect = (provName: string) => {
 		const match = provinces.find((p) => p.name === provName);
-
 		if (match) {
 			setSelectedProvince(provName);
-			updateSetting("region", match.region_code);
+
+			settings.setKey("region", match.region_code);
+			settings.setKey("province", provName);
+
+			// fetchCpiData(match.region_code, provName);
 		}
 		setOpenProvince(false);
 	};
@@ -60,7 +66,10 @@ export function GlobalControls() {
 		setOpenYear(false);
 	};
 
-	const targetDateStr = appSettings.endDate.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+	const previousDate = new Date(appSettings.startDate);
+	previousDate.setFullYear(appSettings.startDate.getFullYear() - 1);
+
+	const previousDateStr = previousDate.toLocaleDateString("en-US", { month: "short", year: "numeric" });
 
 	return (
 		<div className="grid gap-6 p-5 border rounded-xl bg-card text-card-foreground shadow-sm mb-6">
@@ -119,11 +128,9 @@ export function GlobalControls() {
 			<div className="space-y-2">
 				<div className="flex justify-between items-center">
 					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
-						<CalendarIcon className="h-3.5 w-3.5" /> Compare Date Against
+						<CalendarIcon className="h-3.5 w-3.5" /> Select Period
 					</Label>
-					<span className="text-[10px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full text-slate-600 dark:text-slate-400 flex items-center gap-1">
-						Comparing against: {targetDateStr}
-					</span>
+					<Badge>Compare to {previousDateStr}</Badge>
 				</div>
 
 				<div className="flex gap-4">
