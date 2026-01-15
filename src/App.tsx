@@ -2,7 +2,7 @@ import { GlobalControls } from "@/components/GlobalControls";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@nanostores/react";
-import { Calculator, Info, Loader2 } from "lucide-react";
+import { AlertTriangle, Calculator, Info, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import ExpenseList from "@/components/ExpenseList";
@@ -10,76 +10,110 @@ import { GeneralTab } from "@/components/GeneralTab";
 import ResultsDrawer from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { dataStore, initializeData } from "@/stores/dataStore";
-import { clearExpenses, expenses, isCalculationDisabled, locateCategory, settings, totalDisplayLabel, uiState } from "@/stores/inflationStore";
+import { dataStore, getCalculationData, initializeApp } from "@/stores/dataStore";
+import {
+	clearExpenses,
+	expenses,
+	initializeExpenses,
+	isCalculationDisabled,
+	locateCategory,
+	settings,
+	totalDisplayLabel,
+	uiState,
+} from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
 
 export default function App() {
+	const [isCalculating, setIsCalculating] = useState(false);
 	const [showResults, setShowResults] = useState(false);
 	const [calculationData, setCalculationData] = useState<CalculationResult | null>(null);
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
+	const appSettings = useStore(settings);
+
 	const itemsMap = useStore(expenses);
 	const items = Object.values(itemsMap);
-	const appSettings = useStore(settings);
 	const isDisabled = useStore(isCalculationDisabled);
 	const totalBadge = useStore(totalDisplayLabel);
-	const ui = useStore(uiState);
 
-	const { isLoading, error, rawMap } = useStore(dataStore);
+	useEffect(() => {
+		initializeApp();
+	}, []);
+
+	useEffect(() => {
+		if (commodities.length > 0) {
+			initializeExpenses();
+		}
+	}, [commodities]);
 
 	const handleCalculate = async () => {
 		setErrorMsg(null);
+		setIsCalculating(true);
 
 		try {
-			const startYear = appSettings.startDate.getFullYear();
-			const startMonth = appSettings.startDate.getMonth() + 1;
-			const endYear = appSettings.endDate.getFullYear();
-			const endMonth = appSettings.endDate.getMonth() + 1;
+			const currentSettings = settings.get();
+			const currentUi = uiState.get();
+			const activeCodes = items.filter((i) => i.value > 0).map((i) => i.code);
 
+			if (activeCodes.length === 0) throw new Error("No expenses entered.");
+
+			const activeProvince = undefined;
+
+			const dates = {
+				startYear: currentSettings.startDate.getFullYear(),
+				startMonth: currentSettings.startDate.getMonth() + 1,
+				endYear: currentSettings.endDate.getFullYear(),
+				endMonth: currentSettings.endDate.getMonth() + 1,
+			};
+
+			const batchMap = await getCalculationData(currentSettings.region, activeProvince, dates, activeCodes);
 			const result = calculatePersonalInflation(
 				items,
-				appSettings.region,
-				startYear,
-				startMonth,
-				endYear,
-				endMonth,
-				ui.mode,
-				ui.totalBudget,
-				undefined,
-				appSettings.incomeClass,
-				rawMap
+				{ regionCode: currentSettings.region, areaCode: activeProvince, incomeClass: currentSettings.incomeClass },
+				dates,
+				{ mode: currentUi.mode, totalBudget: currentUi.totalBudget },
+				batchMap
 			);
 
-			if (result) {
-				setErrorMsg(null);
+			if (result?.error) {
+				setErrorMsg(result.error);
+			} else if (result) {
 				setCalculationData(result);
 				setShowResults(true);
 			} else {
-				setErrorMsg("No CPI data found for the selected period. Please try again later.");
+				setErrorMsg("Calculation yielded no results. Please check data availability.");
 			}
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
-			setErrorMsg(err.message || "An unexpected error occurred");
+			console.error(err);
+			setErrorMsg(err.message || "Calculation failed.");
+		} finally {
+			setIsCalculating(false);
 		}
 	};
 
-	useEffect(() => {
-		initializeData();
-	}, []);
-
-	if (isLoading) {
+	if (isLoading || !isReady || commodities.length === 0) {
 		return (
-			<div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50">
+			<div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 font-sans">
 				<Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
-				<h1 className="font-bold text-lg text-slate-700">Loading PSA Data...</h1>
-				<p className="text-sm text-slate-500">Downloading current inflation indices</p>
+				<h1 className="font-bold text-lg text-slate-700 dark:text-slate-300">Initializing Calculator...</h1>
+				<p className="text-sm text-slate-500">Loading PSA Data</p>
 			</div>
 		);
 	}
 
-	if (error) {
-		return <div className="p-10 text-red-500">Error: {error}</div>;
+	if (dataError) {
+		return (
+			<div className="min-h-screen flex flex-col items-center justify-center p-4">
+				<AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
+				<h2 className="text-xl font-bold">Service Unavailable</h2>
+				<p className="text-muted-foreground mt-2">{dataError}</p>
+				<Button onClick={() => initializeApp()} className="mt-6">
+					Retry
+				</Button>
+			</div>
+		);
 	}
 
 	return (
@@ -95,26 +129,16 @@ export default function App() {
 							<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Personal CPI</p>
 						</div>
 					</div>
-					<div className="text-right hidden sm:block">
-						<p className="text-xs text-muted-foreground">Region: {appSettings.region}</p>
-						<p className="text-xs text-muted-foreground">
-							{new Date(appSettings.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-							{" - "}
-							{new Date(appSettings.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-						</p>
-					</div>
 				</div>
 			</header>
 
 			<main className="max-w-3xl mx-auto p-4 space-y-6 mt-4">
-				<section>
-					<GlobalControls />
-				</section>
+				<GlobalControls />
 
 				{errorMsg && (
-					<Alert variant="destructive" className="animate-in fade-in slide-in-from-bottom-2">
+					<Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2">
 						<Info className="h-4 w-4" />
-						<AlertTitle>Calculation Error</AlertTitle>
+						<AlertTitle>Calculation Issue</AlertTitle>
 						<AlertDescription>{errorMsg}</AlertDescription>
 					</Alert>
 				)}
@@ -129,47 +153,64 @@ export default function App() {
 						</TabsTrigger>
 					</TabsList>
 
-					{/* GENERAL */}
 					<TabsContent value="general">
-						<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border">
-							<div className="mb-4">
-								<h2 className="font-bold text-lg">Standard Expenses</h2>
-								<p className="text-sm text-muted-foreground">Fill in your spending for the 13 major groups.</p>
+						<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+							<div className="mb-4 flex justify-between items-center">
+								<div>
+									<h2 className="font-bold text-lg">Standard Basket</h2>
+									<p className="text-sm text-muted-foreground">13 Major Commodity Groups</p>
+								</div>
+								<div className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</div>
 							</div>
 							<GeneralTab />
 						</div>
 					</TabsContent>
 
-					{/* DETAILED */}
-					<TabsContent value="detailed">
-						<div className="space-y-6">
-							<section className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border">
-								<div className="mb-4">
-									<h2 className="font-bold text-lg">Find & Edit Expenses</h2>
-									<p className="text-sm text-muted-foreground">
-										Search for items (e.g. "Rice", "Electricity") to find which category they belong to.
-									</p>
-								</div>
-								<SmartSearch onSelect={(item) => locateCategory(item.categoryCode, item.name)} />
-							</section>
+					<TabsContent value="detailed" className="space-y-6">
+						<div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
+							<div className="mb-2">
+								<h2 className="font-bold text-lg">Find & Edit Expenses</h2>
+								<p className="text-sm text-muted-foreground">
+									Search for specific items (e.g. "Rice", "Electricity") to locate them in the basket.
+								</p>
+							</div>
+							<SmartSearch
+								onSelect={(item) => {
+									locateCategory(item.categoryCode, item.name);
+								}}
+							/>
+						</div>
 
-							<section>
-								<div className="flex justify-between items-end px-1 mb-2">
-									<h2 className="font-bold text-lg">Expenses</h2>
-									<span className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</span>
+						<div className="bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+							<div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50 rounded-t-xl">
+								<div>
+									<h2 className="font-bold text-base">Detailed Basket</h2>
+									<p className="text-xs text-muted-foreground">Expand categories to add expenses</p>
 								</div>
-
-								<ExpenseList items={items} />
-							</section>
+								<div className={`text-xs font-bold px-3 py-1.5 rounded-full border ${totalBadge.colorClass}`}>{totalBadge.text}</div>
+							</div>
+							<ExpenseList />
 						</div>
 					</TabsContent>
 				</Tabs>
 			</main>
 
-			<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t z-10">
+			<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 transition-all">
 				<div className="max-w-3xl mx-auto">
-					<Button size="lg" onClick={handleCalculate} disabled={isDisabled} className="w-full text-base font-bold h-12 shadow-lg">
-						Calculate Personal Rate
+					<Button
+						size="lg"
+						onClick={handleCalculate}
+						disabled={isCalculating || isDisabled}
+						className="w-full text-base font-bold h-12 shadow-xl transition-all active:scale-[0.98]"
+					>
+						{isCalculating ? (
+							<>
+								<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+								Calculating your inflation rate...
+							</>
+						) : (
+							"Calculate Personal Rate"
+						)}
 					</Button>
 				</div>
 			</div>

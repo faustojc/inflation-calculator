@@ -29,5 +29,5 @@
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": false
 	},
-	"include": ["src", "generate-cpi.ts"]
+	"include": ["src"]
 }

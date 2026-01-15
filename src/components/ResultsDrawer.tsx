@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { CalculationResult } from "@/utils/inflationCompute";
 import { format } from "date-fns";
 import { ArrowDown, ArrowRight, CheckCircle2, HelpCircle, MapPin, TrendingUp } from "lucide-react";
-import { Separator } from "./ui/separator";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 interface ResultsDrawerProps {
 	open: boolean;
@@ -17,7 +17,7 @@ interface ResultsDrawerProps {
 const ResultsDrawer = ({ open, onOpenChange, data, dates }: Readonly<ResultsDrawerProps>) => {
 	if (!data) return null;
 
-	const isHigh = data.personalRate > 4;
+	const isHigh = data.personalInflationRate > 4;
 	const difference = data.totalCurrentSpend - data.totalPreviousSpend;
 
 	const fmtMoney = (n: number) => `₱${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -35,7 +35,7 @@ const ResultsDrawer = ({ open, onOpenChange, data, dates }: Readonly<ResultsDraw
 							</span>
 							<span>•</span>
 							<span className="flex items-center gap-1">
-								<MapPin className="h-3 w-3" /> {data.meta.region}
+								<MapPin className="h-3 w-3" /> {data.meta.location.regionCode}
 							</span>
 						</DrawerDescription>
 					</DrawerHeader>
@@ -53,7 +53,7 @@ const ResultsDrawer = ({ open, onOpenChange, data, dates }: Readonly<ResultsDraw
 									${isHigh ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}
 								`}
 							>
-								{data.personalRate.toFixed(1)}%
+								{data.personalInflationRate.toFixed(1)}%
 							</div>
 						</div>
 
@@ -133,9 +133,9 @@ const ResultsDrawer = ({ open, onOpenChange, data, dates }: Readonly<ResultsDraw
 											</Badge>
 										</div>
 										<div className="flex justify-between text-xs text-muted-foreground pt-2 border-t border-dashed mt-1">
-											<span>Was: {fmtMoney(item.previousAmount)}</span>
+											<span>Was: {fmtMoney(item.previousSpend)}</span>
 											<span>
-												Now: <span className="text-slate-900 font-medium">{fmtMoney(item.currentAmount)}</span>
+												Now: <span className="text-slate-900 font-medium">{fmtMoney(item.currentSpend)}</span>
 											</span>
 										</div>
 									</div>

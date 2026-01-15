@@ -1,56 +1,13 @@
-import { type ExpenseItem } from "@/stores/inflationStore";
-import { INITIAL_CATEGORIES } from "@/utils/metadata";
-import { useMemo } from "react";
+import { commodityTree } from "@/stores/dataStore";
+import { useStore } from "@nanostores/react";
 import ExpenseNode from "./ExpenseNode";
 
-export type TreeNode = ExpenseItem & {
-	children: TreeNode[];
-	isCustom: boolean;
-};
+export function ExpenseList() {
+	const tree = useStore(commodityTree);
 
-function buildTree(items: ExpenseItem[]): TreeNode[] {
-	const sorted = [...items].sort((a, b) => a.code.localeCompare(b.code));
-
-	const nodeMap = new Map<string, TreeNode>();
-	const roots: TreeNode[] = [];
-	const staticCodes = new Set(INITIAL_CATEGORIES.map((c) => c.code));
-
-	sorted.forEach((item) => {
-		nodeMap.set(item.code, {
-			...item,
-			children: [],
-			isCustom: !staticCodes.has(item.code),
-		});
-	});
-
-	sorted.forEach((item) => {
-		const node = nodeMap.get(item.code)!;
-
-		let parentFound = false;
-		let currentCode = item.code;
-
-		while (currentCode.includes(".")) {
-			const parts = currentCode.split(".");
-			parts.pop();
-			currentCode = parts.join(".");
-
-			if (nodeMap.has(currentCode)) {
-				nodeMap.get(currentCode)!.children.push(node);
-				parentFound = true;
-				break;
-			}
-		}
-
-		if (!parentFound) {
-			roots.push(node);
-		}
-	});
-
-	return roots;
-}
-
-export function ExpenseList({ items }: Readonly<{ items: ExpenseItem[] }>) {
-	const tree = useMemo(() => buildTree(items), [items]);
+	if (tree.length === 0) {
+		return <div className="p-8 text-center text-muted-foreground border rounded-xl border-dashed">Loading categories...</div>;
+	}
 
 	return (
 		<div className="border rounded-xl bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
@@ -60,7 +17,7 @@ export function ExpenseList({ items }: Readonly<{ items: ExpenseItem[] }>) {
 			</div>
 			<div className="pb-2">
 				{tree.map((node) => (
-					<ExpenseNode key={node.id} node={node} level={0} />
+					<ExpenseNode key={node.code} node={node} level={0} />
 				))}
 			</div>
 		</div>

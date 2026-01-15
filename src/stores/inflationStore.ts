@@ -1,4 +1,4 @@
-import { INITIAL_CATEGORIES } from "@/utils/metadata";
+import { dataStore } from "@/stores/dataStore";
 import { computed, map } from "nanostores";
 
 export type ExpenseItem = {
@@ -37,12 +37,42 @@ export const settings = map<AppSettings>({
 	endDate: today,
 });
 
-// ---- UI state
-
 export const uiState = map<UIState>({
 	mode: "amount",
 	totalBudget: 0,
 });
+
+export const highlightState = map<HighlightState>({
+	code: "",
+	label: "",
+});
+
+export const expenses = map<Record<string, ExpenseItem>>({});
+export const expandedNodes = map<Record<string, boolean>>({});
+
+export function initializeExpenses() {
+	const { commodities } = dataStore.get();
+
+	const initialExpenses: Record<string, ExpenseItem> = {};
+
+	commodities.forEach((item) => {
+		initialExpenses[item.code] = {
+			id: item.code,
+			code: item.code,
+			name: item.name,
+			value: 0,
+		};
+	});
+
+	expenses.set(initialExpenses);
+}
+
+export function toggleExpansion(code: string, forceState?: boolean) {
+	const current = expandedNodes.get();
+	const newState = forceState ?? !current[code];
+
+	expandedNodes.setKey(code, newState);
+}
 
 export function setMode(mode: "amount" | "percent") {
 	uiState.setKey("mode", mode);
@@ -52,18 +82,13 @@ export function setTotalBudget(amount: number) {
 	uiState.setKey("totalBudget", amount);
 }
 
-// ---- Highlight
-
-export const highlightState = map<HighlightState>({
-	code: "",
-	label: "",
-});
-
 export function locateCategory(searchCode: string, searchName: string) {
+	const { commodities } = dataStore.get();
+
 	let bestMatch = null;
 	let maxLen = -1;
 
-	for (const cat of INITIAL_CATEGORIES) {
+	for (const cat of commodities) {
 		if (searchCode.startsWith(cat.code)) {
 			if (cat.code.length > maxLen) {
 				maxLen = cat.code.length;
@@ -74,30 +99,26 @@ export function locateCategory(searchCode: string, searchName: string) {
 
 	if (bestMatch) {
 		highlightState.set({ code: bestMatch.code, label: searchName });
+
+		const updates: Record<string, boolean> = { ...expandedNodes.get() };
+		let currentCode = bestMatch.code;
+
+		while (currentCode.includes(".")) {
+			const parts = currentCode.split(".");
+			parts.pop();
+			currentCode = parts.join(".");
+			updates[currentCode] = true;
+		}
+
+		expandedNodes.set(updates);
+
 		setTimeout(() => {
 			highlightState.set({ code: "", label: "" });
-		}, 4000);
+		}, 5000);
 	} else {
 		console.warn("No matching category found for", searchName);
 	}
 }
-
-// ---- Expenses
-
-const initialExpenses: Record<string, ExpenseItem> = {};
-
-INITIAL_CATEGORIES.forEach((item) => {
-	const id = item.code;
-	initialExpenses[id] = {
-		id,
-		code: item.code,
-		name: item.name,
-		value: 0,
-		example: item.example,
-	};
-});
-
-export const expenses = map<Record<string, ExpenseItem>>(initialExpenses);
 
 export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: number }) {
 	const current = expenses.get();
@@ -117,35 +138,31 @@ export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: n
 	}
 }
 
-export function removeExpense(id: string) {
+export function updateExpenseValue(code: string, name: string, newValue: number) {
 	const current = expenses.get();
-	const isInitial = INITIAL_CATEGORIES.some((c) => c.code === current[id]?.code);
 
-	if (isInitial) {
-		updateExpenseValue(id, 0);
+	if (current[code]) {
+		expenses.setKey(code, { ...current[code], value: newValue });
 	} else {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { [id]: _, ...rest } = current;
-		expenses.set(rest);
+		expenses.setKey(code, { id: code, code, name, value: newValue });
 	}
 }
 
-export function updateExpenseValue(id: string, newValue: number) {
-	const currentItem = expenses.get()[id];
-	if (currentItem) {
-		expenses.setKey(id, { ...currentItem, value: newValue });
-	}
+export function removeExpense(id: string) {
+	const current = expenses.get();
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { [id]: _, ...rest } = current;
+	expenses.set(rest);
 }
 
 export function clearExpenses() {
 	if (!hasInputs.get()) return;
 
-	const current = expenses.get();
-	const resetExpense = { ...current };
+	const { commodities } = dataStore.get();
+	const resetExpense = { ...expenses.get() };
 
-	Object.entries(resetExpense).forEach((key) => {
-		const [id, item] = key;
-		if (INITIAL_CATEGORIES.some((c) => c.code === item.code)) {
+	Object.entries(resetExpense).forEach(([id, item]) => {
+		if (commodities.some((c) => c.code === item.code)) {
 			resetExpense[id] = { ...item, value: 0 };
 		} else {
 			delete resetExpense[id];
@@ -155,32 +172,13 @@ export function clearExpenses() {
 	expenses.set(resetExpense);
 }
 
-export function setGeneralExpense(code: string, name: string, value: number) {
-	const current = expenses.get();
-	const existingId = Object.keys(current).find((id) => current[id]?.code === code);
-
-	if (existingId) {
-		if (value === 0) {
-			removeExpense(existingId);
-		} else {
-			expenses.setKey(existingId, { ...current[existingId]!, value });
-		}
-	} else if (value > 0) {
-		const id = crypto.randomUUID();
-		expenses.setKey(id, { id, code: code, name, value });
-	}
-}
-
 export const totalAllocation = computed(expenses, (items) => {
 	return Object.values(items).reduce((sum, item) => sum + item.value, 0);
 });
 
-export const sortedBasketItems = computed(expenses, (items) => {
-	return Object.values(items).sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
-});
-
 export const isCalculationDisabled = computed([expenses, uiState, totalAllocation], (items, ui, total) => {
-	if (ui.totalBudget <= 0 || Number.isNaN(ui.totalBudget)) return true;
+	if (ui.mode === "percent" && (ui.totalBudget <= 0 || Number.isNaN(ui.totalBudget))) return true;
+	if (ui.mode === "amount" && ui.totalBudget <= 0) return true;
 
 	const hasExpense = Object.values(items).some((i) => i.value > 0);
 	if (!hasExpense) return true;
@@ -206,22 +204,22 @@ export const totalDisplayLabel = computed([uiState, totalAllocation], (ui, total
 	}
 });
 
-export const categoryTotals = computed(expenses, (items) => {
+export const categoryTotals = computed([expenses, dataStore], (items, data) => {
 	const totals: Record<string, number> = {};
+	const { commodities } = data;
 
-	// Sort keys by length DESCENDING (Deepest children first)
-	const sortedCodes = Object.keys(items).sort((a, b) => b.length - a.length);
+	if (!commodities || commodities.length === 0) return totals;
+
+	// Sort codes by length descending (Leaves first, Roots last)
+	const sortedCodes = commodities.map((c) => c.code).sort((a, b) => b.length - a.length);
 
 	for (const code of sortedCodes) {
-		const itemValue = items[code]?.value || 0;
-		totals[code] = (totals[code] || 0) + itemValue;
+		const ownValue = items[code]?.value || 0;
+		totals[code] = (totals[code] || 0) + ownValue;
 
 		if (code.includes(".")) {
 			const parentCode = code.substring(0, code.lastIndexOf("."));
-
-			if (items[parentCode]) {
-				totals[parentCode] = (totals[parentCode] || 0) + totals[code];
-			}
+			totals[parentCode] = (totals[parentCode] || 0) + totals[code];
 		}
 	}
 

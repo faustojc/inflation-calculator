@@ -1,110 +1,94 @@
 import type { ExpenseItem } from "@/stores/inflationStore";
+export interface LocationContext {
+	regionCode: string;
+	areaCode?: string;
+	incomeClass?: string;
+}
+
+export interface DateRange {
+	startYear: number;
+	startMonth: number;
+	endYear: number;
+	endMonth: number;
+}
+
+export interface CalculationConfig {
+	mode: "amount" | "percent";
+	totalBudget: number;
+}
 
 export interface ItemBreakdown {
 	id: string;
 	name: string;
 	categoryCode: string;
-	currentAmount: number;
-	previousAmount: number;
+	currentSpend: number;
+	previousSpend: number;
+	cpiStart: number;
+	cpiEnd: number;
 	itemInflationRate: number;
 	status: "exact" | "substituted_region" | "substituted_national" | "estimated" | "missing";
 	matchQuality: string;
 }
 
 export interface CalculationResult {
-	personalRate: number;
+	personalInflationRate: number;
 	totalCurrentSpend: number;
 	totalPreviousSpend: number;
 	breakdown: ItemBreakdown[];
-	error?: string;
 	meta: {
-		year: number;
-		month: number;
-		region: string;
-		area?: string;
-		income?: string;
+		location: LocationContext;
+		dates: DateRange;
 	};
-	dataIndex: Map<string, number>;
+	error?: string;
 }
 
-/**
- * Tries to find the most specific CPI value available.
- * Order of Preference:
- * 1. Specific Area + Specific Income
- * 2. Specific Area + All Income
- * 3. Region + Specific Income
- * 4. Region + All Income (Matches current generated data)
- * 5. National + Specific Income
- * 6. National + All Income
- */
-function getBestMatchCpi(
-	region: string,
-	area: string | undefined,
-	income: string | undefined,
-	year: number,
-	month: number,
-	code: string,
-	dataIndex: Map<string, number>
-): { value: number; quality: string; isFallback: boolean } | null {
-	const r = region;
-	const a = area || "*";
-	const i = income === "bottom30" ? "BOTTOM30" : "*";
-	const y = year;
-	const m = month;
-	const c = code;
+const KEY_SEP = "|";
+const WILDCARD = "*";
 
-	const makeKey = (_r: string, _a: string, _i: string) => `${_r}|${_a}|${_i}|${y}|${m}|${c}`;
-
-	// Full Specificity (e.g. Bacolod + Bottom 30)
-	if (dataIndex.has(makeKey(r, a, i))) return { value: dataIndex.get(makeKey(r, a, i))!, quality: "Area & Income Specific", isFallback: false };
-
-	// Specific Area + Any Income
-	if (dataIndex.has(makeKey(r, a, "*"))) return { value: dataIndex.get(makeKey(r, a, "*"))!, quality: "Area Specific", isFallback: false };
-
-	// Region + Specific Income
-	if (dataIndex.has(makeKey(r, "*", i))) return { value: dataIndex.get(makeKey(r, "*", i))!, quality: "Region & Income Specific", isFallback: false };
-
-	// Region + Any Income (Target for Current Data)
-	if (dataIndex.has(makeKey(r, "*", "*"))) return { value: dataIndex.get(makeKey(r, "*", "*"))!, quality: "Regional Average", isFallback: false };
-
-	// National + Specific Income
-	if (dataIndex.has(makeKey("PH", "*", i))) return { value: dataIndex.get(makeKey("PH", "*", i))!, quality: "National (Income Specific)", isFallback: true };
-
-	// National + Any Income
-	if (dataIndex.has(makeKey("PH", "*", "*"))) return { value: dataIndex.get(makeKey("PH", "*", "*"))!, quality: "National Average", isFallback: true };
-
-	return null;
-}
-
-function getCpiWithRecursion(
-	region: string,
-	area: string | undefined,
-	income: string | undefined,
+function findBestCpi(
+	location: LocationContext,
 	year: number,
 	month: number,
 	code: string,
 	dataIndex: Map<string, number>
 ): { value: number; quality: string; status: ItemBreakdown["status"] } | null {
-	const exact = getBestMatchCpi(region, area, income, year, month, code, dataIndex);
-	if (exact) {
-		return {
-			value: exact.value,
-			quality: exact.quality,
-			status: exact.isFallback ? "substituted_national" : "exact",
-		};
-	}
+	const r = location.regionCode;
+	const a = location.areaCode || WILDCARD;
+	const i = location.incomeClass === "bottom30" ? "BOTTOM30" : WILDCARD;
 
-	if (code.includes(".")) {
-		const parentCode = code.split(".").slice(0, -1).join(".");
-		const parent = getCpiWithRecursion(region, area, income, year, month, parentCode, dataIndex);
+	const makeKey = (reg: string, area: string, inc: string, c: string) =>
+		`${reg}${KEY_SEP}${area}${KEY_SEP}${inc}${KEY_SEP}${year}${KEY_SEP}${month}${KEY_SEP}${c}`;
 
-		if (parent) {
-			return {
-				value: parent.value,
-				quality: `Estimated from ${parentCode}`,
-				status: "estimated",
-			};
-		}
+	let currentCode = code;
+	let attempts = 0;
+	const MAX_DEPTH = 6;
+
+	while (currentCode.length > 0 && attempts < MAX_DEPTH) {
+		// 1. Exact Location + Income
+		let key = makeKey(r, a, i, currentCode);
+		if (dataIndex.has(key)) return { value: dataIndex.get(key)!, quality: "Exact", status: "exact" };
+
+		// 2. Exact Location + Any Income
+		key = makeKey(r, a, WILDCARD, currentCode);
+		if (dataIndex.has(key)) return { value: dataIndex.get(key)!, quality: "Area Avg", status: "exact" };
+
+		// 3. Region + Specific Income
+		key = makeKey(r, WILDCARD, i, currentCode);
+		if (dataIndex.has(key)) return { value: dataIndex.get(key)!, quality: "Region/Income", status: "exact" };
+
+		// 4. Region + Any Income
+		key = makeKey(r, WILDCARD, WILDCARD, currentCode);
+		if (dataIndex.has(key)) return { value: dataIndex.get(key)!, quality: "Region Avg", status: "substituted_region" };
+
+		// 5. National
+		key = makeKey("PH", WILDCARD, WILDCARD, currentCode);
+		if (dataIndex.has(key)) return { value: dataIndex.get(key)!, quality: "National Avg", status: "substituted_national" };
+
+		// Move up tree
+		const lastDotIndex = currentCode.lastIndexOf(".");
+		if (lastDotIndex === -1) break;
+		currentCode = currentCode.substring(0, lastDotIndex);
+		attempts++;
 	}
 
 	return null;
@@ -112,98 +96,86 @@ function getCpiWithRecursion(
 
 export function calculatePersonalInflation(
 	expenses: ExpenseItem[],
-	regionCode: string,
-	startYear: number,
-	startMonth: number,
-	endYear: number,
-	endMonth: number,
-	mode: "amount" | "percent",
-	totalBudget: number = 0,
-	areaCode?: string,
-	incomeClass?: string,
+	location: LocationContext,
+	dates: DateRange,
+	config: CalculationConfig,
 	dataIndex?: Map<string, number>
 ): CalculationResult | null {
-	if (!dataIndex || dataIndex.size === 0) {
-		return null;
-	}
+	if (!dataIndex || dataIndex.size === 0 || expenses.length === 0) return null;
 
-	const baseCheck = getCpiWithRecursion(regionCode, areaCode, incomeClass, startYear, startMonth, "01", dataIndex);
-	const endCheck = getCpiWithRecursion(regionCode, areaCode, incomeClass, endYear, endMonth, "01", dataIndex);
-
+	const baseCheck = findBestCpi(location, dates.startYear, dates.startMonth, "01", dataIndex);
 	if (!baseCheck) {
 		return {
-			personalRate: 0,
+			personalInflationRate: 0,
 			totalCurrentSpend: 0,
 			totalPreviousSpend: 0,
 			breakdown: [],
-			error: `No CPI data found for ${regionCode} in ${startMonth}/${startYear}.`,
-			meta: { year: endYear, month: endMonth, region: regionCode },
-			dataIndex,
+			meta: { location, dates },
+			error: `Data missing for ${location.regionCode} in ${dates.startMonth}/${dates.startYear}`,
 		};
 	}
 
-	if (!endCheck) {
-		return {
-			personalRate: 0,
-			totalCurrentSpend: 0,
-			totalPreviousSpend: 0,
-			breakdown: [],
-			error: `No CPI data found for ${regionCode} in ${endMonth}/${endYear}. Data might not be published yet.`,
-			meta: { year: endYear, month: endMonth, region: regionCode },
-			dataIndex,
-		};
-	}
-
-	let totalCurrent = 0;
-	let totalPrevious = 0;
+	let validTotalCurrent = 0;
+	let validTotalPrevious = 0;
 	const breakdown: ItemBreakdown[] = [];
 
 	for (const item of expenses) {
 		if (item.value <= 0) continue;
 
-		const currentSpend = mode === "amount" ? item.value : totalBudget * (item.value / 100);
+		const currentSpend = config.mode === "amount" ? item.value : config.totalBudget * (item.value / 100);
+		const startData = findBestCpi(location, dates.startYear, dates.startMonth, item.code, dataIndex);
+		const endData = findBestCpi(location, dates.endYear, dates.endMonth, item.code, dataIndex);
 
-		const cpiCurr = getCpiWithRecursion(regionCode, areaCode, incomeClass, endYear, endMonth, item.code, dataIndex);
-		const cpiPrev = getCpiWithRecursion(regionCode, areaCode, incomeClass, startYear, startMonth, item.code, dataIndex);
-
-		let previousSpend = currentSpend;
+		let previousSpend = 0;
 		let itemRate = 0;
-		let status: ItemBreakdown["status"] = "exact";
+		let status: ItemBreakdown["status"] = "missing";
 		let matchQuality = "Data Missing";
+		let cpiStart = 0;
+		let cpiEnd = 0;
 
-		if (cpiCurr && cpiPrev && cpiCurr.value > 0 && cpiPrev.value > 0) {
-			previousSpend = currentSpend * (cpiPrev.value / cpiCurr.value);
-			itemRate = ((cpiCurr.value - cpiPrev.value) / cpiPrev.value) * 100;
+		if (startData && endData && startData.value > 0 && endData.value > 0) {
+			cpiStart = startData.value;
+			cpiEnd = endData.value;
 
-			status = cpiCurr.status === "exact" && cpiPrev.status === "exact" ? "exact" : cpiCurr.status;
-			matchQuality = cpiCurr.quality;
-		} else {
-			status = "missing";
+			previousSpend = currentSpend * (cpiStart / cpiEnd);
+			itemRate = ((cpiEnd - cpiStart) / cpiStart) * 100;
+
+			if (startData.status !== "exact") status = startData.status;
+			else if (endData.status === "exact") {
+				status = "exact";
+			} else {
+				status = endData.status;
+			}
+
+			matchQuality = endData.quality;
+			validTotalCurrent += currentSpend;
+			validTotalPrevious += previousSpend;
 		}
-
-		totalCurrent += currentSpend;
-		totalPrevious += previousSpend;
 
 		breakdown.push({
 			id: item.id,
 			name: item.name,
 			categoryCode: item.code,
-			currentAmount: currentSpend,
-			previousAmount: previousSpend,
+			currentSpend,
+			previousSpend,
+			cpiStart,
+			cpiEnd,
 			itemInflationRate: itemRate,
 			status,
 			matchQuality,
 		});
 	}
 
-	const personalRate = totalPrevious > 0 ? ((totalCurrent - totalPrevious) / totalPrevious) * 100 : 0;
+	let personalInflationRate = 0;
+	if (validTotalPrevious > 0) {
+		personalInflationRate = ((validTotalCurrent - validTotalPrevious) / validTotalPrevious) * 100;
+	}
 
 	return {
-		personalRate,
-		totalCurrentSpend: totalCurrent,
-		totalPreviousSpend: totalPrevious,
+		personalInflationRate,
+		totalCurrentSpend: validTotalCurrent,
+		totalPreviousSpend: validTotalPrevious,
 		breakdown,
-		meta: { year: endYear, month: endMonth, region: regionCode, area: areaCode, income: incomeClass },
-		dataIndex,
+		meta: { location, dates },
 	};
 }
