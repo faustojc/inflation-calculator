@@ -1,46 +1,40 @@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { categoryTotals, highlightState, uiState, updateExpenseValue } from "@/stores/inflationStore";
+import type { TreeNode } from "@/stores/dataStore";
+import { categoryTotals, expandedNodes, highlightState, toggleExpansion, uiState, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import type { TreeNode } from "./ExpenseList";
+import { useEffect, useRef } from "react";
 
 const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
-	const totals = useStore(categoryTotals);
 	const highlight = useStore(highlightState);
+	const { mode } = useStore(uiState);
+	const totals = useStore(categoryTotals);
+	const expandedMap = useStore(expandedNodes);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const rowRef = useRef<HTMLDivElement>(null);
 
-	const { mode } = useStore(uiState);
-
-	const hasChildren = node.children.length > 0;
-	const isMatch = highlight.code === node.code;
 	const displayValue = totals[node.code] || 0;
-
-	const [isOpen, setIsOpen] = useState(() => {
-		if (level < 1) return true;
-		if (node.value > 0) return true;
-		if (highlight.code.startsWith(node.code)) return true;
-
-		const childHasValue = (n: TreeNode): boolean => n.value > 0 || n.children.some(childHasValue);
-		return node.children.some(childHasValue);
-	});
+	const isOpen = expandedMap[node.code] ?? (level < 1 || displayValue > 0);
+	const hasChildren = node.children.length > 0;
+	const isMatch = highlight?.code === node.code;
 
 	useEffect(() => {
 		if (isMatch) {
 			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-			setTimeout(() => inputRef.current?.focus(), 500);
+			if (!hasChildren) {
+				setTimeout(() => inputRef.current?.focus(), 500);
+			}
 		}
-	}, [isMatch]);
+	}, [isMatch, hasChildren]);
 
 	return (
 		<div className="w-full">
 			<div
 				ref={rowRef}
 				className={`
-					group flex items-center gap-2 p-2 rounded-lg border-b border-dashed transition-all duration-500
+					group flex items-center gap-2 p-2 rounded-lg border-b border-dashed transition-all duration-300
 					${
 						isMatch
 							? "bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700"
@@ -50,7 +44,7 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 				style={{ paddingLeft: `${level * 16 + 8}px` }}
 			>
 				<button
-					onClick={() => setIsOpen(!isOpen)}
+					onClick={() => toggleExpansion(node.code)}
 					disabled={!hasChildren}
 					className={`
 						p-1 rounded-md text-slate-400
@@ -93,15 +87,15 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 								${
 									isMatch
 										? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-950 scale-105"
-										: node.value > 0
+										: displayValue > 0
 										? "bg-blue-50 border-blue-200 dark:bg-blue-900/20"
 										: "bg-transparent border-transparent hover:border-slate-200"
 								}
 							`}
 							placeholder="-"
-							value={node.value || ""}
+							value={displayValue || ""}
 							min={0}
-							onChange={(e) => updateExpenseValue(node.id, Number.parseFloat(e.target.value) || 0)}
+							onChange={(e) => updateExpenseValue(node.code, node.name, Number.parseFloat(e.target.value) || 0)}
 						/>
 					)}
 				</div>
@@ -110,7 +104,7 @@ const ExpenseNode = ({ node, level }: { node: TreeNode; level: number }) => {
 			{isOpen && hasChildren && (
 				<div className="w-full">
 					{node.children.map((child) => (
-						<ExpenseNode key={child.id} node={child} level={level + 1} />
+						<ExpenseNode key={child.code} node={child} level={level + 1} />
 					))}
 				</div>
 			)}
