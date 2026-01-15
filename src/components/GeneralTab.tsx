@@ -1,6 +1,5 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { majorCategories } from "@/stores/dataStore";
 import { expenses, totalAllocation, uiState, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
@@ -28,23 +27,10 @@ export function GeneralTab() {
 	const currentTotal = useStore(totalAllocation);
 	const { mode, totalBudget } = useStore(uiState);
 
-	const remainingPercent = mode === "percent" ? 100 - currentTotal : 0;
 	const isOverLimit = mode === "percent" && currentTotal > 100;
 
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-			{mode === "percent" && (
-				<div className="sticky top-0 z-10 bg-white dark:bg-slate-900 pb-4 border-b mb-4">
-					<div className="flex justify-between items-end mb-2">
-						<span className="text-sm font-medium">Allocation Status</span>
-						<span className={`text-sm font-bold ${isOverLimit ? "text-red-500" : "text-blue-600"}`}>{currentTotal.toFixed(1)}% / 100%</span>
-					</div>
-					<Progress value={currentTotal} className={`h-2 ${isOverLimit ? "[&>div]:bg-red-500" : "[&>div]:bg-blue-600"}`} />
-					{isOverLimit && <p className="text-xs text-red-500 mt-1 font-medium">Total exceeds 100%. Please reduce some values.</p>}
-					{remainingPercent > 0 && <p className="text-xs text-muted-foreground mt-1">You have {remainingPercent.toFixed(1)}% remaining.</p>}
-				</div>
-			)}
-
 			<div className="grid gap-4">
 				{categories.map((cat) => {
 					const val = items[cat.code]?.value || 0;

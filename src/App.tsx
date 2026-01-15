@@ -29,14 +29,8 @@ export default function App() {
 	const isDisabled = useStore(isCalculationDisabled);
 
 	useEffect(() => {
-		initializeApp();
+		initializeApp().then(() => initializeExpenses());
 	}, []);
-
-	useEffect(() => {
-		if (commodities.length > 0) {
-			initializeExpenses();
-		}
-	}, [commodities]);
 
 	const handleCalculate = async () => {
 		setErrorMsg(null);
@@ -108,7 +102,7 @@ export default function App() {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-32">
+		<div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-52">
 			<header className="bg-white dark:bg-slate-900 border-b px-4 py-4 sticky top-0 z-20 shadow-sm">
 				<div className="max-w-3xl mx-auto flex justify-between items-center">
 					<div className="flex items-center gap-2">
