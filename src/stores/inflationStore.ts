@@ -53,6 +53,8 @@ export const expandedNodes = map<Record<string, boolean>>({});
 
 // for fast lookup of parent nodes
 const uiParentIndex = new Map<string, string | null>();
+// for fuzzy name matching
+const uiLabelIndex: { code: string; label: string }[] = [];
 (() => {
 	const stack: { node: UICommodity; parent: string | null }[] = COMMODITY_DISPLAY_CONFIG.map((node) => ({ node, parent: null }));
 
@@ -60,6 +62,10 @@ const uiParentIndex = new Map<string, string | null>();
 		const { node, parent } = stack.pop()!;
 
 		uiParentIndex.set(node.code, parent);
+		uiLabelIndex.push({
+			code: node.code,
+			label: node.label.toLowerCase(),
+		});
 
 		if (node.children) {
 			for (const child of node.children) {
@@ -102,21 +108,33 @@ export function setTotalBudget(amount: number) {
 }
 
 export function locateCategory(searchCode: string, searchName: string) {
-	let currentCode = searchCode;
+	let targetCode: string | null = null;
+	const nSearchName = searchName.toLowerCase();
 
-	while (currentCode.length > 0 && !uiParentIndex.has(currentCode)) {
-		const lastDot = currentCode.lastIndexOf(".");
-		if (lastDot === -1) break; // No more parents
-		currentCode = currentCode.substring(0, lastDot);
+	if (uiParentIndex.has(searchCode)) {
+		targetCode = searchCode;
+	} else {
+		const match = uiLabelIndex.find((item) => item.label === nSearchName || nSearchName.includes(item.label) || item.label.includes(nSearchName));
+
+		targetCode = match?.code || null;
+
+		if (!targetCode) {
+			let currentCode = searchCode;
+			while (currentCode.length > 0 && !uiParentIndex.has(currentCode)) {
+				const lastDot = currentCode.lastIndexOf(".");
+				if (lastDot === -1) break;
+				currentCode = currentCode.substring(0, lastDot);
+			}
+
+			if (uiParentIndex.has(currentCode)) {
+				targetCode = currentCode;
+			}
+		}
 	}
 
-	if (uiParentIndex.has(currentCode)) {
-		const foundCode = currentCode;
-
-		// Backtracking using Parent Map
-		// Node -> Parent -> Grandparent
+	if (targetCode) {
 		const path: string[] = [];
-		let ptr = uiParentIndex.get(foundCode);
+		let ptr = uiParentIndex.get(targetCode);
 
 		while (ptr) {
 			path.push(ptr);
@@ -127,15 +145,14 @@ export function locateCategory(searchCode: string, searchName: string) {
 		path.forEach((code) => {
 			updates[code] = true;
 		});
-
 		expandedNodes.set(updates);
-		highlightState.set({ code: foundCode, label: searchName });
+		highlightState.set({ code: targetCode, label: searchName });
 
 		setTimeout(() => {
 			highlightState.set({ code: "", label: "" });
 		}, 4000);
 	} else {
-		console.warn("Item not found in UI Config:", searchName);
+		console.warn(`Could not locate category for "${searchName}" (${searchCode})`);
 	}
 }
 
