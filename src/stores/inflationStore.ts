@@ -1,6 +1,6 @@
 import { COMMODITY_DISPLAY_CONFIG, type UICommodity } from "@/config/commodityDisplay";
 import { dataStore } from "@/stores/dataStore";
-import { computed, map } from "nanostores";
+import { atom, computed, map } from "nanostores";
 
 export type ExpenseItem = {
 	id: string;
@@ -18,10 +18,7 @@ export type AppSettings = {
 	endDate: Date;
 };
 
-export type UIState = {
-	mode: "amount" | "percent";
-	totalBudget: number;
-};
+export type Mode = "amount" | "percent";
 
 export type HighlightState = {
 	code: string;
@@ -40,10 +37,7 @@ export const settings = map<AppSettings>({
 	endDate: today,
 });
 
-export const uiState = map<UIState>({
-	mode: "amount",
-	totalBudget: 0,
-});
+export const mode = atom<Mode>("amount");
 
 export const highlightState = map<HighlightState>({
 	code: "",
@@ -93,14 +87,6 @@ export function toggleExpansion(code: string, forceState?: boolean) {
 	const newState = forceState ?? !current[code];
 
 	expandedNodes.setKey(code, newState);
-}
-
-export function setMode(mode: "amount" | "percent") {
-	uiState.setKey("mode", mode);
-}
-
-export function setTotalBudget(amount: number) {
-	uiState.setKey("totalBudget", amount);
 }
 
 export function locateCategory(searchCode: string, searchName: string) {
@@ -184,20 +170,15 @@ export const totalAllocation = computed(expenses, (items) => {
 	return Object.values(items).reduce((sum, item) => sum + item.value, 0);
 });
 
-export const isCalculationDisabled = computed([expenses, uiState, totalAllocation], (items, ui, total) => {
+export const isCalculationDisabled = computed([expenses, mode, totalAllocation], (items, mode, total) => {
+	if (mode === "percent" && total != 100) return true;
+
 	const hasExpense = Object.values(items).some((i) => i.value > 0);
-	if (!hasExpense) return true;
-
-	if (ui.mode === "percent") {
-		if (ui.totalBudget <= 0 || Number.isNaN(ui.totalBudget)) return true;
-		if (total > 100.01) return true;
-	}
-
-	return false;
+	return !hasExpense;
 });
 
-export const totalDisplayLabel = computed([uiState, totalAllocation], (ui, total) => {
-	if (ui.mode === "percent") {
+export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) => {
+	if (m === "percent") {
 		const isOver = total > 100.01;
 		return {
 			text: `Used: ${total.toFixed(1)}%`,

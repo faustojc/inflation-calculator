@@ -6,7 +6,9 @@ import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, Dr
 import { Separator } from "@/components/ui/separator";
 
 import { BreakdownItem } from "@/components/BreakdownItem";
+import { mode } from "@/stores/inflationStore";
 import type { CalculationResult } from "@/utils/inflationCompute";
+import { useStore } from "@nanostores/react";
 
 interface ResultsDrawerProps {
 	open: boolean;
@@ -15,8 +17,9 @@ interface ResultsDrawerProps {
 }
 
 export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDrawerProps>) {
-	if (!data) return null;
+	const currMode = useStore(mode);
 
+	if (!data) return null;
 	const { personalRate, totalSpend, breakdown, meta, interpretation } = data;
 
 	const totalPreviousSpend = totalSpend / (1 + personalRate / 100);
@@ -84,11 +87,15 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 							<div className="grid grid-cols-2 gap-4 relative">
 								<div className="space-y-1">
 									<span className="text-xs text-muted-foreground block">Cost in {meta.dates.startYear}</span>
-									<span className="text-lg font-bold text-slate-700 dark:text-slate-300">{currencyFormatter.format(totalPreviousSpend)}</span>
+									<span className="text-lg font-bold text-slate-700 dark:text-slate-300">
+										{currMode === "amount" ? currencyFormatter.format(totalPreviousSpend) : `${totalPreviousSpend.toFixed(1)}%`}
+									</span>
 								</div>
 								<div className="space-y-1 text-right">
-									<span className="text-xs text-muted-foreground block">Cost Today</span>
-									<span className="text-xl font-bold text-slate-900 dark:text-white">{currencyFormatter.format(totalSpend)}</span>
+									<span className="text-xs text-muted-foreground block">Cost Today {currMode === "amount" ? "in PHP" : "as a %"}</span>
+									<span className="text-xl font-bold text-slate-900 dark:text-white">
+										{currMode === "amount" ? currencyFormatter.format(totalSpend) : `${totalSpend.toFixed(1)}%`}
+									</span>
 								</div>
 
 								<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-100 dark:bg-slate-800 p-1 rounded-full border">

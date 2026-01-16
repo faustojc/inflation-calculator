@@ -11,7 +11,7 @@ import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataStore, getCalculationData, initializeApp } from "@/stores/dataStore";
-import { clearExpenses, expenses, initializeExpenses, isCalculationDisabled, locateCategory, settings, uiState } from "@/stores/inflationStore";
+import { clearExpenses, expenses, initializeExpenses, isCalculationDisabled, locateCategory, mode, settings } from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
 import { toast } from "sonner";
 
@@ -35,7 +35,7 @@ export default function App() {
 
 		try {
 			const currentSettings = settings.get();
-			const currentUi = uiState.get();
+			const currentMode = mode.get();
 			const activeCodes = items.filter((i) => i.value > 0).map((i) => i.code);
 
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
@@ -60,7 +60,7 @@ export default function App() {
 				items,
 				{ regionCode: currentSettings.region, provinceName: activeProvince },
 				dates,
-				{ mode: currentUi.mode, totalBudget: currentUi.totalBudget },
+				currentMode,
 				batchMap
 			);
 

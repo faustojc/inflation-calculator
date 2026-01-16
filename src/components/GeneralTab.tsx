@@ -1,9 +1,7 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { majorCategories } from "@/stores/dataStore";
-import { expenses, totalAllocation, uiState, updateExpenseValue } from "@/stores/inflationStore";
+import { expenses, mode, totalAllocation, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
-import { Info } from "lucide-react";
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"01": "e.g. rice, meat, fish, vegetables, fruits, sugar, milk, soft drinks, coffee",
@@ -25,9 +23,9 @@ export function GeneralTab() {
 	const categories = useStore(majorCategories);
 	const items = useStore(expenses);
 	const currentTotal = useStore(totalAllocation);
-	const { mode, totalBudget } = useStore(uiState);
+	const m = useStore(mode);
 
-	const isOverLimit = mode === "percent" && currentTotal > 100;
+	const isOverLimit = m === "percent" && currentTotal > 100;
 
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
@@ -49,12 +47,12 @@ export function GeneralTab() {
 
 							<div className="w-full sm:w-35 shrink-0">
 								<div className="relative">
-									<span className="absolute left-3 top-2.5 text-muted-foreground text-xs font-bold">{mode === "percent" ? "%" : "₱"}</span>
+									<span className="absolute left-3 top-2.5 text-muted-foreground text-xs font-bold">{m === "percent" ? "%" : "₱"}</span>
 									<Input
 										type="number"
 										placeholder="0"
 										className={`pl-8 font-mono text-right ${
-											mode === "percent" && isOverLimit && val > 0 ? "border-red-300 focus-visible:ring-red-500" : ""
+											m === "percent" && isOverLimit && val > 0 ? "border-red-300 focus-visible:ring-red-500" : ""
 										}`}
 										value={val || ""}
 										onChange={(e) => {
@@ -63,26 +61,11 @@ export function GeneralTab() {
 										}}
 									/>
 								</div>
-
-								{mode === "percent" && totalBudget > 0 && val > 0 && (
-									<div className="text-[10px] text-right text-muted-foreground mt-1">
-										≈ ₱{((val / 100) * totalBudget).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-									</div>
-								)}
 							</div>
 						</div>
 					);
 				})}
 			</div>
-
-			{mode === "percent" && totalBudget === 0 && (
-				<Alert className="bg-amber-50 text-amber-900 border-amber-200">
-					<Info className="h-4 w-4" />
-					<AlertDescription>
-						Please enter a <strong>Total Monthly Expense</strong> above to see the Peso equivalent.
-					</AlertDescription>
-				</Alert>
-			)}
 		</div>
 	);
 }

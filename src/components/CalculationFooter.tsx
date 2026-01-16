@@ -1,15 +1,15 @@
 import { Progress } from "@/components/ui/progress";
-import { totalAllocation, uiState } from "@/stores/inflationStore";
+import { mode, totalAllocation } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 
 const CalculationFooter = () => {
 	const currentTotal = useStore(totalAllocation);
-	const { mode } = useStore(uiState);
+	const m = useStore(mode);
 
-	const remainingPercent = mode === "percent" ? 100 - currentTotal : 0;
-	const isOverLimit = mode === "percent" && currentTotal > 100;
+	const remainingPercent = m === "percent" ? 100 - currentTotal : 0;
+	const isOverLimit = m === "percent" && currentTotal > 100;
 
-	if (mode === "percent") {
+	if (m === "percent") {
 		return (
 			<div className="bg-white dark:bg-slate-900 pb-4 border-b mb-4">
 				<div className="flex justify-between items-end mb-2">

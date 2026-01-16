@@ -1,4 +1,4 @@
-import type { ExpenseItem } from "@/stores/inflationStore";
+import { totalAllocation, type ExpenseItem } from "@/stores/inflationStore";
 
 export interface LocationContext {
 	regionCode: string;
@@ -82,7 +82,7 @@ function generateInterpretation(rate: number, breakdown: ItemBreakdown[]): strin
 	const topDriver = sorted[0];
 	const topSaver = sorted.at(-1);
 
-	let text = `Your personal inflation rate is ${rate.toFixed(2)}%. `;
+	let text = `Your personal inflation rate is ${rate.toFixed(1)}%. `;
 
 	if (topDriver && topDriver.itemInflationRate > 0) {
 		text += `This is mainly driven by ${topDriver.name}, which increased by ${topDriver.itemInflationRate.toFixed(1)}%. `;
@@ -101,26 +101,13 @@ export function calculatePersonalInflation(
 	expenses: ExpenseItem[],
 	location: LocationContext,
 	dates: DateRange,
-	config: CalculationConfig,
+	mode: "amount" | "percent",
 	dataIndex?: Map<string, number>
 ): CalculationResult | null {
 	if (!dataIndex || dataIndex.size === 0 || expenses.length === 0) return null;
 
-	let totalInput = 0;
-	if (config.mode === "amount") {
-		totalInput = expenses.reduce((sum, item) => sum + item.value, 0);
-	} else {
-		const amounts: number[] = [];
-
-		// convert percentages to amounts
-		for (const item of expenses) {
-			amounts.push((config.totalBudget * item.value) / 100);
-		}
-
-		totalInput = amounts.reduce((sum, item) => sum + item, 0);
-	}
-
-	if (totalInput === 0) return null;
+	const totalInput = totalAllocation.get();
+	if (totalInput === 0 && mode === "amount") return null;
 
 	const breakdown: ItemBreakdown[] = [];
 	const missingItems: string[] = [];
@@ -132,8 +119,8 @@ export function calculatePersonalInflation(
 		if (item.value <= 0) continue;
 
 		// STEP 1: WEIGHT
-		// Formula: (Input / Sum) * 100
-		const weight = (item.value / totalInput) * 100;
+		// Formula: (Input / Sum) * 100 or just the value if percent
+		const weight = mode === "amount" ? (item.value / totalInput) * 100 : item.value;
 
 		// FETCH CPI DATA
 		const cpiStart = findCpi(dataIndex, location.regionCode, location.provinceName, dates.startYear, dates.startMonth, item.code);
@@ -210,7 +197,7 @@ export function calculatePersonalInflation(
 	}
 
 	const interpretation = generateInterpretation(growthRate, breakdown);
-	const totalSpend = config.mode === "amount" ? totalInput : config.totalBudget;
+	const totalSpend = mode === "amount" ? totalInput : 100;
 
 	return {
 		personalRate: growthRate,

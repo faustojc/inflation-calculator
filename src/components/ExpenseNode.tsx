@@ -2,14 +2,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { ConfigNode } from "@/config/commodityDisplay";
-import { categoryTotals, expandedNodes, highlightState, toggleExpansion, uiState, updateExpenseValue } from "@/stores/inflationStore";
+import { categoryTotals, expandedNodes, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 const ExpenseNode = ({ node, level }: { node: ConfigNode; level: number }) => {
 	const highlight = useStore(highlightState);
-	const { mode } = useStore(uiState);
+	const currMode = useStore(mode);
 	const totals = useStore(categoryTotals);
 	const expandedMap = useStore(expandedNodes);
 
@@ -82,7 +82,7 @@ const ExpenseNode = ({ node, level }: { node: ConfigNode; level: number }) => {
 
 				<div className="w-32 relative">
 					<span className={`absolute left-3 top-2.5 text-xs font-bold ${hasChildren ? "text-slate-900" : "text-muted-foreground"}`}>
-						{hasChildren ? "=" : mode === "percent" ? "%" : "₱"}
+						{hasChildren ? "=" : currMode === "percent" ? "%" : "₱"}
 					</span>
 
 					{hasChildren ? (
