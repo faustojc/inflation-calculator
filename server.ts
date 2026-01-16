@@ -1,9 +1,16 @@
-import { Database } from "bun:sqlite";
+import { createClient } from "@libsql/client";
 
-const db = new Database("./cpi-database.db");
+const turso = createClient({
+	url: "file:cpi-database.db",
+	// syncUrl: Bun.env.TURSO_DB_URL,
+	// authToken: Bun.env.TURSO_AUTH_TOKEN,
+	// syncInterval: 60,
+});
 
-db.query("PRAGMA journal_mode = WAL;").run();
-db.query("PRAGMA synchronous = NORMAL;").run();
+await turso.executeMultiple(`
+  PRAGMA journal_mode = WAL;
+  PRAGMA synchronous = NORMAL;
+`);
 
 const corsHeaders = {
 	"Access-Control-Allow-Origin": "*",
@@ -21,25 +28,36 @@ const server = Bun.serve({
 		}
 
 		if (url.pathname === "/api/metadata" && req.method === "GET") {
-			const regions = db.query("SELECT code, name FROM regions ORDER BY code").all();
-			const provinces = db
-				.query(
-					`
-					SELECT l.name as name, r.code as region_code
-					FROM locations l
-					JOIN regions r ON l.region_id = r.id
-					ORDER BY l.name
-				`
-				)
-				.all();
-			const yearRange = db.query(`SELECT MIN(year) as min_year, MAX(year) as max_year FROM cpi_values`).get();
+			try {
+				const results = await turso.batch(
+					[
+						"SELECT code, name FROM regions ORDER BY code", // 1. Regions
+						`SELECT l.name as name, r.code as region_code
+						FROM locations l
+						JOIN regions r ON l.region_id = r.id
+						ORDER BY l.name`, // 2. Provinces
+						"SELECT MIN(year) as min_year, MAX(year) as max_year FROM cpi_values", // 3. Years
+					],
+					"read"
+				);
 
-			return Response.json({ regions, provinces, yearRange }, { headers: corsHeaders });
+				const regions = results[0].rows;
+				const provinces = results[1].rows;
+				const yearRange = results[2].rows[0];
+
+				return Response.json({ regions, provinces, yearRange }, { headers: corsHeaders });
+			} catch (e) {
+				return new Response(String(e), { status: 500, headers: corsHeaders });
+			}
 		}
 
 		if (url.pathname === "/api/commodities" && req.method === "GET") {
-			const commodities = db.query("SELECT code, name, parent_code FROM commodity_defs ORDER BY code ASC").all();
-			return Response.json(commodities, { headers: corsHeaders });
+			try {
+				const result = await turso.execute("SELECT code, name, parent_code FROM commodity_defs ORDER BY code ASC");
+				return Response.json(result.rows, { headers: corsHeaders });
+			} catch (e) {
+				return new Response(String(e), { status: 500, headers: corsHeaders });
+			}
 		}
 
 		if (url.pathname === "/api/cpi-batch" && req.method === "POST") {
@@ -72,15 +90,15 @@ const server = Bun.serve({
 					WHERE
 						c.code IN (${placeholders})
 						AND (
-							(val.year = ? AND val.month = ?) OR
-							(val.year = ? AND val.month = ?)
+						(val.year = ? AND val.month = ?) OR
+						(val.year = ? AND val.month = ?)
 						)
 						AND ((r.code = ? AND (l.name = ? OR val.location_id IS NULL)) OR r.code = 'PH')
 				`;
 
-				const params = [
+				const args = [
 					provinceName || regionCode,
-					...codesToFetch,
+					...codesToFetch, //  Codes
 					dates.startYear,
 					dates.startMonth,
 					dates.endYear,
@@ -89,11 +107,25 @@ const server = Bun.serve({
 					provinceName,
 				];
 
-				const results = db.query(query).all(...params);
-				return Response.json(results, { headers: corsHeaders });
+				const results = await turso.execute({ sql: query, args });
+
+				return Response.json(results.rows, { headers: corsHeaders });
 			} catch (e) {
 				console.error(e);
 				return new Response("Server Error", { status: 500, headers: corsHeaders });
+			}
+		}
+
+		// MANUAL SYNC
+		if (url.pathname === "/api/sync" && req.method === "POST") {
+			try {
+				console.log("Starting Sync...");
+				await turso.sync();
+				console.log("Sync Complete");
+				return Response.json({ status: "synced" }, { headers: corsHeaders });
+			} catch (e) {
+				console.error("Sync Failed", e);
+				return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: corsHeaders });
 			}
 		}
 
