@@ -20,7 +20,7 @@ export default function App() {
 	const [showResults, setShowResults] = useState(false);
 	const [calculationData, setCalculationData] = useState<CalculationResult | null>(null);
 
-	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
+	const { isReady, isLoading, error: dataError, commodities, areas } = useStore(dataStore);
 
 	const itemsMap = useStore(expenses);
 	const items = Object.values(itemsMap);
@@ -72,12 +72,14 @@ export default function App() {
 			};
 
 			const activeCodes = items.filter((i) => i.value > 0).map((i) => i.code);
+			const provinceName = areas.find((a) => a.key === areaKey)?.name;
+
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
 			const batchMap = await getCalculationData(areaKey, baseYear, targetYear);
 			const result = calculatePersonalInflation(
 				items,
-				{ regionCode: areaKey, provinceName: areaKey },
+				{ regionCode: areaKey, provinceName: provinceName ?? areaKey },
 				dates,
 				{ mode: currentMode, totalInput: currentTotalAlloc },
 				batchMap,

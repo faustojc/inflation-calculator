@@ -146,10 +146,8 @@ export async function getCalculationData(areaKey: string, startYear: number, end
 		if (!res.ok) continue;
 
 		const file: YearlyDataFile = await res.json();
-		const area = file.area;
-		const year = file.year;
-
 		const dataset = file.data["ALL"];
+
 		if (!dataset) continue;
 
 		// Format: "01": [120.1, 120.5, ...]
@@ -157,7 +155,7 @@ export async function getCalculationData(areaKey: string, startYear: number, end
 			values.forEach((val, index) => {
 				const month = index + 1;
 				// REGION|AREA|INCOME|YEAR|MONTH|CODE
-				const key = `${area}|${area}|*|${year}|${month}|${code}`;
+				const key = `${file.area}|${file.name}|*|${file.year}|${month}|${code}`;
 				dataMap.set(key, val);
 			});
 		}

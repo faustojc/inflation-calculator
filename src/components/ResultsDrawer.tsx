@@ -41,7 +41,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 						<DrawerDescription className="flex justify-center items-center gap-3 mt-2 text-xs">
 							<span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
 								<CalendarDays className="h-3 w-3 text-slate-500" />
-								{startDateStr} <ArrowRight className="h-3 w-3" /> {endDateStr}
+								{endDateStr} <ArrowRight className="h-3 w-3" /> {startDateStr}
 							</span>
 							<span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
 								<MapPin className="h-3 w-3 text-slate-500" />
