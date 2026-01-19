@@ -1,4 +1,4 @@
-import { totalAllocation, type ExpenseItem } from "@/stores/inflationStore";
+import { type ExpenseItem } from "@/stores/inflationStore";
 
 export interface LocationContext {
 	regionCode: string;
@@ -14,28 +14,20 @@ export interface DateRange {
 
 export interface CalculationConfig {
 	mode: "amount" | "percent";
-	totalBudget: number;
+	totalInput: number;
 }
 
 export interface ItemBreakdown {
 	id: string;
 	name: string;
 	categoryCode: string;
-
-	// 1. Weight Calculation
-	inputValue: number; // The raw input
-	weight: number; // Formula 1: (Input / Total) * 100
-
-	// 2. Weighted CPI
+	inputValue: number;
+	weight: number;
 	cpiStart: number;
 	cpiEnd: number;
-	weightedCpiStart: number; // Formula 2: CPI * Weight
+	weightedCpiStart: number;
 	weightedCpiEnd: number;
-
-	// 3. Growth (Item Level)
 	itemInflationRate: number;
-
-	// Metadata
 	isMissing: boolean;
 }
 
@@ -101,13 +93,11 @@ export function calculatePersonalInflation(
 	expenses: ExpenseItem[],
 	location: LocationContext,
 	dates: DateRange,
-	mode: "amount" | "percent",
-	dataIndex?: Map<string, number>
+	config: CalculationConfig,
+	dataIndex?: Map<string, number>,
 ): CalculationResult | null {
 	if (!dataIndex || dataIndex.size === 0 || expenses.length === 0) return null;
-
-	const totalInput = totalAllocation.get();
-	if (totalInput === 0 && mode === "amount") return null;
+	if (config.totalInput === 0 && config.mode === "amount") return null;
 
 	const breakdown: ItemBreakdown[] = [];
 	const missingItems: string[] = [];
@@ -120,7 +110,7 @@ export function calculatePersonalInflation(
 
 		// STEP 1: WEIGHT
 		// Formula: (Input / Sum) * 100 or just the value if percent
-		const weight = mode === "amount" ? (item.value / totalInput) * 100 : item.value;
+		const weight = config.mode === "amount" ? (item.value / config.totalInput) * 100 : item.value;
 
 		// FETCH CPI DATA
 		const cpiStart = findCpi(dataIndex, location.regionCode, location.provinceName, dates.startYear, dates.startMonth, item.code);
@@ -150,7 +140,7 @@ export function calculatePersonalInflation(
 		const weightedCpiEnd = cpiEnd * weight;
 
 		// Item Growth
-		const itemRate = ((cpiEnd - cpiStart) / cpiStart) * 100;
+		const itemRate = ((cpiStart - cpiEnd) / cpiStart) * 100;
 
 		sumWeightedCpiStart += weightedCpiStart;
 		sumWeightedCpiEnd += weightedCpiEnd;
@@ -193,17 +183,16 @@ export function calculatePersonalInflation(
 	// Formula: (Current - Previous) / Previous * 100
 	let growthRate = 0;
 	if (yearlyCpiStart > 0) {
-		growthRate = ((yearlyCpiEnd - yearlyCpiStart) / yearlyCpiStart) * 100;
+		growthRate = ((yearlyCpiStart - yearlyCpiEnd) / yearlyCpiEnd) * 100;
 	}
 
 	const interpretation = generateInterpretation(growthRate, breakdown);
-	const totalSpend = mode === "amount" ? totalInput : 100;
 
 	return {
 		personalRate: growthRate,
 		yearlyCpiStart,
 		yearlyCpiEnd,
-		totalSpend,
+		totalSpend: config.totalInput,
 		breakdown,
 		interpretation,
 		missingItems: [],

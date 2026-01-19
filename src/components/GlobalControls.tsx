@@ -16,22 +16,20 @@ import { useState } from "react";
 export function GlobalControls() {
 	const appSettings = useStore(settings);
 	const m = useStore(mode);
-	const { provinces, availableYears } = useStore(dataStore);
+	const { areas, availableYears } = useStore(dataStore);
 
 	const [openProvince, setOpenProvince] = useState(false);
 	const [openYear, setOpenYear] = useState(false);
 
-	const [selectedProvince, setSelectedProvince] = useState<string>(() => {
-		if (appSettings.province) return appSettings.province;
-
-		if (appSettings.region && provinces.length > 0) {
-			const match = provinces.find((p) => p.region_code === appSettings.region);
+	const [selectArea, setSelectArea] = useState<string>(() => {
+		if (appSettings.areaKey && areas.length > 0) {
+			const match = areas.find((p) => p.key === appSettings.areaKey);
 			if (match) {
 				return match.name;
 			}
 		}
 
-		return "Manila, Metro (NCR)";
+		return "National Capital Region (NCR)";
 	});
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,13 +37,11 @@ export function GlobalControls() {
 		settings.setKey(key, value);
 	};
 
-	const handleProvinceSelect = (provName: string) => {
-		const match = provinces.find((p) => p.name === provName);
+	const handleAreaSelect = (areaName: string) => {
+		const match = areas.find((a) => a.name === areaName);
 		if (match) {
-			setSelectedProvince(provName);
-
-			settings.setKey("region", match.region_code);
-			settings.setKey("province", provName);
+			setSelectArea(match.name);
+			settings.setKey("areaKey", match.key);
 		}
 		setOpenProvince(false);
 	};
@@ -79,7 +75,7 @@ export function GlobalControls() {
 					<Popover open={openProvince} onOpenChange={setOpenProvince}>
 						<PopoverTrigger asChild>
 							<Button variant="outline" role="combobox" aria-expanded={openProvince} className="w-full justify-between font-medium truncate">
-								{selectedProvince || "Select Location..."}
+								{selectArea || "Select Location..."}
 								<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 							</Button>
 						</PopoverTrigger>
@@ -89,10 +85,10 @@ export function GlobalControls() {
 								<CommandList>
 									<CommandEmpty>No location found.</CommandEmpty>
 									<CommandGroup className="max-h-62.5 overflow-y-auto">
-										{provinces.map((p, i) => (
-											<CommandItem key={p.name + i} value={p.name} onSelect={handleProvinceSelect}>
-												<Check className={cn("mr-2 h-4 w-4", selectedProvince === p.name ? "opacity-100" : "opacity-0")} />
-												{p.name}
+										{areas.map((a) => (
+											<CommandItem key={a.key} value={a.name} onSelect={(key) => handleAreaSelect(key)}>
+												<Check className={cn("mr-2 h-4 w-4", selectArea === a.name ? "opacity-100" : "opacity-0")} />
+												{a.name}
 											</CommandItem>
 										))}
 									</CommandGroup>
@@ -102,7 +98,7 @@ export function GlobalControls() {
 					</Popover>
 
 					<p className="text-[10px] text-muted-foreground">
-						Mapped to Region: <strong>{appSettings.region}</strong>
+						Mapped to Region: <strong>{appSettings.areaKey.toLocaleUpperCase()}</strong>
 					</p>
 				</div>
 
@@ -167,7 +163,7 @@ export function GlobalControls() {
 													<Check
 														className={cn(
 															"mr-2 h-4 w-4",
-															appSettings.startDate.getFullYear().toString() === year ? "opacity-100" : "opacity-0"
+															appSettings.startDate.getFullYear().toString() === year ? "opacity-100" : "opacity-0",
 														)}
 													/>
 													{year}
@@ -189,9 +185,9 @@ export function GlobalControls() {
 					<button
 						onClick={() => mode.set("amount")}
 						className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-							m === "amount"
-								? "bg-white dark:bg-slate-700 shadow text-primary"
-								: "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
+							m === "amount" ?
+								"bg-white dark:bg-slate-700 shadow text-primary"
+							:	"text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
 						}`}
 					>
 						Amount
@@ -199,9 +195,9 @@ export function GlobalControls() {
 					<button
 						onClick={() => mode.set("percent")}
 						className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-							m === "percent"
-								? "bg-white dark:bg-slate-700 shadow text-primary"
-								: "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
+							m === "percent" ?
+								"bg-white dark:bg-slate-700 shadow text-primary"
+							:	"text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
 						}`}
 					>
 						Percent

@@ -11,7 +11,7 @@ import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataStore, getCalculationData, initializeApp } from "@/stores/dataStore";
-import { clearExpenses, expenses, initializeExpenses, isCalculationDisabled, locateCategory, mode, settings } from "@/stores/inflationStore";
+import { clearExpenses, expenses, initializeExpenses, isCalculationDisabled, locateCategory, mode, settings, totalAllocation } from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
 import { toast } from "sonner";
 
@@ -34,34 +34,27 @@ export default function App() {
 		setIsCalculating(true);
 
 		try {
-			const currentSettings = settings.get();
+			const { areaKey, startDate, endDate } = settings.get();
 			const currentMode = mode.get();
-			const activeCodes = items.filter((i) => i.value > 0).map((i) => i.code);
+			const currentTotalAlloc = totalAllocation.get();
 
-			if (activeCodes.length === 0) throw new Error("No expenses entered.");
-
-			const activeProvince = currentSettings.province;
-			const userDate = currentSettings.startDate;
-
-			const endYear = userDate.getFullYear();
-			const endMonth = userDate.getMonth() + 1;
-			const startYear = endYear - 1;
-			const startMonth = endMonth;
+			const startYear = startDate.getFullYear();
+			const endYear = startDate.getFullYear() - 1;
 
 			const dates = {
 				startYear,
-				startMonth,
+				startMonth: startDate.getMonth() + 1,
 				endYear,
-				endMonth,
+				endMonth: endDate.getMonth() + 1,
 			};
 
-			const batchMap = await getCalculationData(currentSettings.region, activeProvince, dates, activeCodes);
+			const batchMap = await getCalculationData(areaKey, startYear, endYear);
 			const result = calculatePersonalInflation(
 				items,
-				{ regionCode: currentSettings.region, provinceName: activeProvince },
+				{ regionCode: areaKey, provinceName: areaKey },
 				dates,
-				currentMode,
-				batchMap
+				{ mode: currentMode, totalInput: currentTotalAlloc },
+				batchMap,
 			);
 
 			if (result) {
@@ -188,14 +181,12 @@ export default function App() {
 						disabled={isCalculating || isDisabled}
 						className="w-full text-base font-bold h-12 shadow-xl transition-all active:scale-[0.98]"
 					>
-						{isCalculating ? (
+						{isCalculating ?
 							<>
 								<Loader2 className="mr-2 h-5 w-5 animate-spin" />
 								Calculating your inflation rate...
 							</>
-						) : (
-							"Calculate Personal Rate"
-						)}
+						:	"Calculate Personal Rate"}
 					</Button>
 				</div>
 			</div>

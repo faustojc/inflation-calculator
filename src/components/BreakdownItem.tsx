@@ -1,5 +1,6 @@
 import type { ItemBreakdown } from "@/utils/inflationCompute";
-import { ArrowRight, Badge } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Badge } from "./ui/badge";
 
 export function BreakdownItem({ item, totalSpend, formatter }: Readonly<{ item: ItemBreakdown; totalSpend: number; formatter: Intl.NumberFormat }>) {
 	// Formula: Amount = (Weight / 100) * TotalSpend

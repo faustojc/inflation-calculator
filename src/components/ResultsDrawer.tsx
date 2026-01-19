@@ -36,7 +36,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent className="h-[92vh] flex flex-col rounded-t-4xl bg-slate-50 dark:bg-slate-950 font-sans">
 				<div className="mx-auto w-full max-w-lg flex flex-col h-full overflow-hidden">
-					<DrawerHeader className="shrink-0 text-center bg-white dark:bg-slate-900 rounded-t-4xl border-b border-slate-100 dark:border-slate-800 pb-4">
+					<DrawerHeader className="shrink-0 text-center border-b pb-4">
 						<DrawerTitle className="text-xl font-bold tracking-tight">Personal Inflation Report</DrawerTitle>
 						<DrawerDescription className="flex justify-center items-center gap-3 mt-2 text-xs">
 							<span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
@@ -55,9 +55,9 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 							className={`
 								relative overflow-hidden p-6 rounded-3xl border shadow-sm flex flex-col items-center text-center
 								${
-									isHigh
-										? "bg-red-50 border-red-100 dark:bg-red-950/30 dark:border-red-900/50"
-										: "bg-emerald-50 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50"
+									isHigh ?
+										"bg-red-50 border-red-100 dark:bg-red-950/30 dark:border-red-900/50"
+									:	"bg-emerald-50 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50"
 								}
 							`}
 						>
@@ -128,7 +128,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 						</div>
 					</div>
 
-					<DrawerFooter className="shrink-0 bg-white dark:bg-slate-900 border-t pt-4 pb-8">
+					<DrawerFooter className="shrink-0 border-t pt-4 pb-8">
 						<DrawerClose asChild>
 							<Button variant="outline" className="w-full h-12 text-base font-semibold shadow-sm">
 								Close Report

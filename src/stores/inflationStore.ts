@@ -11,8 +11,7 @@ export type ExpenseItem = {
 };
 
 export type AppSettings = {
-	region: string;
-	province?: string;
+	areaKey: string;
 	incomeClass: "all" | "bottom30";
 	startDate: Date;
 	endDate: Date;
@@ -30,8 +29,7 @@ const lastYear = new Date();
 lastYear.setFullYear(today.getFullYear() - 1);
 
 export const settings = map<AppSettings>({
-	region: "NCR",
-	province: "Manila, Metro (NCR)",
+	areaKey: "ncr",
 	incomeClass: "all",
 	startDate: lastYear,
 	endDate: today,
