@@ -5,10 +5,12 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
+	base: "/",
 	build: {
 		target: "esnext",
 		minify: true,
 		cssMinify: true,
+		outDir: "dist",
 		rollupOptions: {
 			output: {
 				manualChunks: (id) => {

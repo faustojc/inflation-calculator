@@ -27,28 +27,54 @@ export default function App() {
 	const isDisabled = useStore(isCalculationDisabled);
 
 	useEffect(() => {
-		initializeApp().then(() => initializeExpenses());
+		initializeApp().then((meta) => {
+			if (meta) {
+				const now = new Date();
+				const maxYear = meta.year_range.max;
+				const minYear = meta.year_range.min;
+
+				const isCurrentYear = maxYear === now.getFullYear();
+				const targetMonth = isCurrentYear ? now.getMonth() : 11;
+
+				const newEndDate = new Date(maxYear, targetMonth, 1);
+				const newStartDate = new Date(maxYear, targetMonth, 1);
+
+				if (newStartDate.getFullYear() < minYear) {
+					newStartDate.setFullYear(minYear);
+				}
+
+				settings.setKey("startDate", newStartDate);
+				settings.setKey("endDate", newEndDate);
+			}
+
+			initializeExpenses();
+		});
 	}, []);
 
 	const handleCalculate = async () => {
 		setIsCalculating(true);
 
 		try {
-			const { areaKey, startDate, endDate } = settings.get();
+			const { areaKey, startDate } = settings.get();
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
 
-			const startYear = startDate.getFullYear();
-			const endYear = startDate.getFullYear() - 1;
+			const targetYear = startDate.getFullYear();
+			const targetMonth = startDate.getMonth() + 1;
+			const baseYear = targetYear - 1;
+			const baseMonth = targetMonth;
 
 			const dates = {
-				startYear,
-				startMonth: startDate.getMonth() + 1,
-				endYear,
-				endMonth: endDate.getMonth() + 1,
+				startYear: baseYear,
+				startMonth: baseMonth,
+				endYear: targetYear,
+				endMonth: targetMonth,
 			};
 
-			const batchMap = await getCalculationData(areaKey, startYear, endYear);
+			const activeCodes = items.filter((i) => i.value > 0).map((i) => i.code);
+			if (activeCodes.length === 0) throw new Error("No expenses entered.");
+
+			const batchMap = await getCalculationData(areaKey, baseYear, targetYear);
 			const result = calculatePersonalInflation(
 				items,
 				{ regionCode: areaKey, provinceName: areaKey },

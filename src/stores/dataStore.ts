@@ -118,6 +118,8 @@ export async function initializeApp() {
 			error: null,
 		});
 
+		return meta;
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		console.error(err);
