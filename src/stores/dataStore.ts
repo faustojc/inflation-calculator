@@ -1,6 +1,7 @@
 import { computed, map } from "nanostores";
+import { env } from "bun";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = env.VITE_API_URL;
 
 export type TreeNode = {
 	code: string;
