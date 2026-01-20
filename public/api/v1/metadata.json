@@ -1,0 +1,489 @@
+{
+  "generated_at": "2026-01-19T09:25:03.837125",
+  "year_range": {
+    "min": 2018,
+    "max": 2025
+  },
+  "areas": [
+    {
+      "key": "abra",
+      "name": "Abra"
+    },
+    {
+      "key": "agusan-del-norte",
+      "name": "Agusan del Norte"
+    },
+    {
+      "key": "agusan-del-sur",
+      "name": "Agusan del Sur"
+    },
+    {
+      "key": "aklan",
+      "name": "Aklan"
+    },
+    {
+      "key": "albay",
+      "name": "Albay"
+    },
+    {
+      "key": "antique",
+      "name": "Antique"
+    },
+    {
+      "key": "aoncr",
+      "name": "Areas Outside National Capital Region (AONCR)"
+    },
+    {
+      "key": "apayao",
+      "name": "Apayao"
+    },
+    {
+      "key": "aurora",
+      "name": "Aurora"
+    },
+    {
+      "key": "barmm",
+      "name": "Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)"
+    },
+    {
+      "key": "basilan",
+      "name": "Basilan"
+    },
+    {
+      "key": "bataan",
+      "name": "Bataan"
+    },
+    {
+      "key": "batanes",
+      "name": "Batanes"
+    },
+    {
+      "key": "batangas",
+      "name": "Batangas"
+    },
+    {
+      "key": "benguet",
+      "name": "Benguet"
+    },
+    {
+      "key": "biliran",
+      "name": "Biliran"
+    },
+    {
+      "key": "bohol",
+      "name": "Bohol"
+    },
+    {
+      "key": "bukidnon",
+      "name": "Bukidnon"
+    },
+    {
+      "key": "bulacan",
+      "name": "Bulacan"
+    },
+    {
+      "key": "cagayan",
+      "name": "Cagayan"
+    },
+    {
+      "key": "camarines-norte",
+      "name": "Camarines Norte"
+    },
+    {
+      "key": "camarines-sur",
+      "name": "Camarines Sur"
+    },
+    {
+      "key": "camiguin",
+      "name": "Camiguin"
+    },
+    {
+      "key": "capiz",
+      "name": "Capiz"
+    },
+    {
+      "key": "car",
+      "name": "Cordillera Administrative Region (CAR)"
+    },
+    {
+      "key": "catanduanes",
+      "name": "Catanduanes"
+    },
+    {
+      "key": "cavite",
+      "name": "Cavite"
+    },
+    {
+      "key": "cebu",
+      "name": "Cebu"
+    },
+    {
+      "key": "city-of-angeles",
+      "name": "City of Angeles"
+    },
+    {
+      "key": "city-of-bacolod-capital",
+      "name": "City of Bacolod (Capital)"
+    },
+    {
+      "key": "city-of-baguio",
+      "name": "City of Baguio"
+    },
+    {
+      "key": "city-of-butuan-capital",
+      "name": "City of Butuan (Capital)"
+    },
+    {
+      "key": "city-of-cagayan-de-oro-capital",
+      "name": "City of Cagayan de Oro (Capital)"
+    },
+    {
+      "key": "city-of-cebu-capital",
+      "name": "City of Cebu (Capital)"
+    },
+    {
+      "key": "city-of-cotabato",
+      "name": "City of Cotabato"
+    },
+    {
+      "key": "city-of-davao",
+      "name": "City of Davao"
+    },
+    {
+      "key": "city-of-general-santos",
+      "name": "City of General Santos"
+    },
+    {
+      "key": "city-of-iligan",
+      "name": "City of Iligan"
+    },
+    {
+      "key": "city-of-iloilo-capital",
+      "name": "City of Iloilo (Capital)"
+    },
+    {
+      "key": "city-of-isabela",
+      "name": "City of Isabela"
+    },
+    {
+      "key": "city-of-lapu-lapu",
+      "name": "City of Lapu-Lapu"
+    },
+    {
+      "key": "city-of-lucena-capital",
+      "name": "City of Lucena (Capital)"
+    },
+    {
+      "key": "city-of-mandaue",
+      "name": "City of Mandaue"
+    },
+    {
+      "key": "city-of-olongapo",
+      "name": "City of Olongapo"
+    },
+    {
+      "key": "city-of-puerto-princesa-capital",
+      "name": "City of Puerto Princesa (Capital)"
+    },
+    {
+      "key": "city-of-tacloban-capital",
+      "name": "City of Tacloban (Capital)"
+    },
+    {
+      "key": "city-of-zamboanga",
+      "name": "City of Zamboanga"
+    },
+    {
+      "key": "cotabato",
+      "name": "Cotabato"
+    },
+    {
+      "key": "davao-de-oro",
+      "name": "Davao de Oro"
+    },
+    {
+      "key": "davao-del-norte",
+      "name": "Davao del Norte"
+    },
+    {
+      "key": "davao-del-sur",
+      "name": "Davao del Sur"
+    },
+    {
+      "key": "davao-occidental",
+      "name": "Davao Occidental"
+    },
+    {
+      "key": "davao-oriental",
+      "name": "Davao Oriental"
+    },
+    {
+      "key": "dinagat-islands",
+      "name": "Dinagat Islands"
+    },
+    {
+      "key": "eastern-samar",
+      "name": "Eastern Samar"
+    },
+    {
+      "key": "guimaras",
+      "name": "Guimaras"
+    },
+    {
+      "key": "ifugao",
+      "name": "Ifugao"
+    },
+    {
+      "key": "ilocos-norte",
+      "name": "Ilocos Norte"
+    },
+    {
+      "key": "ilocos-sur",
+      "name": "Ilocos Sur"
+    },
+    {
+      "key": "iloilo",
+      "name": "Iloilo"
+    },
+    {
+      "key": "isabela",
+      "name": "Isabela"
+    },
+    {
+      "key": "kalinga",
+      "name": "Kalinga"
+    },
+    {
+      "key": "la-union",
+      "name": "La Union"
+    },
+    {
+      "key": "laguna",
+      "name": "Laguna"
+    },
+    {
+      "key": "lanao-del-norte",
+      "name": "Lanao del Norte"
+    },
+    {
+      "key": "lanao-del-sur",
+      "name": "Lanao del Sur"
+    },
+    {
+      "key": "leyte",
+      "name": "Leyte"
+    },
+    {
+      "key": "maguindanao",
+      "name": "Maguindanao"
+    },
+    {
+      "key": "marinduque",
+      "name": "Marinduque"
+    },
+    {
+      "key": "masbate",
+      "name": "Masbate"
+    },
+    {
+      "key": "mimaropa",
+      "name": "MIMAROPA Region"
+    },
+    {
+      "key": "mimorapa",
+      "name": "MIMAROPA Region"
+    },
+    {
+      "key": "misamis-occidental",
+      "name": "Misamis Occidental"
+    },
+    {
+      "key": "misamis-oriental",
+      "name": "Misamis Oriental"
+    },
+    {
+      "key": "mountain-province",
+      "name": "Mountain Province"
+    },
+    {
+      "key": "ncr",
+      "name": "National Capital Region (NCR)"
+    },
+    {
+      "key": "negros-occidental",
+      "name": "Negros Occidental"
+    },
+    {
+      "key": "negros-oriental",
+      "name": "Negros Oriental"
+    },
+    {
+      "key": "nir",
+      "name": "Negros Island Region (NIR)"
+    },
+    {
+      "key": "northern-samar",
+      "name": "Northern Samar"
+    },
+    {
+      "key": "nueva-ecija",
+      "name": "Nueva Ecija"
+    },
+    {
+      "key": "nueva-vizcaya",
+      "name": "Nueva Vizcaya"
+    },
+    {
+      "key": "occidental-mindoro",
+      "name": "Occidental Mindoro"
+    },
+    {
+      "key": "oriental-mindoro",
+      "name": "Oriental Mindoro"
+    },
+    {
+      "key": "palawan",
+      "name": "Palawan"
+    },
+    {
+      "key": "pampanga",
+      "name": "Pampanga"
+    },
+    {
+      "key": "pangasinan",
+      "name": "Pangasinan"
+    },
+    {
+      "key": "quezon",
+      "name": "Quezon"
+    },
+    {
+      "key": "quirino",
+      "name": "Quirino"
+    },
+    {
+      "key": "region i",
+      "name": "Region I (Ilocos Region)"
+    },
+    {
+      "key": "region ii",
+      "name": "Region II (Cagayan Valley)"
+    },
+    {
+      "key": "region iii",
+      "name": "Region III (Central Luzon)"
+    },
+    {
+      "key": "region iv-a",
+      "name": "Region IV-A (CALABARZON)"
+    },
+    {
+      "key": "region ix",
+      "name": "Region IX (Zamboanga Peninsula)"
+    },
+    {
+      "key": "region v",
+      "name": "Region V (Bicol Region)"
+    },
+    {
+      "key": "region vi",
+      "name": "Region VI (Western Visayas)"
+    },
+    {
+      "key": "region vii",
+      "name": "Region VII (Central Visayas)"
+    },
+    {
+      "key": "region viii",
+      "name": "Region VIII (Eastern Visayas)"
+    },
+    {
+      "key": "region x",
+      "name": "Region X (Northern Mindanao)"
+    },
+    {
+      "key": "region xi",
+      "name": "Region XI (Davao Region)"
+    },
+    {
+      "key": "region xii",
+      "name": "Region XII (SOCCSKSARGEN)"
+    },
+    {
+      "key": "region xiii",
+      "name": "Region XIII (Caraga)"
+    },
+    {
+      "key": "rizal",
+      "name": "Rizal"
+    },
+    {
+      "key": "romblon",
+      "name": "Romblon"
+    },
+    {
+      "key": "samar",
+      "name": "Samar"
+    },
+    {
+      "key": "sarangani",
+      "name": "Sarangani"
+    },
+    {
+      "key": "siquijor",
+      "name": "Siquijor"
+    },
+    {
+      "key": "sorsogon",
+      "name": "Sorsogon"
+    },
+    {
+      "key": "south-cotabato",
+      "name": "South Cotabato"
+    },
+    {
+      "key": "southern-leyte",
+      "name": "Southern Leyte"
+    },
+    {
+      "key": "sultan-kudarat",
+      "name": "Sultan Kudarat"
+    },
+    {
+      "key": "sulu",
+      "name": "Sulu"
+    },
+    {
+      "key": "surigao-del-norte",
+      "name": "Surigao del Norte"
+    },
+    {
+      "key": "surigao-del-sur",
+      "name": "Surigao del Sur"
+    },
+    {
+      "key": "tarlac",
+      "name": "Tarlac"
+    },
+    {
+      "key": "tawi-tawi",
+      "name": "Tawi-tawi"
+    },
+    {
+      "key": "zambales",
+      "name": "Zambales"
+    },
+    {
+      "key": "zamboanga-del-norte",
+      "name": "Zamboanga del Norte"
+    },
+    {
+      "key": "zamboanga-del-sur",
+      "name": "Zamboanga del Sur"
+    },
+    {
+      "key": "zamboanga-sibugay",
+      "name": "Zamboanga Sibugay"
+    }
+  ]
+}

@@ -1,0 +1,1928 @@
+[
+  {
+    "code": "01",
+    "name": "FOOD AND NON-ALCOHOLIC BEVERAGES",
+    "children": [
+      {
+        "code": "01.1",
+        "name": "FOOD",
+        "children": [
+          {
+            "code": "01.1.1",
+            "name": "Cereals and cereal products (ND)",
+            "children": [
+              {
+                "code": "01.1.1.1",
+                "name": "Cereals (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.1.2",
+                "name": "Flour of cereals (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.1.3",
+                "name": "Bread and bakery products (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.1.4",
+                "name": "Breakfast cereals (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.1.5",
+                "name": "Macaroni, noodles, couscous and similar pasta products (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.1.9",
+                "name": "Other cereal and grain mill products (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.1.12",
+                "name": "Rice",
+                "children": []
+              },
+              {
+                "code": "01.1.1.16",
+                "name": "Corn",
+                "children": []
+              },
+              {
+                "code": "01.1.1.20",
+                "name": "Flour, Bread and Other Bakery Products, Pasta Products,  and Other Cereals",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.2",
+            "name": "Meat and other parts of slaughtered land animals (ND)",
+            "children": [
+              {
+                "code": "01.1.2.2",
+                "name": "Meat, fresh, chilled or frozen (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.2.3",
+                "name": "Meat, dried, salted, in brine or smoked (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.2.4",
+                "name": "Offal, blood and other parts of slaughtered animals, fresh, chilled or frozen, dried, salted, in brine or smoked (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.2.5",
+                "name": "Meat, offal, blood and other parts of slaughtered animals' preparations (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.3",
+            "name": "Fish and other seafood (ND)",
+            "children": [
+              {
+                "code": "01.1.3.1",
+                "name": "Fish, live, fresh, chilled or frozen (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.3.2",
+                "name": "Fish, dried, salted, in brine or smoked (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.3.3",
+                "name": "Fish preparations (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.3.4",
+                "name": "Other seafood, live, fresh, chilled or frozen (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.3.6",
+                "name": "Other seafood preparations (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.4",
+            "name": "Milk, other dairy products and eggs (ND)",
+            "children": [
+              {
+                "code": "01.1.4.1",
+                "name": "Raw and whole milk (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.4.3",
+                "name": "Other milk and cream (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.4.4",
+                "name": "Non-animal milk (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.4.5",
+                "name": "Cheese (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.4.6",
+                "name": "Yoghurt and similar products (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.4.7",
+                "name": "Milk-based dessert and beverages (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.4.8",
+                "name": "Eggs (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.5",
+            "name": "Oils and fats (ND)",
+            "children": [
+              {
+                "code": "01.1.5.1",
+                "name": "Vegetable oils (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.5.2",
+                "name": "Butter and other fats and oils derived from milk (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.5.3",
+                "name": "Margarine and similar preparations (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.5.9",
+                "name": "Other animal oils and fats (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.6",
+            "name": "Fruits and nuts (ND)",
+            "children": [
+              {
+                "code": "01.1.6.1",
+                "name": "Dates, figs and tropical fruits, fresh (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.6.2",
+                "name": "Citrus fruits, fresh (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.6.3",
+                "name": "Stone fruits and pome fruits, fresh (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.6.5",
+                "name": "Other fruits, fresh (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.6.7",
+                "name": "Fruit, dried and dehydrated (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.6.8",
+                "name": "Nuts, in shell or shelled (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.6.9",
+                "name": "Fruit and nuts ground and other preparations (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.7",
+            "name": "Vegetables, tubers, plantains, cooking bananas and pulses (ND)",
+            "children": [
+              {
+                "code": "01.1.7.1",
+                "name": "Leafy or stem vegetables, fresh or chilled (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.7.2",
+                "name": "Fruit-bearing vegetables, fresh or chilled (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.7.3",
+                "name": "Green leguminous vegetables, fresh or chilled (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.7.4",
+                "name": "Other vegetables, fresh or chilled (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.7.5",
+                "name": "Tubers, plantains and cooking bananas (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.7.9",
+                "name": "Vegetables, tubers, plantains, cooking bananas and pulses ground and other preparations (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.8",
+            "name": "Sugar, confectionery and desserts (ND)",
+            "children": [
+              {
+                "code": "01.1.8.1",
+                "name": "Cane and beet sugar (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.8.3",
+                "name": "Jams, fruit jellies, marmalades, fruit pur\u00e9e and pastes, honey (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.8.4",
+                "name": "Nut pur\u00e9e, nut butter and nut pastes (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.8.5",
+                "name": "Chocolate, cocoa, and cocoa-based food products (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.8.6",
+                "name": "Ice, ice cream and sorbet (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.8.9",
+                "name": "Other sugar confectionery and desserts n.e.c. (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.1.9",
+            "name": "Ready-made food and other food products n.e.c. (ND)",
+            "children": [
+              {
+                "code": "01.1.9.2",
+                "name": "Baby food (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.9.3",
+                "name": "Salt, condiments and sauces (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.9.4",
+                "name": "Spices, culinary herbs and seeds (ND)",
+                "children": []
+              },
+              {
+                "code": "01.1.9.9",
+                "name": "Other food products n.e.c. (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "01.2",
+        "name": "NON-ALCOHOLIC BEVERAGES",
+        "children": [
+          {
+            "code": "01.2.1",
+            "name": "Fruit and vegetable juices (ND)",
+            "children": [
+              {
+                "code": "01.2.1.0",
+                "name": "Fruit and vegetable juices (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.2.2",
+            "name": "Coffee and coffee substitutes (ND)",
+            "children": [
+              {
+                "code": "01.2.2.0",
+                "name": "Coffee and coffee substitutes (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.2.3",
+            "name": "Tea, mat\u00e9 and other plant products for infusion (ND)",
+            "children": [
+              {
+                "code": "01.2.3.0",
+                "name": "Tea, mat\u00e9 and other plant products for infusion (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.2.4",
+            "name": "Cocoa drinks (ND)",
+            "children": [
+              {
+                "code": "01.2.4.0",
+                "name": "Cocoa drinks (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.2.5",
+            "name": "Water (ND)",
+            "children": [
+              {
+                "code": "01.2.5.0",
+                "name": "Water (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.2.6",
+            "name": "Soft drinks (ND)",
+            "children": [
+              {
+                "code": "01.2.6.0",
+                "name": "Soft drinks (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "01.2.9",
+            "name": "Other non-alcoholic beverages (ND)",
+            "children": [
+              {
+                "code": "01.2.9.0",
+                "name": "Other non-alcoholic beverages (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "02",
+    "name": "ALCOHOLIC BEVERAGES AND TOBACCO",
+    "children": [
+      {
+        "code": "02.1",
+        "name": "ALCOHOLIC BEVERAGES",
+        "children": [
+          {
+            "code": "02.1.1",
+            "name": "Spirits and liquors (ND)",
+            "children": [
+              {
+                "code": "02.1.1.0",
+                "name": "Spirits and liquors (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "02.1.2",
+            "name": "Wine (ND)",
+            "children": [
+              {
+                "code": "02.1.2.1",
+                "name": "Wine from grapes (ND)",
+                "children": []
+              },
+              {
+                "code": "02.1.2.2",
+                "name": "Wine from other sources (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "02.1.3",
+            "name": "Beer (ND)",
+            "children": [
+              {
+                "code": "02.1.3.0",
+                "name": "Beer (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "02.3",
+        "name": "TOBACCO",
+        "children": [
+          {
+            "code": "02.3.0",
+            "name": "Tobacco (ND)",
+            "children": [
+              {
+                "code": "02.3.0.1",
+                "name": "Cigarettes (ND)",
+                "children": []
+              },
+              {
+                "code": "02.3.0.2",
+                "name": "Cigars (ND)",
+                "children": []
+              },
+              {
+                "code": "02.3.0.9",
+                "name": "Other tobacco products (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "02.4",
+        "name": "OTHER VEGETABLE-BASED TOBACCO PRODUCTS",
+        "children": [
+          {
+            "code": "02.4.0",
+            "name": "Other vegetable-based tobacco products (ND)",
+            "children": [
+              {
+                "code": "02.4.0.0",
+                "name": "Other vegetable-based tobacco products (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "02.900",
+        "name": "NON-FOOD",
+        "children": []
+      }
+    ]
+  },
+  {
+    "code": "03",
+    "name": "CLOTHING AND FOOTWEAR",
+    "children": [
+      {
+        "code": "03.1",
+        "name": "CLOTHING",
+        "children": [
+          {
+            "code": "03.1.1",
+            "name": "Clothing materials (SD)",
+            "children": [
+              {
+                "code": "03.1.1.0",
+                "name": "Clothing materials (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "03.1.2",
+            "name": "Garments (SD)",
+            "children": [
+              {
+                "code": "03.1.2.1",
+                "name": "Garments for men or boys (SD)",
+                "children": []
+              },
+              {
+                "code": "03.1.2.2",
+                "name": "Garments for women or girls (SD)",
+                "children": []
+              },
+              {
+                "code": "03.1.2.3",
+                "name": "Garments for infants (0 to under 2 years) (SD)",
+                "children": []
+              },
+              {
+                "code": "03.1.2.4",
+                "name": "School uniforms (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "03.1.3",
+            "name": "Other articles of clothing and clothing accessories (SD)",
+            "children": [
+              {
+                "code": "03.1.3.1",
+                "name": "Other articles of clothing (SD)",
+                "children": []
+              },
+              {
+                "code": "03.1.3.2",
+                "name": "Clothing accessories (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "03.1.4",
+            "name": "Cleaning, repair, tailoring and hire of clothing (S)",
+            "children": [
+              {
+                "code": "03.1.4.1",
+                "name": "Cleaning of clothing (S)",
+                "children": []
+              },
+              {
+                "code": "03.1.4.2",
+                "name": "Repair, tailoring and hire of clothing (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "03.2",
+        "name": "FOOTWEAR",
+        "children": [
+          {
+            "code": "03.2.1",
+            "name": "Shoes and other footwear (SD)",
+            "children": [
+              {
+                "code": "03.2.1.1",
+                "name": "Footwear for men (SD)",
+                "children": []
+              },
+              {
+                "code": "03.2.1.2",
+                "name": "Footwear for women (SD)",
+                "children": []
+              },
+              {
+                "code": "03.2.1.3",
+                "name": "Footwear for infants and children (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "03.2.2",
+            "name": "Cleaning, repair, and hire of footwear (S)",
+            "children": [
+              {
+                "code": "03.2.2.0",
+                "name": "Cleaning, repair, and hire of footwear (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "04",
+    "name": "HOUSING, WATER, ELECTRICITY, GAS, AND OTHER FUELS",
+    "children": [
+      {
+        "code": "04.1",
+        "name": "ACTUAL RENTALS FOR HOUSING",
+        "children": [
+          {
+            "code": "04.1.1",
+            "name": "Actual rentals paid by tenants for main residence (S)",
+            "children": [
+              {
+                "code": "04.1.1.0",
+                "name": "Actual rentals paid by tenants for main residence (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "04.3",
+        "name": "MAINTENANCE, REPAIR AND SECURITY OF THE DWELLING",
+        "children": [
+          {
+            "code": "04.3.1",
+            "name": "Security equipment and materials for the maintenance and repair of the dwelling (ND)",
+            "children": [
+              {
+                "code": "04.3.1.1",
+                "name": "Materials for the maintenance and repair of the dwelling (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "04.3.2",
+            "name": "Services for the maintenance, repair and security of the dwelling (S)",
+            "children": [
+              {
+                "code": "04.3.2.0",
+                "name": "Services for the maintenance, repair and security of the dwelling (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "04.4",
+        "name": "WATER SUPPLY AND MISCELLANEOUS SERVICES RELATING TO THE DWELLING",
+        "children": [
+          {
+            "code": "04.4.1",
+            "name": "Water supply (ND)",
+            "children": [
+              {
+                "code": "04.4.1.1",
+                "name": "Water supply through network systems (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "04.5",
+        "name": "ELECTRICITY, GAS AND OTHER FUELS",
+        "children": [
+          {
+            "code": "04.5.1",
+            "name": "Electricity (ND)",
+            "children": [
+              {
+                "code": "04.5.1.0",
+                "name": "Electricity (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "04.5.2",
+            "name": "Gas (ND)",
+            "children": [
+              {
+                "code": "04.5.2.2",
+                "name": "Liquefied hydrocarbons (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "04.5.3",
+            "name": "Liquid fuels (ND)",
+            "children": [
+              {
+                "code": "04.5.3.0",
+                "name": "Liquid fuels (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "04.5.4",
+            "name": "Solid fuels (ND)",
+            "children": [
+              {
+                "code": "04.5.4.2",
+                "name": "Wood fuel, including pellets and briquettes (ND)",
+                "children": []
+              },
+              {
+                "code": "04.5.4.3",
+                "name": "Charcoal (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "05",
+    "name": "FURNISHINGS, HOUSEHOLD EQUIPMENT AND ROUTINE HOUSEHOLD MAINTENANCE",
+    "children": [
+      {
+        "code": "05.1",
+        "name": "FURNITURE, FURNISHINGS, AND LOOSE CARPETS",
+        "children": [
+          {
+            "code": "05.1.1",
+            "name": "Furniture, furnishings and loose carpets (D)",
+            "children": [
+              {
+                "code": "05.1.1.1",
+                "name": "Household furniture (D)",
+                "children": []
+              },
+              {
+                "code": "05.1.1.3",
+                "name": "Lighting equipment (D)",
+                "children": []
+              },
+              {
+                "code": "05.1.1.4",
+                "name": "Furnishings, loose carpets and rugs (D)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "05.2",
+        "name": "HOUSEHOLD TEXTILES",
+        "children": [
+          {
+            "code": "05.2.1",
+            "name": "Household textiles (SD)",
+            "children": [
+              {
+                "code": "05.2.1.1",
+                "name": "Furnishing fabrics and curtains (SD)",
+                "children": []
+              },
+              {
+                "code": "05.2.1.2",
+                "name": "Bed linen and bedding (SD)",
+                "children": []
+              },
+              {
+                "code": "05.2.1.3",
+                "name": "Table linen and bathroom linen (SD)",
+                "children": []
+              },
+              {
+                "code": "05.2.1.9",
+                "name": "Other household textiles (SD)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "05.3",
+        "name": "HOUSEHOLD APPLIANCES",
+        "children": [
+          {
+            "code": "05.3.1",
+            "name": "Major household appliances, whether electric or not (D)",
+            "children": [
+              {
+                "code": "05.3.1.1",
+                "name": "Major kitchen appliances (D)",
+                "children": []
+              },
+              {
+                "code": "05.3.1.2",
+                "name": "Major laundry appliances (D)",
+                "children": []
+              },
+              {
+                "code": "05.3.1.3",
+                "name": "Heaters, air conditioners (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "05.3.2",
+            "name": "Small household appliances (SD)",
+            "children": [
+              {
+                "code": "05.3.2.1",
+                "name": "Small appliances for cooking and processing of food (SD)",
+                "children": []
+              },
+              {
+                "code": "05.3.2.9",
+                "name": "Other small household appliances (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "05.3.3",
+            "name": "Repair, installation and hire of household appliances (S)",
+            "children": [
+              {
+                "code": "05.3.3.0",
+                "name": "Repair, installation and hire of household appliances (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "05.4",
+        "name": "GLASSWARE, TABLEWARE AND HOUSEHOLD UTENSILS",
+        "children": [
+          {
+            "code": "05.4.0",
+            "name": "Glassware, tableware and household utensils (SD)",
+            "children": [
+              {
+                "code": "05.4.0.1",
+                "name": "Glassware, crystal-ware, ceramic ware and chinaware (SD)",
+                "children": []
+              },
+              {
+                "code": "05.4.0.2",
+                "name": "Cutlery, flatware and silverware (SD)",
+                "children": []
+              },
+              {
+                "code": "05.4.0.3",
+                "name": "Kitchen utensils and articles (SD)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "05.5",
+        "name": "TOOLS AND EQUIPMENT FOR HOUSE AND GARDEN",
+        "children": [
+          {
+            "code": "05.5.1",
+            "name": "Motorized tools and equipment (D)",
+            "children": [
+              {
+                "code": "05.5.1.0",
+                "name": "Motorized tools and equipment (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "05.5.2",
+            "name": "Non-motorized tools and miscellaneous accessories (SD)",
+            "children": [
+              {
+                "code": "05.5.2.1",
+                "name": "Non-motorized tools (SD)",
+                "children": []
+              },
+              {
+                "code": "05.5.2.2",
+                "name": "Miscellaneous accessories (SD)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "05.6",
+        "name": "GOODS AND SERVICES FOR ROUTINE HOUSEHOLD MAINTENANCE",
+        "children": [
+          {
+            "code": "05.6.1",
+            "name": "Non-durable household goods (ND)",
+            "children": [
+              {
+                "code": "05.6.1.1",
+                "name": "Household cleaning and maintenance products (ND)",
+                "children": []
+              },
+              {
+                "code": "05.6.1.9",
+                "name": "Other non-durable household goods (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "05.6.2",
+            "name": "Domestic services and household services (S)",
+            "children": [
+              {
+                "code": "05.6.2.1",
+                "name": "Domestic services by paid staff (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "06",
+    "name": "HEALTH",
+    "children": [
+      {
+        "code": "06.1",
+        "name": "MEDICINES AND HEALTH PRODUCTS",
+        "children": [
+          {
+            "code": "06.1.1",
+            "name": "Medicines (ND)",
+            "children": [
+              {
+                "code": "06.1.1.1",
+                "name": "Medicines, vaccines and other pharmaceutical preparations (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "06.1.2",
+            "name": "Medical products (ND)",
+            "children": [
+              {
+                "code": "06.1.2.1",
+                "name": "Medical diagnostic products (ND)",
+                "children": []
+              },
+              {
+                "code": "06.1.2.2",
+                "name": "Prevention and protective devices (ND)",
+                "children": []
+              },
+              {
+                "code": "06.1.2.3",
+                "name": "Treatment devices for personal use (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "06.1.3",
+            "name": "Assistive products (D)",
+            "children": [
+              {
+                "code": "06.1.3.1",
+                "name": "Assistive products for vision (D)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "06.2",
+        "name": "OUTPATIENT CARE SERVICES",
+        "children": [
+          {
+            "code": "06.2.1",
+            "name": "Preventive care services (S)",
+            "children": [
+              {
+                "code": "06.2.1.9",
+                "name": "Other preventive services (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "06.2.2",
+            "name": "Outpatient dental services (S)",
+            "children": [
+              {
+                "code": "06.2.2.1",
+                "name": "Dental preventive services (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "06.2.3",
+            "name": "Other outpatient care services (S)",
+            "children": [
+              {
+                "code": "06.2.3.1",
+                "name": "Outpatient curative and rehabilitative services (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "06.3",
+        "name": "INPATIENT CARE SERVICES",
+        "children": [
+          {
+            "code": "06.3.1",
+            "name": "Inpatient curative and rehabilitative services (S)",
+            "children": [
+              {
+                "code": "06.3.1.0",
+                "name": "Inpatient curative and rehabilitative services (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "06.4",
+        "name": "OTHER HEALTH SERVICES",
+        "children": [
+          {
+            "code": "06.4.1",
+            "name": "Diagnostic imaging services and medical laboratory services (S)",
+            "children": [
+              {
+                "code": "06.4.1.0",
+                "name": "Diagnostic imaging services and medical laboratory services (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "07",
+    "name": "TRANSPORT",
+    "children": [
+      {
+        "code": "07.1",
+        "name": "PURCHASE OF VEHICLES",
+        "children": [
+          {
+            "code": "07.1.1",
+            "name": "Motor cars (D)",
+            "children": [
+              {
+                "code": "07.1.1.1",
+                "name": "New motor cars (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.1.2",
+            "name": "Motorcycles (D)",
+            "children": [
+              {
+                "code": "07.1.2.0",
+                "name": "Motorcycles (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.1.3",
+            "name": "Bicycles (D)",
+            "children": [
+              {
+                "code": "07.1.3.0",
+                "name": "Bicycles (D)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "07.2",
+        "name": "OPERATION OF PERSONAL TRANSPORT EQUIPMENT",
+        "children": [
+          {
+            "code": "07.2.1",
+            "name": "Parts and accessories for personal transport equipment (SD)",
+            "children": [
+              {
+                "code": "07.2.1.1",
+                "name": "Tires (SD)",
+                "children": []
+              },
+              {
+                "code": "07.2.1.2",
+                "name": "Parts for personal transport equipment (SD)",
+                "children": []
+              },
+              {
+                "code": "07.2.1.3",
+                "name": "Accessories for personal transport equipment (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.2.2",
+            "name": "Fuels and lubricants for personal transport equipment (ND)",
+            "children": [
+              {
+                "code": "07.2.2.1",
+                "name": "Diesel (ND)",
+                "children": []
+              },
+              {
+                "code": "07.2.2.2",
+                "name": "Gasoline (ND)",
+                "children": []
+              },
+              {
+                "code": "07.2.2.3",
+                "name": "Other fuels for personal transport equipment (ND)",
+                "children": []
+              },
+              {
+                "code": "07.2.2.4",
+                "name": "Lubricants (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.2.3",
+            "name": "Maintenance and repair of personal transport equipment (S)",
+            "children": [
+              {
+                "code": "07.2.3.0",
+                "name": "Maintenance and repair of personal transport equipment (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.2.4",
+            "name": "Other services in respect of personal transport equipment (S)",
+            "children": [
+              {
+                "code": "07.2.4.2",
+                "name": "Toll facilities (S)",
+                "children": []
+              },
+              {
+                "code": "07.2.4.3",
+                "name": "Driving lessons, tests, licences, and road worthiness tests (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "07.3",
+        "name": "PASSENGER TRANSPORT SERVICES",
+        "children": [
+          {
+            "code": "07.3.1",
+            "name": "Passenger transport by railway (S)",
+            "children": [
+              {
+                "code": "07.3.1.1",
+                "name": "Passenger transport by train (S)",
+                "children": []
+              },
+              {
+                "code": "07.3.1.2",
+                "name": "Passenger transport by rapid transit and tram (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.3.2",
+            "name": "Passenger transport by road (S)",
+            "children": [
+              {
+                "code": "07.3.2.1",
+                "name": "Passenger transport by bus and coach (S)",
+                "children": []
+              },
+              {
+                "code": "07.3.2.2",
+                "name": "Passenger transport by taxi and hired car with driver (S)",
+                "children": []
+              },
+              {
+                "code": "07.3.2.9",
+                "name": "Other passenger transport by road (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.3.3",
+            "name": "Passenger transport by air (S)",
+            "children": [
+              {
+                "code": "07.3.3.1",
+                "name": "Passenger transport by air, domestic (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "07.3.4",
+            "name": "Passenger transport by sea and inland waterway (S)",
+            "children": [
+              {
+                "code": "07.3.4.0",
+                "name": "Passenger transport by sea and inland waterway (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "07.4",
+        "name": "TRANSPORT SERVICES OF GOODS",
+        "children": [
+          {
+            "code": "07.4.1",
+            "name": "Postal and courier services (S)",
+            "children": [
+              {
+                "code": "07.4.1.1",
+                "name": "Letter handling services (S)",
+                "children": []
+              },
+              {
+                "code": "07.4.1.2",
+                "name": "Courier and parcel delivery services (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "08",
+    "name": "INFORMATION AND COMMUNICATION",
+    "children": [
+      {
+        "code": "08.1",
+        "name": "INFORMATION AND COMMUNICATION EQUIPMENT",
+        "children": [
+          {
+            "code": "08.1.1",
+            "name": "Fixed telephone equipment (D)",
+            "children": [
+              {
+                "code": "08.1.1.0",
+                "name": "Fixed telephone equipment (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "08.1.2",
+            "name": "Mobile telephone equipment (D)",
+            "children": [
+              {
+                "code": "08.1.2.0",
+                "name": "Mobile telephone equipment (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "08.1.3",
+            "name": "Information processing equipment (D)",
+            "children": [
+              {
+                "code": "08.1.3.1",
+                "name": "Computers, laptops and tablets (D)",
+                "children": []
+              },
+              {
+                "code": "08.1.3.2",
+                "name": "Peripheral equipment and its consumable components (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "08.1.4",
+            "name": "Equipment for the reception, recording and reproduction of sound and vision (D)",
+            "children": [
+              {
+                "code": "08.1.4.0",
+                "name": "Equipment for the reception, recording and reproduction of sound and vision (D)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "08.1.5",
+            "name": "Unrecorded recording media (SD)",
+            "children": [
+              {
+                "code": "08.1.5.0",
+                "name": "Unrecorded recording media (SD)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "08.3",
+        "name": "INFORMATION AND COMMUNICATION SERVICES",
+        "children": [
+          {
+            "code": "08.3.1",
+            "name": "Fixed communication services (S)",
+            "children": [
+              {
+                "code": "08.3.1.0",
+                "name": "Fixed communication services (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "08.3.2",
+            "name": "Mobile communication services (S)",
+            "children": [
+              {
+                "code": "08.3.2.0",
+                "name": "Mobile communication services (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "08.3.3",
+            "name": "Internet access provision services and net storage services (S)",
+            "children": [
+              {
+                "code": "08.3.3.0",
+                "name": "Internet access provision services and net storage services (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "08.3.5",
+            "name": "Repair and rental of information and communication equipment (S)",
+            "children": [
+              {
+                "code": "08.3.5.0",
+                "name": "Repair and rental of information and communication equipment (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "09",
+    "name": "RECREATION, SPORT AND CULTURE",
+    "children": [
+      {
+        "code": "09.1",
+        "name": "RECREATIONAL DURABLES",
+        "children": [
+          {
+            "code": "09.1.1",
+            "name": "Photographic and cinematographic equipment and optical instruments (D)",
+            "children": [
+              {
+                "code": "09.1.1.1",
+                "name": "Cameras (D)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "09.2",
+        "name": "OTHER RECREATIONAL GOODS",
+        "children": [
+          {
+            "code": "09.2.1",
+            "name": "Games, toys and hobbies (SD)",
+            "children": [
+              {
+                "code": "09.2.1.2",
+                "name": "Other games, toys and hobbies (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "09.2.2",
+            "name": "Equipment for sport, camping and open-air recreation (SD)",
+            "children": [
+              {
+                "code": "09.2.2.1",
+                "name": "Equipment for sport (SD)",
+                "children": []
+              },
+              {
+                "code": "09.2.2.2",
+                "name": "Equipment for camping and open-air recreation (SD)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "09.3",
+        "name": "GARDEN PRODUCTS AND PETS",
+        "children": [
+          {
+            "code": "09.3.1",
+            "name": "Garden products, plants and flowers (ND)",
+            "children": [
+              {
+                "code": "09.3.1.1",
+                "name": "Garden products (ND)",
+                "children": []
+              },
+              {
+                "code": "09.3.1.2",
+                "name": "Plants, seeds and flowers (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "09.3.2",
+            "name": "Pets and products for pets (ND)",
+            "children": [
+              {
+                "code": "09.3.2.2",
+                "name": "Products for pets and other household animals (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "09.4",
+        "name": "RECREATIONAL SERVICES",
+        "children": [
+          {
+            "code": "09.4.6",
+            "name": "Recreational and sporting services (S)",
+            "children": [
+              {
+                "code": "09.4.6.2",
+                "name": "Sporting services - practice (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "09.4.7",
+            "name": "Games of chance (S)",
+            "children": [
+              {
+                "code": "09.4.7.0",
+                "name": "Games of chance (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "09.5",
+        "name": "CULTURAL GOODS",
+        "children": [
+          {
+            "code": "09.5.1",
+            "name": "Musical instruments (D)",
+            "children": [
+              {
+                "code": "09.5.1.0",
+                "name": "Musical instruments (D)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "09.6",
+        "name": "CULTURAL SERVICES",
+        "children": [
+          {
+            "code": "09.6.1",
+            "name": "Services provided by cinemas, theatres and concert venues (S)",
+            "children": [
+              {
+                "code": "09.6.1.0",
+                "name": "Services provided by cinemas, theatres and concert venues (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "09.6.3",
+            "name": "Photographic services (S)",
+            "children": [
+              {
+                "code": "09.6.3.0",
+                "name": "Photographic services (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "09.6.9",
+            "name": "Other cultural services (S)",
+            "children": [
+              {
+                "code": "09.6.9.0",
+                "name": "Other cultural services (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "09.7",
+        "name": "NEWSPAPERS, BOOKS AND STATIONERY",
+        "children": [
+          {
+            "code": "09.7.1",
+            "name": "Books (SD)",
+            "children": [
+              {
+                "code": "09.7.1.1",
+                "name": "Educational and textbooks in printed or electronic copy (SD)",
+                "children": []
+              },
+              {
+                "code": "09.7.1.9",
+                "name": "Other books (SD) in printed or electronic copy",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "09.7.2",
+            "name": "Newspapers and periodicals (ND)",
+            "children": [
+              {
+                "code": "09.7.2.1",
+                "name": "Newspapers (ND)",
+                "children": []
+              },
+              {
+                "code": "09.7.2.2",
+                "name": "Magazines and periodicals (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "09.7.4",
+            "name": "Stationery and drawing materials (ND)",
+            "children": [
+              {
+                "code": "09.7.4.0",
+                "name": "Stationery and drawing materials (ND)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "09.8",
+        "name": "PACKAGE HOLIDAYS (S)",
+        "children": [
+          {
+            "code": "09.8.0",
+            "name": "Package holidays (S)",
+            "children": [
+              {
+                "code": "09.8.0.0",
+                "name": "Package holidays (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "10",
+    "name": "EDUCATION SERVICES",
+    "children": [
+      {
+        "code": "10.1",
+        "name": "EARLY CHILDHOOD AND PRIMARY EDUCATION",
+        "children": [
+          {
+            "code": "10.1.0",
+            "name": "Early chilhood and primary education (S)",
+            "children": [
+              {
+                "code": "10.1.0.1",
+                "name": "Early childhood education services (S)",
+                "children": []
+              },
+              {
+                "code": "10.1.0.2",
+                "name": "Primary education (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "10.2",
+        "name": "SECONDARY EDUCATION  (S)",
+        "children": [
+          {
+            "code": "10.2.0",
+            "name": "Secondary education (S)",
+            "children": [
+              {
+                "code": "10.2.0.1",
+                "name": "Lower secondary general education services",
+                "children": []
+              },
+              {
+                "code": "10.2.0.2",
+                "name": "Lower secondary technical-vocational livelihood programs services",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "10.4",
+        "name": "TERTIARY EDUCATION (S)",
+        "children": [
+          {
+            "code": "10.4.0",
+            "name": "Tertiary education (s)",
+            "children": [
+              {
+                "code": "10.4.0.0",
+                "name": "Tertiary education (s)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "10.5",
+        "name": "EDUCATION NOT DEFINED BY LEVEL (S)",
+        "children": [
+          {
+            "code": "10.5.0",
+            "name": "Education not defined by level (s)",
+            "children": [
+              {
+                "code": "10.5.0.2",
+                "name": "Review classes for professional and licensure examination (S)",
+                "children": []
+              },
+              {
+                "code": "10.5.0.9",
+                "name": "Other education not defined by level (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "11",
+    "name": "RESTAURANTS AND ACCOMMODATION SERVICES",
+    "children": [
+      {
+        "code": "11.1",
+        "name": "FOOD AND BEVERAGE SERVING SERVICES",
+        "children": [
+          {
+            "code": "11.1.1",
+            "name": "Restaurants, caf\u00e9 and the like (S)",
+            "children": [
+              {
+                "code": "11.1.1.1",
+                "name": "Restaurants, caf\u00e9 and the like - with full service (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "11.2",
+        "name": "ACCOMMODATION SERVICES",
+        "children": [
+          {
+            "code": "11.2.0",
+            "name": "Accommodation services (S)",
+            "children": [
+              {
+                "code": "11.2.0.1",
+                "name": "Hotels, motels, inns and similar accommodation services (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "12",
+    "name": "FINANCIAL SERVICES",
+    "children": [
+      {
+        "code": "12.2",
+        "name": "FINANCIAL SERVICES",
+        "children": [
+          {
+            "code": "12.2.1",
+            "name": "Financial intermediation services indirectly measured (S)",
+            "children": [
+              {
+                "code": "12.2.1.0",
+                "name": "Financial intermediation services indirectly measured (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "12.2.9",
+            "name": "Other financial services (S)",
+            "children": [
+              {
+                "code": "12.2.9.1",
+                "name": "Remittances fees (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "13",
+    "name": "PERSONAL CARE, AND MISCELLANEOUS GOODS AND SERVICES",
+    "children": [
+      {
+        "code": "13.1",
+        "name": "PERSONAL CARE",
+        "children": [
+          {
+            "code": "13.1.1",
+            "name": "Electric appliances for personal care (SD)",
+            "children": [
+              {
+                "code": "13.1.1.1",
+                "name": "Electric appliances for personal care (SD)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "13.1.2",
+            "name": "Other appliances, articles and products for personal care (ND)",
+            "children": [
+              {
+                "code": "13.1.2.0",
+                "name": "Other appliances, articles and products for personal care (ND)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "13.1.3",
+            "name": "Hairdressing salons and personal grooming establishments (S)",
+            "children": [
+              {
+                "code": "13.1.3.1",
+                "name": "Hairdressing (S)",
+                "children": []
+              },
+              {
+                "code": "13.1.3.2",
+                "name": "Personal grooming treatments (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "13.2",
+        "name": "OTHER PERSONAL EFFECTS",
+        "children": [
+          {
+            "code": "13.2.1",
+            "name": "Jewellery and watches (D)",
+            "children": [
+              {
+                "code": "13.2.1.1",
+                "name": "Jewellery and watches (D)",
+                "children": []
+              },
+              {
+                "code": "13.2.1.2",
+                "name": "Repair and hire of jewellery, clocks and watches (S)",
+                "children": []
+              }
+            ]
+          },
+          {
+            "code": "13.2.9",
+            "name": "Other personal effects n.e.c. (SD)",
+            "children": [
+              {
+                "code": "13.2.9.1",
+                "name": "Travel goods and articles for babies and other personal effects n.e.c. (SD)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code": "13.9",
+        "name": "OTHER SERVICES",
+        "children": [
+          {
+            "code": "13.9.0",
+            "name": "Other services (S)",
+            "children": [
+              {
+                "code": "13.9.0.9",
+                "name": "Other services n.e.c. (S)",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

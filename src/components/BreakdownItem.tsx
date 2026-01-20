@@ -9,8 +9,8 @@ export function BreakdownItem({ item, totalSpend, formatter }: Readonly<{ item: 
 	const previousAmount = item.cpiEnd > 0 ? currentAmount * (item.cpiStart / item.cpiEnd) : 0;
 
 	const getBadgeColor = (rate: number) => {
-		if (rate > 10) return "bg-red-500 hover:bg-red-600 text-white";
-		if (rate > 4) return "bg-amber-500 hover:bg-amber-600 text-white";
+		if (rate > 10) return "bg-red-500 hover:bg-red-600";
+		if (rate > 4) return "bg-amber-500 hover:bg-amber-600";
 		if (rate < 0) return "bg-emerald-500 hover:bg-emerald-600 text-white";
 		return "bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:text-slate-200";
 	};
