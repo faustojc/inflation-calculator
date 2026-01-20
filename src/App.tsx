@@ -11,9 +11,19 @@ import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataStore, getCalculationData, initializeApp } from "@/stores/dataStore";
-import { clearExpenses, expenses, initializeExpenses, isCalculationDisabled, locateCategory, mode, settings, totalAllocation } from "@/stores/inflationStore";
+import {
+	clearExpenses,
+	expenses,
+	initializeExpenses,
+	isCalculationDisabled,
+	locateCategory,
+	mode,
+	setActiveTab,
+	settings,
+	totalAllocation,
+} from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 
 export default function App() {
 	const [isCalculating, setIsCalculating] = useState(false);
@@ -90,7 +100,15 @@ export default function App() {
 					const missingList = result.missingItems.slice(0, 3).join(", ");
 					const suffix = result.missingItems.length > 3 ? "..." : "";
 
-					toast.error(`Cannot calculate: Historical data missing for ${missingList}${suffix}. Please remove these items or choose a different date.`);
+					toast("Cannot calculate", {
+						description: `Data missing for ${missingList}${suffix}. Please remove these items or choose a different date.`,
+						action: {
+							label: "X",
+							onClick() {
+								toast.dismiss();
+							},
+						},
+					});
 					// Don't show results drawer
 				} else {
 					setCalculationData(result);
@@ -132,94 +150,97 @@ export default function App() {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-52">
-			<header className="bg-white dark:bg-slate-900 border-b px-4 py-4 sticky top-0 z-20 shadow-sm">
-				<div className="max-w-3xl mx-auto flex justify-between items-center">
-					<div className="flex items-center gap-2">
-						<div className="bg-blue-600 p-2 rounded-lg text-white">
-							<Calculator className="h-5 w-5" />
-						</div>
-						<div>
-							<h1 className="font-bold text-lg leading-tight">Philippines Inflation Calculator</h1>
-							<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Personal CPI</p>
+		<>
+			<Toaster position="top-center" closeButton />
+			<div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-52">
+				<header className="bg-white dark:bg-slate-900 border-b px-4 py-4 sticky top-0 z-20 shadow-sm">
+					<div className="max-w-3xl mx-auto flex justify-between items-center">
+						<div className="flex items-center gap-2">
+							<div className="bg-blue-600 p-2 rounded-lg text-white">
+								<Calculator className="h-5 w-5" />
+							</div>
+							<div>
+								<h1 className="font-bold text-lg leading-tight">Philippines Inflation Calculator</h1>
+								<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Personal CPI</p>
+							</div>
 						</div>
 					</div>
-				</div>
-			</header>
+				</header>
 
-			<main className="max-w-3xl mx-auto p-4 space-y-6 mt-4">
-				<GlobalControls />
+				<main className="max-w-3xl mx-auto p-4 space-y-6 mt-4">
+					<GlobalControls />
 
-				<Tabs defaultValue="general" className="w-full">
-					<TabsList className="grid w-full grid-cols-2 mb-6">
-						<TabsTrigger value="general" onClick={clearExpenses}>
-							General Categories
-						</TabsTrigger>
-						<TabsTrigger value="detailed" onClick={clearExpenses}>
-							Detailed Search
-						</TabsTrigger>
-					</TabsList>
+					<div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
+						<div className="mb-2">
+							<h2 className="font-bold text-lg">Find and Input Expenses</h2>
+							<p className="text-sm text-muted-foreground">
+								Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.
+							</p>
+						</div>
+						<SmartSearch
+							onSelect={(item) => {
+								locateCategory(item.categoryCode, item.name);
+							}}
+						/>
+					</div>
 
-					<TabsContent value="general">
-						<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-							<div className="mb-4 flex justify-between items-center">
-								<div>
-									<h2 className="font-bold text-lg">General Commodities</h2>
-									<p className="text-sm text-muted-foreground">13 General Commodity Groups</p>
+					<Tabs defaultValue="general" className="w-full" onValueChange={(v) => setActiveTab(v as "general" | "detailed")}>
+						<TabsList className="grid w-full grid-cols-2 mb-6">
+							<TabsTrigger value="general" onClick={clearExpenses}>
+								General Categories
+							</TabsTrigger>
+							<TabsTrigger value="detailed" onClick={clearExpenses}>
+								Detailed Search
+							</TabsTrigger>
+						</TabsList>
+
+						<TabsContent value="general">
+							<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+								<div className="mb-4 flex justify-between items-center">
+									<div>
+										<h2 className="font-bold text-lg">General Commodities</h2>
+										<p className="text-sm text-muted-foreground">13 General Commodity Groups</p>
+									</div>
 								</div>
+								<GeneralTab />
 							</div>
-							<GeneralTab />
-						</div>
-					</TabsContent>
+						</TabsContent>
 
-					<TabsContent value="detailed" className="space-y-6">
-						<div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
-							<div className="mb-2">
-								<h2 className="font-bold text-lg">Find and Input Expenses</h2>
-								<p className="text-sm text-muted-foreground">
-									Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.
-								</p>
-							</div>
-							<SmartSearch
-								onSelect={(item) => {
-									locateCategory(item.categoryCode, item.name);
-								}}
-							/>
-						</div>
-
-						<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-							<div className="p-4 border-b flex justify-between items-center">
-								<div>
-									<h2 className="font-bold text-base">Detailed Commodities</h2>
-									<p className="text-xs text-muted-foreground">Expand commodities to add expenses</p>
+						<TabsContent value="detailed" className="space-y-6">
+							<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+								<div className="p-4 border-b flex justify-between items-center">
+									<div>
+										<h2 className="font-bold text-base">Detailed Commodities</h2>
+										<p className="text-xs text-muted-foreground">Expand commodities to add expenses</p>
+									</div>
 								</div>
+								<ExpenseList />
 							</div>
-							<ExpenseList />
-						</div>
-					</TabsContent>
-				</Tabs>
-			</main>
+						</TabsContent>
+					</Tabs>
+				</main>
 
-			<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 transition-all">
-				<div className="max-w-3xl mx-auto">
-					<CalculationFooter />
-					<Button
-						size="lg"
-						onClick={handleCalculate}
-						disabled={isCalculating || isDisabled}
-						className="w-full text-base font-bold h-12 shadow-xl transition-all active:scale-[0.98]"
-					>
-						{isCalculating ?
-							<>
-								<Loader2 className="mr-2 h-5 w-5 animate-spin" />
-								Calculating your inflation rate...
-							</>
-						:	"Calculate Personal Rate"}
-					</Button>
+				<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 transition-all">
+					<div className="max-w-3xl mx-auto">
+						<CalculationFooter />
+						<Button
+							size="lg"
+							onClick={handleCalculate}
+							disabled={isCalculating || isDisabled}
+							className="w-full text-base font-bold h-12 shadow-xl transition-all active:scale-[0.98]"
+						>
+							{isCalculating ?
+								<>
+									<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+									Calculating your inflation rate...
+								</>
+							:	"Calculate Personal Rate"}
+						</Button>
+					</div>
 				</div>
+
+				<ResultsDrawer open={showResults} onOpenChange={setShowResults} data={calculationData} />
 			</div>
-
-			<ResultsDrawer open={showResults} onOpenChange={setShowResults} data={calculationData} />
-		</div>
+		</>
 	);
 }

@@ -47,6 +47,8 @@ interface DataState {
 	commodities: CommodityDef[];
 	availableYears: string[];
 	searchOptions: SearchOption[];
+	flatCodes: string[]; // Sorted by length desc
+	parentIndex: Record<string, string>;
 }
 
 export const dataStore = map<DataState>({
@@ -57,6 +59,8 @@ export const dataStore = map<DataState>({
 	commodities: [],
 	availableYears: [],
 	searchOptions: [],
+	flatCodes: [],
+	parentIndex: {},
 });
 
 export async function initializeApp() {
@@ -73,6 +77,25 @@ export async function initializeApp() {
 		const meta = await metaRes.json();
 		const commodities: CommodityDef[] = await commRes.json();
 		const years: string[] = [];
+		const flatCodes: string[] = [];
+		const parentIndex: Record<string, string> = {};
+
+		const traverse = (nodes: CommodityDef[], parentCode: string | null) => {
+			for (const node of nodes) {
+				flatCodes.push(node.code);
+
+				if (parentCode) {
+					parentIndex[node.code] = parentCode;
+				}
+
+				if (node.children) {
+					traverse(node.children, node.code);
+				}
+			}
+		};
+
+		traverse(commodities, null);
+		flatCodes.sort((a, b) => b.length - a.length);
 
 		for (let y = meta.year_range.max; y >= meta.year_range.min; y--) {
 			years.push(String(y));
@@ -116,6 +139,8 @@ export async function initializeApp() {
 			isLoading: false,
 			isReady: true,
 			error: null,
+			flatCodes,
+			parentIndex,
 		});
 
 		return meta;

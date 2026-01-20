@@ -158,8 +158,8 @@ export function GlobalControls() {
 									<CommandList>
 										<CommandEmpty>No year found.</CommandEmpty>
 										<CommandGroup className="max-h-62.5 overflow-y-auto">
-											{availableYears.map((year) => (
-												<CommandItem key={year} value={year} onSelect={handleYearChange}>
+											{availableYears.map((year, i) => (
+												<CommandItem key={year} value={year} disabled={i === availableYears.length - 1} onSelect={handleYearChange}>
 													<Check
 														className={cn(
 															"mr-2 h-4 w-4",

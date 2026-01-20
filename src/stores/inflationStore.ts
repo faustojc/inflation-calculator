@@ -36,7 +36,7 @@ export const settings = map<AppSettings>({
 });
 
 export const mode = atom<Mode>("amount");
-
+export const activeTab = atom<"general" | "detailed">("general");
 export const highlightState = map<HighlightState>({
 	code: "",
 	label: "",
@@ -87,42 +87,48 @@ export function toggleExpansion(code: string, forceState?: boolean) {
 	expandedNodes.setKey(code, newState);
 }
 
-export function locateCategory(searchCode: string, searchName: string) {
-	let currentCode = searchCode;
+export function setActiveTab(tab: "general" | "detailed") {
+	activeTab.set(tab);
+}
 
-	while (currentCode.length > 0 && !uiParentIndex.has(currentCode)) {
-		const lastDot = currentCode.lastIndexOf(".");
-		if (lastDot === -1) break; // No more parents
-		currentCode = currentCode.substring(0, lastDot);
+export function locateCategory(searchCode: string, searchName: string) {
+	const currentTab = activeTab.get();
+
+	let targetCode = searchCode;
+
+	if (currentTab === "general" && targetCode.includes(".")) {
+		targetCode = targetCode.split(".")[0]!;
+	} else {
+		let current = searchCode;
+		while (current.length > 0 && !uiParentIndex.has(current)) {
+			const lastDot = current.lastIndexOf(".");
+			if (lastDot === -1) break;
+			current = current.substring(0, lastDot);
+		}
+		if (uiParentIndex.has(current)) {
+			targetCode = current;
+		}
 	}
 
-	if (uiParentIndex.has(currentCode)) {
-		const foundCode = currentCode;
-
-		// Backtracking using Parent Map
-		// Node -> Parent -> Grandparent
+	if (currentTab === "detailed") {
 		const path: string[] = [];
-		let ptr = uiParentIndex.get(foundCode);
-
+		let ptr = uiParentIndex.get(targetCode);
 		while (ptr) {
 			path.push(ptr);
 			ptr = uiParentIndex.get(ptr) || null;
 		}
-
 		const updates = { ...expandedNodes.get() };
 		path.forEach((code) => {
 			updates[code] = true;
 		});
-
 		expandedNodes.set(updates);
-		highlightState.set({ code: foundCode, label: searchName });
-
-		setTimeout(() => {
-			highlightState.set({ code: "", label: "" });
-		}, 4000);
-	} else {
-		console.warn("Item not found in UI Config:", searchName);
 	}
+
+	highlightState.set({ code: targetCode, label: searchName });
+
+	setTimeout(() => {
+		highlightState.set({ code: "", label: "" });
+	}, 3000);
 }
 
 export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: number }) {
@@ -194,20 +200,20 @@ export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) =>
 
 export const categoryTotals = computed([expenses, dataStore], (items, data) => {
 	const totals: Record<string, number> = {};
-	const { commodities } = data;
+	const { flatCodes, parentIndex } = data;
 
-	if (!commodities || commodities.length === 0) return totals;
+	if (!flatCodes || flatCodes.length === 0) return totals;
 
-	// Sort codes by length descending (Leaves first, Roots last)
-	const sortedCodes = commodities.map((c) => c.code).sort((a, b) => b.length - a.length);
+	for (const code of flatCodes) {
+		if (!items[code] || items[code].value <= 0) continue;
 
-	for (const code of sortedCodes) {
 		const ownValue = items[code]?.value || 0;
-		totals[code] = (totals[code] || 0) + ownValue;
+		const currentTotal = (totals[code] || 0) + ownValue;
+		totals[code] = currentTotal;
 
-		if (code.includes(".")) {
-			const parentCode = code.substring(0, code.lastIndexOf("."));
-			totals[parentCode] = (totals[parentCode] || 0) + totals[code];
+		const parentCode = parentIndex[code];
+		if (parentCode) {
+			totals[parentCode] = (totals[parentCode] || 0) + currentTotal;
 		}
 	}
 
