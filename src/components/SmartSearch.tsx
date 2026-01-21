@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { dataStore, getDisplayLabel, type SearchOption } from "@/stores/dataStore";
+import { dataStore, type SearchOption } from "@/stores/dataStore";
 import { useStore } from "@nanostores/react";
-import { ArrowRightCircle, Check, ChevronsUpDown, Search } from "lucide-react";
+import { ArrowRightCircle, Check, ChevronsUpDown, Search, Tag } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Badge } from "./ui/badge";
 
 interface SmartSearchProps {
 	onSelect: (item: { categoryCode: string; name: string }) => void;
@@ -19,7 +20,15 @@ export function SmartSearch({ onSelect }: Readonly<SmartSearchProps>) {
 		if (!isReady || !query) return [];
 
 		const lowerQuery = query.toLowerCase();
-		return searchOptions.filter((item) => item.name.toLowerCase().includes(lowerQuery) || item.code.includes(lowerQuery)).slice(0, 30);
+
+		return searchOptions
+			.map((item) => {
+				const nameMatch = item.name.toLowerCase().includes(lowerQuery);
+				const matchedKeyword = item.keywords.find((k) => k.toLowerCase().includes(lowerQuery));
+				return { ...item, isKeywordMatch: !!matchedKeyword && !nameMatch, matchedKeyword };
+			})
+			.filter((item) => item.name.toLowerCase().includes(lowerQuery) || item.code.includes(lowerQuery) || item.matchedKeyword !== undefined)
+			.slice(0, 20);
 	}, [query, searchOptions, isReady]);
 
 	const handleSelect = (item: SearchOption) => {
@@ -35,7 +44,7 @@ export function SmartSearch({ onSelect }: Readonly<SmartSearchProps>) {
 					<Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between text-left font-normal h-12 px-4">
 						<span className="flex items-center gap-2 text-muted-foreground">
 							<Search className="h-4 w-4" />
-							{query || "Search specific items (e.g. Rice, Diesel, Tuition)..."}
+							{query}
 						</span>
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
@@ -51,9 +60,21 @@ export function SmartSearch({ onSelect }: Readonly<SmartSearchProps>) {
 								{filteredOptions.map((item) => (
 									<CommandItem key={item.code} value={item.name} onSelect={() => handleSelect(item)}>
 										<Check className="mr-2 h-4 w-4 opacity-0" />
-										<div className="flex-1 flex flex-col">
-											<span className="font-medium">{getDisplayLabel(item)}</span>
-											<span className="text-[10px] text-muted-foreground font-mono">{item.code}</span>
+										<div className="flex-1 flex flex-col gap-0.5">
+											<div className="flex items-center gap-2">
+												<span className="font-medium">{item.name}</span>
+												{item.isKeywordMatch && (
+													<Badge variant="secondary" className="px-1.5 gap-1 text-blue-600 bg-blue-50 hover:bg-blue-100">
+														<Tag className="h-3 w-3" />
+														{item.matchedKeyword}
+													</Badge>
+												)}
+											</div>
+											<div className="flex items-center gap-2">
+												<span className="text-[10px] text-muted-foreground font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded">
+													{item.code}
+												</span>
+											</div>
 										</div>
 										<ArrowRightCircle className="ml-2 h-4 w-4 text-blue-500 opacity-50" />
 									</CommandItem>

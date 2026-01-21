@@ -5,10 +5,12 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
+	base: "/",
 	build: {
 		target: "esnext",
 		minify: true,
 		cssMinify: true,
+		outDir: "dist",
 		rollupOptions: {
 			output: {
 				manualChunks: (id) => {
@@ -34,14 +36,6 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-		},
-	},
-	server: {
-		proxy: {
-			"/api": {
-				target: "http://localhost:3000",
-				changeOrigin: true,
-			},
 		},
 	},
 });
