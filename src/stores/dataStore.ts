@@ -20,6 +20,8 @@ export interface CommodityDef {
 export interface AreaDef {
 	key: string;
 	name: string;
+	provinceId: number;
+	regionId: number;
 }
 
 // Structure of data/{key}/{year}.json
@@ -53,6 +55,15 @@ interface DataState {
 	parentIndex: Record<string, string>;
 }
 
+interface Metadata {
+	generated_at: string;
+	year_range: {
+		min: number;
+		max: number;
+	};
+	areas: AreaDef[];
+}
+
 export const dataStore = map<DataState>({
 	isLoading: true,
 	isReady: false,
@@ -74,7 +85,7 @@ export async function initializeApp() {
 
 		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
 
-		const meta = await metaRes.json();
+		const meta: Metadata = await metaRes.json();
 		const commodities: CommodityDef[] = await commRes.json();
 		const years: string[] = [];
 		const flatCodes: string[] = [];

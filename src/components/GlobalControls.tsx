@@ -31,6 +31,8 @@ export function GlobalControls() {
 		return "National Capital Region (NCR)";
 	});
 
+	const noRegions = areas.filter((a) => !a.name.toLowerCase().includes("region"));
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const updateSetting = (key: keyof typeof appSettings, value: any) => {
 		settings.setKey(key, value);
@@ -75,11 +77,11 @@ export function GlobalControls() {
 						</PopoverTrigger>
 						<PopoverContent className="w-75 p-0" align="start">
 							<Command>
-								<CommandInput placeholder="Search province..." />
+								<CommandInput placeholder="Search province or city..." />
 								<CommandList>
 									<CommandEmpty>No location found.</CommandEmpty>
 									<CommandGroup className="max-h-62.5 overflow-y-auto">
-										{areas.map((a) => (
+										{noRegions.map((a) => (
 											<CommandItem key={a.key} value={a.name} onSelect={(key) => handleAreaSelect(key)}>
 												<Check className={cn("mr-2 h-4 w-4", selectArea === a.name ? "opacity-100" : "opacity-0")} />
 												{a.name}

@@ -56,6 +56,7 @@ export default function App() {
 
 				settings.setKey("startDate", newStartDate);
 				settings.setKey("endDate", newEndDate);
+				settings.setKey("areaKey", meta.areas[0]!.key);
 			}
 
 			initializeExpenses();

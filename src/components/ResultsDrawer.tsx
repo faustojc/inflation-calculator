@@ -37,7 +37,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 			<DrawerContent className="h-[92vh] flex flex-col rounded-t-4xl bg-slate-50 dark:bg-slate-950 font-sans">
 				<div className="mx-auto w-full max-w-lg flex flex-col h-full overflow-hidden">
 					<DrawerHeader className="shrink-0 text-center border-b pb-4">
-						<DrawerTitle className="text-xl font-bold tracking-tight">Personal Inflation Report</DrawerTitle>
+						<DrawerTitle className="text-xl font-bold tracking-tight">Personal Inflation Rate</DrawerTitle>
 						<DrawerDescription className="flex justify-center items-center gap-3 mt-2 text-xs">
 							<span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
 								<CalendarDays className="h-3 w-3 text-slate-500" />

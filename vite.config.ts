@@ -18,16 +18,24 @@ export default defineConfig({
 						return "vendor-react";
 					}
 
-					if (
-						id.includes("node_modules/@radix-ui") ||
-						id.includes("node_modules/lucide-react") ||
-						id.includes("node_modules/clsx") ||
-						id.includes("node_modules/tailwind-merge")
-					) {
+					if (id.includes("node_modules/tailwind-merge")) {
+						return "vendor-tailwind";
+					}
+
+					if (id.includes("node_modules/lucide-react")) {
+						return "vendor-icons";
+					}
+
+					if (id.includes("node_modules/@radix-ui") || id.includes("node_modules/clsx")) {
 						return "vendor-ui";
 					}
+
 					if (id.includes("node_modules/nanostores") || id.includes("node_modules/date-fns")) {
 						return "vendor-utils";
+					}
+
+					if (id.includes("src/stores")) {
+						return "vendor-states";
 					}
 				},
 			},

@@ -28,7 +28,7 @@ const lastYear = new Date();
 lastYear.setFullYear(today.getFullYear() - 1);
 
 export const settings = map<AppSettings>({
-	areaKey: "ncr",
+	areaKey: "abra",
 	incomeClass: "all",
 	startDate: lastYear,
 	endDate: today,
