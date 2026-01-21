@@ -140,7 +140,7 @@ export function calculatePersonalInflation(
 		const weightedCpiEnd = cpiEnd * weight;
 
 		// Item Growth
-		const itemRate = ((cpiEnd - cpiStart) / cpiEnd) * 100;
+		const itemRate = ((cpiStart - cpiEnd) / cpiEnd) * 100;
 
 		sumWeightedCpiStart += weightedCpiStart;
 		sumWeightedCpiEnd += weightedCpiEnd;
@@ -183,7 +183,7 @@ export function calculatePersonalInflation(
 	// Formula: (Current - Previous) / Previous * 100
 	let growthRate = 0;
 	if (yearlyCpiStart > 0) {
-		growthRate = ((yearlyCpiEnd - yearlyCpiStart) / yearlyCpiStart) * 100;
+		growthRate = ((yearlyCpiStart - yearlyCpiEnd) / yearlyCpiEnd) * 100;
 	}
 
 	const interpretation = generateInterpretation(growthRate, breakdown);
