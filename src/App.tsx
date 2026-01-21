@@ -208,7 +208,7 @@ export default function App() {
 									</div>
 									<Button className="cursor-pointer" onClick={clearExpenses}>
 										<Trash2 className="h-4 w-4" />
-										Clear Inputs
+										Clear
 									</Button>
 								</div>
 								<GeneralTab />
