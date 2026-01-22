@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ArrowRight, ArrowUpRight, CalendarDays, Info, MapPin, Wallet } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, CalendarDays, Info, MapPin, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -59,12 +59,8 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 					<div className="flex-1 overflow-y-auto p-6 space-y-8">
 						<div
 							className={`
-								relative overflow-hidden p-8 rounded-[2rem] shadow-sm flex flex-col items-center text-center border bg-linear-to-b
-								${
-									isHigh ?
-										"from-red-50 to-white border-red-100 dark:from-red-950/40 dark:to-slate-950 dark:border-red-900"
-									:	"from-emerald-50 to-white border-emerald-100 dark:from-emerald-950/40 dark:to-slate-950 dark:border-emerald-900"
-								}
+								relative overflow-hidden p-8 rounded-[2rem] flex flex-col items-center text-center border shadow-lg
+								${isHigh ? "border-red-600 border-2 shadow-red-200" : "border-green-600 border-2 shadow-green-200"}
 							`}
 						>
 							<span className="text-xs font-bold uppercase tracking-widest opacity-50 mb-2">Personal Inflation Rate</span>
@@ -115,9 +111,11 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 
 							<div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
 								<span className="text-sm font-medium text-slate-600 dark:text-slate-400">Added Expense / Loss</span>
-								<span className="font-mono font-bold text-red-500 text-lg flex items-center gap-1">
-									<ArrowUpRight className="h-4 w-4" />
-									{currencyFormatter.format(difference)}
+								<span className={`font-mono font-bold ${difference > 0 ? "text-red-500" : "text-green-500"} text-lg flex items-center gap-1`}>
+									{difference > 0 ?
+										<ArrowUpRight className="h-4 w-4" />
+									:	<ArrowDown className="h-4 w-4" />}
+									{currMode === "amount" ? currencyFormatter.format(difference) : `${difference.toFixed(1)}%`}
 								</span>
 							</div>
 						</div>
@@ -130,7 +128,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 								<h3 className="font-bold text-xs uppercase tracking-wide">Analysis</h3>
 							</div>
 							{interpretation.map((p) => (
-								<p key={generateKey(p.substring(0, 10))} className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 mb-4">
+								<p key={generateKey(p.substring(0, 10))} className="leading-relaxed text-slate-700 dark:text-slate-300 mb-4">
 									{p}
 								</p>
 							))}

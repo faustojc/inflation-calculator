@@ -34,11 +34,11 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			<div className="flex-1">
 				<div className="flex items-center gap-2 mb-1">
 					<span className="font-mono text-xs text-muted-foreground bg-slate-100 dark:bg-slate-800 px-1.5 rounded">{cat.code}</span>
-					<h3 className="font-semibold text-sm">{cat.name}</h3>
+					<h3 className="font-semibold">{cat.name}</h3>
 
 					{isMatch && <span className="text-xs font-bold text-blue-600 animate-in fade-in">← Found here</span>}
 				</div>
-				<p className="text-xs text-muted-foreground leading-relaxed">{CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}</p>
+				<p className="text-sm text-muted-foreground leading-relaxed">{CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}</p>
 			</div>
 
 			<div className="w-full sm:w-35 shrink-0">

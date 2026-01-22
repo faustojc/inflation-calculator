@@ -38,7 +38,7 @@ export function SmartSearch({ onSelect }: Readonly<SmartSearchProps>) {
 	};
 
 	return (
-		<div className="w-full">
+		<div className="sticky sm:top-20 top-25 z-10">
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between text-left font-normal h-12 px-4">

@@ -49,12 +49,7 @@ export function ExpenseList() {
 
 	return (
 		<div className="overflow-hidden shadow-sm rounded-b-xl border border-t-0 border-slate-200 dark:border-slate-800">
-			<div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-2 flex justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-				<span>Category</span>
-				<span>Expense</span>
-			</div>
-
-			<div className="pb-2 bg-white dark:bg-slate-900">
+			<div className="pb-2">
 				{tree.map((node) => (
 					<ExpenseNode key={node.code} node={node} level={0} />
 				))}

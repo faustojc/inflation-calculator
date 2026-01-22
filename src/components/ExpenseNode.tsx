@@ -55,61 +55,73 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 					{hasChildren && (isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4 " />)}
 				</button>
 
-				<div className="flex-1 flex flex-col justify-center">
-					<div className="flex items-center gap-2">
-						<Badge variant="outline" className="font-mono text-[10px] text-muted-foreground h-5 px-1 bg-white dark:bg-slate-950">
-							{node.code}
-						</Badge>
-						{node.description && (
-							<Popover>
-								<PopoverTrigger asChild>
-									<InfoIcon className="h-4 w-4 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" />
-								</PopoverTrigger>
-								<PopoverContent className="w-72 p-3 text-sm text-slate-600 dark:text-slate-300 shadow-md">{node.description}</PopoverContent>
-							</Popover>
-						)}
-						<span className={`text-sm text-left ${level === 0 ? "font-bold" : "font-normal"}`}>{node.name}</span>
+				<div className="grid grid-cols-3 items-center w-full">
+					<div className="col-span-2">
+						<div className="flex items-center gap-2">
+							<Badge variant="outline" className="font-mono text-[10px] text-muted-foreground h-5 px-1 bg-white dark:bg-slate-950">
+								{node.code}
+							</Badge>
+							{node.description && (
+								<Popover>
+									<PopoverTrigger asChild>
+										<InfoIcon className="h-4 w-4 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" />
+									</PopoverTrigger>
+									<PopoverContent className="w-72 p-3 text-sm text-slate-600 dark:text-slate-300 shadow-md">
+										{node.description}
+									</PopoverContent>
+								</Popover>
+							)}
+							<p className={`text-sm text-left ${level === 0 ? "font-bold" : "font-normal"}`}>{node.name}</p>
 
-						{isMatch && (
-							<span className="text-xs font-bold text-blue-600 dark:text-blue-400 animate-in fade-in slide-in-from-left-2">
-								← {highlight.label} belongs here
-							</span>
-						)}
-					</div>
-				</div>
-
-				<div className="w-32 relative">
-					<span
-						className={`absolute left-3 top-2.5 text-xs font-bold ${hasChildren ? "text-slate-900 dark:text-slate-200" : "text-muted-foreground"}`}
-					>
-						{hasChildren ?
-							"="
-						: currMode === "percent" ?
-							"%"
-						:	"PHP"}
-					</span>
-
-					{hasChildren ?
-						<div className="h-9 pl-3 pr-3 flex items-center justify-end text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100/50 dark:bg-slate-800/50 rounded-md border border-transparent">
-							{displayValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+							{isMatch && (
+								<span className="text-xs font-bold text-blue-600 dark:text-blue-400 animate-in fade-in slide-in-from-left-2">
+									← {highlight.label} belongs here
+								</span>
+							)}
 						</div>
-					:	<Input
-							ref={inputRef}
-							type="number"
+					</div>
+
+					<div className="relative">
+						<span
 							className={`
-								h-9 pl-3 text-right font-mono text-sm transition-all
-								${
-									isMatch ? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-950 scale-105"
-									: displayValue > 0 ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20"
-									: "bg-transparent border-transparent hover:border-slate-200"
-								}
-							`}
-							placeholder="-"
-							value={displayValue || ""}
-							min={0}
-							onChange={(e) => updateExpenseValue(node.code, node.name, Number.parseFloat(e.target.value) || 0)}
-						/>
-					}
+							absolute left-3 top-2.5 text-xs font-bold
+							${hasChildren ? "text-slate-900 dark:text-slate-200" : "text-muted-foreground"}
+						`}
+						>
+							{hasChildren ?
+								"="
+							: currMode === "percent" ?
+								"%"
+							:	"PhP"}
+						</span>
+
+						{hasChildren ?
+							<div className="h-9 pl-3 pr-3 flex items-center justify-end text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100/50 dark:bg-slate-800/50 rounded-md border border-transparent">
+								{displayValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+							</div>
+						:	<Input
+								ref={inputRef}
+								type="number"
+								className={`
+									h-9 pl-3 text-right font-mono text-sm transition-all bg-slate-400
+									${
+										isMatch ? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-950 scale-105"
+										: displayValue > 0 ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20"
+										: "bg-transparent border-transparent hover:border-slate-200"
+									}
+								`}
+								placeholder="-"
+								value={displayValue || ""}
+								min={0}
+								onChange={(e) => {
+									const v = Number.parseFloat(e.target.value);
+									if (v < 0 || (currMode === "percent" && v > 100)) return;
+
+									updateExpenseValue(node.code, node.name, Number.isNaN(v) ? 0 : v);
+								}}
+							/>
+						}
+					</div>
 				</div>
 			</div>
 

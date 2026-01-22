@@ -3,14 +3,14 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { dataStore } from "@/stores/dataStore";
 import { mode, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
-import { Calendar as CalendarIcon, Check, ChevronsUpDown, MapPin, Users } from "lucide-react";
+import { Calendar as CalendarIcon, Check, ChevronsUpDown, MapPin, Settings2, Users } from "lucide-react";
 import { useState } from "react";
+import { Sidebar, SidebarContent, SidebarGroup } from "./ui/sidebar";
 
 export function GlobalControls() {
 	const appSettings = useStore(settings);
@@ -61,9 +61,9 @@ export function GlobalControls() {
 	};
 
 	return (
-		<div className="grid gap-6 p-5 border rounded-xl bg-card text-card-foreground shadow-sm mb-6">
-			<div className="grid md:grid-cols-2 gap-5">
-				<div className="space-y-2">
+		<Sidebar variant="floating" side="right">
+			<SidebarContent className="p-3">
+				<SidebarGroup className="space-y-3">
 					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<MapPin className="h-3.5 w-3.5" /> Province / City
 					</Label>
@@ -92,9 +92,9 @@ export function GlobalControls() {
 							</Command>
 						</PopoverContent>
 					</Popover>
-				</div>
+				</SidebarGroup>
 
-				<div className="space-y-2">
+				<SidebarGroup className="space-y-3">
 					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<Users className="h-3.5 w-3.5" /> Income Bracket
 					</Label>
@@ -109,92 +109,93 @@ export function GlobalControls() {
 							</SelectItem>
 						</SelectContent>
 					</Select>
-				</div>
-			</div>
+				</SidebarGroup>
 
-			<div className="space-y-2">
-				<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
-					<CalendarIcon className="h-3.5 w-3.5" /> Select Period
-				</Label>
+				<SidebarGroup className="space-y-3">
+					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+						<CalendarIcon className="h-3.5 w-3.5" /> Select Period
+					</Label>
 
-				<div className="flex gap-4">
-					<div className="space-y-1">
-						<span className="text-xs text-muted-foreground">Month</span>
-						<Select value={appSettings.startDate.getMonth().toString()} onValueChange={handleMonthChange}>
-							<SelectTrigger>
-								<SelectValue placeholder="Month" />
-							</SelectTrigger>
-							<SelectContent>
-								{MONTHS.map((m, i) => (
-									<SelectItem key={m} value={i.toString()}>
-										{m}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+					<div className="flex gap-4">
+						<div className="space-y-1">
+							<span className="text-xs text-muted-foreground">Month</span>
+							<Select value={appSettings.startDate.getMonth().toString()} onValueChange={handleMonthChange}>
+								<SelectTrigger>
+									<SelectValue placeholder="Month" />
+								</SelectTrigger>
+								<SelectContent>
+									{MONTHS.map((m, i) => (
+										<SelectItem key={m} value={i.toString()}>
+											{m}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="space-y-1">
+							<span className="text-xs text-muted-foreground">Year</span>
+							<Popover open={openYear} onOpenChange={setOpenYear}>
+								<PopoverTrigger asChild>
+									<Button variant="outline" role="combobox" aria-expanded={openYear} className="w-full justify-between font-normal">
+										{appSettings.startDate.getFullYear()}
+										<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent className="w-35 p-0" align="start">
+									<Command>
+										<CommandInput placeholder="Year..." />
+										<CommandList>
+											<CommandEmpty>No year found.</CommandEmpty>
+											<CommandGroup className="max-h-62.5 overflow-y-auto">
+												{availableYears.map((year, i) => (
+													<CommandItem key={year} value={year} disabled={i === availableYears.length - 1} onSelect={handleYearChange}>
+														<Check
+															className={cn(
+																"mr-2 h-4 w-4",
+																appSettings.startDate.getFullYear().toString() === year ? "opacity-100" : "opacity-0",
+															)}
+														/>
+														{year}
+													</CommandItem>
+												))}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
+						</div>
 					</div>
+				</SidebarGroup>
 
-					<div className="space-y-1">
-						<span className="text-xs text-muted-foreground">Year</span>
-						<Popover open={openYear} onOpenChange={setOpenYear}>
-							<PopoverTrigger asChild>
-								<Button variant="outline" role="combobox" aria-expanded={openYear} className="w-full justify-between font-normal">
-									{appSettings.startDate.getFullYear()}
-									<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-35 p-0" align="start">
-								<Command>
-									<CommandInput placeholder="Year..." />
-									<CommandList>
-										<CommandEmpty>No year found.</CommandEmpty>
-										<CommandGroup className="max-h-62.5 overflow-y-auto">
-											{availableYears.map((year, i) => (
-												<CommandItem key={year} value={year} disabled={i === availableYears.length - 1} onSelect={handleYearChange}>
-													<Check
-														className={cn(
-															"mr-2 h-4 w-4",
-															appSettings.startDate.getFullYear().toString() === year ? "opacity-100" : "opacity-0",
-														)}
-													/>
-													{year}
-												</CommandItem>
-											))}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
+				<SidebarGroup className="space-y-3">
+					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+						<Settings2 className="h-3.5 w-3.5" /> Input Type
+					</Label>
+					<div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-lg w-full md:w-auto transition-all">
+						<button
+							onClick={() => mode.set("amount")}
+							className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+								m === "amount" ?
+									"bg-white dark:bg-slate-700 shadow text-primary"
+								:	"text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
+							}`}
+						>
+							Amount
+						</button>
+						<button
+							onClick={() => mode.set("percent")}
+							className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+								m === "percent" ?
+									"bg-white dark:bg-slate-700 shadow text-primary"
+								:	"text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
+							}`}
+						>
+							Percent
+						</button>
 					</div>
-				</div>
-			</div>
-
-			<Separator />
-
-			<div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-				<div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-lg w-full md:w-auto transition-all">
-					<button
-						onClick={() => mode.set("amount")}
-						className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-							m === "amount" ?
-								"bg-white dark:bg-slate-700 shadow text-primary"
-							:	"text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
-						}`}
-					>
-						Amount
-					</button>
-					<button
-						onClick={() => mode.set("percent")}
-						className={`flex-1 px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-							m === "percent" ?
-								"bg-white dark:bg-slate-700 shadow text-primary"
-							:	"text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
-						}`}
-					>
-						Percent
-					</button>
-				</div>
-			</div>
-		</div>
+				</SidebarGroup>
+			</SidebarContent>
+		</Sidebar>
 	);
 }

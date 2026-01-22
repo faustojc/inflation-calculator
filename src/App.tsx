@@ -1,7 +1,7 @@
 import { GlobalControls } from "@/components/GlobalControls";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@nanostores/react";
-import { AlertTriangle, Calculator, Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import CalculationFooter from "@/components/CalculationFooter";
@@ -9,6 +9,7 @@ import ExpenseList from "@/components/ExpenseList";
 import { GeneralTab } from "@/components/GeneralTab";
 import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dataStore, getAreaHierarchy, getCalculationData, initializeApp } from "@/stores/dataStore";
 import {
@@ -25,6 +26,7 @@ import {
 } from "@/stores/inflationStore";
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
 import { Toaster, toast } from "sonner";
+import { Header } from "./components/Header";
 
 export default function App() {
 	const [isCalculating, setIsCalculating] = useState(false);
@@ -169,46 +171,28 @@ export default function App() {
 	}
 
 	return (
-		<>
+		<SidebarProvider>
 			<Toaster position="top-center" closeButton />
-			<div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 pb-52">
-				<header className="bg-white dark:bg-slate-900 border-b px-4 py-4 sticky top-0 z-20 shadow-sm">
-					<div className="max-w-3xl mx-auto flex justify-between items-center">
-						<div className="flex items-center gap-2">
-							<div className="bg-blue-600 p-2 rounded-lg text-white">
-								<Calculator className="h-5 w-5" />
-							</div>
-							<div>
-								<h1 className="font-bold text-lg leading-tight">Personal Inflation Calculator</h1>
-								<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Personal CPI</p>
-							</div>
-						</div>
-					</div>
-				</header>
+			<div className="max-w-2xl mx-auto min-h-screen font-sans text-slate-900 dark:text-slate-100 pb-52">
+				<Header />
 
-				<main className="max-w-3xl mx-auto p-4 space-y-6 mt-4">
-					<GlobalControls />
-
-					<div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
-						<div className="mb-2">
-							<h2 className="font-bold text-lg">Find and Input Expenses</h2>
-							<p className="text-sm text-muted-foreground">
-								Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.
-							</p>
-						</div>
-						<SmartSearch
-							onSelect={(item) => {
-								locateCategory(item.categoryCode, item.name);
-							}}
-						/>
+				<main className="relative mx-auto p-4 space-y-6 mt-4">
+					<div className="mb-2">
+						<h2 className="font-bold text-lg">Find and Input Expenses</h2>
+						<p>Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.</p>
 					</div>
+					<SmartSearch
+						onSelect={(item) => {
+							locateCategory(item.categoryCode, item.name);
+						}}
+					/>
 
 					<Tabs defaultValue="general" className="w-full" onValueChange={(v) => setActiveTab(v as "general" | "detailed")}>
 						<TabsList className="grid w-full grid-cols-2 mb-6">
-							<TabsTrigger value="general" onClick={clearExpenses}>
+							<TabsTrigger value="general" className="text-md" onClick={clearExpenses}>
 								General Categories
 							</TabsTrigger>
-							<TabsTrigger value="detailed" onClick={clearExpenses}>
+							<TabsTrigger value="detailed" className="text-md" onClick={clearExpenses}>
 								Detailed Commodities
 							</TabsTrigger>
 						</TabsList>
@@ -218,7 +202,7 @@ export default function App() {
 								<div className="mb-4 flex justify-between items-center">
 									<div>
 										<h2 className="font-bold text-lg">General Commodities</h2>
-										<p className="text-sm text-muted-foreground">13 General Commodity Groups</p>
+										<p>13 General Commodity Groups</p>
 									</div>
 									<Button className="cursor-pointer" onClick={clearExpenses}>
 										<Trash2 className="h-4 w-4" />
@@ -231,10 +215,10 @@ export default function App() {
 
 						<TabsContent value="detailed" className="space-y-6">
 							<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-								<div className="p-4 border-b flex justify-between items-center">
+								<div className="p-4 gap-2 border-b flex justify-between items-center">
 									<div>
-										<h2 className="font-bold text-base">Detailed Commodities</h2>
-										<p className="text-xs text-muted-foreground text-wrap">Expand commodities to add expenses</p>
+										<h2 className="font-bold text-lg">Detailed Commodities</h2>
+										<p className="text-muted-foreground text-wrap">Expand commodities to add expenses</p>
 									</div>
 
 									<Button className="cursor-pointer" onClick={clearExpenses}>
@@ -248,7 +232,7 @@ export default function App() {
 					</Tabs>
 				</main>
 
-				<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-10 transition-all">
+				<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-50 transition-all">
 					<div className="max-w-3xl mx-auto">
 						<CalculationFooter />
 						<Button
@@ -269,6 +253,8 @@ export default function App() {
 
 				<ResultsDrawer open={showResults} onOpenChange={setShowResults} data={calculationData} />
 			</div>
-		</>
+
+			<GlobalControls />
+		</SidebarProvider>
 	);
 }

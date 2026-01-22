@@ -83,6 +83,7 @@ function calcGrowth(current: number, previous: number): number {
 	return ((current - previous) / previous) * 100;
 }
 
+// --- UPDATED TREND GENERATOR ---
 function generateTrend(
 	expenses: ExpenseItem[],
 	location: LocationContext,
@@ -97,38 +98,54 @@ function generateTrend(
 		weight: config.mode === "amount" ? (item.value / totalInput) * 100 : item.value,
 	}));
 
-	for (let year = dates.startYear; year <= dates.endYear; year++) {
+	// Calculate Weighted CPI for a specific time
+	const getCompositeCpi = (y: number, m: number) => {
+		let weightedSum = 0;
+		let validCount = 0;
+
+		for (const item of itemsWithWeights) {
+			const cpi = findCpi(dataIndex, location.keys.area, y, m, item.code);
+			if (cpi !== null) {
+				weightedSum += cpi * item.weight;
+				validCount++;
+			}
+		}
+		return validCount > 0 ? weightedSum / 100 : 0;
+	};
+
+	// calculate growth relative to this point (Index = 0%)
+	const basePersonal = getCompositeCpi(dates.startYear, dates.startMonth);
+	const baseArea = findCpi(dataIndex, location.keys.area, dates.startYear, dates.startMonth, ALL_CODE) || 0;
+	const baseRegion = findCpi(dataIndex, location.keys.region, dates.startYear, dates.startMonth, ALL_CODE) || 0;
+	const baseNat = findCpi(dataIndex, location.keys.national, dates.startYear, dates.startMonth, ALL_CODE) || 0;
+	const baseNcr = findCpi(dataIndex, "ncr", dates.startYear, dates.startMonth, ALL_CODE) || 0;
+
+	const years = [dates.startYear, dates.endYear];
+	const sortedYears = [...years].sort((a, b) => a - b);
+
+	for (const year of sortedYears) {
 		const startM = year === dates.startYear ? dates.startMonth : 1;
 		const endM = year === dates.endYear ? dates.endMonth : 12;
+
 		for (let month = startM; month <= endM; month++) {
-			// 1. Personal CPI
-			let weightedSum = 0;
-			let validCount = 0;
+			// Get Current CPIs
+			const currPersonal = getCompositeCpi(year, month);
+			const currArea = findCpi(dataIndex, location.keys.area, year, month, ALL_CODE) || 0;
+			const currRegion = findCpi(dataIndex, location.keys.region, year, month, ALL_CODE) || 0;
+			const currNat = findCpi(dataIndex, location.keys.national, year, month, ALL_CODE) || 0;
+			const currNcr = findCpi(dataIndex, "ncr", year, month, ALL_CODE) || 0;
 
-			for (const item of itemsWithWeights) {
-				const cpi = findCpi(dataIndex, location.keys.area, year, month, item.code);
-				if (cpi !== null) {
-					weightedSum += cpi * item.weight;
-					validCount++;
-				}
-			}
-			const personalCpi = validCount > 0 ? weightedSum / 100 : 0;
-
-			const areaCpi = findCpi(dataIndex, location.keys.area, year, month, ALL_CODE) || 0;
-			const regionCpi = findCpi(dataIndex, location.keys.region, year, month, ALL_CODE) || 0;
-			const natCpi = findCpi(dataIndex, location.keys.national, year, month, ALL_CODE) || 0;
-			const ncrCpi = findCpi(dataIndex, "ncr", year, month, ALL_CODE) || 0;
-
-			if (personalCpi > 0 || areaCpi > 0) {
+			if (currPersonal > 0 || currArea > 0) {
 				const dateObj = new Date(year, month - 1);
+
 				series.push({
 					date: dateObj.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
 					sortKey: year * 100 + month,
-					personal: Number(personalCpi.toFixed(1)),
-					area: areaCpi,
-					region: regionCpi,
-					national: natCpi,
-					ncr: ncrCpi,
+					personal: Number(calcGrowth(currPersonal, basePersonal).toFixed(1)),
+					area: Number(calcGrowth(currArea, baseArea).toFixed(1)),
+					region: Number(calcGrowth(currRegion, baseRegion).toFixed(1)),
+					national: Number(calcGrowth(currNat, baseNat).toFixed(1)),
+					ncr: Number(calcGrowth(currNcr, baseNcr).toFixed(1)),
 				});
 			}
 		}
@@ -221,7 +238,7 @@ export function calculatePersonalInflation(
 		const weightedCpiEnd = cpiEnd * weight;
 
 		// Item Growth
-		const itemInflationRate = calcGrowth(cpiStart, cpiEnd);
+		const itemInflationRate = calcGrowth(cpiEnd, cpiStart);
 
 		sumWeightedCpiStart += weightedCpiStart;
 		sumWeightedCpiEnd += weightedCpiEnd;
@@ -258,7 +275,7 @@ export function calculatePersonalInflation(
 
 	const yearlyCpiStart = sumWeightedCpiStart / 100;
 	const yearlyCpiEnd = sumWeightedCpiEnd / 100;
-	const personalRate = calcGrowth(yearlyCpiStart, yearlyCpiEnd);
+	const personalRate = calcGrowth(yearlyCpiEnd, yearlyCpiStart);
 
 	// Get need Start/End CPI for "ALL" items to calculate official rates
 	const getOfficialRate = (key: string) => {
