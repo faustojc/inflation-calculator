@@ -86,23 +86,21 @@ function calcGrowth(current: number, previous: number): number {
 function generateTrend(
 	expenses: ExpenseItem[],
 	location: LocationContext,
-	years: number[],
+	dates: DateRange,
 	config: CalculationConfig,
 	dataIndex: Map<string, number>,
 ): TrendPoint[] {
 	const series: TrendPoint[] = [];
-	const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
 	const totalInput = config.totalInput || 1;
 	const itemsWithWeights = expenses.map((item) => ({
 		code: item.code,
 		weight: config.mode === "amount" ? (item.value / totalInput) * 100 : item.value,
 	}));
 
-	const sortedYears = [...years].sort((a, b) => a - b);
-
-	for (const year of sortedYears) {
-		for (const month of months) {
+	for (let year = dates.startYear; year <= dates.endYear; year++) {
+		const startM = year === dates.startYear ? dates.startMonth : 1;
+		const endM = year === dates.endYear ? dates.endMonth : 12;
+		for (let month = startM; month <= endM; month++) {
 			// 1. Personal CPI
 			let weightedSum = 0;
 			let validCount = 0;
@@ -118,13 +116,13 @@ function generateTrend(
 
 			const areaCpi = findCpi(dataIndex, location.keys.area, year, month, ALL_CODE) || 0;
 			const regionCpi = findCpi(dataIndex, location.keys.region, year, month, ALL_CODE) || 0;
-			const natCpi = findCpi(dataIndex, "philippines", year, month, ALL_CODE) || 0;
+			const natCpi = findCpi(dataIndex, location.keys.national, year, month, ALL_CODE) || 0;
 			const ncrCpi = findCpi(dataIndex, "ncr", year, month, ALL_CODE) || 0;
 
 			if (personalCpi > 0 || areaCpi > 0) {
 				const dateObj = new Date(year, month - 1);
 				series.push({
-					date: dateObj.toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+					date: dateObj.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
 					sortKey: year * 100 + month,
 					personal: Number(personalCpi.toFixed(1)),
 					area: areaCpi,
@@ -276,7 +274,7 @@ export function calculatePersonalInflation(
 		ncrRate: getOfficialRate("ncr"),
 	};
 
-	const trend = generateTrend(expenses, location, [dates.startYear, dates.endYear], config, dataIndex);
+	const trend = generateTrend(expenses, location, dates, config, dataIndex);
 	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, { location, dates });
 
 	return {
