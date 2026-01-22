@@ -34,6 +34,10 @@ export default defineConfig({
 						return "vendor-utils";
 					}
 
+					if (id.includes("node_modules/recharts")) {
+						return "vendor-charts";
+					}
+
 					if (id.includes("src/stores")) {
 						return "vendor-states";
 					}

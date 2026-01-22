@@ -20,8 +20,14 @@ export interface CommodityDef {
 export interface AreaDef {
 	key: string;
 	name: string;
-	provinceId: number;
+	provinceId?: number;
 	regionId: number;
+}
+
+export interface AreaHierarchy {
+	areaKey: string;
+	regionKey: string;
+	nationalKey: string;
 }
 
 // Structure of data/{key}/{year}.json
@@ -86,11 +92,12 @@ export async function initializeApp() {
 		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
 
 		const meta: Metadata = await metaRes.json();
-		const commodities: CommodityDef[] = await commRes.json();
+		let commodities: CommodityDef[] = await commRes.json();
 		const years: string[] = [];
 		const flatCodes: string[] = [];
 		const parentIndex: Record<string, string> = {};
 
+		commodities = commodities.filter((c) => c.code !== "0");
 		const traverse = (nodes: CommodityDef[], parentCode: string | null) => {
 			for (const node of nodes) {
 				flatCodes.push(node.code);
@@ -152,11 +159,13 @@ export async function initializeApp() {
 	}
 }
 
-export async function getCalculationData(areaKey: string, startYear: number, endYear: number): Promise<Map<string, number>> {
-	const startUrl = `${API_URL}/data/${areaKey}/${startYear}.json`;
-	const endUrl = `${API_URL}/data/${areaKey}/${endYear}.json`;
+export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<Map<string, number>> {
+	const promises = [
+		...areaKeys.map((key) => fetch(`${API_URL}/data/${key}/${startYear}.json`)),
+		...areaKeys.map((key) => fetch(`${API_URL}/data/${key}/${endYear}.json`)),
+	];
 
-	const responses = await Promise.all([fetch(startUrl), fetch(endUrl)]);
+	const responses = await Promise.all(promises);
 	const dataMap = new Map<string, number>();
 
 	for (const res of responses) {
@@ -172,14 +181,41 @@ export async function getCalculationData(areaKey: string, startYear: number, end
 			values.forEach((val, index) => {
 				if (val === null) return;
 				const month = index + 1;
-				// REGION|AREA|INCOME|YEAR|MONTH|CODE
-				const key = `${file.area}|${file.name}|*|${file.year}|${month}|${code}`;
+				const key = `${file.area}|*|${file.year}|${month}|${code}`;
+
 				dataMap.set(key, val);
 			});
 		}
 	}
 
 	return dataMap;
+}
+
+export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
+	const { areas } = dataStore.get();
+
+	const selectedArea = areas.find((a) => a.key === selectedKey);
+	if (!selectedArea) {
+		return { areaKey: selectedKey, regionKey: "ncr", nationalKey: "philippines" };
+	}
+
+	const nationalKey = "philippines";
+	let regionKey = "ncr";
+
+	if (selectedArea.provinceId === undefined) {
+		regionKey = selectedArea.key;
+	} else {
+		const parentRegion = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === undefined);
+		if (parentRegion) {
+			regionKey = parentRegion.key;
+		}
+	}
+
+	return {
+		areaKey: selectedKey,
+		regionKey: regionKey,
+		nationalKey: nationalKey,
+	};
 }
 
 export function getDisplayLabel(item: SearchOption): string {

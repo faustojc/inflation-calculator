@@ -43,7 +43,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 
 			<div className="w-full sm:w-35 shrink-0">
 				<div className="relative">
-					<span className="absolute left-3 top-2.5 text-muted-foreground text-xs font-bold">{m === "percent" ? "%" : "₱"}</span>
+					<span className="absolute left-3 top-2.5 text-muted-foreground text-xs font-bold">{m === "percent" ? "%" : "PhP"}</span>
 					<Input
 						ref={inputRef}
 						type="number"
@@ -53,7 +53,9 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 						`}
 						value={val || ""}
 						onChange={(e) => {
-							const v = Number.parseFloat(e.target.value);
+							let v = Number.parseFloat(e.target.value);
+							v = Number.isNaN(v) || v < 0 ? 0 : v;
+
 							updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v);
 						}}
 					/>

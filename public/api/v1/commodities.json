@@ -1,5 +1,10 @@
 [
   {
+    "code": "0",
+    "name": "All Items",
+    "children": []
+  },
+  {
     "code": "01",
     "name": "Food and Non-Alcoholic Beverages",
     "children": [

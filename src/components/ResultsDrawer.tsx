@@ -1,14 +1,14 @@
 import { format } from "date-fns";
-import { ArrowRight, ArrowUpRight, CalendarDays, Info, MapPin, TrendingUp, Wallet } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarDays, Info, MapPin, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
 
-import { BreakdownItem } from "@/components/BreakdownItem";
 import { mode } from "@/stores/inflationStore";
 import type { CalculationResult } from "@/utils/inflationCompute";
 import { useStore } from "@nanostores/react";
+import { TrendGraph } from "./TrendGraph";
 
 interface ResultsDrawerProps {
 	open: boolean;
@@ -20,7 +20,8 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 	const currMode = useStore(mode);
 
 	if (!data) return null;
-	const { personalRate, totalSpend, breakdown, meta, interpretation } = data;
+
+	const { personalRate, yearlyCpiEnd, totalSpend, trend, meta, interpretation } = data;
 
 	const totalPreviousSpend = totalSpend / (1 + personalRate / 100);
 	const difference = totalSpend - totalPreviousSpend;
@@ -30,14 +31,19 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 	const startDateStr = format(new Date(meta.dates.startYear, meta.dates.startMonth - 1), "MMM yyyy");
 	const endDateStr = format(new Date(meta.dates.endYear, meta.dates.endMonth - 1), "MMM yyyy");
 
-	const sortedBreakdown = [...breakdown].sort((a, b) => b.itemInflationRate - a.itemInflationRate);
+	// scramble the string
+	const generateKey = (value: string) =>
+		value
+			.split("")
+			.sort(() => (Math.random() > 0.5 ? 1 : -1))
+			.join("");
 
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
-			<DrawerContent className="h-[92vh] flex flex-col rounded-t-4xl bg-slate-50 dark:bg-slate-950 font-sans">
-				<div className="mx-auto w-full max-w-lg flex flex-col h-full overflow-hidden">
-					<DrawerHeader className="shrink-0 text-center border-b pb-4">
-						<DrawerTitle className="text-xl font-bold tracking-tight">Personal Inflation Rate</DrawerTitle>
+			<DrawerContent className="h-[95vh] flex flex-col rounded-t-[24px] font-sans">
+				<div className="mx-auto w-full max-w-3xl flex flex-col h-full overflow-hidden">
+					<DrawerHeader className="shrink-0 text-center pb-2 bg-white dark:bg-slate-900 rounded-t-[24px] border-b border-slate-100 dark:border-slate-800">
+						<DrawerTitle className="text-2xl font-bold tracking-tight">Inflation Report</DrawerTitle>
 						<DrawerDescription className="flex justify-center items-center gap-3 mt-2 text-xs">
 							<span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
 								<CalendarDays className="h-3 w-3 text-slate-500" />
@@ -50,29 +56,31 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 						</DrawerDescription>
 					</DrawerHeader>
 
-					<div className="flex-1 overflow-y-auto p-5 space-y-6">
+					<div className="flex-1 overflow-y-auto p-6 space-y-8">
 						<div
 							className={`
-								relative overflow-hidden p-6 rounded-3xl border shadow-sm flex flex-col items-center text-center
+								relative overflow-hidden p-8 rounded-[2rem] shadow-sm flex flex-col items-center text-center border bg-linear-to-b
 								${
 									isHigh ?
-										"bg-red-50 border-red-100 dark:bg-red-950/30 dark:border-red-900/50"
-									:	"bg-emerald-50 border-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-900/50"
+										"from-red-50 to-white border-red-100 dark:from-red-950/40 dark:to-slate-950 dark:border-red-900"
+									:	"from-emerald-50 to-white border-emerald-100 dark:from-emerald-950/40 dark:to-slate-950 dark:border-emerald-900"
 								}
 							`}
 						>
-							<span className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Your Personal Rate</span>
-							<div
-								className={`text-6xl font-black tracking-tighter tabular-nums mb-3
+							<span className="text-xs font-bold uppercase tracking-widest opacity-50 mb-2">Personal Inflation Rate</span>
+							<p
+								className={`text-7xl font-black tracking-tighter tabular-nums mb-1
 									${isHigh ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}
 								`}
 							>
 								{personalRate.toFixed(1)}%
-							</div>
+							</p>
 
-							<div className="flex items-start gap-2 text-sm text-left bg-white/60 dark:bg-black/20 p-3 rounded-xl backdrop-blur-sm">
-								<Info className={`h-5 w-5 shrink-0 mt-0.5 ${isHigh ? "text-red-500" : "text-emerald-500"}`} />
-								<p className="leading-relaxed text-slate-700 dark:text-slate-300">{interpretation}</p>
+							<Separator className="my-3" />
+
+							<div className="flex flex-col items-center gap-2 mt-2">
+								<p className="text-xs font-bold uppercase tracking-widest opacity-50 mb-2">Consumer Price Index</p>
+								<p className="text-xl font-black ">{yearlyCpiEnd.toFixed(1)} (2018=100)</p>
 							</div>
 						</div>
 
@@ -114,24 +122,25 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 							</div>
 						</div>
 
-						<div>
-							<div className="flex items-center gap-2 mb-4 px-1">
-								<TrendingUp className="h-4 w-4 text-slate-500" />
-								<h3 className="font-semibold text-sm text-slate-500 uppercase tracking-wide">Item Breakdown</h3>
-							</div>
+						<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
 
-							<div className="space-y-3 pb-6">
-								{sortedBreakdown.map((item) => (
-									<BreakdownItem key={item.id} item={item} totalSpend={totalSpend} formatter={currencyFormatter} />
-								))}
+						<div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+							<div className="flex items-center gap-2 mb-3 text-slate-500">
+								<Info className="h-4 w-4" />
+								<h3 className="font-bold text-xs uppercase tracking-wide">Analysis</h3>
 							</div>
+							{interpretation.map((p) => (
+								<p key={generateKey(p.substring(0, 10))} className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 mb-4">
+									{p}
+								</p>
+							))}
 						</div>
 					</div>
 
-					<DrawerFooter className="shrink-0 border-t pt-4 pb-8">
+					<DrawerFooter className="shrink-0 pt-4 pb-8 border-t">
 						<DrawerClose asChild>
-							<Button variant="outline" className="w-full h-12 text-base font-semibold shadow-sm">
-								Close Report
+							<Button size="lg" className="w-full text-base font-bold shadow-md">
+								Done
 							</Button>
 						</DrawerClose>
 					</DrawerFooter>

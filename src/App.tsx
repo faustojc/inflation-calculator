@@ -10,7 +10,7 @@ import { GeneralTab } from "@/components/GeneralTab";
 import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { dataStore, getCalculationData, initializeApp } from "@/stores/dataStore";
+import { dataStore, getAreaHierarchy, getCalculationData, initializeApp } from "@/stores/dataStore";
 import {
 	buildSearchIndex,
 	clearExpenses,
@@ -31,7 +31,7 @@ export default function App() {
 	const [showResults, setShowResults] = useState(false);
 	const [calculationData, setCalculationData] = useState<CalculationResult | null>(null);
 
-	const { isReady, isLoading, error: dataError, commodities, areas } = useStore(dataStore);
+	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
 
 	const itemsMap = useStore(expenses);
 	const items = Object.values(itemsMap);
@@ -72,6 +72,7 @@ export default function App() {
 
 		try {
 			const { areaKey, startDate } = settings.get();
+			const { areas } = dataStore.get();
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
 
@@ -88,14 +89,27 @@ export default function App() {
 			};
 
 			const activeCodes = items.filter((i) => i.value > 0).map((i) => i.code);
-			const provinceName = areas.find((a) => a.key === areaKey)?.name;
-
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
-			const batchMap = await getCalculationData(areaKey, baseYear, targetYear);
+			const hierarchy = getAreaHierarchy(areaKey);
+
+			const areaDef = areas.find((a) => a.key === areaKey);
+			const regionDef = areas.find((a) => a.key === hierarchy.regionKey);
+
+			const keysToFetch = [hierarchy.areaKey, hierarchy.regionKey, hierarchy.nationalKey, "ncr"];
+			const batchMap = await getCalculationData(keysToFetch, dates.startYear, dates.endYear);
+
 			const result = calculatePersonalInflation(
 				items,
-				{ regionCode: areaKey, provinceName: provinceName ?? areaKey },
+				{
+					regionCode: regionDef?.name || hierarchy.regionKey,
+					provinceName: areaDef?.name || areaKey,
+					keys: {
+						area: hierarchy.areaKey,
+						region: hierarchy.regionKey,
+						national: hierarchy.nationalKey,
+					},
+				},
 				dates,
 				{ mode: currentMode, totalInput: currentTotalAlloc },
 				batchMap,
@@ -115,7 +129,6 @@ export default function App() {
 							},
 						},
 					});
-					// Don't show results drawer
 				} else {
 					setCalculationData(result);
 					setShowResults(true);
