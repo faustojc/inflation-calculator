@@ -120,7 +120,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 							</div>
 						</div>
 
-						<div className="sm:col-span-2">
+						<div className="sm:col-span-2 space-y-4">
 							<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
 
 							<div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
