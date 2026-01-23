@@ -1,14 +1,14 @@
+import type { AreaDef } from "@/stores/dataStore";
 import { type ExpenseItem } from "@/stores/inflationStore";
 
 export type CompareMode = "area" | "region" | "ncr" | "national";
 
 export interface LocationContext {
-	regionCode: string;
-	provinceName?: string;
-	keys: {
-		area: string;
-		region: string;
-		national: string;
+	hierarchy: {
+		target: AreaDef;
+		province?: AreaDef;
+		region?: AreaDef;
+		national?: AreaDef;
 	};
 }
 
@@ -30,7 +30,8 @@ export interface TrendPoint {
 	personal: number;
 	area: number;
 	region: number;
-	ncr: number;
+	province?: number;
+	aoncr: number;
 	national: number;
 }
 
@@ -39,8 +40,8 @@ export interface Comparators {
 	regionRate: number;
 	nationalRate: number;
 	ncrRate: number;
+	provinceRate?: number;
 }
-
 export interface ItemBreakdown {
 	id: string;
 	name: string;
@@ -74,7 +75,7 @@ export interface CalculationResult {
 const ALL_CODE = "0";
 
 function findCpi(dataIndex: Map<string, number>, areaKey: string, year: number, month: number, code: string): number | null {
-	const key = `${areaKey}|*|${year}|${month}|${code}`;
+	const key = `${areaKey}|${year}|${month}|${code}`;
 	return dataIndex.get(key) || null;
 }
 
@@ -83,10 +84,80 @@ function calcGrowth(current: number, previous: number): number {
 	return ((current - previous) / previous) * 100;
 }
 
-// --- UPDATED TREND GENERATOR ---
+function calculateYoY(dataIndex: Map<string, number>, key: string | undefined, year: number, month: number, code: string = ALL_CODE): number {
+	if (!key) return 0;
+	const curr = findCpi(dataIndex, key, year, month, code);
+	const prev = findCpi(dataIndex, key, year - 1, month, code);
+	if (curr && prev && prev > 0) {
+		return ((curr - prev) / prev) * 100;
+	}
+	return 0;
+}
+
+function calculatePersonalTrend(
+	dataIndex: Map<string, number>,
+	targetKey: string,
+	itemsWithWeights: { code: string; weight: number }[],
+	year: number,
+	month: number,
+): number {
+	let validCount = 0;
+	let compCurr = 0;
+	let compPrev = 0;
+
+	for (const item of itemsWithWeights) {
+		const c1 = findCpi(dataIndex, targetKey, year, month, item.code);
+		const c0 = findCpi(dataIndex, targetKey, year - 1, month, item.code);
+
+		if (c1 !== null && c0 !== null) {
+			compCurr += c1 * item.weight;
+			compPrev += c0 * item.weight;
+			validCount++;
+		}
+	}
+
+	return validCount > 0 && compPrev > 0 ? ((compCurr - compPrev) / compPrev) * 100 : 0;
+}
+
+function processTrendMonth(
+	year: number,
+	month: number,
+	dataIndex: Map<string, number>,
+	hierarchy: LocationContext["hierarchy"],
+	itemsWithWeights: { code: string; weight: number }[],
+): TrendPoint | null {
+	const personalRate = calculatePersonalTrend(dataIndex, hierarchy.target.key, itemsWithWeights, year, month);
+	const areaRate = calculateYoY(dataIndex, hierarchy.target.key, year, month);
+	const regionRate = calculateYoY(dataIndex, hierarchy.region?.key, year, month);
+
+	// Only calculate province rate if it's distinct from the target area (e.g., target is a city)
+	let provinceRate: number | undefined;
+	if (hierarchy.province && hierarchy.province.key !== hierarchy.target.key) {
+		provinceRate = calculateYoY(dataIndex, hierarchy.province.key, year, month);
+	}
+
+	const natRate = calculateYoY(dataIndex, hierarchy.national?.key, year, month);
+	const aoncRate = calculateYoY(dataIndex, "aoncr", year, month);
+
+	if (personalRate !== 0 || areaRate !== 0) {
+		const dateObj = new Date(year, month - 1);
+		return {
+			date: dateObj.toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+			sortKey: year * 100 + month,
+			personal: Number(personalRate.toFixed(1)),
+			area: Number(areaRate.toFixed(1)),
+			region: Number(regionRate.toFixed(1)),
+			province: provinceRate === undefined ? undefined : Number(provinceRate.toFixed(1)),
+			national: Number(natRate.toFixed(1)),
+			aoncr: Number(aoncRate.toFixed(1)),
+		};
+	}
+	return null;
+}
+
 function generateTrend(
 	expenses: ExpenseItem[],
-	location: LocationContext,
+	hierarchy: LocationContext["hierarchy"],
 	dates: DateRange,
 	config: CalculationConfig,
 	dataIndex: Map<string, number>,
@@ -98,55 +169,14 @@ function generateTrend(
 		weight: config.mode === "amount" ? (item.value / totalInput) * 100 : item.value,
 	}));
 
-	// Calculate Weighted CPI for a specific time
-	const getCompositeCpi = (y: number, m: number) => {
-		let weightedSum = 0;
-		let validCount = 0;
-
-		for (const item of itemsWithWeights) {
-			const cpi = findCpi(dataIndex, location.keys.area, y, m, item.code);
-			if (cpi !== null) {
-				weightedSum += cpi * item.weight;
-				validCount++;
-			}
-		}
-		return validCount > 0 ? weightedSum / 100 : 0;
-	};
-
-	// calculate growth relative to this point (Index = 0%)
-	const basePersonal = getCompositeCpi(dates.startYear, dates.startMonth);
-	const baseArea = findCpi(dataIndex, location.keys.area, dates.startYear, dates.startMonth, ALL_CODE) || 0;
-	const baseRegion = findCpi(dataIndex, location.keys.region, dates.startYear, dates.startMonth, ALL_CODE) || 0;
-	const baseNat = findCpi(dataIndex, location.keys.national, dates.startYear, dates.startMonth, ALL_CODE) || 0;
-	const baseNcr = findCpi(dataIndex, "ncr", dates.startYear, dates.startMonth, ALL_CODE) || 0;
-
-	const years = [dates.startYear, dates.endYear];
-	const sortedYears = [...years].sort((a, b) => a - b);
-
-	for (const year of sortedYears) {
+	for (let year = dates.startYear; year <= dates.endYear; year++) {
 		const startM = year === dates.startYear ? dates.startMonth : 1;
 		const endM = year === dates.endYear ? dates.endMonth : 12;
 
 		for (let month = startM; month <= endM; month++) {
-			// Get Current CPIs
-			const currPersonal = getCompositeCpi(year, month);
-			const currArea = findCpi(dataIndex, location.keys.area, year, month, ALL_CODE) || 0;
-			const currRegion = findCpi(dataIndex, location.keys.region, year, month, ALL_CODE) || 0;
-			const currNat = findCpi(dataIndex, location.keys.national, year, month, ALL_CODE) || 0;
-			const currNcr = findCpi(dataIndex, "ncr", year, month, ALL_CODE) || 0;
-
-			if (currPersonal > 0 || currArea > 0) {
-				const dateObj = new Date(year, month - 1);
-
-				series.push({
-					date: dateObj.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
-					sortKey: year * 100 + month,
-					personal: Number(calcGrowth(currPersonal, basePersonal).toFixed(1)),
-					area: Number(calcGrowth(currArea, baseArea).toFixed(1)),
-					region: Number(calcGrowth(currRegion, baseRegion).toFixed(1)),
-					national: Number(calcGrowth(currNat, baseNat).toFixed(1)),
-					ncr: Number(calcGrowth(currNcr, baseNcr).toFixed(1)),
-				});
+			const point = processTrendMonth(year, month, dataIndex, hierarchy, itemsWithWeights);
+			if (point) {
+				series.push(point);
 			}
 		}
 	}
@@ -157,7 +187,7 @@ function generateInterpretation(
 	personalRate: number,
 	personalCpi: number,
 	comps: Comparators,
-	meta: { location: LocationContext; dates: DateRange },
+	meta: { location: { hierarchy: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef } }; dates: DateRange },
 ): string[] {
 	const { location, dates } = meta;
 	const monthStr = new Date(dates.endYear, dates.endMonth - 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
@@ -174,21 +204,21 @@ function generateInterpretation(
 		personalCpi - 100,
 	)} by ${percentChange}% compared with their average prices in 2018. Subsequently, you will need PhP ${purchasingPower} to buy the same set of goods and services in ${monthStr}.`;
 
-	const p2 = `You live in ${location.provinceName || "Selected Area"} located in ${location.regionCode}.`;
+	const p2 = `You live in ${location.hierarchy.target.name || "Selected Area"} located in ${location.hierarchy.region!.name}.`;
 
 	const p3 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(personalRate, comps.areaRate)} than the inflation rate of the average households in ${
-		location.provinceName || "your area"
+		location.hierarchy.target.name || "your area"
 	} (${comps.areaRate.toFixed(1)}%). This means that you are ${getAff(personalRate, comps.areaRate)} affected by the price increases in ${
-		location.provinceName || "your area"
+		location.hierarchy.target.name || "your area"
 	} compared with the average household in the area.`;
 
 	const p4 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(
 		personalRate,
 		comps.regionRate,
-	)} than the inflation rate of the average households in ${location.regionCode} (${comps.regionRate.toFixed(1)}%). This means that you are ${getAff(
+	)} than the inflation rate of the average households in ${location.hierarchy.region!.name} (${comps.regionRate.toFixed(1)}%). This means that you are ${getAff(
 		personalRate,
 		comps.regionRate,
-	)} affected by the price increases in ${location.regionCode} compared to the average household in the region.`;
+	)} affected by the price increases in ${location.hierarchy.region!.name} compared to the average household in the region.`;
 
 	const p5 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(
 		personalRate,
@@ -224,8 +254,8 @@ export function calculatePersonalInflation(
 		// Formula: (Input / Sum) * 100 or just the value if percent
 		const weight = config.mode === "amount" ? (item.value / config.totalInput) * 100 : item.value;
 
-		const cpiStart = findCpi(dataIndex, location.keys.area, dates.startYear, dates.startMonth, item.code);
-		const cpiEnd = findCpi(dataIndex, location.keys.area, dates.endYear, dates.endMonth, item.code);
+		const cpiStart = findCpi(dataIndex, location.hierarchy.target.key, dates.startYear, dates.startMonth, item.code);
+		const cpiEnd = findCpi(dataIndex, location.hierarchy.target.key, dates.endYear, dates.endMonth, item.code);
 
 		if (cpiStart === null || cpiEnd === null) {
 			missingItems.push(item.name);
@@ -285,13 +315,14 @@ export function calculatePersonalInflation(
 	};
 
 	const comparators = {
-		areaRate: getOfficialRate(location.keys.area),
-		regionRate: getOfficialRate(location.keys.region),
-		nationalRate: getOfficialRate(location.keys.national),
+		areaRate: getOfficialRate(location.hierarchy.target.key),
+		regionRate: getOfficialRate(location.hierarchy.region!.key),
+		nationalRate: getOfficialRate("philippines"),
 		ncrRate: getOfficialRate("ncr"),
+		aoncrRate: getOfficialRate("aoncr"),
 	};
 
-	const trend = generateTrend(expenses, location, dates, config, dataIndex);
+	const trend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex);
 	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, { location, dates });
 
 	return {

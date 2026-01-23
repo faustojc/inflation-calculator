@@ -20,14 +20,16 @@ export interface CommodityDef {
 export interface AreaDef {
 	key: string;
 	name: string;
-	provinceId?: number;
 	regionId: number;
+	provinceId?: number;
+	cityId?: number;
 }
 
 export interface AreaHierarchy {
-	areaKey: string;
-	regionKey: string;
-	nationalKey: string;
+	target: AreaDef;
+	province?: AreaDef;
+	region?: AreaDef;
+	national?: AreaDef;
 }
 
 // Structure of data/{key}/{year}.json
@@ -35,6 +37,11 @@ export interface YearlyDataFile {
 	area: string;
 	name: string;
 	year: number;
+	ids: {
+		r: number;
+		p?: number;
+		c?: number;
+	};
 	data: {
 		[incomeKey: string]: {
 			[code: string]: (number | null)[];
@@ -181,7 +188,7 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 			values.forEach((val, index) => {
 				if (val === null) return;
 				const month = index + 1;
-				const key = `${file.area}|*|${file.year}|${month}|${code}`;
+				const key = `${file.area}|${file.year}|${month}|${code}`;
 
 				dataMap.set(key, val);
 			});
@@ -196,25 +203,29 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 
 	const selectedArea = areas.find((a) => a.key === selectedKey);
 	if (!selectedArea) {
-		return { areaKey: selectedKey, regionKey: "ncr", nationalKey: "philippines" };
+		return { target: { key: selectedKey, name: "Selected Area", regionId: 0 } };
 	}
 
 	const nationalKey = "philippines";
-	let regionKey = "ncr";
+	let province: AreaDef | undefined;
+	let region: AreaDef | undefined;
 
-	if (selectedArea.provinceId === undefined) {
-		regionKey = selectedArea.key;
-	} else {
-		const parentRegion = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === undefined);
-		if (parentRegion) {
-			regionKey = parentRegion.key;
+	const national = areas.find((a) => a.key === nationalKey);
+	region = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === undefined);
+
+	if (selectedArea.provinceId !== undefined) {
+		if (selectedArea.cityId === undefined) {
+			province = selectedArea;
+		} else {
+			province = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === selectedArea.provinceId && a.cityId === undefined);
 		}
 	}
 
 	return {
-		areaKey: selectedKey,
-		regionKey: regionKey,
-		nationalKey: nationalKey,
+		target: selectedArea,
+		region,
+		national,
+		province,
 	};
 }
 

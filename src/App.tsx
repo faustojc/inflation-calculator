@@ -34,9 +34,6 @@ export default function App() {
 	const [calculationData, setCalculationData] = useState<CalculationResult | null>(null);
 
 	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
-
-	const itemsMap = useStore(expenses);
-	const items = Object.values(itemsMap);
 	const isDisabled = useStore(isCalculationDisabled);
 
 	useEffect(() => {
@@ -74,9 +71,9 @@ export default function App() {
 
 		try {
 			const { areaKey, startDate } = settings.get();
-			const { areas } = dataStore.get();
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
+			const items = Object.values(expenses.get());
 
 			const targetYear = startDate.getFullYear();
 			const targetMonth = startDate.getMonth() + 1;
@@ -94,28 +91,10 @@ export default function App() {
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
 			const hierarchy = getAreaHierarchy(areaKey);
-
-			const areaDef = areas.find((a) => a.key === areaKey);
-			const regionDef = areas.find((a) => a.key === hierarchy.regionKey);
-
-			const keysToFetch = [hierarchy.areaKey, hierarchy.regionKey, hierarchy.nationalKey, "ncr"];
+			const uniqueKeys = new Set([hierarchy.target.key, hierarchy.province?.key, hierarchy.region?.key, hierarchy.national?.key, "aoncr", "ncr"]);
+			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 			const batchMap = await getCalculationData(keysToFetch, dates.startYear, dates.endYear);
-
-			const result = calculatePersonalInflation(
-				items,
-				{
-					regionCode: regionDef?.name || hierarchy.regionKey,
-					provinceName: areaDef?.name || areaKey,
-					keys: {
-						area: hierarchy.areaKey,
-						region: hierarchy.regionKey,
-						national: hierarchy.nationalKey,
-					},
-				},
-				dates,
-				{ mode: currentMode, totalInput: currentTotalAlloc },
-				batchMap,
-			);
+			const result = calculatePersonalInflation(items, { hierarchy }, dates, { mode: currentMode, totalInput: currentTotalAlloc }, batchMap);
 
 			if (result) {
 				if (result.missingItems && result.missingItems.length > 0) {
@@ -145,6 +124,14 @@ export default function App() {
 		} finally {
 			setIsCalculating(false);
 		}
+	};
+
+	const handleSearchSelect = (item: { categoryCode: string; name: string }) => {
+		locateCategory(item.categoryCode, item.name);
+	};
+
+	const handleTabChange = (v: string) => {
+		setActiveTab(v as "general" | "detailed");
 	};
 
 	if (isLoading || !isReady || commodities.length === 0) {
@@ -181,13 +168,9 @@ export default function App() {
 						<h2 className="font-bold text-lg">Find and Input Expenses</h2>
 						<p>Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.</p>
 					</div>
-					<SmartSearch
-						onSelect={(item) => {
-							locateCategory(item.categoryCode, item.name);
-						}}
-					/>
+					<SmartSearch onSelect={handleSearchSelect} />
 
-					<Tabs defaultValue="general" className="w-full" onValueChange={(v) => setActiveTab(v as "general" | "detailed")}>
+					<Tabs defaultValue="general" className="w-full" onValueChange={handleTabChange}>
 						<TabsList className="grid w-full grid-cols-2 mb-6">
 							<TabsTrigger value="general" className="text-md" onClick={clearExpenses}>
 								General Categories

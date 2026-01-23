@@ -41,7 +41,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent className="h-[95vh] flex flex-col rounded-t-[24px] font-sans">
-				<div className="mx-auto w-full max-w-3xl flex flex-col h-full overflow-hidden">
+				<div className="mx-auto w-full max-w-7xl flex flex-col h-full overflow-hidden">
 					<DrawerHeader className="shrink-0 text-center pb-2 bg-white dark:bg-slate-900 rounded-t-[24px] border-b border-slate-100 dark:border-slate-800">
 						<DrawerTitle className="text-2xl font-bold tracking-tight">Inflation Report</DrawerTitle>
 						<DrawerDescription className="flex justify-center items-center gap-3 mt-2 text-xs">
@@ -51,21 +51,21 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 							</span>
 							<span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
 								<MapPin className="h-3 w-3 text-slate-500" />
-								{meta.location.provinceName || meta.location.regionCode}
+								{meta.location.hierarchy.target.name}
 							</span>
 						</DrawerDescription>
 					</DrawerHeader>
 
-					<div className="flex-1 overflow-y-auto p-6 space-y-8">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 overflow-y-auto p-6">
 						<div
 							className={`
-								relative overflow-hidden p-8 rounded-[2rem] flex flex-col items-center text-center border shadow-lg
+								p-6 md:p-8 rounded-[2rem] flex flex-col items-center text-center border shadow-lg
 								${isHigh ? "border-red-600 border-2 shadow-red-200" : "border-green-600 border-2 shadow-green-200"}
 							`}
 						>
-							<span className="text-xs font-bold uppercase tracking-widest opacity-50 mb-2">Personal Inflation Rate</span>
+							<span className="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-50 mb-2">Personal Inflation Rate</span>
 							<p
-								className={`text-7xl font-black tracking-tighter tabular-nums mb-1
+								className={`text-5xl md:text-7xl font-black tracking-tighter tabular-nums mb-1
 									${isHigh ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}
 								`}
 							>
@@ -74,13 +74,13 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 
 							<Separator className="my-3" />
 
-							<div className="flex flex-col items-center gap-2 mt-2">
-								<p className="text-xs font-bold uppercase tracking-widest opacity-50 mb-2">Consumer Price Index</p>
-								<p className="text-xl font-black ">{yearlyCpiEnd.toFixed(1)} (2018=100)</p>
+							<div className="flex flex-col items-center gap-1 md:gap-2 mt-2">
+								<p className="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-50 mb-1 md:mb-2">Consumer Price Index</p>
+								<p className="text-lg md:text-xl font-black ">{yearlyCpiEnd.toFixed(1)} (2018=100)</p>
 							</div>
 						</div>
 
-						<div className="bg-white dark:bg-slate-900 border rounded-2xl p-5 shadow-sm space-y-4">
+						<div className="flex flex-col justify-center bg-white dark:bg-slate-900 border rounded-2xl p-5 shadow-sm space-y-4">
 							<div className="flex items-center gap-2 mb-2">
 								<div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
 									<Wallet className="h-4 w-4" />
@@ -120,18 +120,20 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 							</div>
 						</div>
 
-						<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
+						<div className="sm:col-span-2">
+							<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
 
-						<div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-							<div className="flex items-center gap-2 mb-3 text-slate-500">
-								<Info className="h-4 w-4" />
-								<h3 className="font-bold text-xs uppercase tracking-wide">Analysis</h3>
+							<div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+								<div className="flex items-center gap-2 mb-3 text-slate-500">
+									<Info className="h-4 w-4" />
+									<h3 className="font-bold text-xs uppercase tracking-wide">Analysis</h3>
+								</div>
+								{interpretation.map((p) => (
+									<p key={generateKey(p.substring(0, 10))} className="leading-relaxed text-slate-700 dark:text-slate-300 mb-4">
+										{p}
+									</p>
+								))}
 							</div>
-							{interpretation.map((p) => (
-								<p key={generateKey(p.substring(0, 10))} className="leading-relaxed text-slate-700 dark:text-slate-300 mb-4">
-									{p}
-								</p>
-							))}
 						</div>
 					</div>
 

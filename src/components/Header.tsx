@@ -17,7 +17,7 @@ export function Header() {
 						<p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Personal CPI</p>
 					</div>
 				</div>
-				<Button onClick={toggleSidebar} variant="outline" className="flex flex-row items-center cursor-pointer">
+				<Button onClick={toggleSidebar} className="flex flex-row items-center cursor-pointer">
 					<Settings className="h-4 w-4" />
 					Controls
 				</Button>
