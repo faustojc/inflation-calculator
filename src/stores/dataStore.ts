@@ -168,8 +168,12 @@ export async function initializeApp() {
 
 export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<Map<string, number>> {
 	const yearsToFetch: number[] = [];
+	const availableYears = new Set(dataStore.get().availableYears.map(Number));
+
 	for (let y = startYear; y <= endYear; y++) {
-		yearsToFetch.push(y);
+		if (availableYears.has(y)) {
+			yearsToFetch.push(y);
+		}
 	}
 
 	const promises = yearsToFetch.flatMap((year) => areaKeys.map((key) => fetch(`${API_URL}/data/${key}/${year}.json`)));

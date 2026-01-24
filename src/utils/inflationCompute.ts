@@ -27,12 +27,12 @@ export interface CalculationConfig {
 export interface TrendPoint {
 	date: string;
 	sortKey: number;
-	personal: number;
-	area: number;
-	region: number;
-	province?: number;
-	aoncr: number;
-	national: number;
+	personal: number | null;
+	area: number | null;
+	region: number | null;
+	province?: number | null;
+	aoncr: number | null;
+	national: number | null;
 }
 
 export interface Comparators {
@@ -130,29 +130,28 @@ function processTrendMonth(
 	const areaRate = calculateYoY(dataIndex, hierarchy.target.key, year, month);
 	const regionRate = calculateYoY(dataIndex, hierarchy.region?.key, year, month);
 
-	// Only calculate province rate if it's distinct from the target area (e.g., target is a city)
-	let provinceRate: number | undefined;
+	const safeVal = (v: number | null) => (v === null ? null : Number(v.toFixed(1)));
+
+	let provinceRate: number | undefined | null;
 	if (hierarchy.province && hierarchy.province.key !== hierarchy.target.key) {
-		provinceRate = calculateYoY(dataIndex, hierarchy.province.key, year, month);
+		const pRate = calculateYoY(dataIndex, hierarchy.province.key, year, month);
+		provinceRate = pRate === null ? undefined : Number(pRate.toFixed(1));
 	}
 
 	const natRate = calculateYoY(dataIndex, hierarchy.national?.key, year, month);
 	const aoncRate = calculateYoY(dataIndex, "aoncr", year, month);
 
-	if (personalRate !== 0 || areaRate !== 0) {
-		const dateObj = new Date(year, month - 1);
-		return {
-			date: dateObj.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-			sortKey: year * 100 + month,
-			personal: Number(personalRate.toFixed(1)),
-			area: Number(areaRate.toFixed(1)),
-			region: Number(regionRate.toFixed(1)),
-			province: provinceRate === undefined ? undefined : Number(provinceRate.toFixed(1)),
-			national: Number(natRate.toFixed(1)),
-			aoncr: Number(aoncRate.toFixed(1)),
-		};
-	}
-	return null;
+	const dateObj = new Date(year, month - 1);
+	return {
+		date: dateObj.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+		sortKey: year * 100 + month,
+		personal: safeVal(personalRate),
+		area: safeVal(areaRate),
+		region: safeVal(regionRate),
+		province: provinceRate,
+		national: safeVal(natRate),
+		aoncr: safeVal(aoncRate),
+	};
 }
 
 function generateTrend(
