@@ -142,7 +142,7 @@ function processTrendMonth(
 	if (personalRate !== 0 || areaRate !== 0) {
 		const dateObj = new Date(year, month - 1);
 		return {
-			date: dateObj.toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+			date: dateObj.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
 			sortKey: year * 100 + month,
 			personal: Number(personalRate.toFixed(1)),
 			area: Number(areaRate.toFixed(1)),

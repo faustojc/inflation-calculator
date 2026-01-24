@@ -167,10 +167,12 @@ export async function initializeApp() {
 }
 
 export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<Map<string, number>> {
-	const promises = [
-		...areaKeys.map((key) => fetch(`${API_URL}/data/${key}/${startYear}.json`)),
-		...areaKeys.map((key) => fetch(`${API_URL}/data/${key}/${endYear}.json`)),
-	];
+	const yearsToFetch: number[] = [];
+	for (let y = startYear; y <= endYear; y++) {
+		yearsToFetch.push(y);
+	}
+
+	const promises = yearsToFetch.flatMap((year) => areaKeys.map((key) => fetch(`${API_URL}/data/${key}/${year}.json`)));
 
 	const responses = await Promise.all(promises);
 	const dataMap = new Map<string, number>();
