@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,7 +9,7 @@ import { mode, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { Calendar as CalendarIcon, Check, ChevronsUpDown, MapPin, Settings2, Users } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Sidebar, SidebarContent, SidebarGroup } from "./ui/sidebar";
 
 export function GlobalControls() {
@@ -31,7 +31,22 @@ export function GlobalControls() {
 		return "National Capital Region (NCR)";
 	});
 
-	const noRegions = areas.filter((a) => !a.name.toLowerCase().includes("region"));
+	// grouped the areas by region with its provinces and cities
+	const groupedAreas = useMemo(() => {
+		const grouped: Record<string, { key: string; areaName: string; regionName?: string }[]> = {};
+		const filteredArea = areas.filter((a) => a.key !== "aoncr" && a.key !== "philippines" && a.key !== "ncr");
+
+		for (const area of filteredArea) {
+			grouped[area.regionId] ??= [];
+			if (area.cityId === undefined && area.provinceId === undefined) {
+				grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
+			} else {
+				grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
+			}
+		}
+
+		return grouped;
+	}, [areas]);
 	const areaAvailableYears = new Set(areaYearsMap[appSettings.areaKey] || []);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,16 +107,27 @@ export function GlobalControls() {
 						<PopoverContent className="w-75 p-0" align="start">
 							<Command>
 								<CommandInput placeholder="Search province or city..." />
-								<CommandList>
+								<CommandList className="max-h-62.5 overflow-y-auto">
 									<CommandEmpty>No location found.</CommandEmpty>
-									<CommandGroup className="max-h-62.5 overflow-y-auto">
-										{noRegions.map((a) => (
-											<CommandItem key={a.key} value={a.name} onSelect={(key) => handleAreaSelect(key)}>
-												<Check className={cn("mr-2 h-4 w-4", selectArea === a.name ? "opacity-100" : "opacity-0")} />
-												{a.name}
-											</CommandItem>
-										))}
-									</CommandGroup>
+									{Object.entries(groupedAreas).map(([region, areas], i) => {
+										return (
+											<>
+												<CommandGroup key={region} heading={areas.find((a) => a.regionName)?.regionName}>
+													{areas
+														.filter((a) => a.regionName === undefined)
+														.map((a) => (
+															<CommandItem key={a.key} value={a.areaName} onSelect={(key) => handleAreaSelect(key)}>
+																<Check
+																	className={cn("mr-2 h-4 w-4", selectArea === a.areaName ? "opacity-100" : "opacity-0")}
+																/>
+																{a.areaName}
+															</CommandItem>
+														))}
+												</CommandGroup>
+												{i < Object.entries(groupedAreas).length - 1 && <CommandSeparator />}
+											</>
+										);
+									})}
 								</CommandList>
 							</Command>
 						</PopoverContent>

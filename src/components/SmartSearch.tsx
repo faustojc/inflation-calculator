@@ -6,12 +6,9 @@ import { useStore } from "@nanostores/react";
 import { ArrowRightCircle, Check, ChevronsUpDown, Search, Tag } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Badge } from "./ui/badge";
+import { locateCategory } from "@/stores/inflationStore";
 
-interface SmartSearchProps {
-	onSelect: (item: { categoryCode: string; name: string }) => void;
-}
-
-export function SmartSearch({ onSelect }: Readonly<SmartSearchProps>) {
+export function SmartSearch() {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 	const { searchOptions, isReady } = useStore(dataStore);
@@ -32,7 +29,7 @@ export function SmartSearch({ onSelect }: Readonly<SmartSearchProps>) {
 	}, [query, searchOptions, isReady]);
 
 	const handleSelect = (item: SearchOption) => {
-		onSelect({ categoryCode: item.code, name: item.name });
+		locateCategory(item.code, item.name);
 		setOpen(false);
 		setQuery("");
 	};

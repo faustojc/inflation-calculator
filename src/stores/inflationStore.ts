@@ -96,6 +96,8 @@ export function setActiveTab(tab: "general" | "detailed") {
 }
 
 export function locateCategory(searchCode: string, searchName: string) {
+	highlightState.set({ code: "", label: "" });
+
 	const currentTab = activeTab.get();
 	let targetCode = searchCode;
 

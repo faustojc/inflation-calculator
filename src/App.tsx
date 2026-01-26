@@ -18,7 +18,6 @@ import {
 	expenses,
 	initializeExpenses,
 	isCalculationDisabled,
-	locateCategory,
 	mode,
 	setActiveTab,
 	settings,
@@ -142,10 +141,6 @@ export default function App() {
 		}
 	};
 
-	const handleSearchSelect = (item: { categoryCode: string; name: string }) => {
-		locateCategory(item.categoryCode, item.name);
-	};
-
 	const handleTabChange = (v: string) => {
 		setActiveTab(v as "general" | "detailed");
 	};
@@ -184,7 +179,7 @@ export default function App() {
 						<h2 className="font-bold text-lg">Find and Input Expenses</h2>
 						<p>Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.</p>
 					</div>
-					<SmartSearch onSelect={handleSearchSelect} />
+					<SmartSearch />
 
 					<Tabs defaultValue="general" className="w-full" onValueChange={handleTabChange}>
 						<TabsList className="grid w-full grid-cols-2 mb-6">
