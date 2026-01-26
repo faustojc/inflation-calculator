@@ -33,7 +33,7 @@ export default function App() {
 	const [showResults, setShowResults] = useState(false);
 	const [calculationData, setCalculationData] = useState<CalculationResult | null>(null);
 
-	const { isReady, isLoading, error: dataError, commodities } = useStore(dataStore);
+	const { isReady, isLoading, error, commodities } = useStore(dataStore);
 	const isDisabled = useStore(isCalculationDisabled);
 
 	useEffect(() => {
@@ -91,7 +91,23 @@ export default function App() {
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
 			const hierarchy = getAreaHierarchy(areaKey);
-			const uniqueKeys = new Set([hierarchy.target.key, hierarchy.province?.key, hierarchy.region?.key, hierarchy.national?.key, "aoncr", "ncr"]);
+			const { areaYearsMap } = dataStore.get();
+			const areaAvailableYears = areaYearsMap[hierarchy.target.key] || [];
+
+			if (areaAvailableYears.length > 0) {
+				const missingYears: number[] = [];
+				if (!areaAvailableYears.includes(targetYear)) missingYears.push(targetYear);
+				if (!areaAvailableYears.includes(baseYear)) missingYears.push(baseYear);
+
+				if (missingYears.length > 0) {
+					toast.warning(`No CPI data for ${hierarchy.target.name}`, {
+						description: `This area has no recorded data for ${missingYears.join(" and ")}. Please select a different year or area.`,
+					});
+					return;
+				}
+			}
+
+			const uniqueKeys = new Set([hierarchy.target.key, hierarchy.province?.key, hierarchy.region?.key, hierarchy.national?.key, "ncr"]);
 			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 			const batchMap = await getCalculationData(keysToFetch, dates.startYear - 1, dates.endYear);
 			const result = calculatePersonalInflation(items, { hierarchy }, dates, { mode: currentMode, totalInput: currentTotalAlloc }, batchMap);
@@ -144,12 +160,12 @@ export default function App() {
 		);
 	}
 
-	if (dataError) {
+	if (error) {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center p-4">
 				<AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
 				<h2 className="text-xl font-bold">Service Unavailable</h2>
-				<p className="text-muted-foreground mt-2">{dataError}</p>
+				<p className="text-muted-foreground mt-2">{error}</p>
 				<Button onClick={() => initializeApp()} className="mt-6">
 					Retry
 				</Button>
@@ -173,10 +189,10 @@ export default function App() {
 					<Tabs defaultValue="general" className="w-full" onValueChange={handleTabChange}>
 						<TabsList className="grid w-full grid-cols-2 mb-6">
 							<TabsTrigger value="general" className="text-md" onClick={clearExpenses}>
-								General Categories
+								General
 							</TabsTrigger>
 							<TabsTrigger value="detailed" className="text-md" onClick={clearExpenses}>
-								Detailed Commodities
+								Detailed
 							</TabsTrigger>
 						</TabsList>
 

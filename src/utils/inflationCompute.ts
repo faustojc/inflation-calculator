@@ -31,7 +31,6 @@ export interface TrendPoint {
 	area: number | null;
 	region: number | null;
 	province?: number | null;
-	aoncr: number | null;
 	national: number | null;
 }
 
@@ -139,7 +138,6 @@ function processTrendMonth(
 	}
 
 	const natRate = calculateYoY(dataIndex, hierarchy.national?.key, year, month);
-	const aoncRate = calculateYoY(dataIndex, "aoncr", year, month);
 
 	const dateObj = new Date(year, month - 1);
 	return {
@@ -150,7 +148,6 @@ function processTrendMonth(
 		region: safeVal(regionRate),
 		province: provinceRate,
 		national: safeVal(natRate),
-		aoncr: safeVal(aoncRate),
 	};
 }
 

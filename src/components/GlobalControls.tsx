@@ -15,7 +15,7 @@ import { Sidebar, SidebarContent, SidebarGroup } from "./ui/sidebar";
 export function GlobalControls() {
 	const appSettings = useStore(settings);
 	const m = useStore(mode);
-	const { areas, availableYears } = useStore(dataStore);
+	const { areas, availableYears, areaYearsMap } = useStore(dataStore);
 
 	const [openProvince, setOpenProvince] = useState(false);
 	const [openYear, setOpenYear] = useState(false);
@@ -32,6 +32,7 @@ export function GlobalControls() {
 	});
 
 	const noRegions = areas.filter((a) => !a.name.toLowerCase().includes("region"));
+	const areaAvailableYears = new Set(areaYearsMap[appSettings.areaKey] || []);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const updateSetting = (key: keyof typeof appSettings, value: any) => {
@@ -43,6 +44,15 @@ export function GlobalControls() {
 		if (match) {
 			setSelectArea(match.name);
 			settings.setKey("areaKey", match.key);
+
+			const newAreaYears = areaYearsMap[match.key] || [];
+			const currentYear = appSettings.startDate.getFullYear();
+			if (newAreaYears.length > 0 && !newAreaYears.includes(currentYear)) {
+				const latestYear = Math.max(...newAreaYears);
+				const newDate = new Date(appSettings.startDate);
+				newDate.setFullYear(latestYear);
+				settings.setKey("startDate", newDate);
+			}
 		}
 		setOpenProvince(false);
 	};
@@ -54,9 +64,13 @@ export function GlobalControls() {
 	};
 
 	const handleYearChange = (yearStr: string) => {
-		const newDate = new Date(appSettings.startDate);
-		newDate.setFullYear(Number.parseInt(yearStr));
-		updateSetting("startDate", newDate);
+		const yearNum = Number.parseInt(yearStr);
+		// Only allow selection if year is available for current area
+		if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
+			const newDate = new Date(appSettings.startDate);
+			newDate.setFullYear(yearNum);
+			updateSetting("startDate", newDate);
+		}
 		setOpenYear(false);
 	};
 
@@ -148,17 +162,29 @@ export function GlobalControls() {
 										<CommandList>
 											<CommandEmpty>No year found.</CommandEmpty>
 											<CommandGroup className="max-h-62.5 overflow-y-auto">
-												{availableYears.map((year, i) => (
-													<CommandItem key={year} value={year} disabled={i === availableYears.length - 1} onSelect={handleYearChange}>
-														<Check
-															className={cn(
-																"mr-2 h-4 w-4",
-																appSettings.startDate.getFullYear().toString() === year ? "opacity-100" : "opacity-0",
-															)}
-														/>
-														{year}
-													</CommandItem>
-												))}
+												{availableYears.map((year, i) => {
+													const yearNum = Number(year);
+													const isUnavailable = areaAvailableYears.size > 0 && !areaAvailableYears.has(yearNum);
+													const isBaseYear = i === availableYears.length - 1;
+													return (
+														<CommandItem
+															key={year}
+															value={year}
+															disabled={isUnavailable || isBaseYear}
+															onSelect={handleYearChange}
+															className={isUnavailable ? "opacity-50" : ""}
+														>
+															<Check
+																className={cn(
+																	"mr-2 h-4 w-4",
+																	appSettings.startDate.getFullYear().toString() === year ? "opacity-100" : "opacity-0",
+																)}
+															/>
+															{year}
+															{isUnavailable && <span className="ml-auto text-xs text-muted-foreground">No data</span>}
+														</CommandItem>
+													);
+												})}
 											</CommandGroup>
 										</CommandList>
 									</Command>

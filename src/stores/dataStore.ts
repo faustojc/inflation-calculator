@@ -63,6 +63,7 @@ interface DataState {
 	areas: AreaDef[];
 	commodities: CommodityDef[];
 	availableYears: string[];
+	areaYearsMap: Record<string, number[]>;
 	searchOptions: SearchOption[];
 	flatCodes: string[]; // Sorted by length desc
 	parentIndex: Record<string, string>;
@@ -75,6 +76,7 @@ interface Metadata {
 		max: number;
 	};
 	areas: AreaDef[];
+	areaYears: Record<string, number[]>;
 }
 
 export const dataStore = map<DataState>({
@@ -84,6 +86,7 @@ export const dataStore = map<DataState>({
 	areas: [],
 	commodities: [],
 	availableYears: [],
+	areaYearsMap: {},
 	searchOptions: [],
 	flatCodes: [],
 	parentIndex: {},
@@ -149,6 +152,7 @@ export async function initializeApp() {
 			...dataStore.get(),
 			areas: meta.areas,
 			availableYears: years,
+			areaYearsMap: meta.areaYears || {},
 			commodities,
 			searchOptions,
 			error: null,
@@ -183,6 +187,11 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 
 	for (const res of responses) {
 		if (!res.ok) continue;
+
+		const contentType = res.headers.get("content-type");
+		if (!contentType?.includes("application/json")) {
+			continue;
+		}
 
 		const file: YearlyDataFile = await res.json();
 		const dataset = file.data["ALL"];
