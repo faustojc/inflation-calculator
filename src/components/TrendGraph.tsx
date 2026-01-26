@@ -14,7 +14,7 @@ interface TrendGraphProps {
 
 export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<TrendGraphProps>) {
 	const sortItems = (item: string) => {
-		let order = ["personal", "area"];
+		const order = ["personal", "area"];
 
 		if (meta.location.hierarchy.province && meta.location.hierarchy.province.key !== meta.location.hierarchy.target.key) {
 			order.push("province");

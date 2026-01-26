@@ -44,7 +44,7 @@ export function SmartSearch({ onSelect }: Readonly<SmartSearchProps>) {
 					<Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between text-left font-normal h-12 px-4">
 						<span className="flex items-center gap-2 text-muted-foreground">
 							<Search className="h-4 w-4" />
-							{query}
+							{query || "Click here to search..."}
 						</span>
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
