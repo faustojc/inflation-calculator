@@ -10,7 +10,7 @@ import { mode, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { ArrowRightToLineIcon, Calendar as CalendarIcon, Check, ChevronsUpDown, MapPin, Settings2, Users } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 export function GlobalControls() {
 	const appSettings = useStore(settings);
@@ -112,8 +112,8 @@ export function GlobalControls() {
 									<CommandEmpty>No location found.</CommandEmpty>
 									{Object.entries(groupedAreas).map(([region, areas], i) => {
 										return (
-											<>
-												<CommandGroup key={region} heading={areas.find((a) => a.regionName)?.regionName}>
+											<Fragment key={region}>
+												<CommandGroup key={region + i} heading={areas.find((a) => a.regionName)?.regionName}>
 													{areas
 														.filter((a) => a.regionName === undefined)
 														.map((a) => (
@@ -125,8 +125,8 @@ export function GlobalControls() {
 															</CommandItem>
 														))}
 												</CommandGroup>
-												{i < Object.entries(groupedAreas).length - 1 && <CommandSeparator />}
-											</>
+												{i < Object.entries(groupedAreas).length - 1 && <CommandSeparator key={region + i + 2} />}
+											</Fragment>
 										);
 									})}
 								</CommandList>
