@@ -169,86 +169,88 @@ export default function App() {
 	}
 
 	return (
-		<SidebarProvider>
-			<Toaster position="top-center" closeButton />
-			<div className="max-w-2xl mx-auto min-h-screen font-sans text-slate-900 dark:text-slate-100 pb-52">
-				<Header />
+		<>
+			<SidebarProvider>
+				<Toaster position="top-center" closeButton />
+				<div className="max-w-2xl mx-auto min-h-screen font-sans text-slate-900 dark:text-slate-100 pb-52">
+					<Header />
 
-				<main className="relative mx-auto p-4 space-y-6 mt-4">
-					<div className="mb-2">
-						<h2 className="font-bold text-lg">Find and Input Expenses</h2>
-						<p>Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.</p>
-					</div>
-					<SmartSearch />
+					<main className="relative mx-auto p-4 space-y-6 mt-4">
+						<div className="mb-2">
+							<h2 className="font-bold text-lg">Find and Input Expenses</h2>
+							<p>Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.</p>
+						</div>
+						<SmartSearch />
 
-					<Tabs defaultValue="general" className="w-full" onValueChange={handleTabChange}>
-						<TabsList className="grid w-full grid-cols-2 mb-6">
-							<TabsTrigger value="general" className="text-md" onClick={clearExpenses}>
-								General
-							</TabsTrigger>
-							<TabsTrigger value="detailed" className="text-md" onClick={clearExpenses}>
-								Detailed
-							</TabsTrigger>
-						</TabsList>
+						<Tabs defaultValue="general" className="w-full" onValueChange={handleTabChange}>
+							<TabsList className="grid w-full grid-cols-2 mb-6">
+								<TabsTrigger value="general" className="text-md" onClick={clearExpenses}>
+									General
+								</TabsTrigger>
+								<TabsTrigger value="detailed" className="text-md" onClick={clearExpenses}>
+									Detailed
+								</TabsTrigger>
+							</TabsList>
 
-						<TabsContent value="general">
-							<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-								<div className="mb-4 flex justify-between items-center">
-									<div>
-										<h2 className="font-bold text-lg">General Commodities</h2>
-										<p>13 General Commodity Groups</p>
+							<TabsContent value="general">
+								<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+									<div className="mb-4 flex justify-between items-center">
+										<div>
+											<h2 className="font-bold text-lg">General Commodities</h2>
+											<p>13 General Commodity Groups</p>
+										</div>
+										<Button className="cursor-pointer" onClick={clearExpenses}>
+											<Trash2 className="h-4 w-4" />
+											Clear
+										</Button>
 									</div>
-									<Button className="cursor-pointer" onClick={clearExpenses}>
-										<Trash2 className="h-4 w-4" />
-										Clear
-									</Button>
+									<GeneralTab />
 								</div>
-								<GeneralTab />
-							</div>
-						</TabsContent>
+							</TabsContent>
 
-						<TabsContent value="detailed" className="space-y-6">
-							<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-								<div className="p-4 gap-2 border-b flex justify-between items-center">
-									<div>
-										<h2 className="font-bold text-lg">Detailed Commodities</h2>
-										<p className="text-muted-foreground text-wrap">Expand commodities to add expenses</p>
+							<TabsContent value="detailed" className="space-y-6">
+								<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+									<div className="p-4 gap-2 border-b flex justify-between items-center">
+										<div>
+											<h2 className="font-bold text-lg">Detailed Commodities</h2>
+											<p className="text-muted-foreground text-wrap">Expand commodities to add expenses</p>
+										</div>
+
+										<Button className="cursor-pointer" onClick={clearExpenses}>
+											<Trash2 className="h-4 w-4" />
+											Clear
+										</Button>
 									</div>
-
-									<Button className="cursor-pointer" onClick={clearExpenses}>
-										<Trash2 className="h-4 w-4" />
-										Clear
-									</Button>
+									<ExpenseList />
 								</div>
-								<ExpenseList />
-							</div>
-						</TabsContent>
-					</Tabs>
-				</main>
+							</TabsContent>
+						</Tabs>
+					</main>
 
-				<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-50 transition-all">
-					<div className="max-w-3xl mx-auto">
-						<CalculationFooter />
-						<Button
-							size="lg"
-							onClick={handleCalculate}
-							disabled={isCalculating || isDisabled}
-							className="w-full text-base font-bold h-12 shadow-xl transition-all active:scale-[0.98]"
-						>
-							{isCalculating ?
-								<>
-									<Loader2 className="mr-2 h-5 w-5 animate-spin" />
-									Calculating your inflation rate...
-								</>
-							:	"Calculate Personal Inflation"}
-						</Button>
+					<div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-50 transition-all">
+						<div className="max-w-3xl mx-auto">
+							<CalculationFooter />
+							<Button
+								size="lg"
+								onClick={handleCalculate}
+								disabled={isCalculating || isDisabled}
+								className="w-full text-base font-bold h-12 shadow-xl transition-all active:scale-[0.98]"
+							>
+								{isCalculating ?
+									<>
+										<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+										Calculating your inflation rate...
+									</>
+								:	"Calculate Personal Inflation"}
+							</Button>
+						</div>
 					</div>
 				</div>
 
-				<ResultsDrawer open={showResults} onOpenChange={setShowResults} data={calculationData} />
-			</div>
+				<GlobalControls />
+			</SidebarProvider>
 
-			<GlobalControls />
-		</SidebarProvider>
+			<ResultsDrawer open={showResults} onOpenChange={setShowResults} data={calculationData} />
+		</>
 	);
 }

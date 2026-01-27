@@ -141,7 +141,7 @@ function processTrendMonth(
 
 	const dateObj = new Date(year, month - 1);
 	return {
-		date: dateObj.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
+		date: dateObj.toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
 		sortKey: year * 100 + month,
 		personal: safeVal(personalRate),
 		area: safeVal(areaRate),
@@ -224,7 +224,7 @@ function generateInterpretation(
 		comps.nationalRate,
 	)} affected by the price increases in the country compared with the average household.`;
 
-	return [p1, p2, p3, p4, p5];
+	return [p2, p1, p3, p4, p5];
 }
 
 export function calculatePersonalInflation(
@@ -315,7 +315,6 @@ export function calculatePersonalInflation(
 		regionRate: getOfficialRate(location.hierarchy.region!.key),
 		nationalRate: getOfficialRate("philippines"),
 		ncrRate: getOfficialRate("ncr"),
-		aoncrRate: getOfficialRate("aoncr"),
 	};
 
 	const trend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex);

@@ -3,14 +3,14 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { dataStore } from "@/stores/dataStore";
 import { mode, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
-import { Calendar as CalendarIcon, Check, ChevronsUpDown, MapPin, Settings2, Users } from "lucide-react";
+import { ArrowRightToLineIcon, Calendar as CalendarIcon, Check, ChevronsUpDown, MapPin, Settings2, Users } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Sidebar, SidebarContent, SidebarGroup } from "./ui/sidebar";
 
 export function GlobalControls() {
 	const appSettings = useStore(settings);
@@ -19,6 +19,7 @@ export function GlobalControls() {
 
 	const [openProvince, setOpenProvince] = useState(false);
 	const [openYear, setOpenYear] = useState(false);
+	const { toggleSidebar, isMobile } = useSidebar();
 
 	const [selectArea, setSelectArea] = useState<string>(() => {
 		if (appSettings.areaKey && areas.length > 0) {
@@ -248,6 +249,14 @@ export function GlobalControls() {
 					</div>
 				</SidebarGroup>
 			</SidebarContent>
+			{isMobile && (
+				<SidebarFooter>
+					<Button onClick={toggleSidebar} className="flex flex-row items-center cursor-pointer">
+						<ArrowRightToLineIcon className="h-4 w-4" />
+						Close
+					</Button>
+				</SidebarFooter>
+			)}
 		</Sidebar>
 	);
 }

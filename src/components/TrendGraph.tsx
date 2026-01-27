@@ -66,18 +66,18 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 				</div>
 			</div>
 
-			<div className="h-96 w-full mt-4">
+			<div className="h-72 w-full mt-4">
 				<ResponsiveContainer width="100%" height="100%">
-					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 10, left: -32, bottom: 0 }}>
+					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 10, left: -36, bottom: 0 }}>
 						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-						<XAxis dataKey="date" tick={{ fontSize: 16 }} tickMargin={10} axisLine={false} tickLine={false} minTickGap={30} />
+						<XAxis dataKey="date" tick={{ fontSize: 16 }} tickMargin={15} axisLine={true} tickLine={false} minTickGap={1} angle={-40} />
 						<YAxis domain={["auto", "auto"]} tick={{ fontSize: 16 }} axisLine={false} tickLine={false} />
 						<Tooltip
 							contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
 							itemStyle={{ fontSize: "18px", fontWeight: 600 }}
 							itemSorter={(item) => sortItems(item.dataKey as string)}
 						/>
-						<Legend wrapperStyle={{ fontSize: "18px", bottom: "-18px", left: "0px" }} />
+						<Legend wrapperStyle={{ fontSize: "18px", bottom: "-18px", left: "0px" }} itemSorter={(item) => sortItems(item.dataKey as string)} />
 
 						<Line type="monotone" dataKey="personal" name="My Inflation" stroke="#2563eb" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
 
