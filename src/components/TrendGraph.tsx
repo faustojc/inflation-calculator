@@ -66,18 +66,44 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 				</div>
 			</div>
 
-			<div className="h-72 w-full mt-4">
+			<div className="h-90 w-full mt-4">
 				<ResponsiveContainer width="100%" height="100%">
-					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 10, left: -36, bottom: 0 }}>
+					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 12, left: -22, bottom: 0 }}>
 						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-						<XAxis dataKey="date" tick={{ fontSize: 16 }} tickMargin={15} axisLine={true} tickLine={false} minTickGap={1} angle={-40} />
-						<YAxis domain={["auto", "auto"]} tick={{ fontSize: 16 }} axisLine={false} tickLine={false} />
+						<XAxis
+							dataKey="date"
+							tick={{ fontSize: 16 }}
+							padding={{ left: 15, right: 15 }}
+							tickMargin={15}
+							axisLine={true}
+							tickLine={false}
+							minTickGap={20}
+							angle={-40}
+						/>
+						<YAxis
+							domain={["dataMin - 0.2", "dataMax + 0.5"]}
+							includeHidden={true}
+							interval="preserveStartEnd"
+							tick={{ fontSize: 14 }}
+							tickCount={8}
+							axisLine={false}
+							tickLine={false}
+							tickFormatter={(value) => Number(value).toFixed(1)}
+						/>
 						<Tooltip
 							contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-							itemStyle={{ fontSize: "18px", fontWeight: 600 }}
+							itemStyle={{ fontSize: "18px", fontWeight: 400 }}
 							itemSorter={(item) => sortItems(item.dataKey as string)}
 						/>
-						<Legend wrapperStyle={{ fontSize: "18px", bottom: "-18px", left: "0px" }} itemSorter={(item) => sortItems(item.dataKey as string)} />
+						<Legend
+							wrapperStyle={{ fontSize: "18px", bottom: "-19px", left: "0px", paddingTop: "5px" }}
+							itemSorter={(item) => sortItems(item.dataKey as string)}
+							formatter={(value, _, index) => (
+								<span key={index} className="mr-2.5">
+									{value}
+								</span>
+							)}
+						/>
 
 						<Line type="monotone" dataKey="personal" name="My Inflation" stroke="#2563eb" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
 
@@ -124,7 +150,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 				</ResponsiveContainer>
 			</div>
 
-			<div className="text-center text-muted-foreground italic">
+			<div className="text-center text-muted-foreground italic pt-2">
 				Chart shows movement from {startDateStr} to {endDateStr}.
 			</div>
 		</div>

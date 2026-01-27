@@ -26,6 +26,7 @@ import {
 import { calculatePersonalInflation, type CalculationResult } from "@/utils/inflationCompute";
 import { Toaster, toast } from "sonner";
 import { Header } from "./components/Header";
+import { useIsMobile } from "./hooks/use-mobile";
 
 export default function App() {
 	const [isCalculating, setIsCalculating] = useState(false);
@@ -34,6 +35,8 @@ export default function App() {
 
 	const { isReady, isLoading, error, commodities } = useStore(dataStore);
 	const isDisabled = useStore(isCalculationDisabled);
+
+	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		initializeApp().then((meta) => {
@@ -172,6 +175,8 @@ export default function App() {
 		<>
 			<SidebarProvider>
 				<Toaster position="top-center" closeButton />
+				{!isMobile && <GlobalControls />}
+
 				<div className="max-w-2xl mx-auto min-h-screen font-sans text-slate-900 dark:text-slate-100 pb-52">
 					<Header />
 
@@ -247,7 +252,7 @@ export default function App() {
 					</div>
 				</div>
 
-				<GlobalControls />
+				{isMobile && <GlobalControls isMobile />}
 			</SidebarProvider>
 
 			<ResultsDrawer open={showResults} onOpenChange={setShowResults} data={calculationData} />

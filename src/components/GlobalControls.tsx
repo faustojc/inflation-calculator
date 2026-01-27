@@ -12,14 +12,14 @@ import { useStore } from "@nanostores/react";
 import { ArrowRightToLineIcon, Calendar as CalendarIcon, Check, ChevronsUpDown, MapPin, Settings2, Users } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 
-export function GlobalControls() {
+export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 	const appSettings = useStore(settings);
 	const m = useStore(mode);
 	const { areas, availableYears, areaYearsMap } = useStore(dataStore);
 
 	const [openProvince, setOpenProvince] = useState(false);
 	const [openYear, setOpenYear] = useState(false);
-	const { toggleSidebar, isMobile } = useSidebar();
+	const { toggleSidebar } = useSidebar();
 
 	const [selectArea, setSelectArea] = useState<string>(() => {
 		if (appSettings.areaKey && areas.length > 0) {
@@ -91,7 +91,7 @@ export function GlobalControls() {
 	};
 
 	return (
-		<Sidebar variant="floating" side="right">
+		<Sidebar variant="floating" side={isMobile ? "right" : "left"}>
 			<SidebarContent className="p-3">
 				<SidebarGroup className="space-y-3">
 					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
