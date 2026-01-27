@@ -106,7 +106,7 @@ export default function App() {
 				}
 			}
 
-			const uniqueKeys = new Set([hierarchy.target.key, hierarchy.province?.key, hierarchy.region?.key, hierarchy.national?.key, "ncr"]);
+			const uniqueKeys = new Set([hierarchy.target.key, hierarchy.province?.key, hierarchy.region?.key, hierarchy.national?.key]);
 			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 			const batchMap = await getCalculationData(keysToFetch, dates.startYear - 1, dates.endYear);
 			const result = calculatePersonalInflation(items, { hierarchy }, dates, { mode: currentMode, totalInput: currentTotalAlloc }, batchMap);
