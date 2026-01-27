@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { categoryTotals, expandedNodes, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
@@ -58,9 +57,9 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 				<div className="grid grid-cols-3 items-center w-full">
 					<div className="col-span-2">
 						<div className="flex items-center gap-2">
-							<Badge variant="outline" className="font-mono text-[10px] text-muted-foreground h-5 px-1 bg-white dark:bg-slate-950">
+							{/* <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground h-5 px-1 bg-white dark:bg-slate-950">
 								{node.code}
-							</Badge>
+							</Badge> */}
 							{node.description && (
 								<Popover>
 									<PopoverTrigger asChild>
@@ -71,7 +70,7 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 									</PopoverContent>
 								</Popover>
 							)}
-							<p className={`text-sm text-left ${level === 0 ? "font-bold" : "font-normal"}`}>{node.name}</p>
+							<p className={`text-sm text-wrap text-left ${level === 0 ? "font-bold" : "font-normal"}`}>{node.name}</p>
 
 							{isMatch && (
 								<span className="text-xs font-bold text-blue-600 dark:text-blue-400 animate-in fade-in slide-in-from-left-2">

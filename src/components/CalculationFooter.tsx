@@ -11,9 +11,9 @@ const CalculationFooter = () => {
 
 	if (m === "percent") {
 		return (
-			<div className="bg-white dark:bg-slate-900 pb-4 border-b mb-4">
+			<div className="bg-white dark:bg-slate-900 border-b mb-2">
 				<div className="flex justify-between items-end mb-2">
-					<span className="font-medium">Total Allocation</span>
+					<h1 className="font-bold uppercase -tracking-[0.015em]">Total Allocation</h1>
 					<span className={`font-bold ${isOverLimit ? "text-red-500" : "text-blue-600"}`}>{currentTotal.toFixed(1)}% / 100%</span>
 				</div>
 				<Progress value={currentTotal} className={`h-2 ${isOverLimit ? "[&>div]:bg-red-500" : "[&>div]:bg-blue-600"}`} />
@@ -24,9 +24,9 @@ const CalculationFooter = () => {
 	}
 
 	return (
-		<div className="bg-white dark:bg-slate-900 pb-4 border-b mb-4">
+		<div className="bg-white dark:bg-slate-900 border-b mb-2">
 			<div className="flex justify-between items-end mb-2">
-				<span className="font-medium">Total Monthly Expense</span>
+				<h1 className="font-bold uppercase -tracking-[0.015em]">Total Monthly Expense</h1>
 				<span className="font-bold text-blue-600">PhP {currentTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
 			</div>
 		</div>

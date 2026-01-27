@@ -1,12 +1,12 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { dataStore, type SearchOption } from "@/stores/dataStore";
+import { locateCategory } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ArrowRightCircle, Check, ChevronsUpDown, Search, Tag } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Badge } from "./ui/badge";
-import { locateCategory } from "@/stores/inflationStore";
 
 export function SmartSearch() {
 	const [open, setOpen] = useState(false);
@@ -67,11 +67,11 @@ export function SmartSearch() {
 													</Badge>
 												)}
 											</div>
-											<div className="flex items-center gap-2">
+											{/* <div className="flex items-center gap-2">
 												<span className="text-[10px] text-muted-foreground font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded">
 													{item.code}
 												</span>
-											</div>
+											</div> */}
 										</div>
 										<ArrowRightCircle className="ml-2 h-4 w-4 text-blue-500 opacity-50" />
 									</CommandItem>
