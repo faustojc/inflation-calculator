@@ -193,12 +193,12 @@ function generateInterpretation(
 	const getAff = (mine: number, theirs: number) => (mine > theirs ? "more" : "less");
 
 	// If CPI is 120, you need 120 pesos today to buy what 100 pesos bought in 2018.
-	const purchasingPower = personalCpi.toFixed(2);
+	const purchasingPower = personalCpi.toFixed(1);
 	const percentChange = (personalCpi - 100).toFixed(1);
 
 	const p1 = `Your computed consumer price index is ${personalCpi.toFixed(1)}. Which means that average price of your commonly purchased goods and services have ${getDir(
 		personalCpi - 100,
-	)} by ${percentChange}% compared with their average prices in 2018. Subsequently, you will need PhP ${purchasingPower} to buy the same set of goods and services in ${monthStr}.`;
+	)} by ${percentChange}% compared with their average prices in 2018. Subsequently, in ${monthStr}, you will need PhP ${purchasingPower} to buy the same set of goods and services worth 100 in 2018.`;
 
 	const p2 = `You live in ${location.hierarchy.target.name || "Selected Area"} located in ${location.hierarchy.region!.name}.`;
 

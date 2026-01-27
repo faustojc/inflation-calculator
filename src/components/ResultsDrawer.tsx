@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { ArrowRight, CalendarDays, Info, MapPin } from "lucide-react";
+import { CalendarDays, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
@@ -21,9 +21,9 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 
 	const { personalRate, yearlyCpiEnd, trend, meta, interpretation } = data;
 
-	//const totalPreviousSpend = totalSpend / (1 + personalRate / 100);
+	// const totalPreviousSpend = totalSpend / (1 + personalRate / 100);
 	// const difference = totalSpend - totalPreviousSpend;
-	const isHigh = personalRate > 4;
+	// const isHigh = personalRate > 4;
 	// const currencyFormatter = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" });
 
 	const startDateStr = format(new Date(meta.dates.startYear, meta.dates.startMonth - 1), "MMMM yyyy");
@@ -38,39 +38,25 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
-			<DrawerContent className="h-[95vh] flex flex-col rounded-t-[24px] font-sans">
+			<DrawerContent className="h-[95vh] flex flex-col rounded-t-[24px] font-sans bg-slate-50">
 				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden">
-					<DrawerHeader className="text-center pb-2 bg-white rounded-t-[24px] border-b border-slate-200">
+					<DrawerHeader className="text-center w-full pb-2 rounded-t-[24px] border-b border-zinc-300 shadow">
 						<DrawerTitle className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight">Inflation Report</DrawerTitle>
 						<DrawerDescription className="flex justify-center items-center gap-3 mt-2 text-xs">
 							<span className="flex items-center gap-1 text-[0.7rem] sm:text-[0.9rem] lg:text-[1.08rem] text-black bg-slate-100 px-2 py-1 rounded-md">
 								<CalendarDays className="h-3 w-3" />
-								{endDateStr} <ArrowRight className="h-3 w-3" /> {startDateStr}
-							</span>
-							<span className="flex items-center gap-1 text-[0.7rem] sm:text-[0.9rem] lg:text-[1.08rem] text-black bg-slate-100 px-2 py-1 rounded-md">
-								<MapPin className="h-3 w-3" />
-								{meta.location.hierarchy.target.name}
+								{startDateStr} to {endDateStr}
 							</span>
 						</DrawerDescription>
 					</DrawerHeader>
 
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-6 overflow-y-auto p-6">
-						<div
-							className={`
-								col-span-3 md:col-span-1
-								p-6 md:p-8 rounded-[2rem] flex flex-col items-center justify-evenly text-center border shadow-lg
-								${isHigh ? "border-red-600 border-2 shadow-red-200" : "border-green-600 border-2 shadow-green-200"}
-							`}
-						>
+						<div className="col-span-3 md:col-span-1 border-2 p-6 md:p-8 rounded-[2rem] flex flex-col items-center justify-evenly text-center shadow-lg shadow-blue-300 bg-white border-blue-400">
 							<div className="flex flex-col items-center gap-1 md:gap-2">
 								<span className="text-[0.9rem] md:text-[1rem] lg:text-[1.2rem] font-bold uppercase tracking-widest opacity-50 mb-2">
 									Personal Inflation Rate
 								</span>
-								<p
-									className={`text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter tabular-nums mb-1
-									${isHigh ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}
-								`}
-								>
+								<p className="text-5xl md:text-6xl lg:text-7xl text-blue-500 font-black tracking-tighter tabular-nums mb-1">
 									{personalRate.toFixed(1)}%
 								</p>
 							</div>
@@ -130,8 +116,8 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 						</div>
 
 						<div className="col-span-3 space-y-4">
-							<div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-								<div className="flex items-center gap-2 mb-3 text-slate-500">
+							<div className="bg-white p-6 rounded-2xl border border-zinc-400 shadow">
+								<div className="flex items-center gap-2 mb-3">
 									<Info className="h-4 w-4" />
 									<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">Analysis</h3>
 								</div>

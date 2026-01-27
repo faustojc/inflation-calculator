@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 import { TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type CompareMode = "all" | "area" | "province" | "region" | "national";
@@ -22,6 +22,49 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	const hierarchy = meta.location.hierarchy;
 	const hasProvince = hierarchy.province && hierarchy.province.key !== hierarchy.target.key;
 	const hasRegion = hierarchy.region && hierarchy.region.key !== hierarchy.target.key;
+
+	const yAxisConfig = useMemo(() => {
+		const allValues = trend.flatMap((d) => [d.personal, d.area, d.region, d.province, d.national]).filter((v): v is number => typeof v === "number");
+
+		if (allValues.length === 0) return { domain: [0, 5], ticks: [0, 1, 2, 3, 4, 5] };
+
+		const dataMax = Math.max(...allValues);
+		const dataMin = Math.min(...allValues);
+		const viewMax = Math.max(dataMax, 0);
+		const viewMin = Math.min(dataMin, 0);
+
+		const range = viewMax - viewMin;
+
+		let step: number;
+		if (range <= 4) step = 0.5;
+		else if (range <= 7) step = 1;
+		else if (range <= 14) step = 1.5;
+		else if (range <= 30) step = 3.5;
+		else step = 5;
+
+		const ticks = new Set<number>([0]);
+
+		// positive ticks
+		let current = 0;
+		while (current < viewMax) {
+			current += step;
+			ticks.add(Number.parseFloat(current.toFixed(1)));
+		}
+
+		// negative ticks
+		current = 0;
+		while (current > viewMin) {
+			current -= step;
+			ticks.add(Number.parseFloat(current.toFixed(1)));
+		}
+
+		const sortedTicks = Array.from(ticks).sort((a, b) => a - b);
+
+		return {
+			domain: [sortedTicks[0]!, sortedTicks.at(-1)!],
+			ticks: sortedTicks,
+		};
+	}, [trend]);
 
 	const sortItems = (item: string) => {
 		const order = ["personal", "area"];
@@ -75,20 +118,21 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							tick={{ fontSize: 16 }}
 							padding={{ left: 15, right: 15 }}
 							tickMargin={15}
-							axisLine={true}
+							axisLine={false}
 							tickLine={false}
 							minTickGap={20}
 							angle={-40}
 						/>
 						<YAxis
-							domain={["dataMin - 0.2", "dataMax + 0.5"]}
+							domain={yAxisConfig.domain}
+							ticks={yAxisConfig.ticks}
 							includeHidden={true}
-							interval="preserveStartEnd"
+							interval={0}
 							tick={{ fontSize: 14 }}
-							tickCount={8}
 							axisLine={false}
 							tickLine={false}
-							tickFormatter={(value) => Number(value).toFixed(1)}
+							type="number"
+							tickFormatter={(value) => value.toFixed(1)}
 						/>
 						<Tooltip
 							contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
