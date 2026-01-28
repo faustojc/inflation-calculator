@@ -1,60 +1,8 @@
+import type { AreaDef, AreaHierarchy, CommodityDef, DataIndex, SearchOption, TreeNode, YearlyDataFile } from "@/lib/types";
+import { FILE_CACHE } from "@/utils/metadata";
 import { computed, map } from "nanostores";
 
 const API_URL = import.meta.env.PUBLIC_VITE_API_URL || "/api/v1";
-
-export type TreeNode = {
-	code: string;
-	name: string;
-	depth: number;
-	children: TreeNode[];
-};
-
-export interface CommodityDef {
-	code: string;
-	name: string;
-	children?: CommodityDef[];
-	parentName?: string;
-	keywords?: string[];
-}
-
-export interface AreaDef {
-	key: string;
-	name: string;
-	regionId: number;
-	provinceId?: number;
-	cityId?: number;
-}
-
-export interface AreaHierarchy {
-	target: AreaDef;
-	province?: AreaDef;
-	region?: AreaDef;
-	national?: AreaDef;
-}
-
-// Structure of data/{key}/{year}.json
-export interface YearlyDataFile {
-	area: string;
-	name: string;
-	year: number;
-	ids: {
-		r: number;
-		p?: number;
-		c?: number;
-	};
-	data: {
-		[incomeKey: string]: {
-			[code: string]: (number | null)[];
-		};
-	};
-}
-
-export interface SearchOption {
-	code: string;
-	name: string;
-	depth: number;
-	keywords: string[];
-}
 
 interface DataState {
 	isLoading: boolean;
@@ -170,47 +118,66 @@ export async function initializeApp() {
 	}
 }
 
-export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<Map<string, number>> {
-	const yearsToFetch: number[] = [];
-	const availableYears = new Set(dataStore.get().availableYears.map(Number));
-
-	for (let y = startYear; y <= endYear; y++) {
-		if (availableYears.has(y)) {
-			yearsToFetch.push(y);
+export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<DataIndex> {
+	const uniqueKeys = new Set<string>();
+	for (const key of areaKeys) {
+		for (let y = startYear; y <= endYear; y++) {
+			uniqueKeys.add(`${key}|${y}`);
 		}
 	}
 
-	const promises = yearsToFetch.flatMap((year) => areaKeys.map((key) => fetch(`${API_URL}/data/${key}/${year}.json`)));
+	const pendingRequests: Promise<YearlyDataFile | null>[] = [];
 
-	const responses = await Promise.all(promises);
-	const dataMap = new Map<string, number>();
+	for (const requestKey of uniqueKeys) {
+		let dataPromise = FILE_CACHE.get(requestKey);
 
-	for (const res of responses) {
-		if (!res.ok) continue;
+		if (!dataPromise) {
+			const [area, yearStr] = requestKey.split("|");
 
-		const contentType = res.headers.get("content-type");
-		if (!contentType?.includes("application/json")) {
+			try {
+				const r = await fetch(`${API_URL}/data/${area}/${yearStr}.json`);
+
+				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
+					dataPromise = r.json();
+				} else {
+					dataPromise = Promise.resolve(null);
+				}
+			} catch (error) {
+				console.warn(`[Inflation] Failed to load ${requestKey}`, error);
+				dataPromise = Promise.resolve(null);
+			}
+
+			FILE_CACHE.set(requestKey, dataPromise);
+		}
+
+		pendingRequests.push(dataPromise);
+	}
+	const results = await Promise.all(pendingRequests);
+	const index: DataIndex = {};
+
+	const setIndexValue = (area: string, year: number, month: number, code: string, value: number) => {
+		index[area] ??= {};
+		index[area][year] ??= {};
+		index[area][year][month] ??= {};
+		index[area][year][month][code] = value;
+	};
+
+	for (const file of results) {
+		if (!file?.data?.ALL) {
 			continue;
 		}
 
-		const file: YearlyDataFile = await res.json();
-		const dataset = file.data["ALL"];
-
-		if (!dataset) continue;
-
-		// Format: "01": [120.1, 120.5, ...]
-		for (const [code, values] of Object.entries(dataset)) {
-			values.forEach((val, index) => {
-				if (val === null) return;
-				const month = index + 1;
-				const key = `${file.area}|${file.year}|${month}|${code}`;
-
-				dataMap.set(key, val);
-			});
+		for (const [code, values] of Object.entries(file.data.ALL)) {
+			for (let i = 0; i < values.length; i++) {
+				const val = values[i];
+				if (val !== null && val !== undefined) {
+					setIndexValue(file.area, file.year, i + 1, code, val);
+				}
+			}
 		}
 	}
 
-	return dataMap;
+	return index;
 }
 
 export function getAreaHierarchy(selectedKey: string): AreaHierarchy {

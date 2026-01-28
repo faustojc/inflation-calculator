@@ -1,3 +1,4 @@
+import type { YearlyDataFile } from "@/lib/types";
 export const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
@@ -15,3 +16,5 @@ export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"12": "e.g. ATM withdrawal fees, money transfer charges",
 	"13": "e.g. haircut, parlor services, hygiene products, personal effects",
 };
+
+export const FILE_CACHE = new Map<string, Promise<YearlyDataFile | null>>();

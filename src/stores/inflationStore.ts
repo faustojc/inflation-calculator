@@ -1,4 +1,5 @@
-import { dataStore, type CommodityDef } from "@/stores/dataStore";
+import type { CommodityDef } from "@/lib/types";
+import { dataStore } from "@/stores/dataStore";
 import { atom, computed, map } from "nanostores";
 
 export type ExpenseItem = {

@@ -91,8 +91,8 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 	};
 
 	return (
-		<Sidebar variant="floating" side={isMobile ? "right" : "left"}>
-			<SidebarContent className="p-3">
+		<Sidebar variant="sidebar" side={isMobile ? "right" : "left"}>
+			<SidebarContent className="p-3 bg-zinc-50">
 				<SidebarGroup className="space-y-3">
 					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<MapPin className="h-3.5 w-3.5" /> Province / City
@@ -250,7 +250,7 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 				</SidebarGroup>
 			</SidebarContent>
 			{isMobile && (
-				<SidebarFooter>
+				<SidebarFooter className="bg-zinc-50">
 					<Button onClick={toggleSidebar} className="flex flex-row items-center cursor-pointer">
 						<ArrowRightToLineIcon className="h-4 w-4" />
 						Close

@@ -1,8 +1,9 @@
-import { dataStore, type CommodityDef } from "@/stores/dataStore";
+import { dataStore } from "@/stores/dataStore";
 import { expenses, type ExpenseItem } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { useMemo } from "react";
 import ExpenseNode from "./ExpenseNode";
+import type { CommodityDef } from "@/lib/types";
 
 export type DisplayNode = {
 	code: string;

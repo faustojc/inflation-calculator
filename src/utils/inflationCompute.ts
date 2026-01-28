@@ -1,7 +1,5 @@
-import type { AreaDef } from "@/stores/dataStore";
+import type { AreaDef, DataIndex } from "@/lib/types";
 import { type ExpenseItem } from "@/stores/inflationStore";
-
-export type CompareMode = "area" | "region" | "ncr" | "national";
 
 export interface LocationContext {
 	hierarchy: {
@@ -73,9 +71,9 @@ export interface CalculationResult {
 
 const ALL_CODE = "0";
 
-function findCpi(dataIndex: Map<string, number>, areaKey: string, year: number, month: number, code: string): number | null {
-	const key = `${areaKey}|${year}|${month}|${code}`;
-	return dataIndex.get(key) || null;
+function findCpi(index: DataIndex, areaKey: string, year: number, month: number, code: string): number | null {
+	const val = index[areaKey]?.[year]?.[month]?.[code];
+	return val ?? null;
 }
 
 function calcGrowth(current: number, previous: number): number {
@@ -83,7 +81,7 @@ function calcGrowth(current: number, previous: number): number {
 	return ((current - previous) / previous) * 100;
 }
 
-function calculateYoY(dataIndex: Map<string, number>, key: string | undefined, year: number, month: number, code: string = ALL_CODE): number {
+function calculateYoY(dataIndex: DataIndex, key: string | undefined, year: number, month: number, code: string = ALL_CODE): number {
 	if (!key) return 0;
 	const curr = findCpi(dataIndex, key, year, month, code);
 	const prev = findCpi(dataIndex, key, year - 1, month, code);
@@ -94,21 +92,26 @@ function calculateYoY(dataIndex: Map<string, number>, key: string | undefined, y
 }
 
 function calculatePersonalTrend(
-	dataIndex: Map<string, number>,
+	index: DataIndex,
 	targetKey: string,
 	itemsWithWeights: { code: string; weight: number }[],
 	year: number,
 	month: number,
 ): number {
+	const currentMonthData = index[targetKey]?.[year]?.[month];
+	const prevMonthData = index[targetKey]?.[year - 1]?.[month];
+
+	if (!currentMonthData || !prevMonthData) return 0;
+
 	let validCount = 0;
 	let compCurr = 0;
 	let compPrev = 0;
 
 	for (const item of itemsWithWeights) {
-		const c1 = findCpi(dataIndex, targetKey, year, month, item.code);
-		const c0 = findCpi(dataIndex, targetKey, year - 1, month, item.code);
+		const c1 = currentMonthData[item.code];
+		const c0 = prevMonthData[item.code];
 
-		if (c1 !== null && c0 !== null) {
+		if (c1 !== undefined && c0 !== undefined) {
 			compCurr += c1 * item.weight;
 			compPrev += c0 * item.weight;
 			validCount++;
@@ -121,7 +124,7 @@ function calculatePersonalTrend(
 function processTrendMonth(
 	year: number,
 	month: number,
-	dataIndex: Map<string, number>,
+	dataIndex: DataIndex,
 	hierarchy: LocationContext["hierarchy"],
 	itemsWithWeights: { code: string; weight: number }[],
 ): TrendPoint | null {
@@ -156,7 +159,7 @@ function generateTrend(
 	hierarchy: LocationContext["hierarchy"],
 	dates: DateRange,
 	config: CalculationConfig,
-	dataIndex: Map<string, number>,
+	dataIndex: DataIndex,
 ): TrendPoint[] {
 	const series: TrendPoint[] = [];
 	const totalInput = config.totalInput || 1;
@@ -232,9 +235,9 @@ export function calculatePersonalInflation(
 	location: LocationContext,
 	dates: DateRange,
 	config: CalculationConfig,
-	dataIndex?: Map<string, number>,
+	dataIndex: DataIndex,
 ): CalculationResult | null {
-	if (!dataIndex || dataIndex.size === 0 || expenses.length === 0) return null;
+	if (Object.keys(dataIndex).length === 0 || expenses.length === 0) return null;
 	if (config.mode === "amount" && config.totalInput === 0) return null;
 
 	const breakdown: ItemBreakdown[] = [];

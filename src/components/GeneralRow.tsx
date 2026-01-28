@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import type { CommodityDef } from "@/stores/dataStore";
+import type { CommodityDef } from "@/lib/types";
 import { expenses, highlightState, mode, updateExpenseValue } from "@/stores/inflationStore";
 import { CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";

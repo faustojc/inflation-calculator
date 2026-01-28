@@ -2,7 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { dataStore, type SearchOption } from "@/stores/dataStore";
+import type { SearchOption } from "@/lib/types";
+import { dataStore } from "@/stores/dataStore";
 import { locateCategory } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ArrowRightCircle, Check, ChevronsUpDown, Search, Tag } from "lucide-react";
@@ -35,10 +36,15 @@ export function SmartSearch() {
 	};
 
 	return (
-		<div className="sticky sm:top-20 top-25 z-10">
+		<div className="sticky top-30 z-10">
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
-					<Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between text-left font-normal h-12 px-4">
+					<Button
+						variant="outline"
+						role="combobox"
+						aria-expanded={open}
+						className="w-full justify-between text-left font-normal h-12 px-4 border-blue-500"
+					>
 						<span className="flex items-center gap-2 text-muted-foreground">
 							<Search className="h-4 w-4" />
 							{query || "Click here to search..."}
