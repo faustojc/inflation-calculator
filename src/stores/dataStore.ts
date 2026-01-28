@@ -1,140 +1,220 @@
+import type { AreaDef, AreaHierarchy, CommodityDef, DataIndex, SearchOption, TreeNode, YearlyDataFile } from "@/lib/types";
+import { FILE_CACHE } from "@/utils/metadata";
 import { computed, map } from "nanostores";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-export type TreeNode = {
-	code: string;
-	name: string;
-	depth: number;
-	children: TreeNode[];
-};
-
-export interface CommodityDef {
-	code: string;
-	name: string;
-	parent_code?: string;
-}
-
-export interface GeoLocation {
-	name: string;
-	region_code: string;
-}
-
-export interface CpiRecord {
-	y: number; // Year
-	m: number; // Month
-	r: string; // Region
-	c: string; // Commodity Code
-	v: number; // Value
-}
-
-export interface SearchOption {
-	code: string;
-	name: string;
-	depth: number;
-}
+const API_URL = import.meta.env.PUBLIC_VITE_API_URL || "/api/v1";
 
 interface DataState {
 	isLoading: boolean;
 	isReady: boolean;
 	error: string | null;
-	regions: { code: string; name: string }[];
-	provinces: GeoLocation[];
+	areas: AreaDef[];
 	commodities: CommodityDef[];
 	availableYears: string[];
+	areaYearsMap: Record<string, number[]>;
 	searchOptions: SearchOption[];
+	flatCodes: string[]; // Sorted by length desc
+	parentIndex: Record<string, string>;
+}
+
+interface Metadata {
+	generated_at: string;
+	year_range: {
+		min: number;
+		max: number;
+	};
+	areas: AreaDef[];
+	areaYears: Record<string, number[]>;
 }
 
 export const dataStore = map<DataState>({
 	isLoading: true,
 	isReady: false,
 	error: null,
-	regions: [],
-	provinces: [],
+	areas: [],
 	commodities: [],
 	availableYears: [],
+	areaYearsMap: {},
 	searchOptions: [],
+	flatCodes: [],
+	parentIndex: {},
 });
 
 export async function initializeApp() {
-	if (dataStore.get().commodities.length > 0) {
-		return;
-	}
+	if (dataStore.get().commodities.length > 0) return;
 
 	try {
 		dataStore.setKey("isLoading", true);
+		const [metaRes, commRes] = await Promise.all([fetch(`${API_URL}/metadata.json`), fetch(`${API_URL}/commodities.json`)]);
 
-		const [metaRes, commRes] = await Promise.all([fetch(`${API_URL}/metadata`), fetch(`${API_URL}/commodities`)]);
+		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
 
-		if (!metaRes.ok || !commRes.ok) throw new Error("Connection Failed");
+		const meta: Metadata = await metaRes.json();
+		let commodities: CommodityDef[] = await commRes.json();
+		const years: string[] = [];
+		const flatCodes: string[] = [];
+		const parentIndex: Record<string, string> = {};
 
-		const meta = await metaRes.json();
-		const commodities: CommodityDef[] = await commRes.json();
+		commodities = commodities.filter((c) => c.code !== "0");
+		const traverse = (nodes: CommodityDef[], parentCode: string | null) => {
+			for (const node of nodes) {
+				flatCodes.push(node.code);
 
-		const years = [];
-		for (let y = meta.yearRange.max_year; y >= meta.yearRange.min_year; y--) {
+				if (parentCode) {
+					parentIndex[node.code] = parentCode;
+				}
+
+				if (node.children) {
+					traverse(node.children, node.code);
+				}
+			}
+		};
+
+		traverse(commodities, null);
+		flatCodes.sort((a, b) => b.length - a.length);
+
+		for (let y = meta.year_range.max; y >= meta.year_range.min; y--) {
 			years.push(String(y));
 		}
 
-		const searchOptions = commodities.map((c) => ({
-			code: c.code,
-			name: c.name,
-			depth: c.code.split(".").length,
-		}));
+		const searchOptions: SearchOption[] = [];
+		const flattenForSearch = (nodes: CommodityDef[], depth: number) => {
+			for (const node of nodes) {
+				searchOptions.push({
+					code: node.code,
+					name: node.name,
+					depth: depth,
+					keywords: node.keywords || [],
+				});
+
+				if (node.children) {
+					flattenForSearch(node.children, depth + 1);
+				}
+			}
+		};
+
+		flattenForSearch(commodities, 0);
+		searchOptions.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
 
 		dataStore.set({
 			...dataStore.get(),
-			regions: meta.regions,
-			provinces: meta.provinces,
+			areas: meta.areas,
 			availableYears: years,
-			commodities: commodities,
-			searchOptions: searchOptions,
-			isLoading: false,
-			isReady: true,
+			areaYearsMap: meta.areaYears || {},
+			commodities,
+			searchOptions,
 			error: null,
+			flatCodes,
+			parentIndex,
 		});
+
+		return meta;
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		console.error(err);
-		dataStore.setKey("error", "Failed to connect to Inflation Database. Please ensure the server is running.");
+		dataStore.setKey("error", "Could not load application data.");
 		dataStore.setKey("isLoading", false);
 	}
 }
 
-export async function getCalculationData(
-	regionCode: string,
-	provinceName: string | undefined,
-	dates: { startYear: number; startMonth: number; endYear: number; endMonth: number },
-	codes: string[]
-): Promise<Map<string, number>> {
-	const res = await fetch(`${API_URL}/cpi-batch`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ regionCode, provinceName, dates, codes }),
-	});
+export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<DataIndex> {
+	const uniqueKeys = new Set<string>();
+	for (const key of areaKeys) {
+		for (let y = startYear; y <= endYear; y++) {
+			uniqueKeys.add(`${key}|${y}`);
+		}
+	}
 
-	if (!res.ok) throw new Error("Failed to calculate results");
+	const pendingRequests: Promise<YearlyDataFile | null>[] = [];
 
-	const json: CpiRecord[] = await res.json();
-	const dataMap = new Map<string, number>();
+	for (const requestKey of uniqueKeys) {
+		let dataPromise = FILE_CACHE.get(requestKey);
 
-	// Key: REGION|AREA|INCOME|YEAR|MONTH|CODE
-	json.forEach((row) => {
-		const r = row.r === provinceName ? regionCode : row.r;
-		const area = row.r === provinceName ? provinceName : "*";
-		const key = `${r}|${area}|*|${row.y}|${row.m}|${row.c}`;
+		if (!dataPromise) {
+			const [area, yearStr] = requestKey.split("|");
 
-		dataMap.set(key, row.v);
-	});
+			try {
+				const r = await fetch(`${API_URL}/data/${area}/${yearStr}.json`);
 
-	return dataMap;
+				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
+					dataPromise = r.json();
+				} else {
+					dataPromise = Promise.resolve(null);
+				}
+			} catch (error) {
+				console.warn(`[Inflation] Failed to load ${requestKey}`, error);
+				dataPromise = Promise.resolve(null);
+			}
+
+			FILE_CACHE.set(requestKey, dataPromise);
+		}
+
+		pendingRequests.push(dataPromise);
+	}
+	const results = await Promise.all(pendingRequests);
+	const index: DataIndex = {};
+
+	const setIndexValue = (area: string, year: number, month: number, code: string, value: number) => {
+		index[area] ??= {};
+		index[area][year] ??= {};
+		index[area][year][month] ??= {};
+		index[area][year][month][code] = value;
+	};
+
+	for (const file of results) {
+		if (!file?.data?.ALL) {
+			continue;
+		}
+
+		for (const [code, values] of Object.entries(file.data.ALL)) {
+			for (let i = 0; i < values.length; i++) {
+				const val = values[i];
+				if (val !== null && val !== undefined) {
+					setIndexValue(file.area, file.year, i + 1, code, val);
+				}
+			}
+		}
+	}
+
+	return index;
+}
+
+export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
+	const { areas } = dataStore.get();
+
+	const selectedArea = areas.find((a) => a.key === selectedKey);
+	if (!selectedArea) {
+		return { target: { key: selectedKey, name: "Selected Area", regionId: 0 } };
+	}
+
+	const nationalKey = "philippines";
+	let province: AreaDef | undefined;
+	let region: AreaDef | undefined;
+
+	const national = areas.find((a) => a.key === nationalKey);
+	region = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === undefined);
+
+	if (selectedArea.provinceId !== undefined) {
+		if (selectedArea.cityId === undefined) {
+			province = selectedArea;
+		} else {
+			province = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === selectedArea.provinceId && a.cityId === undefined);
+		}
+	}
+
+	return {
+		target: selectedArea,
+		region,
+		national,
+		province,
+	};
 }
 
 export function getDisplayLabel(item: SearchOption): string {
 	if (item.depth <= 1) return item.name;
-	const indent = "\u00A0\u00A0".repeat((item.depth - 1) * 2);
-	return `${indent}↳ ${item.name}`;
+	if (!item.code.includes(".")) return item.name;
+	return `\u00A0\u00A0↳ ${item.name}`;
 }
 
 export const commodityTree = computed(dataStore, (state) => {

@@ -1,5 +1,6 @@
+import type { CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
-import { computed, map } from "nanostores";
+import { atom, computed, map } from "nanostores";
 
 export type ExpenseItem = {
 	id: string;
@@ -10,16 +11,13 @@ export type ExpenseItem = {
 };
 
 export type AppSettings = {
-	region: string;
+	areaKey: string;
 	incomeClass: "all" | "bottom30";
 	startDate: Date;
 	endDate: Date;
 };
 
-export type UIState = {
-	mode: "amount" | "percent";
-	totalBudget: number;
-};
+export type Mode = "amount" | "percent";
 
 export type HighlightState = {
 	code: string;
@@ -31,17 +29,14 @@ const lastYear = new Date();
 lastYear.setFullYear(today.getFullYear() - 1);
 
 export const settings = map<AppSettings>({
-	region: "NCR",
+	areaKey: "abra",
 	incomeClass: "all",
 	startDate: lastYear,
 	endDate: today,
 });
 
-export const uiState = map<UIState>({
-	mode: "amount",
-	totalBudget: 0,
-});
-
+export const mode = atom<Mode>("amount");
+export const activeTab = atom<"general" | "detailed">("general");
 export const highlightState = map<HighlightState>({
 	code: "",
 	label: "",
@@ -50,20 +45,43 @@ export const highlightState = map<HighlightState>({
 export const expenses = map<Record<string, ExpenseItem>>({});
 export const expandedNodes = map<Record<string, boolean>>({});
 
+// for fast lookup of parent nodes
+const uiParentIndex = new Map<string, string | null>();
+export function buildSearchIndex() {
+	const { commodities } = dataStore.get();
+	uiParentIndex.clear();
+
+	const traverse = (nodes: CommodityDef[], parentCode: string | null) => {
+		for (const node of nodes) {
+			uiParentIndex.set(node.code, parentCode);
+			if (node.children && node.children.length > 0) {
+				traverse(node.children, node.code);
+			}
+		}
+	};
+
+	traverse(commodities, null);
+}
+
 export function initializeExpenses() {
 	const { commodities } = dataStore.get();
+	if (Object.keys(expenses.get()).length > 0) return;
 
 	const initialExpenses: Record<string, ExpenseItem> = {};
 
-	commodities.forEach((item) => {
-		initialExpenses[item.code] = {
-			id: item.code,
-			code: item.code,
-			name: item.name,
-			value: 0,
-		};
-	});
+	const traverse = (nodes: CommodityDef[]) => {
+		nodes.forEach((node) => {
+			initialExpenses[node.code] = {
+				id: node.code,
+				code: node.code,
+				name: node.name,
+				value: 0,
+			};
+			if (node.children) traverse(node.children);
+		});
+	};
 
+	traverse(commodities);
 	expenses.set(initialExpenses);
 }
 
@@ -74,50 +92,46 @@ export function toggleExpansion(code: string, forceState?: boolean) {
 	expandedNodes.setKey(code, newState);
 }
 
-export function setMode(mode: "amount" | "percent") {
-	uiState.setKey("mode", mode);
-}
-
-export function setTotalBudget(amount: number) {
-	uiState.setKey("totalBudget", amount);
+export function setActiveTab(tab: "general" | "detailed") {
+	activeTab.set(tab);
 }
 
 export function locateCategory(searchCode: string, searchName: string) {
-	const { commodities } = dataStore.get();
+	highlightState.set({ code: "", label: "" });
 
-	let bestMatch = null;
-	let maxLen = -1;
+	const currentTab = activeTab.get();
+	let targetCode = searchCode;
 
-	for (const cat of commodities) {
-		if (searchCode.startsWith(cat.code)) {
-			if (cat.code.length > maxLen) {
-				maxLen = cat.code.length;
-				bestMatch = cat;
-			}
-		}
-	}
-
-	if (bestMatch) {
-		highlightState.set({ code: bestMatch.code, label: searchName });
-
-		const updates: Record<string, boolean> = { ...expandedNodes.get() };
-		let currentCode = bestMatch.code;
-
-		while (currentCode.includes(".")) {
-			const parts = currentCode.split(".");
-			parts.pop();
-			currentCode = parts.join(".");
-			updates[currentCode] = true;
-		}
-
-		expandedNodes.set(updates);
-
-		setTimeout(() => {
-			highlightState.set({ code: "", label: "" });
-		}, 5000);
+	if (currentTab === "general" && targetCode.includes(".")) {
+		targetCode = targetCode.split(".")[0]!;
 	} else {
-		console.warn("No matching category found for", searchName);
+		let current = searchCode;
+		while (current.length > 0 && !uiParentIndex.has(current)) {
+			const lastDot = current.lastIndexOf(".");
+			if (lastDot === -1) break;
+			current = current.substring(0, lastDot);
+		}
+		if (uiParentIndex.has(current)) {
+			targetCode = current;
+		}
 	}
+
+	if (currentTab === "detailed") {
+		const updates = { ...expandedNodes.get() };
+		let ptr = uiParentIndex.get(targetCode);
+
+		while (ptr) {
+			updates[ptr] = true;
+			ptr = uiParentIndex.get(ptr) || null;
+		}
+		expandedNodes.set(updates);
+	}
+
+	highlightState.set({ code: targetCode, label: searchName });
+
+	setTimeout(() => {
+		highlightState.set({ code: "", label: "" });
+	}, 4500);
 }
 
 export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: number }) {
@@ -156,39 +170,22 @@ export function removeExpense(id: string) {
 }
 
 export function clearExpenses() {
-	if (!hasInputs.get()) return;
-
-	const { commodities } = dataStore.get();
-	const resetExpense = { ...expenses.get() };
-
-	Object.entries(resetExpense).forEach(([id, item]) => {
-		if (commodities.some((c) => c.code === item.code)) {
-			resetExpense[id] = { ...item, value: 0 };
-		} else {
-			delete resetExpense[id];
-		}
-	});
-
-	expenses.set(resetExpense);
+	expenses.set({});
 }
 
 export const totalAllocation = computed(expenses, (items) => {
 	return Object.values(items).reduce((sum, item) => sum + item.value, 0);
 });
 
-export const isCalculationDisabled = computed([expenses, uiState, totalAllocation], (items, ui, total) => {
-	if (ui.mode === "percent" && (ui.totalBudget <= 0 || Number.isNaN(ui.totalBudget))) return true;
-	if (ui.mode === "amount" && ui.totalBudget <= 0) return true;
+export const isCalculationDisabled = computed([expenses, mode, totalAllocation], (items, mode, total) => {
+	if (mode === "percent" && total != 100) return true;
 
 	const hasExpense = Object.values(items).some((i) => i.value > 0);
-	if (!hasExpense) return true;
-	if (ui.mode === "percent" && total > 100) return true;
-
-	return false;
+	return !hasExpense;
 });
 
-export const totalDisplayLabel = computed([uiState, totalAllocation], (ui, total) => {
-	if (ui.mode === "percent") {
+export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) => {
+	if (m === "percent") {
 		const isOver = total > 100.01;
 		return {
 			text: `Used: ${total.toFixed(1)}%`,
@@ -206,26 +203,22 @@ export const totalDisplayLabel = computed([uiState, totalAllocation], (ui, total
 
 export const categoryTotals = computed([expenses, dataStore], (items, data) => {
 	const totals: Record<string, number> = {};
-	const { commodities } = data;
+	const { flatCodes, parentIndex } = data;
 
-	if (!commodities || commodities.length === 0) return totals;
+	if (!flatCodes || flatCodes.length === 0) return totals;
 
-	// Sort codes by length descending (Leaves first, Roots last)
-	const sortedCodes = commodities.map((c) => c.code).sort((a, b) => b.length - a.length);
+	for (const code of flatCodes) {
+		if (!items[code] || items[code].value <= 0) continue;
 
-	for (const code of sortedCodes) {
 		const ownValue = items[code]?.value || 0;
-		totals[code] = (totals[code] || 0) + ownValue;
+		const currentTotal = (totals[code] || 0) + ownValue;
+		totals[code] = currentTotal;
 
-		if (code.includes(".")) {
-			const parentCode = code.substring(0, code.lastIndexOf("."));
-			totals[parentCode] = (totals[parentCode] || 0) + totals[code];
+		const parentCode = parentIndex[code];
+		if (parentCode) {
+			totals[parentCode] = (totals[parentCode] || 0) + currentTotal;
 		}
 	}
 
 	return totals;
-});
-
-export const hasInputs = computed(expenses, (items) => {
-	return Object.values(items).some((i) => i.value > 0);
 });

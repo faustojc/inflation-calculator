@@ -25,7 +25,3 @@ dist-ssr
 
 info.md
 .env
-cpi-database.db
-cpi-database.db-info
-cpi-database.db-shm
-cpi-database.db-wal

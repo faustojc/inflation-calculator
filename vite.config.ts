@@ -1,14 +1,16 @@
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
+	base: "/",
 	build: {
 		target: "esnext",
 		minify: true,
 		cssMinify: true,
+		outDir: "dist",
 		rollupOptions: {
 			output: {
 				manualChunks: (id) => {
@@ -16,16 +18,28 @@ export default defineConfig({
 						return "vendor-react";
 					}
 
-					if (
-						id.includes("node_modules/@radix-ui") ||
-						id.includes("node_modules/lucide-react") ||
-						id.includes("node_modules/clsx") ||
-						id.includes("node_modules/tailwind-merge")
-					) {
+					if (id.includes("node_modules/tailwind-merge")) {
+						return "vendor-tailwind";
+					}
+
+					if (id.includes("node_modules/lucide-react")) {
+						return "vendor-icons";
+					}
+
+					if (id.includes("node_modules/@radix-ui") || id.includes("node_modules/clsx")) {
 						return "vendor-ui";
 					}
+
 					if (id.includes("node_modules/nanostores") || id.includes("node_modules/date-fns")) {
 						return "vendor-utils";
+					}
+
+					if (id.includes("node_modules/recharts")) {
+						return "vendor-charts";
+					}
+
+					if (id.includes("src/stores")) {
+						return "vendor-states";
 					}
 				},
 			},
@@ -34,14 +48,6 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
-		},
-	},
-	server: {
-		proxy: {
-			"/api": {
-				target: "http://localhost:3000",
-				changeOrigin: true,
-			},
 		},
 	},
 });
