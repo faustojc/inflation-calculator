@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 import { TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -18,6 +19,7 @@ interface TrendGraphProps {
 
 export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<TrendGraphProps>) {
 	const [compareMode, setCompareMode] = useState<CompareMode>("all");
+	const isMobile = useIsMobile();
 
 	const hierarchy = meta.location.hierarchy;
 	const hasProvince = hierarchy.province && hierarchy.province.key !== hierarchy.target.key;
@@ -65,6 +67,8 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 			ticks: sortedTicks,
 		};
 	}, [trend]);
+
+	const lineDasharray = isMobile ? "4 4" : "8 8";
 
 	const sortItems = (item: string) => {
 		const order = ["personal", "area"];
@@ -157,7 +161,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								dataKey="area"
 								name={hierarchy.target.name}
 								stroke="#ed7c02"
-								strokeDasharray="9 9"
+								strokeDasharray={lineDasharray}
 								strokeWidth={2}
 								dot={false}
 							/>
@@ -169,7 +173,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								dataKey="province"
 								name={hierarchy.province!.name}
 								stroke="#fc0377"
-								strokeDasharray="9 9"
+								strokeDasharray={lineDasharray}
 								strokeWidth={2}
 								dot={false}
 							/>
@@ -181,14 +185,22 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								dataKey="region"
 								name={hierarchy.region!.name}
 								stroke="#169c49"
-								strokeDasharray="9 9"
+								strokeDasharray={lineDasharray}
 								strokeWidth={2}
 								dot={false}
 							/>
 						)}
 
 						{showLine("national") && (
-							<Line type="monotone" dataKey="national" name="Philippines" stroke="#7119a8" strokeDasharray="9 9" strokeWidth={2} dot={false} />
+							<Line
+								type="monotone"
+								dataKey="national"
+								name="Philippines"
+								stroke="#7119a8"
+								strokeDasharray={lineDasharray}
+								strokeWidth={2}
+								dot={false}
+							/>
 						)}
 					</LineChart>
 				</ResponsiveContainer>
