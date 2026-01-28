@@ -156,7 +156,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								type="monotone"
 								dataKey="area"
 								name={hierarchy.target.name}
-								stroke="#f59b00"
+								stroke="#ed7c02"
 								strokeDasharray="9 9"
 								strokeWidth={2}
 								dot={false}
@@ -168,7 +168,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								type="monotone"
 								dataKey="province"
 								name={hierarchy.province!.name}
-								stroke="#8b5cf6"
+								stroke="#fc0377"
 								strokeDasharray="9 9"
 								strokeWidth={2}
 								dot={false}
