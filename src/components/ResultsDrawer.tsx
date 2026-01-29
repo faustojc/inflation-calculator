@@ -51,7 +51,7 @@ export function ResultsDrawer({ open, onOpenChange, data }: Readonly<ResultsDraw
 					</DrawerHeader>
 
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-6 overflow-y-auto p-6">
-						<div className="col-span-3 md:col-span-1 border-2 p-6 md:p-8 rounded-[2rem] flex flex-col items-center justify-evenly text-center shadow-lg shadow-blue-300 bg-white border-blue-400">
+						<div className="col-span-3 md:col-span-1 border-2 p-6 md:p-8 rounded-4xl flex flex-col items-center justify-evenly text-center shadow-lg shadow-blue-300 bg-white border-blue-400">
 							<div className="flex flex-col items-center gap-1 md:gap-2">
 								<span className="text-[0.9rem] md:text-[1rem] lg:text-[1.2rem] font-bold uppercase tracking-widest opacity-50 mb-2">
 									Personal Inflation Rate

@@ -6,7 +6,7 @@ export const Header = () => {
 	const { toggleSidebar, isMobile } = useSidebar();
 
 	return (
-		<header className="w-full border-b bg-white shadow-sm sticky top-0 z-50">
+		<header className="w-full border-b bg-primary shadow-sm sticky top-0 z-50">
 			<div className="container max-w-5xl mx-auto px-4 py-4 md:py-5">
 				<div className="flex items-center gap-4">
 					<div className="relative flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-slate-100 shadow-sm shrink-0 overflow-hidden">
@@ -19,13 +19,18 @@ export const Header = () => {
 					</div>
 
 					<div className="flex flex-col justify-center">
-						<h2 className="uppercase text-[10px] md:text-xs tracking-wide text-slate-500 font-semibold mb-0.5">Republic of the Philippines</h2>
-						<h1 className="text-lg md:text-2xl font-bold text-blue-900 tracking-wider leading-none">Philippine Statistics Authority</h1>
-						<p className="text-xs md:text-sm text-slate-500 font-medium mt-1">Personal Inflation Calculator</p>
+						<h2 className="uppercase text-[10px] md:text-xs tracking-wide text-white font-semibold mb-0.5">Republic of the Philippines</h2>
+						<h1 className="text-lg md:text-2xl font-bold text-white tracking-wider leading-none">Philippine Statistics Authority</h1>
+						<p className="text-xs md:text-sm text-white font-medium mt-1">Personal Inflation Calculator</p>
 					</div>
 
 					<div className="flex-1 flex justify-end">
-						<Button size={isMobile ? "icon" : "default"} onClick={toggleSidebar} className="flex flex-row items-center cursor-pointer">
+						<Button
+							size={isMobile ? "icon" : "default"}
+							variant="outline"
+							className="flex flex-row items-center cursor-pointer"
+							onClick={toggleSidebar}
+						>
 							<Settings className="h-4 w-4" />
 							{isMobile ? "" : "Controls"}
 						</Button>
@@ -33,8 +38,10 @@ export const Header = () => {
 				</div>
 			</div>
 
+			<div className="h-1 w-full bg-white" />
+
 			<div className="h-1 w-full flex">
-				<div className="h-full w-1/3 bg-blue-700"></div>
+				<div className="h-full w-1/3 bg-blue-600"></div>
 				<div className="h-full w-1/3 bg-red-600"></div>
 				<div className="h-full w-1/3 bg-yellow-400"></div>
 			</div>
