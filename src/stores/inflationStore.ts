@@ -1,5 +1,6 @@
 import type { CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
+import type { CalculationResult } from "@/utils/inflationCompute";
 import { atom, computed, map } from "nanostores";
 
 export type ExpenseItem = {
@@ -40,6 +41,14 @@ export const activeTab = atom<"general" | "detailed">("general");
 export const highlightState = map<HighlightState>({
 	code: "",
 	label: "",
+});
+
+export const calculationResult = map<{
+	show: boolean;
+	data: CalculationResult | null;
+}>({
+	show: false,
+	data: null,
 });
 
 export const expenses = map<Record<string, ExpenseItem>>({});

@@ -159,3 +159,9 @@ html.font-xl {
 .theme-button {
 	@apply bg-blue-500 text-white hover:bg-blue-600;
 }
+
+.tooltip-content {
+	width: calc(var(--radix-tooltip-trigger-width) + 50px);
+	max-height: var(--radix-tooltip-content-available-height);
+	transform-origin: var(--radix-tooltip-content-transform-origin);
+}
