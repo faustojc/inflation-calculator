@@ -36,7 +36,7 @@ export function SmartSearch() {
 	};
 
 	return (
-		<div className="sticky top-30 z-10">
+		<div className="sticky top-30 sm:top-41 z-10">
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button
