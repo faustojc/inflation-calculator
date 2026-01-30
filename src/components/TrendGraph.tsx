@@ -22,7 +22,6 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	const isMobile = useIsMobile();
 
 	const hierarchy = meta.location.hierarchy;
-	const isNCR = hierarchy.target.key === "ncr";
 	const hasProvince = hierarchy.province && hierarchy.province.key !== hierarchy.target.key;
 	const hasRegion = hierarchy.region && hierarchy.region.key !== hierarchy.target.key;
 

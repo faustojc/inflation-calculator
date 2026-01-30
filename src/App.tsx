@@ -13,7 +13,7 @@ import { SmartSearch } from "@/components/SmartSearch";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { dataStore, initializeApp } from "@/stores/dataStore";
-import { activeTab, buildSearchIndex, initializeExpenses, setActiveTab, settings } from "@/stores/inflationStore";
+import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
 import { Toaster } from "sonner";
 
 export default function App() {
@@ -51,10 +51,6 @@ export default function App() {
 			dataStore.setKey("isReady", true);
 		});
 	}, []);
-
-	const handleTabChange = (v: string) => {
-		setActiveTab(v as "general" | "detailed");
-	};
 
 	if (isLoading || !isReady || commodities.length === 0) {
 		return (
