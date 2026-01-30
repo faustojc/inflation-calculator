@@ -2,19 +2,15 @@ import DateControl from "@/components/controls/DateControl";
 import IncomeClassControl from "@/components/controls/IncomeClassControl";
 import InputTypeControl from "@/components/controls/InputTypeControl";
 import LocationControl from "@/components/controls/LocationControl";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, useSidebar } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { mode } from "@/stores/inflationStore";
-import { useStore } from "@nanostores/react";
 import { ArrowRightToLineIcon, Calendar as CalendarIcon, MapPin, Settings2, Users } from "lucide-react";
 import ControlInfo from "./ControlInfo";
-import Footer from "@/components/Footer";
 
 export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
-	const m = useStore(mode);
-
 	const { toggleSidebar } = useSidebar();
 
 	return (

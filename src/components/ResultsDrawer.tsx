@@ -7,7 +7,6 @@ import { Separator } from "@/components/ui/separator";
 
 import { Notes } from "@/components/Notes";
 import { TrendGraph } from "@/components/TrendGraph";
-import type { CalculationResult } from "@/utils/inflationCompute";
 import { calculationResult } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 
