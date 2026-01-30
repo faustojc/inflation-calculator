@@ -252,7 +252,7 @@ function generateInterpretation(
 	const areaName = location.hierarchy.target.name || "Selected Area";
 	const regionName = location.hierarchy.region?.name;
 
-	const p1 = `Your computed consumer price index is ${personalCpi.toFixed(1)}. Which means that average price of your commonly purchased goods and services have ${getDir(
+	const p1 = `Your computed consumer price index is ${personalCpi.toFixed(1)}. It means that average price of your commonly purchased goods and services have ${getDir(
 		personalCpi - 100,
 	)} by ${percentChange}% compared with their average prices in 2018. Subsequently, in ${monthStr}, you will need PhP ${purchasingPower} to buy the same set of goods and services worth PhP 100.00 in 2018.`;
 

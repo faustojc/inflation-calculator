@@ -54,7 +54,7 @@ export function Notes() {
 						<strong>Survey of Key Informants</strong>.
 					</li>
 					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">
-						The official CPI and inflaiton rates uses <strong>2018</strong> as the reference year.
+						The official CPI and inflation rates uses <strong>2018</strong> as the reference year.
 					</li>
 					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">
 						Commodity groupings are based on the <strong>2020 Philippine Classification of Individual Consumption According to Purpose</strong>.

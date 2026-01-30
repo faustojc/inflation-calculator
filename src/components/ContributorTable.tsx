@@ -88,13 +88,13 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 							</th>
 							{contributors.map((f) => (
 								<React.Fragment key={f.factorName}>
-									<th className="p-2 text-left font-medium text-base uppercase text-muted-foreground border-r border-slate-200 dark:border-slate-800">
+									<th className="p-2 text-left font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-slate-200 dark:border-slate-800">
 										Group
 									</th>
-									<th className="p-2 text-right font-medium text-base uppercase text-muted-foreground border-r border-slate-200 dark:border-slate-800 w-16">
+									<th className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-slate-200 dark:border-slate-800 w-16">
 										%Shr
 									</th>
-									<th className="p-2 text-right font-medium text-base uppercase text-muted-foreground border-r border-slate-200 dark:border-slate-800 last:border-r-0 w-16">
+									<th className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-slate-200 dark:border-slate-800 last:border-r-0 w-16">
 										%Pt
 									</th>
 								</React.Fragment>
@@ -123,15 +123,15 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 
 									return (
 										<React.Fragment key={f.factorName}>
-											<td className="p-2 border-r border-slate-200 dark:border-slate-800 text-base max-w-[200px]">
+											<td className="p-2 border-r border-slate-200 dark:border-slate-800 text-base sm:text-sm max-w-[200px]">
 												<div className="line-clamp-2 pl-1" title={c.name}>
 													{c.name}
 												</div>
 											</td>
-											<td className="p-2 border-r border-slate-200 dark:border-slate-800 text-base text-right font-mono tabular-nums text-muted-foreground">
+											<td className="p-2 border-r border-slate-200 dark:border-slate-800 text-base sm:text-sm text-right font-mono tabular-nums text-muted-foreground">
 												{c.percentShare.toFixed(1)}
 											</td>
-											<td className="p-2 border-r border-slate-200 dark:border-slate-800 last:border-r-0 text-base text-right font-mono tabular-nums font-semibold">
+											<td className="p-2 border-r border-slate-200 dark:border-slate-800 last:border-r-0 text-base sm:text-sm text-right font-mono tabular-nums font-semibold">
 												{c.percentPointShare.toFixed(1)}
 											</td>
 										</React.Fragment>
