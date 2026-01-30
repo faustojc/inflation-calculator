@@ -18,3 +18,4 @@ export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 };
 
 export const FILE_CACHE = new Map<string, Promise<YearlyDataFile | null>>();
+export const WEIGHTS_CACHE = new Map<string, Promise<number[] | null>>();

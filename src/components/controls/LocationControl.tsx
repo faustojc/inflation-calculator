@@ -23,12 +23,18 @@ const LocationControl = () => {
 		return "National Capital Region (NCR)";
 	});
 
-	const groupedAreas = useMemo(() => {
-		const grouped: Record<string, { key: string; areaName: string; regionName?: string }[]> = {};
-		const filteredArea = areas.filter((a) => a.key !== "aoncr" && a.key !== "philippines" && a.key !== "ncr");
+	const groupedAreas: Record<number, { key: string; areaName: string; regionName?: string }[]> = useMemo(() => {
+		const grouped: Record<number, { key: string; areaName: string; regionName?: string }[]> = {};
+		const filteredArea = areas.filter((a) => a.key !== "aoncr" && a.key !== "philippines");
 
 		for (const area of filteredArea) {
 			grouped[area.regionId] ??= [];
+
+			if (area.key.toLowerCase() === "ncr") {
+				grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
+				continue;
+			}
+
 			if (area.cityId === undefined && area.provinceId === undefined) {
 				grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
 			} else {
@@ -71,6 +77,20 @@ const LocationControl = () => {
 					<CommandList className="max-h-62.5 overflow-y-auto">
 						<CommandEmpty>No location found.</CommandEmpty>
 						{Object.entries(groupedAreas).map(([region, areas], i) => {
+							if (region === "13") {
+								const ncr = areas.find((a) => a.key === "ncr");
+								if (!ncr) return null;
+
+								return (
+									<CommandGroup key={region + i} heading={ncr.regionName}>
+										<CommandItem key={ncr.key} value={ncr.areaName} onSelect={(key) => handleAreaSelect(key)}>
+											<Check className={cn("mr-2 h-4 w-4", selectArea === ncr.areaName ? "opacity-100" : "opacity-0")} />
+											{ncr.areaName}
+										</CommandItem>
+									</CommandGroup>
+								);
+							}
+
 							return (
 								<Fragment key={region}>
 									<CommandGroup key={region + i} heading={areas.find((a) => a.regionName)?.regionName}>

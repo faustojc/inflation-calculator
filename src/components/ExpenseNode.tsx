@@ -4,7 +4,7 @@ import { categoryTotals, expandedNodes, highlightState, mode, toggleExpansion, u
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
-import type { DisplayNode } from "./ExpenseList";
+import type { DisplayNode } from "./ExpenseTab";
 
 const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 	const highlight = useStore(highlightState);

@@ -1,5 +1,5 @@
 import type { AreaDef, AreaHierarchy, CommodityDef, DataIndex, SearchOption, TreeNode, YearlyDataFile } from "@/lib/types";
-import { FILE_CACHE } from "@/utils/metadata";
+import { FILE_CACHE, WEIGHTS_CACHE } from "@/utils/metadata";
 import { computed, map } from "nanostores";
 
 const API_URL = import.meta.env.PUBLIC_VITE_API_URL || "/api/v1";
@@ -180,6 +180,41 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 	return index;
 }
 
+export async function getWeights(areaKeys: string[]): Promise<Record<string, number[]>> {
+	const results: Record<string, number[]> = {};
+	const pending: Promise<void>[] = [];
+
+	for (const key of areaKeys) {
+		const cacheKey = `${key}|weights`;
+		let weightPromise = WEIGHTS_CACHE.get(cacheKey);
+
+		if (!weightPromise) {
+			weightPromise = (async () => {
+				try {
+					const r = await fetch(`${API_URL}/data/${key}/weights.json`);
+					if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
+						const w = await r.json();
+						return Array.isArray(w) ? w : null;
+					}
+				} catch (error) {
+					console.warn(`[Inflation] Failed to load weights for ${key}`, error);
+				}
+				return null;
+			})();
+			WEIGHTS_CACHE.set(cacheKey, weightPromise);
+		}
+
+		pending.push(
+			weightPromise.then((w) => {
+				if (w) results[key] = w;
+			}),
+		);
+	}
+
+	await Promise.all(pending);
+	return results;
+}
+
 export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 	const { areas } = dataStore.get();
 
@@ -188,11 +223,20 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 		return { target: { key: selectedKey, name: "Selected Area", regionId: 0 } };
 	}
 
-	const nationalKey = "philippines";
+	// if the selected are is NCR, return NCR and philippines only
+	if (selectedKey.toLowerCase() === "ncr") {
+		return {
+			target: selectedArea,
+			national: areas.find((a) => a.key.toLowerCase() === "philippines"),
+			ncr: selectedArea,
+		};
+	}
+
 	let province: AreaDef | undefined;
 	let region: AreaDef | undefined;
 
-	const national = areas.find((a) => a.key === nationalKey);
+	const national = areas.find((a) => a.key === "philippines");
+	const ncr = areas.find((a) => a.key === "ncr");
 	region = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === undefined);
 
 	if (selectedArea.provinceId !== undefined) {
@@ -207,6 +251,7 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 		target: selectedArea,
 		region,
 		national,
+		ncr,
 		province,
 	};
 }

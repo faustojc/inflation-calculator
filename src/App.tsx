@@ -1,24 +1,24 @@
 import { GlobalControls } from "@/components/GlobalControls";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@nanostores/react";
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
-import ExpenseList from "@/components/ExpenseList";
+import ExpenseTab from "@/components/ExpenseTab";
 import Footer from "@/components/Footer";
 import { GeneralTab } from "@/components/GeneralTab";
 import { Header } from "@/components/Header";
 import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SmartSearch } from "@/components/SmartSearch";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { dataStore, initializeApp } from "@/stores/dataStore";
-import { buildSearchIndex, clearExpenses, initializeExpenses, setActiveTab, settings } from "@/stores/inflationStore";
+import { activeTab, buildSearchIndex, initializeExpenses, setActiveTab, settings } from "@/stores/inflationStore";
 import { Toaster } from "sonner";
 
 export default function App() {
 	const { isReady, isLoading, error, commodities } = useStore(dataStore);
+	const currTab = useStore(activeTab);
 
 	const isMobile = useIsMobile();
 
@@ -97,49 +97,9 @@ export default function App() {
 							</div>
 							<SmartSearch />
 
-							<Tabs defaultValue="general" onValueChange={handleTabChange}>
-								<TabsList className="w-full mb-6">
-									<TabsTrigger value="general" className="text-md" onClick={clearExpenses}>
-										General
-									</TabsTrigger>
-									<TabsTrigger value="detailed" className="text-md" onClick={clearExpenses}>
-										Detailed
-									</TabsTrigger>
-								</TabsList>
-
-								<TabsContent value="general">
-									<div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-										<div className="mb-4 flex justify-between items-center">
-											<div>
-												<h2 className="font-bold text-lg">General Commodities</h2>
-												<p>13 General Commodity Groups</p>
-											</div>
-											<Button className="cursor-pointer" onClick={clearExpenses}>
-												<Trash2 className="h-4 w-4" />
-												Clear
-											</Button>
-										</div>
-										<GeneralTab />
-									</div>
-								</TabsContent>
-
-								<TabsContent value="detailed" className="space-y-6">
-									<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-										<div className="p-4 gap-2 border-b flex justify-between items-center">
-											<div>
-												<h2 className="font-bold text-lg">Detailed Commodities</h2>
-												<p className="text-muted-foreground text-wrap">Expand commodities to add expenses</p>
-											</div>
-
-											<Button className="cursor-pointer" onClick={clearExpenses}>
-												<Trash2 className="h-4 w-4" />
-												Clear
-											</Button>
-										</div>
-										<ExpenseList />
-									</div>
-								</TabsContent>
-							</Tabs>
+							{currTab === "general" ?
+								<GeneralTab />
+							:	<ExpenseTab />}
 						</main>
 					</div>
 

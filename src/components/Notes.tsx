@@ -40,12 +40,12 @@ export function Notes() {
 					</li>
 					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">
 						The personal inflation calculator <strong>requires</strong> the User to <strong>input their monthly expenditure</strong>. This
-						information is used as the statistical weight (expenditure pattern) of the User in computing the personal Consumer Price Index (CPI) and
-						personal inflation rate.
+						information is used as the statistical weight (expenditure pattern) of the User in computing the personal CPI and personal inflation
+						rate.
 					</li>
 					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">
 						The prices of goods and services used by the calculator comes from the result of the{" "}
-						<strong>Retail Price Survey of Selected Commodities for the Generation of CPI</strong> conducted regualrly by the Philippine Statistics
+						<strong>Retail Price Survey of Selected Commodities for the Generation of CPI</strong> conducted regularly by the Philippine Statistics
 						Authority .
 					</li>
 					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">

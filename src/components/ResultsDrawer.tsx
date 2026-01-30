@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
 
+import { ContributorTable } from "@/components/ContributorTable";
 import { Notes } from "@/components/Notes";
 import { TrendGraph } from "@/components/TrendGraph";
 import { calculationResult } from "@/stores/inflationStore";
@@ -15,7 +16,7 @@ export function ResultsDrawer() {
 
 	if (!data) return null;
 
-	const { personalRate, yearlyCpiEnd, trend, meta, interpretation } = data;
+	const { personalRate, yearlyCpiEnd, trend, meta, interpretation, contributors } = data;
 
 	// const totalPreviousSpend = totalSpend / (1 + personalRate / 100);
 	// const difference = totalSpend - totalPreviousSpend;
@@ -111,6 +112,15 @@ export function ResultsDrawer() {
 
 						<div className="col-span-3 md:col-span-2">
 							<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
+						</div>
+
+						<div className="col-span-3">
+							<div className="bg-white p-6 mx-3 mt-3 rounded-2xl border border-zinc-400 shadow">
+								<div className="flex items-center gap-2 mb-3">
+									<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">Major Contributors to Inflation</h3>
+								</div>
+								<ContributorTable contributors={contributors} />
+							</div>
 						</div>
 
 						<div className="col-span-3">

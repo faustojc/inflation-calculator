@@ -1,14 +1,15 @@
+import ControlInfo from "@/components/ControlInfo";
 import DateControl from "@/components/controls/DateControl";
 import IncomeClassControl from "@/components/controls/IncomeClassControl";
 import InputTypeControl from "@/components/controls/InputTypeControl";
 import LocationControl from "@/components/controls/LocationControl";
+import TabControl from "@/components/controls/TabControl";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, useSidebar } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowRightToLineIcon, Calendar as CalendarIcon, MapPin, Settings2, Users } from "lucide-react";
-import ControlInfo from "./ControlInfo";
+import { ArrowRightToLineIcon, Calendar as CalendarIcon, FormIcon, MapPin, Settings2, Users } from "lucide-react";
 
 export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 	const { toggleSidebar } = useSidebar();
@@ -99,6 +100,25 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 							<TooltipContent side="right" className="text-base tooltip-content">
 								Select whether you want to input your monthly expenditure for every commodity group or percentage share of the each commodity
 								group to the total expense
+							</TooltipContent>
+						</Tooltip>
+					}
+				</SidebarGroup>
+
+				<SidebarGroup className="space-y-3">
+					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+						<FormIcon className="h-3.5 w-3.5" /> Switch Tab
+						{isMobile && <ControlInfo content="Switch between the General and Detailed tabs" />}
+					</Label>
+
+					{isMobile ?
+						<TabControl />
+					:	<Tooltip>
+							<TooltipTrigger>
+								<TabControl />
+							</TooltipTrigger>
+							<TooltipContent side="right" className="text-base tooltip-content">
+								Switch between the General and Detailed tabs
 							</TooltipContent>
 						</Tooltip>
 					}

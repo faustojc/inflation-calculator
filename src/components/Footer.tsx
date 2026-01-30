@@ -1,6 +1,6 @@
 import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
-import { dataStore, getAreaHierarchy, getCalculationData } from "@/stores/dataStore";
+import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/stores/dataStore";
 import { calculationResult, expenses, isCalculationDisabled, mode, settings, totalAllocation } from "@/stores/inflationStore";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
 import { useStore } from "@nanostores/react";
@@ -56,8 +56,24 @@ const Footer = () => {
 
 			const uniqueKeys = new Set([hierarchy.target.key, hierarchy.province?.key, hierarchy.region?.key, hierarchy.national?.key]);
 			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
-			const batchMap = await getCalculationData(keysToFetch, dates.startYear - 1, dates.endYear);
-			const result = calculatePersonalInflation(items, { hierarchy }, dates, { mode: currentMode, totalInput: currentTotalAlloc }, batchMap);
+
+			const [batchMap, weightsMap] = await Promise.all([getCalculationData(keysToFetch, dates.startYear - 1, dates.endYear), getWeights(keysToFetch)]);
+
+			const { commodities } = dataStore.get();
+			const majorCategoryNames: Record<string, string> = {};
+			commodities.forEach((c) => {
+				majorCategoryNames[c.code] = c.name;
+			});
+
+			const result = calculatePersonalInflation(
+				items,
+				{ hierarchy },
+				dates,
+				{ mode: currentMode, totalInput: currentTotalAlloc },
+				batchMap,
+				weightsMap,
+				majorCategoryNames,
+			);
 
 			if (result?.missingItems && result.missingItems.length > 0) {
 				calculationResult.set({ show: false, data: null });

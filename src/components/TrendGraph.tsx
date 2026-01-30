@@ -22,6 +22,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	const isMobile = useIsMobile();
 
 	const hierarchy = meta.location.hierarchy;
+	const isNCR = hierarchy.target.key === "ncr";
 	const hasProvince = hierarchy.province && hierarchy.province.key !== hierarchy.target.key;
 	const hasRegion = hierarchy.region && hierarchy.region.key !== hierarchy.target.key;
 
@@ -87,6 +88,8 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 		if (compareMode === "national" && key === "national") return true;
 		return false;
 	};
+
+	console.log(compareMode);
 
 	return (
 		<div className="bg-white p-5 m-0 md:mr-3 md:mt-3 md:rounded-2xl border-y-2 md:border md:border-slate-200 shadow-sm space-y-4">
