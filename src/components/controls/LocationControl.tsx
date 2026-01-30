@@ -14,7 +14,7 @@ const LocationControl = () => {
 	const [openProvince, setOpenProvince] = useState(false);
 	const [selectArea, setSelectArea] = useState<string>(() => {
 		if (appSettings.areaKey && areas.length > 0) {
-			const match = areas.find((p) => p.key === appSettings.areaKey);
+			const match = areas.at(1);
 			if (match) {
 				return match.name;
 			}
