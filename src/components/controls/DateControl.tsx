@@ -1,25 +1,27 @@
-import { settings } from "@/stores/inflationStore";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { MONTHS } from "@/utils/metadata";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { dataStore } from "@/stores/dataStore";
+import { settings } from "@/stores/inflationStore";
+import { MONTHS } from "@/utils/metadata";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const DateControl = () => {
-	const [openYear, setOpenYear] = useState(false);
-
 	const appSettings = settings.get();
 	const { availableYears, areaYearsMap } = dataStore.get();
 
+	const [openYear, setOpenYear] = useState(false);
+	const [month, setMonth] = useState(MONTHS[appSettings.startDate.getMonth()]);
+
 	const areaAvailableYears = new Set(areaYearsMap[appSettings.areaKey] || []);
 
-	const handleMonthChange = (monthIndex: string) => {
+	const handleMonthChange = (m: string) => {
+		setMonth(m);
 		const newDate = new Date(appSettings.startDate);
-		newDate.setMonth(Number.parseInt(monthIndex));
+		newDate.setMonth(MONTHS.indexOf(m));
 		settings.setKey("startDate", newDate);
 	};
 
@@ -37,13 +39,13 @@ const DateControl = () => {
 		<div className="flex gap-4">
 			<div className="space-y-1">
 				<span className="text-xs text-muted-foreground">Month</span>
-				<Select value={appSettings.startDate.getMonth().toString()} onValueChange={handleMonthChange}>
+				<Select value={month} onValueChange={handleMonthChange}>
 					<SelectTrigger>
 						<SelectValue placeholder="Month" />
 					</SelectTrigger>
 					<SelectContent>
-						{MONTHS.map((m, i) => (
-							<SelectItem key={m} value={i.toString()}>
+						{MONTHS.map((m) => (
+							<SelectItem key={m} value={m}>
 								{m}
 							</SelectItem>
 						))}
