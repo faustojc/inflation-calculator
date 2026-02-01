@@ -1,22 +1,23 @@
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { categoryTotals, expandedNodes, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
+import { categoryTotals, expandedNodes, expenses, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import type { DisplayNode } from "./ExpenseTab";
 
-const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
+const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number }) => {
 	const highlight = useStore(highlightState);
 	const currMode = useStore(mode);
 	const totals = useStore(categoryTotals);
 	const expandedMap = useStore(expandedNodes);
+	const allExpenses = useStore(expenses);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const rowRef = useRef<HTMLDivElement>(null);
 
 	const hasChildren = node.children && node.children.length > 0;
-	const displayValue = hasChildren ? totals[node.code] || 0 : node.value;
+	const displayValue = hasChildren ? totals[node.code] || 0 : allExpenses[node.code]?.value || 0;
 	const isOpen = expandedMap[node.code] ?? (level < 1 || displayValue > 0);
 	const isMatch = highlight?.code === node.code;
 
@@ -117,6 +118,6 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 			)}
 		</div>
 	);
-};
+});
 
 export default ExpenseNode;

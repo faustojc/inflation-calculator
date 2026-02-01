@@ -2,7 +2,7 @@ import { GlobalControls } from "@/components/GlobalControls";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@nanostores/react";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { Activity, useEffect } from "react";
 
 import ExpenseTab from "@/components/ExpenseTab";
 import Footer from "@/components/Footer";
@@ -91,11 +91,16 @@ export default function App() {
 								<h2 className="font-bold text-lg">Find and Input Expenses</h2>
 								<p>Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.</p>
 							</div>
+
 							<SmartSearch />
 
-							{currTab === "general" ?
+							<Activity mode={currTab === "general" ? "visible" : "hidden"}>
 								<GeneralTab />
-							:	<ExpenseTab />}
+							</Activity>
+
+							<Activity mode={currTab === "detailed" ? "visible" : "hidden"}>
+								<ExpenseTab />
+							</Activity>
 						</main>
 					</div>
 

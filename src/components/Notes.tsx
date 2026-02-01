@@ -68,15 +68,17 @@ export function Notes() {
 					<Info className="h-4 w-4" />
 					<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">Additional Information</h3>
 				</div>
-				<ul className="list-disc list-inside text-justify">
-					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">
-						Monthly CPI and inflation rate releases:{" "}
+				<ul className="list-disc list-inside">
+					<li className="text-base sm:text-lg text-slate-700 mb-4 wrap-break-word">
+						Monthly CPI and inflation rate releases:
+						<br />
 						<a href="https://psa.gov.ph/price-indices/cpi-ir" target="_blank" rel="noopener noreferrer" className="underline text-blue-500">
 							https://psa.gov.ph/price-indices/cpi-ir
 						</a>
 					</li>
-					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">
-						Time-series data:{" "}
+					<li className="text-base sm:text-lg text-slate-700 mb-4 wrap-break-word">
+						Time-series data:
+						<br />
 						<a
 							href="https://openstat.psa.gov.ph/Database/Prices/Price-Indices"
 							target="_blank"
@@ -86,8 +88,9 @@ export function Notes() {
 							https://openstat.psa.gov.ph/Database/Prices/Price-Indices
 						</a>
 					</li>
-					<li className="text-base sm:text-lg leading-relaxed text-slate-700 mb-4">
-						Frequently asked questions about CPI:{" "}
+					<li className="text-base sm:text-lg text-slate-700 mb-4 wrap-break-word">
+						Frequently asked questions about CPI:
+						<br />
 						<a href="https://psa.gov.ph/price-indices/cpi-ir/faqs" target="_blank" rel="noopener noreferrer" className="underline text-blue-500">
 							https://psa.gov.ph/price-indices/cpi-ir/faqs
 						</a>

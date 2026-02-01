@@ -88,8 +88,6 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 		return false;
 	};
 
-	console.log(compareMode);
-
 	return (
 		<div className="bg-white p-5 m-0 md:mr-3 md:mt-3 md:rounded-2xl border-y-2 md:border md:border-slate-200 shadow-sm space-y-4">
 			<div className="flex flex-col sm:flex-row items-center justify-between">
