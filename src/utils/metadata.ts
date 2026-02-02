@@ -19,3 +19,25 @@ export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 
 export const FILE_CACHE = new Map<string, Promise<YearlyDataFile | null>>();
 export const WEIGHTS_CACHE = new Map<string, Promise<number[] | null>>();
+
+export function formatLocationName(str: string, locale = "en") {
+	str = str.trim();
+	str = str.replaceAll(/\p{L}+('\p{L}+)?/gu, function (txt) {
+		return txt.charAt(0).toLocaleUpperCase(locale) + txt.slice(1).toLocaleLowerCase(locale);
+	});
+
+	str = str.replaceAll(/\(([^)]+)\)/g, function (_, inner) {
+		return "(" + inner.toUpperCase() + ")";
+	});
+
+	const exceptions = ["de", "del", "la", "las", "los", "y", "and", "of"];
+	str = str.replaceAll(new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"), function (match, offset) {
+		return offset === 0 ? match : match.toLowerCase();
+	});
+
+	str = str.replaceAll(/\b(i{1,3}|iv|v|vi{1,3}|vii{1,3}|viii|ix|x|xi{1,2}|xii|xiii)(-[a-z])?\b/gi, function (match) {
+		return match.toUpperCase();
+	});
+
+	return str;
+}

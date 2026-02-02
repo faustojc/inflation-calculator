@@ -1,5 +1,5 @@
 import type { AreaDef, AreaHierarchy, CommodityDef, DataIndex, SearchOption, TreeNode, YearlyDataFile } from "@/lib/types";
-import { FILE_CACHE, WEIGHTS_CACHE } from "@/utils/metadata";
+import { FILE_CACHE, formatLocationName, WEIGHTS_CACHE } from "@/utils/metadata";
 import { computed, map } from "nanostores";
 
 const API_URL = import.meta.env.PUBLIC_VITE_API_URL || "/api/v1";
@@ -95,6 +95,10 @@ export async function initializeApp() {
 
 		flattenForSearch(commodities, 0);
 		searchOptions.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+
+		meta.areas.forEach((area) => {
+			area.name = formatLocationName(area.name);
+		});
 
 		dataStore.set({
 			...dataStore.get(),

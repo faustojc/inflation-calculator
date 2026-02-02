@@ -70,11 +70,9 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 									colSpan={3}
 									className="p-3 border-r border-slate-200 dark:border-slate-800 last:border-r-0 text-center min-w-[240px]"
 								>
-									<div className="font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-1">
-										{f.factorName.toLowerCase() === "personal" && <span>{f.factorName}</span>}
-										{f.factorName.toLowerCase() !== "personal" && (
-											<span className="font-normal text-muted-foreground capitalize text-base">{f.areaName}</span>
-										)}
+									<div className="font-bold tracking-wider text-xs flex items-center justify-center gap-1">
+										{f.factorName.toLowerCase() === "personal" && <span className="font-bold text-base">{f.factorName}</span>}
+										{f.factorName.toLowerCase() !== "personal" && <span className="font-bold text-base">{f.areaName}</span>}
 										<span className="bg-white dark:bg-slate-900 border px-1.5 rounded text-sm font-mono leading-none py-0.5">
 											{f.inflationRate.toFixed(1)}%
 										</span>
@@ -118,7 +116,7 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 												key={f.factorName + "empty"}
 												colSpan={3}
 												className="border-r border-slate-200 dark:border-slate-800 last:border-r-0 bg-slate-50/20"
-											></td>
+											/>
 										);
 
 									return (
