@@ -20,7 +20,7 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 						key={factor.factorName}
 						className="border rounded-lg overflow-hidden shadow-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
 					>
-						<div className="bg-slate-100 dark:bg-slate-800 px-4 py-3 font-bold text-sm uppercase tracking-wider flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
+						<div className="bg-slate-100 dark:bg-slate-800 px-4 py-3 font-bold text-sm tracking-wider flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
 							<div className="flex flex-col">
 								{factor.factorName.toLowerCase() === "personal" && <span className="font-bold text-base">{factor.factorName}</span>}
 								{factor.factorName.toLowerCase() !== "personal" && <span className="font-bold text-base">{factor.areaName}</span>}
