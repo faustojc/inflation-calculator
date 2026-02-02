@@ -6,6 +6,7 @@ export interface LocationContext {
 		target: AreaDef;
 		province?: AreaDef;
 		region?: AreaDef;
+		ncr?: AreaDef;
 		national?: AreaDef;
 	};
 }
@@ -34,11 +35,26 @@ export interface TrendPoint {
 
 export interface Comparators {
 	areaRate: number;
-	regionRate: number;
+	regionRate?: number;
 	nationalRate: number;
-	ncrRate: number;
+	ncrRate?: number;
 	provinceRate?: number;
 }
+
+export interface CommodityContribution {
+	code: string;
+	name: string;
+	percentShare: number;
+	percentPointShare: number;
+}
+
+export interface ContributionFactor {
+	factorName: string; // Personal, City, Province, etc.
+	areaName: string;
+	inflationRate: number;
+	contributors: CommodityContribution[];
+}
+
 export interface ItemBreakdown {
 	id: string;
 	name: string;
@@ -59,6 +75,7 @@ export interface CalculationResult {
 	yearlyCpiEnd: number;
 	totalSpend: number;
 	breakdown: ItemBreakdown[];
+	contributors: ContributionFactor[];
 	trend: TrendPoint[];
 	comparators: Comparators;
 	interpretation: string[];
@@ -71,26 +88,59 @@ export interface CalculationResult {
 
 const ALL_CODE = "0";
 
+/**
+ * Finds the CPI value for a specific area, year, month, and code.
+ * @param index The data index.
+ * @param areaKey The area key.
+ * @param year The year.
+ * @param month The month.
+ * @param code The code.
+ * @returns The CPI value or null if not found.
+ */
 function findCpi(index: DataIndex, areaKey: string, year: number, month: number, code: string): number | null {
 	const val = index[areaKey]?.[year]?.[month]?.[code];
 	return val ?? null;
 }
 
+/**
+ * Calculates the growth rate or inflation rate.
+ * @param current The current value.
+ * @param previous The previous value.
+ * @returns The growth rate or inflation rate.
+ */
 function calcGrowth(current: number, previous: number): number {
 	if (previous === 0) return 0;
 	return ((current - previous) / previous) * 100;
 }
 
+/**
+ * Calculates the year-over-year growth rate.
+ * @param dataIndex The data index.
+ * @param key The key.
+ * @param year The year.
+ * @param month The month.
+ * @param code The code.
+ * @returns The year-over-year growth rate.
+ */
 function calculateYoY(dataIndex: DataIndex, key: string | undefined, year: number, month: number, code: string = ALL_CODE): number {
 	if (!key) return 0;
 	const curr = findCpi(dataIndex, key, year, month, code);
 	const prev = findCpi(dataIndex, key, year - 1, month, code);
 	if (curr && prev && prev > 0) {
-		return ((curr - prev) / prev) * 100;
+		return calcGrowth(curr, prev);
 	}
 	return 0;
 }
 
+/**
+ * Calculates the personal trend.
+ * @param index The data index.
+ * @param targetKey The target key.
+ * @param itemsWithWeights The items with weights.
+ * @param year The year.
+ * @param month The month.
+ * @returns The personal trend.
+ */
 function calculatePersonalTrend(
 	index: DataIndex,
 	targetKey: string,
@@ -118,7 +168,7 @@ function calculatePersonalTrend(
 		}
 	}
 
-	return validCount > 0 && compPrev > 0 ? ((compCurr - compPrev) / compPrev) * 100 : 0;
+	return validCount > 0 && compPrev > 0 ? calcGrowth(compCurr, compPrev) : 0;
 }
 
 function processTrendMonth(
@@ -199,25 +249,33 @@ function generateInterpretation(
 	const purchasingPower = personalCpi.toFixed(1) + "0";
 	const percentChange = (personalCpi - 100).toFixed(1);
 
-	const p1 = `Your computed consumer price index is ${personalCpi.toFixed(1)}. Which means that average price of your commonly purchased goods and services have ${getDir(
+	const areaName = location.hierarchy.target.name || "Selected Area";
+	const regionName = location.hierarchy.region?.name;
+
+	const p1 = `Your computed consumer price index is ${personalCpi.toFixed(1)}. It means that average price of your commonly purchased goods and services have ${getDir(
 		personalCpi - 100,
 	)} by ${percentChange}% compared with their average prices in 2018. Subsequently, in ${monthStr}, you will need PhP ${purchasingPower} to buy the same set of goods and services worth PhP 100.00 in 2018.`;
 
-	const p2 = `You live in ${location.hierarchy.target.name || "Selected Area"} located in ${location.hierarchy.region!.name}.`;
+	const p2 = `You live in ${areaName}${regionName ? ` located in ${regionName}` : ""}.`;
 
 	const p3 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(personalRate, comps.areaRate)} than the inflation rate of the average households in ${
-		location.hierarchy.target.name || "your area"
+		areaName
 	} (${comps.areaRate.toFixed(1)}%). This means that you are ${getAff(personalRate, comps.areaRate)} affected by the price increases in ${
-		location.hierarchy.target.name || "your area"
+		areaName
 	} compared with the average household in the area.`;
 
-	const p4 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(
-		personalRate,
-		comps.regionRate,
-	)} than the inflation rate of the average households in ${location.hierarchy.region!.name} (${comps.regionRate.toFixed(1)}%). This means that you are ${getAff(
-		personalRate,
-		comps.regionRate,
-	)} affected by the price increases in ${location.hierarchy.region!.name} compared to the average household in the region.`;
+	const interpretation = [p2, p1, p3];
+
+	if (regionName && comps.regionRate !== undefined) {
+		const p4 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(
+			personalRate,
+			comps.regionRate,
+		)} than the inflation rate of the average households in ${regionName} (${comps.regionRate.toFixed(1)}%). This means that you are ${getAff(
+			personalRate,
+			comps.regionRate,
+		)} affected by the price increases in ${regionName} compared to the average household in the region.`;
+		interpretation.push(p4);
+	}
 
 	const p5 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(
 		personalRate,
@@ -226,8 +284,9 @@ function generateInterpretation(
 		personalRate,
 		comps.nationalRate,
 	)} affected by the price increases in the country compared with the average household.`;
+	interpretation.push(p5);
 
-	return [p2, p1, p3, p4, p5];
+	return interpretation;
 }
 
 export function calculatePersonalInflation(
@@ -236,6 +295,8 @@ export function calculatePersonalInflation(
 	dates: DateRange,
 	config: CalculationConfig,
 	dataIndex: DataIndex,
+	weightsMap: Record<string, number[]>,
+	majorCategoryNames: Record<string, string>,
 ): CalculationResult | null {
 	if (Object.keys(dataIndex).length === 0 || expenses.length === 0) return null;
 	if (config.mode === "amount" && config.totalInput === 0) return null;
@@ -294,6 +355,7 @@ export function calculatePersonalInflation(
 			yearlyCpiEnd: 0,
 			totalSpend: 0,
 			breakdown: [],
+			contributors: [],
 			trend: [],
 			comparators: { areaRate: 0, regionRate: 0, nationalRate: 0, ncrRate: 0 },
 			interpretation: [],
@@ -315,10 +377,86 @@ export function calculatePersonalInflation(
 
 	const comparators = {
 		areaRate: getOfficialRate(location.hierarchy.target.key),
-		regionRate: getOfficialRate(location.hierarchy.region!.key),
+		regionRate: location.hierarchy.region ? getOfficialRate(location.hierarchy.region.key) : undefined,
 		nationalRate: getOfficialRate("philippines"),
-		ncrRate: getOfficialRate("ncr"),
+		provinceRate: location.hierarchy.province ? getOfficialRate(location.hierarchy.province.key) : undefined,
 	};
+
+	const calculateContributors = (
+		factorName: string,
+		areaName: string,
+		inflationRate: number,
+		areaKey: string | null,
+		isPersonal = false,
+	): ContributionFactor => {
+		const contributions: CommodityContribution[] = [];
+
+		if (isPersonal) {
+			let totalWeightedCpiEnd = 0;
+			breakdown.forEach((b) => (totalWeightedCpiEnd += b.weightedCpiEnd));
+			breakdown.forEach((b) => {
+				const percentShare = (b.weightedCpiEnd / totalWeightedCpiEnd) * 100;
+				const percentPointShare = (percentShare / 100) * personalRate;
+				contributions.push({
+					code: b.categoryCode,
+					name: b.name,
+					percentShare,
+					percentPointShare,
+				});
+			});
+		} else if (areaKey && weightsMap[areaKey]) {
+			const areaWeights = weightsMap[areaKey];
+			const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
+			let totalWeightedCpi = 0;
+			const tempContribs: { code: string; weightedCpi: number }[] = [];
+
+			for (let i = 0; i < codes.length; i++) {
+				const code = codes[i]!;
+				const weight = areaWeights[i]; // Corresponding weight
+				const cpi = findCpi(dataIndex, areaKey, dates.endYear, dates.endMonth, code);
+
+				if (cpi !== null && weight !== undefined) {
+					const weightedCpi = cpi * weight;
+					totalWeightedCpi += weightedCpi;
+					tempContribs.push({ code, weightedCpi });
+				}
+			}
+
+			tempContribs.forEach((tc) => {
+				const percentShare = (tc.weightedCpi / totalWeightedCpi) * 100;
+				const percentPointShare = (percentShare / 100) * inflationRate;
+				contributions.push({
+					code: tc.code,
+					name: majorCategoryNames[tc.code] || tc.code,
+					percentShare,
+					percentPointShare,
+				});
+			});
+		}
+
+		contributions.sort((a, b) => b.percentShare - a.percentShare);
+		return {
+			factorName,
+			areaName,
+			inflationRate,
+			contributors: contributions.slice(0, 3),
+		};
+	};
+
+	const contributors: ContributionFactor[] = [
+		calculateContributors("Personal", location.hierarchy.target.name, personalRate, null, true),
+		calculateContributors("City/Mun", location.hierarchy.target.name, comparators.areaRate, location.hierarchy.target.key),
+	];
+
+	if (location.hierarchy.province && location.hierarchy.province.key !== location.hierarchy.target.key) {
+		contributors.push(calculateContributors("Province", location.hierarchy.province.name, comparators.provinceRate || 0, location.hierarchy.province.key));
+	}
+
+	if (location.hierarchy.region && comparators.regionRate) {
+		contributors.push(calculateContributors("Region", location.hierarchy.region.name, comparators.regionRate, location.hierarchy.region.key));
+	}
+
+	contributors.push(calculateContributors("National", "Philippines", comparators.nationalRate, "philippines"));
 
 	const trend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex);
 	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, { location, dates });
@@ -329,6 +467,7 @@ export function calculatePersonalInflation(
 		yearlyCpiEnd,
 		totalSpend: config.totalInput,
 		breakdown,
+		contributors,
 		trend,
 		comparators,
 		interpretation,

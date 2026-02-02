@@ -6,7 +6,7 @@ import type { SearchOption } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
 import { locateCategory } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
-import { ArrowRightCircle, Check, ChevronsUpDown, Search, Tag } from "lucide-react";
+import { ChevronsUpDown, LucideNavigation, Search, Tag } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export function SmartSearch() {
@@ -36,18 +36,18 @@ export function SmartSearch() {
 	};
 
 	return (
-		<div className="sticky top-30 z-10">
+		<div className="sticky top-20 sm:top-30 z-10">
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
 						role="combobox"
 						aria-expanded={open}
-						className="w-full justify-between text-left font-normal h-12 px-4 border-blue-500"
+						className="w-full justify-between text-left font-normal h-12 px-4 border-blue-500 border-2"
 					>
 						<span className="flex items-center gap-2 text-muted-foreground">
 							<Search className="h-4 w-4" />
-							{query || "Click here to search..."}
+							{query || "Click to search for specific commodity"}
 						</span>
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
@@ -62,7 +62,7 @@ export function SmartSearch() {
 							<CommandGroup>
 								{filteredOptions.map((item) => (
 									<CommandItem key={item.code} value={item.name} onSelect={() => handleSelect(item)}>
-										<Check className="mr-2 h-4 w-4 opacity-0" />
+										<LucideNavigation className="ml-4 h-4 w-4 text-blue-600 opacity-60" />
 										<div className="flex-1 flex flex-col gap-0.5">
 											<div className="flex items-center gap-2">
 												<span className="font-medium">{item.name}</span>
@@ -79,7 +79,6 @@ export function SmartSearch() {
 												</span>
 											</div> */}
 										</div>
-										<ArrowRightCircle className="ml-2 h-4 w-4 text-blue-500 opacity-50" />
 									</CommandItem>
 								))}
 							</CommandGroup>

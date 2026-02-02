@@ -25,8 +25,8 @@ const CalculationFooter = () => {
 
 	return (
 		<div className="bg-white dark:bg-slate-900 border-b mb-2">
-			<div className="flex justify-between items-end mb-2">
-				<h1 className="font-bold uppercase -tracking-[0.015em]">Total Monthly Expense</h1>
+			<div className="flex md:flex-col flex-row justify-between md:items-start items-center mb-2">
+				<h1 className="font-bold uppercase">Total Monthly Expense</h1>
 				<span className="font-bold text-blue-600">PhP {currentTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
 			</div>
 		</div>

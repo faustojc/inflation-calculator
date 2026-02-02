@@ -27,6 +27,7 @@ export interface AreaHierarchy {
 	target: AreaDef;
 	province?: AreaDef;
 	region?: AreaDef;
+	ncr?: AreaDef;
 	national?: AreaDef;
 }
 

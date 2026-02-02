@@ -1,22 +1,23 @@
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { categoryTotals, expandedNodes, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
+import { categoryTotals, expandedNodes, expenses, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
-import type { DisplayNode } from "./ExpenseList";
+import { memo, useEffect, useRef } from "react";
+import type { DisplayNode } from "./ExpenseTab";
 
-const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
+const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number }) => {
 	const highlight = useStore(highlightState);
 	const currMode = useStore(mode);
 	const totals = useStore(categoryTotals);
 	const expandedMap = useStore(expandedNodes);
+	const allExpenses = useStore(expenses);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const rowRef = useRef<HTMLDivElement>(null);
 
 	const hasChildren = node.children && node.children.length > 0;
-	const displayValue = hasChildren ? totals[node.code] || 0 : node.value;
+	const displayValue = hasChildren ? totals[node.code] || 0 : allExpenses[node.code]?.value || 0;
 	const isOpen = expandedMap[node.code] ?? (level < 1 || displayValue > 0);
 	const isMatch = highlight?.code === node.code;
 
@@ -33,23 +34,13 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 		<div className="w-full">
 			<div
 				ref={rowRef}
-				className={`
-					group flex items-center gap-2 p-2 rounded-lg border-b border-dashed transition-all duration-300
-					${
-						isMatch ?
-							"bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700"
-						:	"border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
-					}
-				`}
+				className={`group flex items-center gap-2 p-2 rounded-lg border-b border-dashed transition-all duration-300 ${isMatch ? "bg-yellow-100 border-yellow-300 dark:bg-yellow-900/30 dark:border-yellow-700" : "border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"}`}
 				style={{ paddingLeft: `${level * 16 + 8}px` }}
 			>
 				<button
 					onClick={() => toggleExpansion(node.code)}
 					disabled={!hasChildren}
-					className={`
-						p-1 rounded-md text-slate-500
-						${hasChildren && "bg-slate-100 hover:text-slate-900 hover:bg-slate-300 cursor-pointer"}
-					`}
+					className={`p-1 rounded-md text-slate-500 ${hasChildren && "bg-slate-100 hover:text-slate-900 hover:bg-slate-300 cursor-pointer"}`}
 				>
 					{hasChildren && (isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4 " />)}
 				</button>
@@ -82,10 +73,7 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 
 					<div className="relative">
 						<span
-							className={`
-							absolute left-3 top-2.5 text-xs font-bold
-							${hasChildren ? "text-slate-900 dark:text-slate-200" : "text-muted-foreground"}
-						`}
+							className={`absolute left-3 top-2.5 text-xs font-bold ${hasChildren ? "text-slate-900 dark:text-slate-200" : "text-muted-foreground"}`}
 						>
 							{hasChildren ?
 								"="
@@ -101,14 +89,11 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 						:	<Input
 								ref={inputRef}
 								type="number"
-								className={`
-									h-9 pl-3 text-right font-mono text-sm transition-all bg-slate-400
-									${
-										isMatch ? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-950 scale-105"
-										: displayValue > 0 ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20"
-										: "bg-transparent border-transparent hover:border-slate-200"
-									}
-								`}
+								className={`h-9 pl-3 text-right font-mono text-sm transition-all bg-slate-400 ${
+									isMatch ? "ring-2 ring-blue-500 border-blue-500 bg-white dark:bg-slate-950 scale-105"
+									: displayValue > 0 ? "bg-blue-50 border-blue-200 dark:bg-blue-900/20"
+									: "bg-transparent border-transparent hover:border-slate-200"
+								}`}
 								placeholder="-"
 								value={displayValue || ""}
 								min={0}
@@ -133,6 +118,6 @@ const ExpenseNode = ({ node, level }: { node: DisplayNode; level: number }) => {
 			)}
 		</div>
 	);
-};
+});
 
 export default ExpenseNode;
