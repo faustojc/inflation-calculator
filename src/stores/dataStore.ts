@@ -134,18 +134,17 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 		if (!dataPromise) {
 			const [area, yearStr] = requestKey.split("|");
 
-			try {
-				const r = await fetch(`${API_URL}/data/${area}/${yearStr}.json`);
-
-				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
-					dataPromise = r.json();
-				} else {
-					dataPromise = Promise.resolve(null);
-				}
-			} catch (error) {
-				console.warn(`[Inflation] Failed to load ${requestKey}`, error);
-				dataPromise = Promise.resolve(null);
-			}
+			dataPromise = fetch(`${API_URL}/data/${area}/${yearStr}.json`)
+				.then((r) => {
+					if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
+						return r.json();
+					}
+					return null;
+				})
+				.catch((error) => {
+					console.warn(`[Inflation] Failed to load ${requestKey}`, error);
+					return null;
+				});
 
 			FILE_CACHE.set(requestKey, dataPromise);
 		}
@@ -154,13 +153,6 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 	}
 	const results = await Promise.all(pendingRequests);
 	const index: DataIndex = {};
-
-	const setIndexValue = (area: string, year: number, month: number, code: string, value: number) => {
-		index[area] ??= {};
-		index[area][year] ??= {};
-		index[area][year][month] ??= {};
-		index[area][year][month][code] = value;
-	};
 
 	for (const file of results) {
 		if (!file?.data?.ALL) {
@@ -171,7 +163,10 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 			for (let i = 0; i < values.length; i++) {
 				const val = values[i];
 				if (val !== null && val !== undefined) {
-					setIndexValue(file.area, file.year, i + 1, code, val);
+					index[file.area] ??= {};
+					index[file.area]![file.year] ??= {};
+					index[file.area]![file.year]![i + 1] ??= {};
+					index[file.area]![file.year]![i + 1]![code] = val;
 				}
 			}
 		}
@@ -189,18 +184,18 @@ export async function getWeights(areaKeys: string[]): Promise<Record<string, num
 		let weightPromise = WEIGHTS_CACHE.get(cacheKey);
 
 		if (!weightPromise) {
-			weightPromise = (async () => {
-				try {
-					const r = await fetch(`${API_URL}/data/${key}/weights.json`);
+			weightPromise = fetch(`${API_URL}/data/${key}/weights.json`)
+				.then(async (r) => {
 					if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 						const w = await r.json();
 						return Array.isArray(w) ? w : null;
 					}
-				} catch (error) {
+					return null;
+				})
+				.catch((error) => {
 					console.warn(`[Inflation] Failed to load weights for ${key}`, error);
-				}
-				return null;
-			})();
+					return null;
+				});
 			WEIGHTS_CACHE.set(cacheKey, weightPromise);
 		}
 
