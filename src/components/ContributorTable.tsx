@@ -22,8 +22,8 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 					>
 						<div className="bg-slate-100 dark:bg-slate-800 px-4 py-3 font-bold text-sm uppercase tracking-wider flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
 							<div className="flex flex-col">
-								<span>{factor.factorName}</span>
-								<span className="text-xs font-normal text-muted-foreground capitalize">{factor.areaName}</span>
+								{factor.factorName.toLowerCase() === "personal" && <span className="font-bold text-base">{factor.factorName}</span>}
+								{factor.factorName.toLowerCase() !== "personal" && <span className="font-bold text-base">{factor.areaName}</span>}
 							</div>
 							<span className="bg-white dark:bg-slate-900 px-2 py-1 rounded text-xs border font-mono">{factor.inflationRate.toFixed(1)}%</span>
 						</div>
