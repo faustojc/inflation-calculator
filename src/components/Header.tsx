@@ -18,24 +18,26 @@ export const Header = () => {
 							fetchPriority="high"
 							loading="eager"
 							decoding="async"
-							className="md:max-w-sm lg:max-w-md object-cover"
+							className="w-full lg:max-w-md object-cover"
 						/>
 					</div>
 
 					<div className="flex-1 flex items-center gap-3 justify-end">
-						<div className="relative flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white shadow-sm shrink-0 overflow-hidden">
-							{/* <img src="/psa-logo.png" alt="Bagong Pilipinas Logo" className="w-full h-full object-cover" /> */}
-							<div className="text-[8px] text-blue-900 font-bold text-center leading-none">
-								BAGONG
-								<br />
-								PH LOGO
-							</div>
-						</div>
+						<img
+							src="/bagong_pilipinas_logo.svg"
+							alt="Bagong Pilipinas Logo"
+							width={80}
+							height={80}
+							fetchPriority="high"
+							loading="eager"
+							decoding="async"
+							className="max-w-10 md:max-w-16 lg:max-w-20 object-cover"
+						/>
 
 						<Button
 							size={isMobile ? "icon-lg" : "lg"}
 							variant="outline"
-							className="flex flex-row items-center cursor-pointer border-2 border-blue-700"
+							className="flex flex-row items-center cursor-pointer"
 							onClick={toggleSidebar}
 						>
 							<Settings className="h-4 w-4" />
