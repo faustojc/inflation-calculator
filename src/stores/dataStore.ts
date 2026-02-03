@@ -1,5 +1,6 @@
 import type { AreaDef, AreaHierarchy, CommodityDef, DataIndex, SearchOption, TreeNode, YearlyDataFile } from "@/lib/types";
 import { FILE_CACHE, formatLocationName, WEIGHTS_CACHE } from "@/utils/metadata";
+import { fetchWithCache } from "@/utils/storage";
 import { computed, map } from "nanostores";
 
 const API_URL = import.meta.env.PUBLIC_VITE_API_URL || "/api/v1";
@@ -45,7 +46,10 @@ export async function initializeApp() {
 
 	try {
 		dataStore.setKey("isLoading", true);
-		const [metaRes, commRes] = await Promise.all([fetch(`${API_URL}/metadata.json`), fetch(`${API_URL}/commodities.json`)]);
+		const [metaRes, commRes] = await Promise.all([
+			fetchWithCache(`${API_URL}/metadata.json`, "network-first"),
+			fetchWithCache(`${API_URL}/commodities.json`, "network-first"),
+		]);
 
 		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
 
@@ -138,7 +142,7 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 		if (!dataPromise) {
 			const [area, yearStr] = requestKey.split("|");
 
-			dataPromise = fetch(`${API_URL}/data/${area}/${yearStr}.json`)
+			dataPromise = fetchWithCache(`${API_URL}/data/${area}/${yearStr}.json`, "cache-first")
 				.then((r) => {
 					if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 						return r.json();
@@ -188,7 +192,7 @@ export async function getWeights(areaKeys: string[]): Promise<Record<string, num
 		let weightPromise = WEIGHTS_CACHE.get(cacheKey);
 
 		if (!weightPromise) {
-			weightPromise = fetch(`${API_URL}/data/${key}/weights.json`)
+			weightPromise = fetchWithCache(`${API_URL}/data/${key}/weights.json`, "cache-first")
 				.then(async (r) => {
 					if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 						const w = await r.json();

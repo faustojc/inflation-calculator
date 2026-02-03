@@ -18,11 +18,6 @@ export function ResultsDrawer() {
 
 	const { personalRate, yearlyCpiEnd, trend, meta, interpretation, contributors } = data;
 
-	// const totalPreviousSpend = totalSpend / (1 + personalRate / 100);
-	// const difference = totalSpend - totalPreviousSpend;
-	// const isHigh = personalRate > 4;
-	// const currencyFormatter = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" });
-
 	const startDateStr = format(new Date(meta.dates.startYear, meta.dates.startMonth - 1), "MMMM yyyy");
 	const endDateStr = format(new Date(meta.dates.endYear, meta.dates.endMonth - 1), "MMMM yyyy");
 
