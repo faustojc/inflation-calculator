@@ -36,7 +36,7 @@ export function ResultsDrawer() {
 	};
 
 	return (
-		<Drawer open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
+		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
 			<DrawerContent className="h-[95vh] flex flex-col rounded-t-[24px] font-sans bg-slate-50">
 				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden">
 					<DrawerHeader className="text-center w-full pb-2 rounded-t-[24px] border-b border-zinc-300 shadow">

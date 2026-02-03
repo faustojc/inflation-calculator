@@ -45,11 +45,11 @@ export function SmartSearch() {
 						aria-expanded={open}
 						className="w-full justify-between text-left font-normal h-12 px-4 border-blue-500 border-2"
 					>
-						<span className="flex items-center gap-2 text-muted-foreground">
+						<span className="flex items-center gap-2 text-muted-foreground text-ellipsis">
 							<Search className="h-4 w-4" />
 							{query || "Click to search for specific commodity"}
 						</span>
-						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+						<ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
