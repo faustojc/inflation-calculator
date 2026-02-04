@@ -1,10 +1,10 @@
+import type { DisplayNode } from "@/components/ExpenseTab";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { categoryTotals, expandedNodes, expenses, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
-import type { DisplayNode } from "./ExpenseTab";
 
 const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number }) => {
 	const highlight = useStore(highlightState);
@@ -48,17 +48,12 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 				<div className="grid grid-cols-3 items-center w-full">
 					<div className="col-span-2">
 						<div className="flex items-center gap-2">
-							{/* <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground h-5 px-1 bg-white dark:bg-slate-950">
-								{node.code}
-							</Badge> */}
 							{node.description && (
 								<Popover>
 									<PopoverTrigger asChild>
-										<InfoIcon className="h-4 w-4 text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" />
+										<InfoIcon className="h-4 w-4 shrink-0 text-blue-600 cursor-pointer" />
 									</PopoverTrigger>
-									<PopoverContent className="w-72 p-3 text-sm text-slate-600 dark:text-slate-300 shadow-md">
-										{node.description}
-									</PopoverContent>
+									<PopoverContent className="w-72 p-2">{node.description}</PopoverContent>
 								</Popover>
 							)}
 							<p className={`text-sm text-wrap text-left ${level === 0 ? "font-bold" : "font-normal"}`}>{node.name}</p>

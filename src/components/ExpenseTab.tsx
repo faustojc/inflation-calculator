@@ -29,7 +29,7 @@ function mapDataToNode(def: CommodityDef, currentDepth: number, maxDepth: number
 		id: def.code,
 		depth: currentDepth,
 		children: children,
-		// description: def.description
+		description: def.description,
 	};
 }
 

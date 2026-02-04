@@ -13,6 +13,7 @@ export interface CommodityDef {
 	children?: CommodityDef[];
 	parentName?: string;
 	keywords?: string[];
+	description?: string;
 }
 
 export interface AreaDef {
