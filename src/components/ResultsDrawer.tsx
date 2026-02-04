@@ -65,46 +65,6 @@ export function ResultsDrawer() {
 							</div>
 						</div>
 
-						{/* <div className="flex flex-col justify-center bg-white dark:bg-slate-900 border rounded-2xl p-5 shadow-sm space-y-4">
-							<div className="flex items-center gap-2 mb-2">
-								<div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg">
-									<Wallet className="h-4 w-4" />
-								</div>
-								<h3 className="font-semibold text-lg uppercase tracking-wide text-slate-500">Purchasing Power</h3>
-							</div>
-
-							<div className="grid grid-cols-2 gap-4 relative">
-								<div className="space-y-1">
-									<span className="text-sm text-muted-foreground block">Cost in {meta.dates.startYear}</span>
-									<span className="text-xl font-bold text-slate-700 dark:text-slate-300">
-										{currMode === "amount" ? currencyFormatter.format(totalPreviousSpend) : `${totalPreviousSpend.toFixed(1)}%`}
-									</span>
-								</div>
-								<div className="space-y-1 text-right">
-									<span className="text-sm text-muted-foreground block">Cost Today ({currMode === "amount" ? "PHP" : "as a %"})</span>
-									<span className="text-xl font-bold text-slate-900 dark:text-white">
-										{currMode === "amount" ? currencyFormatter.format(totalSpend) : `${totalSpend.toFixed(1)}%`}
-									</span>
-								</div>
-
-								<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-100 dark:bg-slate-800 p-1 rounded-full border">
-									<ArrowRight className="h-6 w-6 text-zinc-600" />
-								</div>
-							</div>
-
-							<Separator />
-
-							<div className="flex flex-col sm:flex-row sm:justify-between gap-3 items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-								<span className="font-medium text-slate-600 dark:text-slate-400">Added Expense / Loss</span>
-								<span className={`font-mono font-bold ${difference > 0 ? "text-red-500" : "text-green-500"} text-2xl flex items-center gap-1`}>
-									{difference > 0 ?
-										<ArrowUp className="h-5 w-5" />
-									:	<ArrowDown className="h-5 w-5" />}
-									{currMode === "amount" ? currencyFormatter.format(difference) : `${difference.toFixed(1)}%`}
-								</span>
-							</div>
-						</div> */}
-
 						<div className="col-span-3 md:col-span-2">
 							<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
 						</div>

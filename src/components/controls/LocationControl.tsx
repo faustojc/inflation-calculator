@@ -64,7 +64,7 @@ const LocationControl = () => {
 	};
 
 	return (
-		<Popover open={openProvince} onOpenChange={setOpenProvince}>
+		<Popover open={openProvince} onOpenChange={setOpenProvince} modal={true}>
 			<PopoverTrigger asChild>
 				<Button variant="outline" role="combobox" aria-expanded={openProvince} className="w-full justify-between font-medium truncate">
 					{selectArea || "Select Location..."}
@@ -74,7 +74,7 @@ const LocationControl = () => {
 			<PopoverContent className="w-75 p-0" align="start">
 				<Command>
 					<CommandInput placeholder="Search province or city..." />
-					<CommandList className="max-h-62.5 overflow-y-auto">
+					<CommandList className="overflow-y-auto">
 						<CommandEmpty>No location found.</CommandEmpty>
 						{Object.entries(groupedAreas).map(([region, areas], i) => {
 							if (region === "13") {

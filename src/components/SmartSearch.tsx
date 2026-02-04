@@ -37,7 +37,7 @@ export function SmartSearch() {
 
 	return (
 		<div className="sticky top-20 sm:top-30 z-10">
-			<Popover open={open} onOpenChange={setOpen}>
+			<Popover open={open} onOpenChange={setOpen} modal={true}>
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
