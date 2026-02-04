@@ -13,8 +13,8 @@ export const Header = () => {
 						<img
 							src="/psa_header.png"
 							alt="PSA Header"
-							width={800}
-							height={139}
+							width={630}
+							height={109}
 							fetchPriority="high"
 							loading="eager"
 							decoding="async"

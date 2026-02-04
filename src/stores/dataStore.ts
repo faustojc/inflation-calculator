@@ -3,7 +3,7 @@ import { FILE_CACHE, formatLocationName, WEIGHTS_CACHE } from "@/utils/metadata"
 import { fetchWithCache } from "@/utils/storage";
 import { computed, map } from "nanostores";
 
-const API_URL = import.meta.env.PUBLIC_VITE_API_URL || "/api/v1";
+const API_URL = import.meta.env?.PUBLIC_VITE_API_URL || "/api/v1";
 
 interface DataState {
 	isLoading: boolean;
