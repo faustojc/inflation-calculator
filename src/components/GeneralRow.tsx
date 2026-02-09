@@ -1,12 +1,12 @@
 import { Input } from "@/components/ui/input";
 import type { CommodityDef } from "@/lib/types";
-import { expenses, highlightState, mode, updateExpenseValue } from "@/stores/inflationStore";
+import { generalExpenses, highlightState, mode, updateExpenseValue } from "@/stores/inflationStore";
 import { CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { useEffect, useRef } from "react";
 
 export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
-	const items = useStore(expenses);
+	const items = useStore(generalExpenses);
 	const m = useStore(mode);
 	const highlight = useStore(highlightState);
 
@@ -56,7 +56,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 							let v = Number.parseFloat(e.target.value);
 							v = Number.isNaN(v) || v < 0 ? 0 : v;
 
-							updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v);
+							updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v, "general");
 						}}
 					/>
 				</div>

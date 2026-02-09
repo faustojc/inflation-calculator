@@ -1,7 +1,7 @@
 import type { DisplayNode } from "@/components/ExpenseTab";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { categoryTotals, expandedNodes, expenses, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
+import { detailedExpenses, categoryTotals, expandedNodes, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
@@ -11,7 +11,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 	const currMode = useStore(mode);
 	const totals = useStore(categoryTotals);
 	const expandedMap = useStore(expandedNodes);
-	const allExpenses = useStore(expenses);
+	const allExpenses = useStore(detailedExpenses);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const rowRef = useRef<HTMLDivElement>(null);
@@ -96,7 +96,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 									const v = Number.parseFloat(e.target.value);
 									if (v < 0 || (currMode === "percent" && v > 100)) return;
 
-									updateExpenseValue(node.code, node.name, Number.isNaN(v) ? 0 : v);
+									updateExpenseValue(node.code, node.name, Number.isNaN(v) ? 0 : v, "detailed");
 								}}
 							/>
 						}

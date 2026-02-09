@@ -73,11 +73,6 @@ export function SmartSearch() {
 													</Badge>
 												)}
 											</div>
-											{/* <div className="flex items-center gap-2">
-												<span className="text-[10px] text-muted-foreground font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded">
-													{item.code}
-												</span>
-											</div> */}
 										</div>
 									</CommandItem>
 								))}

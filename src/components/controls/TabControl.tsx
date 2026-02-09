@@ -1,4 +1,4 @@
-import { activeTab, clearExpenses } from "@/stores/inflationStore";
+import { activeTab, calculationResult } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 
 const TabControl = () => {
@@ -6,7 +6,7 @@ const TabControl = () => {
 
 	const handleChangeTab = (tab: "general" | "detailed") => {
 		activeTab.set(tab);
-		clearExpenses();
+		calculationResult.set({ show: false, data: null });
 	};
 
 	return (

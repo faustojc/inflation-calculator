@@ -1,7 +1,7 @@
 import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
 import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/stores/dataStore";
-import { calculationResult, expenses, isCalculationDisabled, mode, settings, totalAllocation } from "@/stores/inflationStore";
+import { activeTab, calculationResult, detailedExpenses, generalExpenses, isCalculationDisabled, mode, settings, totalAllocation } from "@/stores/inflationStore";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
 import { useStore } from "@nanostores/react";
 import { Loader2 } from "lucide-react";
@@ -20,7 +20,8 @@ const Footer = () => {
 			const { areaKey, startDate } = settings.get();
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
-			const items = Object.values(expenses.get());
+			const currentTab = activeTab.get();
+			const items = Object.values(currentTab === "general" ? generalExpenses.get() : detailedExpenses.get());
 
 			const targetYear = startDate.getFullYear();
 			const targetMonth = startDate.getMonth() + 1;

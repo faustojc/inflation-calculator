@@ -51,7 +51,11 @@ export const calculationResult = map<{
 	data: null,
 });
 
-export const expenses = map<Record<string, ExpenseItem>>({});
+export const generalExpenses = map<Record<string, ExpenseItem>>({});
+export const detailedExpenses = map<Record<string, ExpenseItem>>({});
+export const expenses = computed([activeTab, generalExpenses, detailedExpenses], (tab, general, detailed) => {
+	return tab === "general" ? general : detailed;
+});
 export const expandedNodes = map<Record<string, boolean>>({});
 
 // for fast lookup of parent nodes
@@ -74,7 +78,8 @@ export function buildSearchIndex() {
 
 export function initializeExpenses() {
 	const { commodities } = dataStore.get();
-	if (Object.keys(expenses.get()).length > 0) return;
+
+	if (Object.keys(generalExpenses.get()).length > 0 || Object.keys(detailedExpenses.get()).length > 0) return;
 
 	const initialExpenses: Record<string, ExpenseItem> = {};
 
@@ -91,7 +96,8 @@ export function initializeExpenses() {
 	};
 
 	traverse(commodities);
-	expenses.set(initialExpenses);
+	generalExpenses.set({ ...initialExpenses });
+	detailedExpenses.set({ ...initialExpenses });
 }
 
 export function toggleExpansion(code: string, forceState?: boolean) {
@@ -144,15 +150,17 @@ export function locateCategory(searchCode: string, searchName: string) {
 }
 
 export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: number }) {
-	const current = expenses.get();
+	const currentTab = activeTab.get();
+	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
+	const current = targetStore.get();
 	const existingId = Object.keys(current).find((key) => current[key]?.code === item.code);
 
 	if (existingId) {
 		const existing = current[existingId]!;
-		expenses.setKey(existingId, { ...existing, value: item.amount });
+		targetStore.setKey(existingId, { ...existing, value: item.amount });
 	} else {
 		const id = crypto.randomUUID();
-		expenses.setKey(id, {
+		targetStore.setKey(id, {
 			id,
 			code: item.code,
 			name: item.name,
@@ -161,25 +169,34 @@ export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: n
 	}
 }
 
-export function updateExpenseValue(code: string, name: string, newValue: number) {
-	const current = expenses.get();
+export function updateExpenseValue(code: string, name: string, newValue: number, target?: "general" | "detailed") {
+	const currentTab = target || activeTab.get();
+	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
+	const current = targetStore.get();
 
 	if (current[code]) {
-		expenses.setKey(code, { ...current[code], value: newValue });
+		targetStore.setKey(code, { ...current[code], value: newValue });
 	} else {
-		expenses.setKey(code, { id: code, code, name, value: newValue });
+		targetStore.setKey(code, { id: code, code, name, value: newValue });
 	}
 }
 
 export function removeExpense(id: string) {
-	const current = expenses.get();
+	const currentTab = activeTab.get();
+	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
+	const current = targetStore.get();
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { [id]: _, ...rest } = current;
-	expenses.set(rest);
+	targetStore.set(rest);
 }
 
 export function clearExpenses() {
-	expenses.set({});
+	const currentTab = activeTab.get();
+	if (currentTab === "general") {
+		generalExpenses.set({});
+	} else {
+		detailedExpenses.set({});
+	}
 }
 
 export const totalAllocation = computed(expenses, (items) => {
