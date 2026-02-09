@@ -25,7 +25,7 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 
 					{isMobile ?
 						<LocationControl />
-					:	<Tooltip>
+						: <Tooltip>
 							<TooltipTrigger>
 								<LocationControl />
 							</TooltipTrigger>
@@ -44,7 +44,7 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 
 					{isMobile ?
 						<IncomeClassControl />
-					:	<Tooltip>
+						: <Tooltip>
 							<TooltipTrigger>
 								<IncomeClassControl />
 							</TooltipTrigger>
@@ -68,7 +68,7 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 
 					{isMobile ?
 						<DateControl />
-					:	<Tooltip>
+						: <Tooltip>
 							<TooltipTrigger>
 								<DateControl />
 							</TooltipTrigger>
@@ -93,7 +93,7 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 
 					{isMobile ?
 						<InputTypeControl />
-					:	<Tooltip>
+						: <Tooltip>
 							<TooltipTrigger>
 								<InputTypeControl />
 							</TooltipTrigger>
@@ -107,13 +107,13 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 
 				<SidebarGroup className="space-y-3">
 					<Label className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
-						<FormIcon className="h-3.5 w-3.5" /> Switch Tab
+						<FormIcon className="h-3.5 w-3.5" /> Commodity Group
 						{isMobile && <ControlInfo content="Switch between the General and Detailed tabs" />}
 					</Label>
 
 					{isMobile ?
 						<TabControl />
-					:	<Tooltip>
+						: <Tooltip>
 							<TooltipTrigger>
 								<TabControl />
 							</TooltipTrigger>
@@ -132,7 +132,7 @@ export function GlobalControls({ isMobile }: Readonly<{ isMobile?: boolean }>) {
 						Close
 					</Button>
 				</SidebarFooter>
-			:	<SidebarFooter className="bg-zinc-50">
+				: <SidebarFooter className="bg-zinc-50">
 					<Footer />
 				</SidebarFooter>
 			}
