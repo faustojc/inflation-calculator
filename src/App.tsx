@@ -1,17 +1,16 @@
-import { GlobalControls } from "@/components/GlobalControls";
-import { Button } from "@/components/ui/button";
 import { useStore } from "@nanostores/react";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { Activity, useEffect } from "react";
+import { useEffect } from "react";
 
 import ExpenseTab from "@/components/ExpenseTab";
 import Footer from "@/components/Footer";
 import { GeneralTab } from "@/components/GeneralTab";
 import { Header } from "@/components/Header";
+import { Onboarding } from "@/components/Onboarding";
 import { ResultsDrawer } from "@/components/ResultsDrawer";
+import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 import { dataStore, initializeApp } from "@/stores/dataStore";
 import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
 import { Toaster } from "sonner";
@@ -19,8 +18,6 @@ import { Toaster } from "sonner";
 export default function App() {
 	const { isReady, isLoading, error, commodities } = useStore(dataStore);
 	const currTab = useStore(activeTab);
-
-	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		initializeApp().then((meta) => {
@@ -54,63 +51,63 @@ export default function App() {
 
 	if (isLoading || !isReady || commodities.length === 0) {
 		return (
-			<div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 font-sans">
-				<Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
-				<h1 className="font-bold text-lg text-slate-700 dark:text-slate-300">Initializing Calculator...</h1>
-				<p className="text-sm text-slate-500">Loading and indexing PSA Data</p>
+			<div className="min-h-screen flex flex-col items-center justify-center bg-page-pattern font-sans">
+				<div className="flex flex-col items-center gap-4 p-8">
+					<Loader2 className="h-10 w-10 animate-spin text-primary" />
+					<div className="text-center">
+						<h1 className="font-bold text-lg text-slate-800">Initializing Calculator</h1>
+						<p className="text-sm text-muted-foreground mt-1">Loading and indexing PSA data...</p>
+					</div>
+				</div>
 			</div>
 		);
 	}
 
 	if (error) {
 		return (
-			<div className="min-h-screen flex flex-col items-center justify-center p-4">
-				<AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-				<h2 className="text-xl font-bold">Service Unavailable</h2>
-				<p className="text-muted-foreground mt-2">{error}</p>
-				<Button onClick={() => initializeApp()} className="mt-6">
-					Retry
-				</Button>
+			<div className="min-h-screen flex flex-col items-center justify-center p-4 bg-page-pattern">
+				<div className="flex flex-col items-center gap-4 p-8 bg-white rounded-2xl shadow-lg border border-slate-100">
+					<AlertTriangle className="h-12 w-12 text-destructive" />
+					<h2 className="text-xl font-bold">Service Unavailable</h2>
+					<p className="text-muted-foreground">{error}</p>
+					<Button onClick={() => initializeApp()} className="mt-2">
+						Retry
+					</Button>
+				</div>
 			</div>
 		);
 	}
 
 	return (
 		<>
-			<SidebarProvider>
-				<Toaster position="top-center" closeButton />
-				{!isMobile && <GlobalControls />}
+			<Toaster position="top-center" closeButton />
 
-				<div className="min-h-screen w-full font-sans">
-					<Header />
+			<div className="min-h-screen w-full font-sans bg-page-pattern">
+				<Header />
 
-					<div className="max-w-2xl mx-auto font-sans pb-52">
-						<main className="relative mx-auto p-4 space-y-6 mt-4">
-							<h1 className="text-base lg:text-3xl text-center font-bold mt-1 uppercase tracking-widest">Personal Inflation Calculator</h1>
-							<div className="mb-2">
-								<h2 className="font-bold text-lg">Find and Input Expenses</h2>
-								<p>Search for specific items (e.g. "Rice", "Electricity") to locate them in the commodity list.</p>
-							</div>
+				<div className="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
+					{/* Settings panel — controls-first */}
+					<SettingsPanel />
 
-							<SmartSearch />
+					{/* Smart search */}
+					<SmartSearch />
 
-							<Activity mode={currTab === "general" ? "visible" : "hidden"}>
-								<GeneralTab />
-							</Activity>
-
-							<Activity mode={currTab === "detailed" ? "visible" : "hidden"}>
-								<ExpenseTab />
-							</Activity>
-						</main>
+					{/* Tab content */}
+					<div style={{ display: currTab === "general" ? "block" : "none" }}>
+						<GeneralTab />
 					</div>
 
-					{isMobile && <Footer />}
+					<div style={{ display: currTab === "detailed" ? "block" : "none" }}>
+						<ExpenseTab />
+					</div>
 				</div>
 
-				{isMobile && <GlobalControls isMobile />}
-			</SidebarProvider>
+				{/* Sticky calculate bar — always visible */}
+				<Footer />
+			</div>
 
 			<ResultsDrawer />
+			<Onboarding />
 		</>
 	);
 }

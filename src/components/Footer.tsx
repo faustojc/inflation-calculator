@@ -4,7 +4,7 @@ import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/s
 import { activeTab, calculationResult, detailedExpenses, generalExpenses, isCalculationDisabled, mode, settings, totalAllocation } from "@/stores/inflationStore";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
 import { useStore } from "@nanostores/react";
-import { Loader2 } from "lucide-react";
+import { Calculator, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -110,21 +110,27 @@ const Footer = () => {
 	};
 
 	return (
-		<footer className="sticky bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-50 transition-all">
-			<div className="max-w-3xl mx-auto">
+		<footer className="sticky bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
+			<div className="max-w-5xl mx-auto px-4 py-3">
 				<CalculationFooter />
 				<Button
 					size="lg"
+					id="calculate-btn"
 					onClick={handleCalculate}
 					disabled={isCalculating || isDisabled}
-					className="w-full text-base uppercase font-bold h-12 shadow-xl transition-all active:scale-[0.98] bg-blue-500"
+					className="w-full text-sm uppercase font-bold h-11 bg-psa-gradient hover:opacity-90 shadow-lg shadow-primary/25 transition-all active:scale-[0.98] cursor-pointer gap-2"
 				>
-					{isCalculating ?
+					{isCalculating ? (
 						<>
-							<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+							<Loader2 className="h-4 w-4 animate-spin" />
 							Calculating...
 						</>
-					:	"Calculate"}
+					) : (
+						<>
+							<Calculator className="h-4 w-4" />
+							Calculate Personal Inflation
+						</>
+					)}
 				</Button>
 			</div>
 		</footer>

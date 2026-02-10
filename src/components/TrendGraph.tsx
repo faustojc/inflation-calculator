@@ -89,7 +89,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	};
 
 	return (
-		<div className="bg-white p-5 m-0 md:mr-3 md:mt-3 md:rounded-2xl border-y-2 md:border md:border-slate-200 shadow-sm space-y-4">
+		<div className="bg-white p-5 m-0 md:rounded-2xl border-y-2 md:border md:border-slate-200 shadow-sm space-y-4">
 			<div className="flex flex-col sm:flex-row items-center justify-between">
 				<div className="flex items-center gap-2 text-blue-600">
 					<TrendingUp className="h-5 w-5" />

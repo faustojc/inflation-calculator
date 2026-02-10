@@ -15,6 +15,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 
 	const val = items[cat.code]?.value || 0;
 	const isMatch = highlight?.code === cat.code;
+	const hasFilled = val > 0;
 
 	useEffect(() => {
 		if (isMatch) {
@@ -27,35 +28,50 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 		<div
 			ref={rowRef}
 			className={`
-				flex flex-col sm:flex-row gap-4 p-4 border rounded-xl transition-all duration-500
-				${isMatch ? "bg-yellow-50 border-yellow-400 ring-1 ring-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-700" : "bg-card hover:border-blue-300"}
+				flex flex-col sm:flex-row gap-3 p-4 rounded-xl border transition-all duration-300
+				${isMatch
+					? "bg-yellow-50 border-yellow-400 ring-2 ring-yellow-400/50 shadow-md"
+					: hasFilled
+						? "bg-primary/5 border-primary/20 shadow-sm"
+						: "bg-white border-slate-200 hover:border-primary/30 hover:shadow-sm"
+				}
 			`}
 		>
-			<div className="flex-1">
-				<div className="flex items-center gap-2 mb-1">
-					<span className="font-mono text-xs text-muted-foreground bg-slate-100 dark:bg-slate-800 px-1.5 rounded">{cat.code}</span>
-					<h3 className="font-semibold">{cat.name}</h3>
-
-					{isMatch && <span className="text-xs font-bold text-blue-600 animate-in fade-in">← Found here</span>}
+			<div className="flex-1 min-w-0">
+				<div className="flex items-center gap-2 mb-0.5">
+					<span className="font-mono text-[0.65rem] text-white bg-primary/80 px-1.5 py-0.5 rounded font-semibold shrink-0">
+						{cat.code}
+					</span>
+					<h3 className="font-semibold text-base text-slate-800 text-wrap">{cat.name}</h3>
+					{isMatch && (
+						<span className="text-[0.65rem] font-bold text-primary animate-in fade-in shrink-0">
+							← Found
+						</span>
+					)}
 				</div>
-				<p className="text-sm text-muted-foreground leading-relaxed">{CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}</p>
+				<p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+					{CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}
+				</p>
 			</div>
 
-			<div className="w-full sm:w-35 shrink-0">
+			<div className="w-full sm:w-32 shrink-0">
 				<div className="relative">
-					<span className="absolute left-3 top-2.5 text-muted-foreground text-xs font-bold">{m === "percent" ? "%" : "PhP"}</span>
+					<span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-semibold">
+						{m === "percent" ? "%" : "₱"}
+					</span>
 					<Input
 						ref={inputRef}
 						type="number"
+						placeholder="0"
 						className={`
-							pl-8 font-mono text-right
+							pl-8 font-mono text-right text-sm h-9
 							${isMatch ? "ring-2 ring-yellow-400 border-yellow-400" : ""}
+							${hasFilled ? "border-primary/30 font-semibold" : ""}
 						`}
 						value={val || ""}
 						onChange={(e) => {
 							let v = Number.parseFloat(e.target.value);
 							v = Number.isNaN(v) || v < 0 ? 0 : v;
-
 							updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v, "general");
 						}}
 					/>

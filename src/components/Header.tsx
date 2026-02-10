@@ -1,59 +1,48 @@
+import { startTour } from "@/components/Onboarding";
 import { Button } from "@/components/ui/button";
-import { useSidebar } from "@/components/ui/sidebar";
-import { Settings } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 
 export const Header = () => {
-	const { toggleSidebar, isMobile } = useSidebar();
-
 	return (
-		<header className="w-full border-b bg-primary shadow-sm sticky top-0 z-50">
-			<div className="container max-w-5xl mx-auto px-1 md:px-2 py-2 md:py-3">
-				<div className="flex items-center gap-4">
-					<div className="flex flex-col justify-center">
+		<header className="w-full bg-psa-gradient sticky top-0 z-40 shadow-lg shadow-primary/10">
+			<div className="max-w-5xl mx-auto px-4 py-3">
+				<div className="flex items-center justify-between gap-4">
+					<div className="flex items-center gap-3">
 						<img
 							src="/psa_header.png"
-							alt="PSA Header"
-							width={630}
-							height={109}
-							fetchPriority="high"
-							loading="eager"
-							decoding="async"
-							className="w-full lg:max-w-md object-cover"
+							alt="PSA Logo"
+							className="h-9 md:h-10 object-contain"
 						/>
+						{/* <div className="border-l border-white/30 pl-3">
+							<h1 className="text-white font-bold text-sm md:text-base leading-tight tracking-wide">
+								Philippine Statistics Authority
+							</h1>
+							<p className="text-white/70 text-[0.65rem] md:text-xs font-medium tracking-wider uppercase">
+								Personal Inflation Calculator
+							</p>
+						</div> */}
 					</div>
 
-					<div className="flex-1 flex items-center gap-3 justify-end">
+					<div className="flex items-center gap-2">
 						<img
 							src="/bagong_pilipinas_logo.svg"
-							alt="Bagong Pilipinas Logo"
-							width={80}
-							height={80}
-							fetchPriority="high"
-							loading="eager"
-							decoding="async"
-							className="max-w-10 md:max-w-16 lg:max-w-20 object-cover"
+							alt="Bagong Pilipinas"
+							className="h-9 md:h-11 w-auto object-contain"
 						/>
-
 						<Button
-							size={isMobile ? "icon-lg" : "lg"}
-							variant="outline"
-							className="flex flex-row items-center cursor-pointer"
-							onClick={toggleSidebar}
+							size="sm"
+							variant="ghost"
+							className="text-white/90 hover:bg-white/10 hover:text-white gap-1.5 cursor-pointer"
+							onClick={() => startTour()}
 						>
-							<Settings className="h-4 w-4" />
-							{isMobile ? "" : "Controls"}
+							<HelpCircle className="h-4 w-4" />
+							<span className="hidden sm:inline">Help</span>
 						</Button>
 					</div>
 				</div>
 			</div>
-
-			<div className="h-1 w-full bg-white" />
-
-			<div className="h-1 w-full flex">
-				<div className="h-full w-1/3 bg-blue-600"></div>
-				<div className="h-full w-1/3 bg-red-600"></div>
-				<div className="h-full w-1/3 bg-yellow-400"></div>
-			</div>
+			{/* PSA Gold accent line */}
+			<div className="h-1 bg-psa-gold" />
 		</header>
 	);
 };

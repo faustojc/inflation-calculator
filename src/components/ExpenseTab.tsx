@@ -42,20 +42,29 @@ export function ExpenseTab() {
 	}, [commodities]);
 
 	return (
-		<div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
-			<div className="p-4 gap-2 border-b flex justify-between items-center">
+		<div id="detailed-tab" className="space-y-3">
+			<div className="flex justify-between items-center">
 				<div>
-					<h2 className="font-bold text-lg">Detailed Commodities</h2>
-					<p className="text-muted-foreground text-wrap">Expand commodities to add expenses</p>
+					<h2 className="font-bold text-base text-slate-800 flex items-center gap-2">
+						Commodity Breakdown
+					</h2>
+					<p className="text-xs text-muted-foreground">
+						Expand categories to input specific expenses
+					</p>
 				</div>
-
-				<Button className="cursor-pointer" onClick={clearExpenses}>
-					<Trash2 className="h-4 w-4" />
-					Clear
+				<Button
+					variant="outline"
+					size="sm"
+					className="cursor-pointer text-muted-foreground hover:text-destructive hover:border-destructive/30 gap-1.5"
+					onClick={clearExpenses}
+				>
+					<Trash2 className="h-3.5 w-3.5" />
+					Clear All
 				</Button>
 			</div>
-			<div className="overflow-hidden animate-in fade-in slide-in-from-bottom-4 shadow-sm rounded-b-xl border border-t-0 border-slate-200 dark:border-slate-800">
-				<div className="pb-2">
+
+			<div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+				<div className="pb-1">
 					{tree.map((node) => (
 						<ExpenseNode key={node.code} node={node} level={0} />
 					))}
