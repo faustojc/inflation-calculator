@@ -1,14 +1,7 @@
 import HighlightedText from "@/components/HighlightedText";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fuzzyScore, type FuzzyMatch } from "@/lib/fuzzySearch";
@@ -85,10 +78,7 @@ export function SmartSearch() {
 	}, []);
 
 	return (
-		<div
-			className="sticky top-18 sm:top-[85px] z-30 transition-all duration-300"
-			id="smart-search-container"
-		>
+		<div className="sticky top-18 sm:top-[85px] z-30 transition-all duration-300" id="smart-search-container">
 			<Popover open={open} onOpenChange={setOpen} modal={true}>
 				<PopoverTrigger asChild>
 					<Button
@@ -115,11 +105,7 @@ export function SmartSearch() {
 				</PopoverTrigger>
 				<PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
 					<Command shouldFilter={false}>
-						<CommandInput
-							placeholder="Type to search items..."
-							value={query}
-							onValueChange={setQuery}
-						/>
+						<CommandInput placeholder="Type to search items..." value={query} onValueChange={setQuery} />
 						<CommandList>
 							{filteredOptions.length === 0 && query.length >= 2 && (
 								<CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
@@ -137,17 +123,11 @@ export function SmartSearch() {
 										<div className="flex-1 flex flex-col gap-0.5 min-w-0">
 											<div className="flex items-center gap-2 flex-wrap">
 												<span className="font-medium truncate">
-													<HighlightedText
-														text={item.keyword}
-														ranges={match.ranges}
-													/>
+													<HighlightedText text={item.keyword} ranges={match.ranges} />
 												</span>
 											</div>
 											<div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-												<Badge
-													variant="outline"
-													className="px-1.5 gap-1 text-xs font-mono h-5 shrink-0"
-												>
+												<Badge variant="outline" className="px-1.5 gap-1 text-xs font-mono h-5 shrink-0">
 													{item.code}
 												</Badge>
 												<span className="truncate flex items-center gap-1">

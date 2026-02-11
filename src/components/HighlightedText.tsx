@@ -11,10 +11,7 @@ const HighlightedText = ({ text, ranges }: { text: string; ranges: [number, numb
 			parts.push(<span key={`t-${lastIdx}`}>{text.slice(lastIdx, start)}</span>);
 		}
 		parts.push(
-			<mark
-				key={`m-${start}`}
-				className="bg-primary/20 text-primary font-semibold rounded-sm px-0.5"
-			>
+			<mark key={`m-${start}`} className="bg-primary/20 text-primary font-semibold rounded-sm px-0.5">
 				{text.slice(start, end)}
 			</mark>,
 		);
