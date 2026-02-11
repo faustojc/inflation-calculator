@@ -86,23 +86,21 @@ export default function App() {
 				<Header />
 
 				<div className="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
-					{/* Settings panel — controls-first */}
 					<SettingsPanel />
 
-					{/* Smart search */}
 					<SmartSearch />
 
-					{/* Tab content */}
-					<div style={{ display: currTab === "general" ? "block" : "none" }}>
-						<GeneralTab />
-					</div>
+					<div id="commodity-inputs">
+						<div style={{ display: currTab === "general" ? "block" : "none" }}>
+							<GeneralTab />
+						</div>
 
-					<div style={{ display: currTab === "detailed" ? "block" : "none" }}>
-						<ExpenseTab />
+						<div style={{ display: currTab === "detailed" ? "block" : "none" }}>
+							<ExpenseTab />
+						</div>
 					</div>
 				</div>
 
-				{/* Sticky calculate bar — always visible */}
 				<Footer />
 			</div>
 

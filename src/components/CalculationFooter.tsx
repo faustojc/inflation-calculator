@@ -16,7 +16,9 @@ const CalculationFooter = () => {
 					<span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
 						Total Allocation
 					</span>
-					<span className={`text-sm font-bold tabular-nums ${isOverLimit ? "text-destructive" : "text-primary"}`}>
+					<span
+						className={`text-sm font-bold tabular-nums ${isOverLimit ? "text-destructive" : "text-primary"}`}
+					>
 						{currentTotal.toFixed(1)}% / 100%
 					</span>
 				</div>
@@ -45,7 +47,7 @@ const CalculationFooter = () => {
 					Total Monthly Expense
 				</span>
 				<span className="text-sm font-bold text-primary tabular-nums">
-					₱{currentTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+					PhP {currentTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
 				</span>
 			</div>
 		</div>

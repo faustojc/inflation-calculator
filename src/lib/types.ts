@@ -50,8 +50,8 @@ export interface YearlyDataFile {
 }
 
 export interface SearchOption {
+	keyword: string;
+	keywordLower: string;
 	code: string;
-	name: string;
-	depth: number;
-	keywords: string[];
+	commodityName: string;
 }

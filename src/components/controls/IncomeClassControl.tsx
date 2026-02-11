@@ -5,7 +5,10 @@ const IncomeClassControl = () => {
 	const appSettings = settings.get();
 
 	return (
-		<Select value={appSettings.incomeClass} onValueChange={(val) => settings.setKey("incomeClass", val as "all" | "bottom30")}>
+		<Select
+			value={appSettings.incomeClass}
+			onValueChange={(val) => settings.setKey("incomeClass", val as "all" | "bottom30")}
+		>
 			<SelectTrigger>
 				<SelectValue />
 			</SelectTrigger>

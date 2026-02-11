@@ -1,4 +1,12 @@
-import type { AreaDef, AreaHierarchy, CommodityDef, DataIndex, SearchOption, TreeNode, YearlyDataFile } from "@/lib/types";
+import type {
+	AreaDef,
+	AreaHierarchy,
+	CommodityDef,
+	DataIndex,
+	SearchOption,
+	TreeNode,
+	YearlyDataFile,
+} from "@/lib/types";
 import { FILE_CACHE, formatLocationName, WEIGHTS_CACHE } from "@/utils/metadata";
 import { fetchWithCache } from "@/utils/storage";
 import { computed, map } from "nanostores";
@@ -82,23 +90,31 @@ export async function initializeApp() {
 		}
 
 		const searchOptions: SearchOption[] = [];
-		const flattenForSearch = (nodes: CommodityDef[], depth: number) => {
+		const seen = new Set<string>();
+		const extractKeywords = (nodes: CommodityDef[]) => {
 			for (const node of nodes) {
-				searchOptions.push({
-					code: node.code,
-					name: node.name,
-					depth: depth,
-					keywords: node.keywords || [],
-				});
+				if (node.keywords) {
+					for (const kw of node.keywords) {
+						const dedupeKey = `${node.code}|${kw}`;
+						if (seen.has(dedupeKey)) continue;
+						seen.add(dedupeKey);
+
+						searchOptions.push({
+							keyword: kw,
+							keywordLower: kw.toLowerCase(),
+							code: node.code,
+							commodityName: node.name,
+						});
+					}
+				}
 
 				if (node.children) {
-					flattenForSearch(node.children, depth + 1);
+					extractKeywords(node.children);
 				}
 			}
 		};
 
-		flattenForSearch(commodities, 0);
-		searchOptions.sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+		extractKeywords(commodities);
 
 		meta.areas.forEach((area) => {
 			area.name = formatLocationName(area.name);
@@ -126,7 +142,11 @@ export async function initializeApp() {
 	}
 }
 
-export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<DataIndex> {
+export async function getCalculationData(
+	areaKeys: string[],
+	startYear: number,
+	endYear: number,
+): Promise<DataIndex> {
 	const uniqueKeys = new Set<string>();
 	for (const key of areaKeys) {
 		for (let y = startYear; y <= endYear; y++) {
@@ -246,7 +266,12 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 		if (selectedArea.cityId === undefined) {
 			province = selectedArea;
 		} else {
-			province = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === selectedArea.provinceId && a.cityId === undefined);
+			province = areas.find(
+				(a) =>
+					a.regionId === selectedArea.regionId &&
+					a.provinceId === selectedArea.provinceId &&
+					a.cityId === undefined,
+			);
 		}
 	}
 
@@ -257,12 +282,6 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 		ncr,
 		province,
 	};
-}
-
-export function getDisplayLabel(item: SearchOption): string {
-	if (item.depth <= 1) return item.name;
-	if (!item.code.includes(".")) return item.name;
-	return `\u00A0\u00A0↳ ${item.name}`;
 }
 
 export const commodityTree = computed(dataStore, (state) => {
@@ -305,5 +324,7 @@ export const commodityTree = computed(dataStore, (state) => {
 });
 
 export const majorCategories = computed(dataStore, (state) => {
-	return state.commodities.filter((c) => !c.code.includes(".")).sort((a, b) => a.code.localeCompare(b.code));
+	return state.commodities
+		.filter((c) => !c.code.includes("."))
+		.sort((a, b) => a.code.localeCompare(b.code));
 });

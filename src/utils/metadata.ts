@@ -1,5 +1,19 @@
 import type { YearlyDataFile } from "@/lib/types";
-export const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+import type { KeyboardEvent } from "react";
+export const MONTHS = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December",
+];
 
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"01": "e.g. rice, meat, fish, vegetables, fruits, sugar, milk, soft drinks, coffee",
@@ -27,14 +41,20 @@ export function formatLocationName(str: string, locale = "en") {
 	});
 
 	const exceptions = ["de", "del", "la", "las", "los", "y", "and", "of", "in"];
-	str = str.replaceAll(new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"), function (match: string, offset: number) {
-		return offset === 0 ? match : match.toLowerCase();
-	});
+	str = str.replaceAll(
+		new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"),
+		function (match: string, offset: number) {
+			return offset === 0 ? match : match.toLowerCase();
+		},
+	);
 
 	// Fix Roman numerals (Iii -> III, Iv -> IV)
-	str = str.replaceAll(/\b(i{1,3}|iv|v|vi{1,3}|vii{1,3}|viii|ix|x|xi{1,2}|xii|xiii)(-[a-z])?\b/gi, function (match: string) {
-		return match.toUpperCase();
-	});
+	str = str.replaceAll(
+		/\b(i{1,3}|iv|v|vi{1,3}|vii{1,3}|viii|ix|x|xi{1,2}|xii|xiii)(-[a-z])?\b/gi,
+		function (match: string) {
+			return match.toUpperCase();
+		},
+	);
 
 	// Handle parentheses: Uppercase if acronym of name, otherwise keep Title Case
 	str = str.replaceAll(/\(([^)]+)\)/g, function (match, inner, offset, fullString) {
@@ -60,4 +80,10 @@ export function formatLocationName(str: string, locale = "en") {
 	});
 
 	return str;
+}
+
+export function preventNonNumeric(e: KeyboardEvent<HTMLInputElement>) {
+	if (e.key === "e" || e.key === "+" || e.key === "-") {
+		e.preventDefault();
+	}
 }

@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+	CommandSeparator,
+} from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { dataStore } from "@/stores/dataStore";
@@ -31,12 +39,20 @@ const LocationControl = () => {
 			grouped[area.regionId] ??= [];
 
 			if (area.key.toLowerCase() === "ncr") {
-				grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
+				grouped[area.regionId]!.push({
+					key: area.key,
+					regionName: area.name,
+					areaName: area.name,
+				});
 				continue;
 			}
 
 			if (area.cityId === undefined && area.provinceId === undefined) {
-				grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
+				grouped[area.regionId]!.push({
+					key: area.key,
+					regionName: area.name,
+					areaName: area.name,
+				});
 			} else {
 				grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
 			}
@@ -66,7 +82,12 @@ const LocationControl = () => {
 	return (
 		<Popover open={openProvince} onOpenChange={setOpenProvince} modal={true}>
 			<PopoverTrigger asChild>
-				<Button variant="outline" role="combobox" aria-expanded={openProvince} className="w-full justify-between font-medium truncate">
+				<Button
+					variant="outline"
+					role="combobox"
+					aria-expanded={openProvince}
+					className="w-full justify-between font-medium truncate"
+				>
 					{selectArea || "Select Location..."}
 					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
@@ -84,7 +105,12 @@ const LocationControl = () => {
 								return (
 									<CommandGroup key={region + i} heading={ncr.regionName}>
 										<CommandItem key={ncr.key} value={ncr.areaName} onSelect={(key) => handleAreaSelect(key)}>
-											<Check className={cn("mr-2 h-4 w-4", selectArea === ncr.areaName ? "opacity-100" : "opacity-0")} />
+											<Check
+												className={cn(
+													"mr-2 h-4 w-4",
+													selectArea === ncr.areaName ? "opacity-100" : "opacity-0",
+												)}
+											/>
 											{ncr.areaName}
 										</CommandItem>
 									</CommandGroup>
@@ -97,8 +123,17 @@ const LocationControl = () => {
 										{areas
 											.filter((a) => a.regionName === undefined)
 											.map((a) => (
-												<CommandItem key={a.key} value={a.areaName} onSelect={(key) => handleAreaSelect(key)}>
-													<Check className={cn("mr-2 h-4 w-4", selectArea === a.areaName ? "opacity-100" : "opacity-0")} />
+												<CommandItem
+													key={a.key}
+													value={a.areaName}
+													onSelect={(key) => handleAreaSelect(key)}
+												>
+													<Check
+														className={cn(
+															"mr-2 h-4 w-4",
+															selectArea === a.areaName ? "opacity-100" : "opacity-0",
+														)}
+													/>
 													{a.areaName}
 												</CommandItem>
 											))}

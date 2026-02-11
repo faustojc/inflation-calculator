@@ -53,9 +53,12 @@ export const calculationResult = map<{
 
 export const generalExpenses = map<Record<string, ExpenseItem>>({});
 export const detailedExpenses = map<Record<string, ExpenseItem>>({});
-export const expenses = computed([activeTab, generalExpenses, detailedExpenses], (tab, general, detailed) => {
-	return tab === "general" ? general : detailed;
-});
+export const expenses = computed(
+	[activeTab, generalExpenses, detailedExpenses],
+	(tab, general, detailed) => {
+		return tab === "general" ? general : detailed;
+	},
+);
 export const expandedNodes = map<Record<string, boolean>>({});
 
 // for fast lookup of parent nodes
@@ -79,7 +82,11 @@ export function buildSearchIndex() {
 export function initializeExpenses() {
 	const { commodities } = dataStore.get();
 
-	if (Object.keys(generalExpenses.get()).length > 0 || Object.keys(detailedExpenses.get()).length > 0) return;
+	if (
+		Object.keys(generalExpenses.get()).length > 0 ||
+		Object.keys(detailedExpenses.get()).length > 0
+	)
+		return;
 
 	const initialExpenses: Record<string, ExpenseItem> = {};
 
@@ -169,7 +176,12 @@ export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: n
 	}
 }
 
-export function updateExpenseValue(code: string, name: string, newValue: number, target?: "general" | "detailed") {
+export function updateExpenseValue(
+	code: string,
+	name: string,
+	newValue: number,
+	target?: "general" | "detailed",
+) {
 	const currentTab = target || activeTab.get();
 	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
 	const current = targetStore.get();
@@ -203,19 +215,24 @@ export const totalAllocation = computed(expenses, (items) => {
 	return Object.values(items).reduce((sum, item) => sum + item.value, 0);
 });
 
-export const isCalculationDisabled = computed([expenses, mode, totalAllocation], (items, mode, total) => {
-	if (mode === "percent" && total != 100) return true;
+export const isCalculationDisabled = computed(
+	[expenses, mode, totalAllocation],
+	(items, mode, total) => {
+		if (mode === "percent" && total != 100) return true;
 
-	const hasExpense = Object.values(items).some((i) => i.value > 0);
-	return !hasExpense;
-});
+		const hasExpense = Object.values(items).some((i) => i.value > 0);
+		return !hasExpense;
+	},
+);
 
 export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) => {
 	if (m === "percent") {
 		const isOver = total > 100.01;
 		return {
 			text: `Used: ${total.toFixed(1)}%`,
-			colorClass: isOver ? "bg-red-100 text-red-600 border-red-200" : "bg-emerald-50 text-emerald-600 border-emerald-200",
+			colorClass: isOver
+				? "bg-red-100 text-red-600 border-red-200"
+				: "bg-emerald-50 text-emerald-600 border-emerald-200",
 			isOver,
 		};
 	} else {

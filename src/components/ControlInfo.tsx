@@ -4,7 +4,7 @@ import { InfoIcon } from "lucide-react";
 const ControlInfo = ({ content }: Readonly<{ content: string }>) => {
 	return (
 		<Popover>
-			<PopoverTrigger>
+			<PopoverTrigger className="cursor-pointer">
 				<InfoIcon className="h-4 w-4 text-primary" />
 			</PopoverTrigger>
 			<PopoverContent className="text-base">{content}</PopoverContent>

@@ -10,20 +10,17 @@ import { Calendar as CalendarIcon, FormIcon, MapPin, Settings2, Users } from "lu
 export function SettingsPanel() {
 	return (
 		<div id="settings-panel" className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 md:p-5 space-y-4">
-			{/* Controls grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-				{/* Location */}
-				<div className="space-y-1.5">
+				<div id="location-control" className="space-y-1.5">
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<MapPin className="h-3.5 w-3.5 text-primary" />
-						Province / City
-						<ControlInfo content="Select the province or city where you usually reside and consume household goods and services." />
+						Location
+						<ControlInfo content="Select the location where you usually reside and consume goods and services." />
 					</Label>
 					<LocationControl />
 				</div>
 
-				{/* Income Bracket */}
-				<div className="space-y-1.5">
+				<div id="income-class-control" className="space-y-1.5">
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<Users className="h-3.5 w-3.5 text-primary" />
 						Income Bracket
@@ -32,8 +29,7 @@ export function SettingsPanel() {
 					<IncomeClassControl />
 				</div>
 
-				{/* Date Period */}
-				<div className="space-y-1.5">
+				<div id="date-control" className="space-y-1.5">
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<CalendarIcon className="h-3.5 w-3.5 text-primary" />
 						Select Period
@@ -42,7 +38,6 @@ export function SettingsPanel() {
 					<DateControl />
 				</div>
 
-				{/* Input Type */}
 				<div className="space-y-1.5" id="input-type-section">
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<Settings2 className="h-3.5 w-3.5 text-primary" />
@@ -53,7 +48,6 @@ export function SettingsPanel() {
 				</div>
 			</div>
 
-			{/* Tab toggle */}
 			<div className="pt-1">
 				<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold mb-1.5">
 					<FormIcon className="h-3.5 w-3.5 text-primary" />

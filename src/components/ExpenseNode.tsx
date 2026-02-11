@@ -1,7 +1,16 @@
 import type { DisplayNode } from "@/components/ExpenseTab";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { categoryTotals, detailedExpenses, expandedNodes, highlightState, mode, toggleExpansion, updateExpenseValue } from "@/stores/inflationStore";
+import {
+	categoryTotals,
+	detailedExpenses,
+	expandedNodes,
+	highlightState,
+	mode,
+	toggleExpansion,
+	updateExpenseValue,
+} from "@/stores/inflationStore";
+import { preventNonNumeric } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
@@ -36,10 +45,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 				ref={rowRef}
 				className={`
 					group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
-					${isMatch
-						? "bg-yellow-50 border-yellow-300 ring-1 ring-inset ring-yellow-400/50"
-						: "border-slate-100 hover:bg-slate-50/80"
-					}
+					${isMatch ? "bg-yellow-50 border-yellow-300 ring-1 ring-inset ring-yellow-400/50" : "border-slate-100 hover:bg-slate-50/80"}
 					${level === 0 ? "bg-slate-50/50" : ""}
 				`}
 				style={{ paddingLeft: `${level * 20 + 12}px` }}
@@ -63,7 +69,9 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 									<PopoverContent className="w-72 p-3 text-sm">{node.description}</PopoverContent>
 								</Popover>
 							)}
-							<p className={`text-sm text-wrap text-left ${level === 0 ? "font-semibold text-slate-800" : "text-slate-600"}`}>
+							<p
+								className={`text-sm text-wrap text-left ${level === 0 ? "font-semibold text-slate-800" : "text-slate-600"}`}
+							>
 								{node.name}
 							</p>
 
@@ -75,36 +83,41 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 						</div>
 					</div>
 
-					<div className="relative">
+					<div className={`relative rounded-xl ${!hasChildren ? "border-2 border-zinc-100" : ""}`}>
 						<span
 							className={`absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold ${hasChildren ? "text-slate-600" : "text-muted-foreground"}`}
 						>
-							{hasChildren
-								? "="
-								: currMode === "percent"
-									? "%"
-									: "₱"}
+							{hasChildren ? "=" : currMode === "percent" ? "%" : "PhP"}
 						</span>
 
 						{hasChildren ? (
-							<div className="h-8 pl-6 pr-3 flex items-center justify-end text-sm font-semibold text-slate-700 bg-slate-100/80 rounded-md tabular-nums">
-								{displayValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+							<div className="h-8 pl-6 pr-3 flex items-center justify-end text-sm font-semibold text-slate-700 bg-slate-200 rounded-md tabular-nums">
+								{displayValue.toLocaleString(undefined, {
+									maximumFractionDigits: 2,
+								})}
 							</div>
 						) : (
 							<Input
 								ref={inputRef}
 								type="number"
-								className={`h-8 pl-6 text-right font-mono text-sm transition-all ${
-									isMatch ? "ring-2 ring-yellow-400 border-yellow-400 bg-white scale-105"
-									: displayValue > 0 ? "bg-primary/5 border-primary/20 font-semibold"
-									: "bg-transparent border-transparent hover:border-slate-200 hover:bg-white"
+								className={`h-8 pl-6 text-right font-mono text-sm transition-all${
+									isMatch
+										? "ring-2 ring-yellow-400 border-yellow-400 bg-white scale-105"
+										: displayValue > 0
+											? "bg-primary/5 border-primary/20 font-semibold"
+											: "bg-transparent border-transparent hover:border-slate-200 hover:bg-white"
 								}`}
 								placeholder="-"
 								value={displayValue || ""}
 								min={0}
+								max={500000}
+								onKeyDown={preventNonNumeric}
 								onChange={(e) => {
-									const v = Number.parseFloat(e.target.value);
+									let v = Number.parseFloat(e.target.value);
 									if (v < 0 || (currMode === "percent" && v > 100)) return;
+
+									currMode === "percent" ? (v = v > 100 ? 100 : v) : (v = v > 500000 ? 500000 : v);
+
 									updateExpenseValue(node.code, node.name, Number.isNaN(v) ? 0 : v, "detailed");
 								}}
 							/>
