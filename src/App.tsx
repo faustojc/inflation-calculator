@@ -45,7 +45,7 @@ export default function App() {
 			buildSearchIndex();
 
 			dataStore.setKey("isLoading", false);
-			dataStore.setKey("isReady", true);
+      dataStore.setKey("isReady", true);
 		});
 	}, []);
 

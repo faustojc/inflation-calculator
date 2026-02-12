@@ -8,11 +8,7 @@ export const Header = () => {
 			<div className="max-w-5xl mx-auto px-4 py-3">
 				<div className="flex items-center justify-between gap-4">
 					<div className="flex items-center gap-3">
-						<img
-							src="/psa_header.png"
-							alt="PSA Logo"
-							className="h-9 md:h-10 object-contain"
-						/>
+						<img src="/psa_header.png" alt="PSA Logo" className="h-12 md:h-14 object-contain" />
 						{/* <div className="border-l border-white/30 pl-3">
 							<h1 className="text-white font-bold text-sm md:text-base leading-tight tracking-wide">
 								Philippine Statistics Authority
@@ -27,15 +23,15 @@ export const Header = () => {
 						<img
 							src="/bagong_pilipinas_logo.svg"
 							alt="Bagong Pilipinas"
-							className="h-9 md:h-11 w-auto object-contain"
+							className="h-12 md:h-14 w-auto object-contain"
 						/>
 						<Button
-							size="sm"
+							size="lg"
 							variant="ghost"
 							className="text-white/90 hover:bg-white/10 hover:text-white gap-1.5 cursor-pointer"
 							onClick={() => startTour()}
 						>
-							<HelpCircle className="h-4 w-4" />
+							<HelpCircle className="h-6 w-6" />
 							<span className="hidden sm:inline">Help</span>
 						</Button>
 					</div>

@@ -38,7 +38,7 @@ export function SettingsPanel() {
 					<DateControl />
 				</div>
 
-				<div className="space-y-1.5" id="input-type-section">
+				<div id="input-type-section" className="space-y-1.5">
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<Settings2 className="h-3.5 w-3.5 text-primary" />
 						Input Type
@@ -48,8 +48,8 @@ export function SettingsPanel() {
 				</div>
 			</div>
 
-			<div className="pt-1">
-				<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold mb-1.5">
+			<div id="tab-control" className="space-y-1.5">
+				<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 					<FormIcon className="h-3.5 w-3.5 text-primary" />
 					Commodity Group
 					<ControlInfo content="General shows 13 broad categories. Detailed lets you drill into specific items for more accurate results." />

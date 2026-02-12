@@ -113,11 +113,11 @@ export const startTour = () => {
 
 export const Onboarding = () => {
 	useEffect(() => {
-		const hasSeenTour = localStorage.getItem("has_seen_onboarding");
+		const hasSeenTour = localStorage.getItem("first_time_visit");
 		if (!hasSeenTour) {
 			setTimeout(() => {
 				startTour();
-				localStorage.setItem("has_seen_onboarding", "true");
+				localStorage.setItem("first_time_visit", "true");
 			}, 1000);
 		}
 	}, []);

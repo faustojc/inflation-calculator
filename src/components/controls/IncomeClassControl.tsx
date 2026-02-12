@@ -9,7 +9,7 @@ const IncomeClassControl = () => {
 			value={appSettings.incomeClass}
 			onValueChange={(val) => settings.setKey("incomeClass", val as "all" | "bottom30")}
 		>
-			<SelectTrigger>
+			<SelectTrigger className="w-full">
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent>

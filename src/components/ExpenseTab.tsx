@@ -1,10 +1,8 @@
+import ClearButton from "@/components/ClearButton";
 import ExpenseNode from "@/components/ExpenseNode";
-import { Button } from "@/components/ui/button";
 import type { CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
-import { clearExpenses } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
-import { Trash2 } from "lucide-react";
 import { useMemo } from "react";
 
 export type DisplayNode = {
@@ -45,22 +43,10 @@ export function ExpenseTab() {
 		<div id="detailed-tab" className="space-y-3">
 			<div className="flex justify-between items-center">
 				<div>
-					<h2 className="font-bold text-base text-slate-800 flex items-center gap-2">
-						Commodity Breakdown
-					</h2>
-					<p className="text-xs text-muted-foreground">
-						Expand categories to input specific expenses
-					</p>
+					<h2 className="font-bold text-base text-slate-800 flex items-center gap-2">Commodity Breakdown</h2>
+					<p className="text-xs text-muted-foreground">Expand categories to input specific expenses</p>
 				</div>
-				<Button
-					variant="outline"
-					size="sm"
-					className="cursor-pointer text-muted-foreground hover:text-destructive hover:border-destructive/30 gap-1.5"
-					onClick={clearExpenses}
-				>
-					<Trash2 className="h-3.5 w-3.5" />
-					Clear All
-				</Button>
+				<ClearButton />
 			</div>
 
 			<div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">

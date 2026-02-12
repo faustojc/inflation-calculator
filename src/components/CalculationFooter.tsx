@@ -13,7 +13,7 @@ const CalculationFooter = () => {
 		return (
 			<div className="mb-3 space-y-1.5">
 				<div className="flex justify-between items-center">
-					<span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Allocation</span>
+					<span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Total Allocation</span>
 					<span className={`text-sm font-bold tabular-nums ${isOverLimit ? "text-destructive" : "text-primary"}`}>
 						{currentTotal.toFixed(1)}% / 100%
 					</span>
@@ -35,7 +35,7 @@ const CalculationFooter = () => {
 	return (
 		<div className="mb-3">
 			<div className="flex justify-between items-center">
-				<span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+				<span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
 					Total Monthly Expense
 				</span>
 				<span className="text-sm font-bold text-primary tabular-nums">

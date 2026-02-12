@@ -3,7 +3,7 @@ import type { CommodityDef } from "@/lib/types";
 import { generalExpenses, highlightState, mode, updateExpenseValue } from "@/stores/inflationStore";
 import { CATEGORY_DESCRIPTIONS, preventNonNumeric } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 	const items = useStore(generalExpenses);
@@ -13,8 +13,8 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 	const rowRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const [value, setValue] = useState(items[cat.code]?.value || 0);
-
+	const catValue = items[cat.code]?.value || 0;
+	const value = catValue > 500000 ? 500000 : catValue;
 	const isMatch = highlight?.code === cat.code;
 	const hasFilled = value > 0;
 
@@ -78,7 +78,6 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 							m === "percent" ? (v = v > 100 ? 100 : v) : (v = v > 500000 ? 500000 : v);
 							v = Number.isNaN(v) ? 0 : v;
 
-							setValue(v);
 							updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v, "general");
 						}}
 					/>

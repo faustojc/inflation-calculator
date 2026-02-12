@@ -43,23 +43,24 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 		<div className="w-full">
 			<div
 				ref={rowRef}
-				className={`
-					group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
+				className={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
 					${isMatch ? "bg-yellow-50 border-yellow-300 ring-1 ring-inset ring-yellow-400/50" : "border-slate-100 hover:bg-slate-50/80"}
 					${level === 0 ? "bg-slate-50/50" : ""}
 				`}
 				style={{ paddingLeft: `${level * 20 + 12}px` }}
 			>
-				<button
-					onClick={() => toggleExpansion(node.code)}
-					disabled={!hasChildren}
-					className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary/60 hover:text-primary hover:bg-primary/10 cursor-pointer" : "text-transparent w-5"}`}
-				>
-					{hasChildren && (isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />)}
-				</button>
+				{hasChildren && (
+					<button
+						onClick={() => toggleExpansion(node.code)}
+						disabled={!hasChildren}
+						className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary/60 hover:text-primary hover:bg-primary/10 cursor-pointer" : "text-transparent w-5"}`}
+					>
+						{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+					</button>
+				)}
 
-				<div className="grid grid-cols-3 items-center w-full gap-2">
-					<div className="col-span-2">
+				<div className="grid grid-cols-5 items-center w-full gap-2">
+					<div className="col-span-3">
 						<div className="flex items-center gap-2">
 							{node.description && (
 								<Popover>
@@ -83,7 +84,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 						</div>
 					</div>
 
-					<div className={`relative rounded-xl ${!hasChildren ? "border-2 border-zinc-100" : ""}`}>
+					<div className={`col-span-2 relative rounded-xl ${!hasChildren ? "border-2 border-zinc-100" : ""}`}>
 						<span
 							className={`absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold ${hasChildren ? "text-slate-600" : "text-muted-foreground"}`}
 						>
