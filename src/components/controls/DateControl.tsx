@@ -6,17 +6,30 @@ import { dataStore } from "@/stores/dataStore";
 import { settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const DateControl = () => {
 	const appSettings = settings.get();
-	const { availableYears, areaYearsMap } = dataStore.get();
+	const { areaYearsMap } = dataStore.get();
 
 	const [openYear, setOpenYear] = useState(false);
 	const [month, setMonth] = useState(MONTHS[appSettings.startDate.getMonth()]);
 
-	const areaAvailableYears = new Set(areaYearsMap[appSettings.areaKey] || []);
+	const areaAvailableYears = useMemo(() => {
+		const years = areaYearsMap[appSettings.areaKey] || [];
+		if (years.length === 0) return new Set<number>();
+
+		const minYear = Math.min(...years.map(Number));
+		const maxYear = Math.max(...years.map(Number));
+
+		const set = new Set<number>();
+		for (let year = maxYear; year >= minYear; year--) {
+			set.add(year);
+		}
+
+		return set;
+	}, [areaYearsMap, appSettings.areaKey]);
 
 	const handleMonthChange = (m: string) => {
 		setMonth(m);
@@ -37,10 +50,9 @@ const DateControl = () => {
 
 	return (
 		<div className="flex gap-4">
-			<div className="space-y-1">
-				<span className="text-xs text-muted-foreground">Month</span>
+			<div className="w-full">
 				<Select value={month} onValueChange={handleMonthChange}>
-					<SelectTrigger>
+					<SelectTrigger className="w-full">
 						<SelectValue placeholder="Month" />
 					</SelectTrigger>
 					<SelectContent>
@@ -51,13 +63,18 @@ const DateControl = () => {
 						))}
 					</SelectContent>
 				</Select>
+				<span className="text-xs text-center text-muted-foreground">Month</span>
 			</div>
 
-			<div className="space-y-1">
-				<span className="text-xs text-muted-foreground">Year</span>
+			<div className="w-full">
 				<Popover open={openYear} onOpenChange={setOpenYear}>
 					<PopoverTrigger asChild>
-						<Button variant="outline" role="combobox" aria-expanded={openYear} className="w-full justify-between font-normal">
+						<Button
+							variant="outline"
+							role="combobox"
+							aria-expanded={openYear}
+							className="w-full justify-between font-normal"
+						>
 							{appSettings.startDate.getFullYear()}
 							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 						</Button>
@@ -68,26 +85,24 @@ const DateControl = () => {
 							<CommandList>
 								<CommandEmpty>No year found.</CommandEmpty>
 								<CommandGroup className="max-h-62.5 overflow-y-auto">
-									{availableYears.map((year, i) => {
-										const yearNum = Number(year);
-										const isUnavailable = areaAvailableYears.size > 0 && !areaAvailableYears.has(yearNum);
-										const isBaseYear = i === availableYears.length - 1;
+									{Array.from(areaAvailableYears).map((year, i) => {
+										const isBaseYear = i === areaAvailableYears.size - 1;
 										return (
 											<CommandItem
 												key={year}
-												value={year}
-												disabled={isUnavailable || isBaseYear}
+												value={year.toString()}
+												disabled={isBaseYear}
 												onSelect={handleYearChange}
-												className={isUnavailable ? "opacity-50" : ""}
 											>
 												<Check
 													className={cn(
 														"mr-2 h-4 w-4",
-														appSettings.startDate.getFullYear().toString() === year ? "opacity-100" : "opacity-0",
+														appSettings.startDate.getFullYear() === year
+															? "opacity-100"
+															: "opacity-0",
 													)}
 												/>
 												{year}
-												{isUnavailable && <span className="ml-auto text-xs text-muted-foreground">No data</span>}
 											</CommandItem>
 										);
 									})}
@@ -96,6 +111,7 @@ const DateControl = () => {
 						</Command>
 					</PopoverContent>
 				</Popover>
+				<span className="text-xs text-muted-foreground">Year</span>
 			</div>
 		</div>
 	);
