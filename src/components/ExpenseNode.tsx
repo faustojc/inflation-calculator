@@ -10,7 +10,7 @@ import {
 	toggleExpansion,
 	updateExpenseValue,
 } from "@/stores/inflationStore";
-import { preventNonNumeric } from "@/utils/metadata";
+import { getLimitValue, preventNonNumeric } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
@@ -117,7 +117,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 									let v = Number.parseFloat(e.target.value);
 									if (v < 0 || (currMode === "percent" && v > 100)) return;
 
-									currMode === "percent" ? (v = v > 100 ? 100 : v) : (v = v > 500000 ? 500000 : v);
+									v = Number.isNaN(v) ? 0 : getLimitValue(currMode, v);
 
 									updateExpenseValue(node.code, node.name, Number.isNaN(v) ? 0 : v, "detailed");
 								}}

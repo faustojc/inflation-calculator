@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import type { CommodityDef } from "@/lib/types";
 import { generalExpenses, highlightState, mode, updateExpenseValue } from "@/stores/inflationStore";
-import { CATEGORY_DESCRIPTIONS, preventNonNumeric } from "@/utils/metadata";
+import { CATEGORY_DESCRIPTIONS, getLimitValue, preventNonNumeric } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { useEffect, useRef } from "react";
 
@@ -13,8 +13,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 	const rowRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const catValue = items[cat.code]?.value || 0;
-	const value = catValue > 500000 ? 500000 : catValue;
+	const value = getLimitValue(m, items[cat.code]?.value || 0);
 	const isMatch = highlight?.code === cat.code;
 	const hasFilled = value > 0;
 
@@ -75,8 +74,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 							let v = Number.parseFloat(e.target.value);
 							if (v < 0 || (m === "percent" && v > 100)) return;
 
-							m === "percent" ? (v = v > 100 ? 100 : v) : (v = v > 500000 ? 500000 : v);
-							v = Number.isNaN(v) ? 0 : v;
+							v = Number.isNaN(v) ? 0 : getLimitValue(m, v);
 
 							updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v, "general");
 						}}

@@ -205,21 +205,20 @@ html.font-xl {
 	background-color: #ffffff;
 	border-radius: 16px;
 	padding: 24px 28px;
-	min-width: 300px;
-	max-width: 420px;
 	box-shadow:
 		0 8px 32px rgba(0, 56, 168, 0.12),
 		0 2px 8px rgba(0, 0, 0, 0.06);
 	border: 1px solid rgba(0, 56, 168, 0.08);
-}
-
-.driver-popover * {
 	font-family:
 		"Inter",
 		"Segoe UI",
 		system-ui,
 		-apple-system,
 		sans-serif;
+}
+
+.driver-popover {
+	max-width: var(--container-md) !important;
 }
 
 /* Title */
@@ -277,25 +276,10 @@ html.font-xl {
 
 /* Progress text */
 .driver-popover-progress-text {
-	font-size: 0.8rem;
+	font-size: 0.95rem !important;
 	font-weight: 500;
-	color: #94a3b8;
+	color: #000000;
 	letter-spacing: 0.02em;
-}
-
-/* Buttons base */
-.driver-popover-footer button {
-	font-size: 0.85rem;
-	font-weight: 600;
-	padding: 8px 18px;
-	border-radius: 10px;
-	border: 1.5px solid #e2e8f0;
-	color: #475569;
-	background-color: #ffffff;
-	transition: all 0.15s ease;
-	cursor: pointer;
-	line-height: 1.4;
-	letter-spacing: 0.01em;
 }
 
 .driver-popover-footer button:hover,
@@ -309,8 +293,22 @@ html.font-xl {
 .driver-popover-navigation-btns button:last-child {
 	background: linear-gradient(135deg, #054288 0%, #0038a8 100%);
 	color: #ffffff;
-	border-color: transparent;
+	border-color: #cbd5e1;
+	border-radius: 30px;
 	box-shadow: 0 2px 8px rgba(0, 56, 168, 0.25);
+}
+
+/* Previous button */
+.driver-popover-navigation-btns button:first-child {
+	color: #000000;
+	border-color: #cbd5e1;
+	border-radius: 30px;
+	box-shadow: 0 2px 8px rgba(0, 56, 168, 0.25);
+	padding: 10px 24px;
+	min-height: 35px;
+	font-size: 0.95rem;
+	line-height: 1.4;
+	letter-spacing: 0.02em;
 }
 
 .driver-popover-navigation-btns button:last-child:hover,
@@ -326,6 +324,18 @@ html.font-xl {
 }
 
 .driver-popover-navigation-btns button + button {
+	font-size: 0.95rem;
+	font-weight: 600;
+	padding: 10px 24px;
+	min-height: 35px;
+	border-radius: 30px;
+	border: 1.5px solid #e2e8f0;
+	color: #475569;
+	background-color: #ffffff;
+	transition: all 0.15s ease;
+	cursor: pointer;
+	line-height: 1.4;
+	letter-spacing: 0.01em;
 	margin-left: 0;
 }
 

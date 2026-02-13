@@ -1,8 +1,16 @@
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { useStore } from "@nanostores/react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
-import { useEffect } from "react";
+import { BarChart3, BookOpen, Calculator, TrendingUp } from "lucide-react";
+import { atom } from "nanostores";
+import { useCallback, useEffect } from "react";
 
-export const startTour = () => {
+export const openOnboarding = atom(false);
+
+const startTour = () => {
 	const driverObj = driver({
 		showProgress: true,
 		animate: true,
@@ -10,21 +18,11 @@ export const startTour = () => {
 		stagePadding: 12,
 		stageRadius: 12,
 		popoverOffset: 16,
-		nextBtnText: "Next →",
-		prevBtnText: "← Back",
+		nextBtnText: "Next",
+		prevBtnText: "Back",
 		doneBtnText: "Get Started ✓",
 		progressText: "{{current}} of {{total}}",
 		steps: [
-			{
-				element: "#none",
-				popover: {
-					title: "Welcome! 👋",
-					description:
-						"This tool calculates your <strong>personal inflation rate</strong> based on your spending habits, compared to official PSA data. Let's walk through how it works.",
-					side: "bottom",
-					align: "start",
-				},
-			},
 			{
 				element: "#settings-panel",
 				popover: {
@@ -37,8 +35,8 @@ export const startTour = () => {
 			{
 				element: "#location-control",
 				popover: {
-					title: "📍 Select Location",
-					description: "Choose the location where you usually reside and consume/purchase goods and services.",
+					title: "📍 Choose your Province/City",
+					description: "This must be the area where you usually buy or consume household goods and services.",
 					side: "bottom",
 				},
 			},
@@ -47,34 +45,34 @@ export const startTour = () => {
 				popover: {
 					title: "💰 Select Income Bracket",
 					description:
-						"Select which consumer group you want your personal inflation to be computed and compared. Currently, only <strong>'All Income Households'</strong> is available.",
+						"This is the consumer group which you want your personal inflation to be computed and compared. Currently, <strong>'All Income Households'</strong> is enabled while the <strong>Bottom 30% Income Households</strong> and other income deciles will be available in the future",
 					side: "bottom",
 				},
 			},
 			{
 				element: "#date-control",
 				popover: {
-					title: "📅 Select Date",
+					title: "📅 Select Month and Year",
 					description:
-						"Select the month and year for inflation computation. By default, the latest month and year with available data is selected.",
+						"This is the reference period you prefer the personal inflation rate to be computed. By default, the month and year selected refer to the <strong>latest reference period</strong> with available <strong>official data on CPI and inflation rate</strong>.",
 					side: "bottom",
 				},
 			},
 			{
 				element: "#input-type-section",
 				popover: {
-					title: "📝 Choose Input Method",
+					title: "📝 Select the Input Type",
 					description:
-						"Enter expenses as <strong>exact amounts in PhP</strong>, or as <strong>percentage shares</strong> of your total budget — whichever is easier for you.",
+						"Choose <strong>Amount</strong> if you want to input your monthly expenditure for each commodity group, and <strong>Percent</strong> if you want to input the percentage of your monthly expenditure allotted for each commodity group.",
 					side: "bottom",
 				},
 			},
 			{
 				element: "#tab-control",
 				popover: {
-					title: "📊 General vs. Detailed",
+					title: "📊 Select the Commodity Group",
 					description:
-						"<strong>General</strong> has 13 broad categories for quick input. <strong>Detailed</strong> lets you drill into specific items for more accurate results.",
+						"If <strong>General</strong> is selected, the inputs will be asked for the 13 major commodity groups only. If <strong>Detailed</strong> is selected, the inputs will be asked for specific commodity groups.",
 					side: "top",
 				},
 			},
@@ -83,7 +81,7 @@ export const startTour = () => {
 				popover: {
 					title: "🔍 Find Any Item Quickly",
 					description:
-						"Search for specific goods or services (e.g., <strong>'Rice'</strong>, <strong>'Electricity'</strong>) to locate them instantly in the list.",
+						"Search for specific goods or services (e.g., <strong>'Rice'</strong>, <strong>'Electricity'</strong>) to find items that you regularly purchase and it will be highlighted on which category/commodity it belongs to.",
 					side: "bottom",
 				},
 			},
@@ -91,8 +89,7 @@ export const startTour = () => {
 				element: "#commodity-inputs",
 				popover: {
 					title: "Step 2. Enter Your Monthly Expenses",
-					description:
-						"Enter your <strong>monthly expenses</strong> for each category/commodity. You can use the search bar to find items that you regularly purchase and it will be highlighted on which category/commodity it belongs to.",
+					description: "Enter your <strong>monthly expenses</strong> for each category/commodity.",
 					side: "top",
 				},
 			},
@@ -105,22 +102,153 @@ export const startTour = () => {
 					side: "top",
 				},
 			},
+			{
+				element: "#none",
+				popover: {
+					title: "What is the output?",
+					description:
+						"The output will provide comparison of your computed personal inflation rate with the official inflation rates of the Province/City, Region, and Philippines.  It will also display the commodity groups that contributed the most to the inflation rate.",
+					side: "bottom",
+					align: "start",
+				},
+			},
 		],
 	});
 
 	driverObj.drive();
 };
 
+export const showOnboarding = () => {
+	openOnboarding.set(true);
+};
+
 export const Onboarding = () => {
+	const open = useStore(openOnboarding);
+
+	// First-time visitors: auto-open the welcome modal
 	useEffect(() => {
 		const hasSeenTour = localStorage.getItem("first_time_visit");
 		if (!hasSeenTour) {
-			setTimeout(() => {
-				startTour();
-				localStorage.setItem("first_time_visit", "true");
-			}, 1000);
+			setTimeout(() => openOnboarding.set(true), 800);
 		}
 	}, []);
 
-	return null;
+	const handleClose = useCallback(() => {
+		openOnboarding.set(false);
+		localStorage.setItem("first_time_visit", "true");
+
+		setTimeout(() => startTour(), 180);
+	}, []);
+
+	return (
+		<Dialog
+			open={open}
+			onOpenChange={(isOpen) => {
+				if (!isOpen) handleClose();
+			}}
+		>
+			<DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto p-0 gap-0 rounded-2xl">
+				{/* PSA-branded header */}
+				<div className="bg-psa-gradient rounded-t-2xl px-6 pt-6 pb-5">
+					<DialogHeader>
+						<DialogTitle className="text-white text-lg md:text-xl font-bold tracking-tight leading-snug">
+							Determining Your Personal Inflation
+						</DialogTitle>
+					</DialogHeader>
+					<p className="text-white/70 text-xs mt-1 tracking-wide uppercase font-medium">
+						Philippine Statistics Authority
+					</p>
+				</div>
+
+				{/* Content body — structured paragraphs */}
+				<div className="px-6 py-5 space-y-4">
+					{/* What is CPI */}
+					<section className="flex gap-3">
+						<div className="shrink-0 mt-0.5">
+							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<BarChart3 className="h-4 w-4 text-primary" />
+							</div>
+						</div>
+						<div>
+							<h3 className="font-semibold text-sm text-slate-800 mb-1">Consumer Price Index (CPI)</h3>
+							<p className="text-sm text-slate-600 leading-relaxed">
+								The PSA releases monthly CPI data — an indicator of the average change in retail prices of a fixed
+								basket of goods and services commonly purchased by Filipino households. It shows how much, on
+								average, prices have changed from a particular base year (2018 = 100).
+							</p>
+						</div>
+					</section>
+
+					<Separator className="my-1" />
+
+					{/* What is the Inflation rate */}
+					<section className="flex gap-3">
+						<div className="shrink-0 mt-0.5">
+							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<TrendingUp className="h-4 w-4 text-primary" />
+							</div>
+						</div>
+						<div>
+							<h3 className="font-semibold text-sm text-slate-800 mb-1">Inflation Rate</h3>
+							<p className="text-sm text-slate-600 leading-relaxed">
+								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
+								prices have increased or decreased compared to the previous year. Because the CPI reflects the
+								"typical" household, it may not match your personal spending pattern — especially if you spend
+								more on food, rent, transport, tuition, or utilities.
+							</p>
+						</div>
+					</section>
+
+					<Separator className="my-1" />
+
+					{/* What does this tool do */}
+					<section className="flex gap-3">
+						<div className="shrink-0 mt-0.5">
+							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<Calculator className="h-4 w-4 text-primary" />
+							</div>
+						</div>
+						<div>
+							<h3 className="font-semibold text-sm text-slate-800 mb-1">Why This Calculator?</h3>
+							<p className="text-sm text-slate-600 leading-relaxed">
+								The PSA developed this tool so you can estimate <strong>your own inflation rate</strong> based on
+								your actual spending. By entering how you allocate your budget across commodity groups, the
+								calculator produces a personal inflation rate and compares it with official rates for your
+								selected province/city, region, and the Philippines.
+							</p>
+						</div>
+					</section>
+
+					<Separator className="my-1" />
+
+					{/* What the output will show */}
+					<section className="flex gap-3">
+						<div className="shrink-0 mt-0.5">
+							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<BookOpen className="h-4 w-4 text-primary" />
+							</div>
+						</div>
+						<div>
+							<h3 className="font-semibold text-sm text-slate-800 mb-1">What You'll Get</h3>
+							<p className="text-sm text-slate-600 leading-relaxed">
+								Your results will show your computed personal inflation rate alongside official rates, and
+								identify the commodity groups that contribute most to your personal inflation.
+							</p>
+						</div>
+					</section>
+				</div>
+
+				{/* Footer CTA */}
+				<DialogFooter className="px-6 py-4 border-t bg-slate-50/80 rounded-b-2xl">
+					<Button
+						size="lg"
+						className="w-full bg-psa-gradient hover:opacity-90 text-white font-bold py-5 rounded-xl shadow-sm cursor-pointer"
+						onClick={handleClose}
+					>
+						Take the Tour →
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
 };

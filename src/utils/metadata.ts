@@ -1,4 +1,5 @@
 import type { YearlyDataFile } from "@/lib/types";
+import type { Mode } from "@/stores/inflationStore";
 import type { KeyboardEvent } from "react";
 export const MONTHS = [
 	"January",
@@ -87,3 +88,11 @@ export function preventNonNumeric(e: KeyboardEvent<HTMLInputElement>) {
 		e.preventDefault();
 	}
 }
+
+export const getLimitValue = (m: Mode, v: number) => {
+		if (m === "percent") {
+			return (v = v > 100 ? 100 : v);
+		}
+
+		return (v = v > 500000 ? 500000 : v);
+	};

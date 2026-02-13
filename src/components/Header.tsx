@@ -1,4 +1,4 @@
-import { startTour } from "@/components/Onboarding";
+import { showOnboarding } from "@/components/Onboarding";
 import { Button } from "@/components/ui/button";
 import { HelpCircle } from "lucide-react";
 
@@ -29,7 +29,7 @@ export const Header = () => {
 							size="lg"
 							variant="ghost"
 							className="text-white/90 hover:bg-white/10 hover:text-white gap-1.5 cursor-pointer"
-							onClick={() => startTour()}
+							onClick={() => showOnboarding()}
 						>
 							<HelpCircle className="h-6 w-6" />
 							<span className="hidden sm:inline">Help</span>
