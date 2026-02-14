@@ -91,7 +91,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	};
 
 	return (
-		<div className="bg-card p-5 m-0 md:rounded-2xl border-y-2 md:border md:border-border shadow-sm space-y-4">
+		<div className="bg-card/60 backdrop-blur-md p-5 m-0 md:rounded-2xl border-y-2 md:border-2 border-primary/10 shadow-xl shadow-primary/5 space-y-4">
 			<div className="flex flex-col sm:flex-row items-center justify-between">
 				<div className="flex items-center gap-2 text-primary">
 					<TrendingUp className="h-5 w-5" />
@@ -118,7 +118,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 			<div className="h-90 w-full mt-4">
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 12, left: -22, bottom: 0 }}>
-						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+						<CartesianGrid vertical={false} stroke="hsl(var(--muted-foreground) / 0.35)" />
 						<XAxis
 							dataKey="date"
 							tick={{ fontSize: 16, fill: "hsl(var(--muted-foreground))" }}

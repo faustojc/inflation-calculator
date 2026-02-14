@@ -15,6 +15,7 @@ import {
 import { ContributorTable } from "@/components/ContributorTable";
 import { Notes } from "@/components/Notes";
 import { TrendGraph } from "@/components/TrendGraph";
+import { Separator } from "@/components/ui/separator";
 import { calculationResult } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 
@@ -30,10 +31,10 @@ export function ResultsDrawer() {
 
 	return (
 		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
-			<DrawerContent className="h-[95vh] flex flex-col font-sans backdrop-blur-sm">
-				<div className="flex items-center justify-center w-full flex-col h-full rounded-t-3xl overflow-hidden">
+			<DrawerContent className="h-[95vh] flex flex-col font-sans backdrop-blur-xs bg-background/40 border-t-primary/20">
+				<div className="flex items-center justify-center w-full flex-col h-full rounded-t-3xl overflow-hidden bg-transparent">
 					{/* Header */}
-					<DrawerHeader className="text-center w-full pb-3 bg-psa-gradient backdrop-blur-sm">
+					<DrawerHeader className="text-center w-full pb-3 bg-psa-gradient backdrop-blur-md border-b border-white/10 shrink-0">
 						<DrawerTitle className="text-xl md:text-2xl font-bold tracking-tight text-white">
 							Inflation Report
 						</DrawerTitle>
@@ -46,9 +47,9 @@ export function ResultsDrawer() {
 					</DrawerHeader>
 
 					{/* Body */}
-					<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 overflow-y-auto p-3 w-full bg-muted/50">
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 overflow-y-auto p-4 w-full bg-transparent">
 						{/* Personal inflation rate card */}
-						<div className="col-span-3 md:col-span-1 bg-card border border-border p-6 md:p-8 rounded-2xl flex flex-col gap-4 sm:gap-8 items-center justify-center text-center shadow-sm">
+						<div className="col-span-3 md:col-span-1 bg-card/60 backdrop-blur-md border-2 border-primary/10 p-6 md:p-8 rounded-2xl flex flex-col gap-4 sm:gap-8 items-center justify-center text-center shadow-xl shadow-primary/5">
 							<div className="flex flex-col items-center gap-2">
 								<span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
 									Personal Inflation Rate
@@ -63,7 +64,7 @@ export function ResultsDrawer() {
 								</div>
 							</div>
 
-							<div className="w-full h-px bg-border my-4" />
+							<Separator className="bg-foreground" />
 
 							<div className="flex flex-col items-center gap-1">
 								<span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
@@ -83,7 +84,7 @@ export function ResultsDrawer() {
 
 						{/* Contributors */}
 						<div className="col-span-3">
-							<div className="bg-card p-5 rounded-2xl border border-border shadow-sm">
+							<div className="bg-card/60 backdrop-blur-md p-5 rounded-2xl border-2 border-primary/10 shadow-xl shadow-primary/5">
 								<h3 className="font-bold uppercase tracking-wide text-sm sm:text-base text-foreground">
 									Major Contributors to Inflation
 								</h3>
@@ -97,16 +98,14 @@ export function ResultsDrawer() {
 
 						{/* Analysis */}
 						<div className="col-span-3">
-							<div className="bg-card p-5 rounded-2xl border border-border shadow-sm">
+							<div className="bg-card/60 backdrop-blur-md p-5 rounded-2xl border-2 border-primary/10 shadow-xl shadow-primary/5">
 								<div className="flex items-center gap-2 mb-3">
 									<Info className="h-4 w-4 text-primary" />
-									<h3 className="font-bold uppercase tracking-wide text-sm sm:text-base text-foreground">
-										Analysis
-									</h3>
+									<h3 className="font-bold uppercase tracking-wide text-base text-foreground">Analysis</h3>
 								</div>
 								<ul className="list-disc list-inside space-y-2">
 									{interpretation.map((p, i) => (
-										<li key={i} className="text-sm sm:text-base leading-relaxed text-muted-foreground">
+										<li key={i} className="text-base leading-relaxed text-foreground">
 											{p}
 										</li>
 									))}
@@ -115,13 +114,13 @@ export function ResultsDrawer() {
 						</div>
 
 						{/* Notes */}
-						<div className="col-span-3">
+						<div className="col-span-3 space-y-3">
 							<Notes />
 						</div>
 					</div>
 
 					{/* Footer */}
-					<DrawerFooter className="shrink-0 w-full py-4 border-t bg-card">
+					<DrawerFooter className="shrink-0 w-full py-4 border-t border-primary/10 bg-card/85 backdrop-blur-lg">
 						<DrawerClose asChild>
 							<Button
 								size="lg"

@@ -4,9 +4,9 @@ export function Notes() {
 	return (
 		<>
 			{/* DISCLAMER */}
-			<div className="bg-card p-6 m-3 rounded-2xl border border-border shadow">
+			<div className="bg-card/60 backdrop-blur-md p-6 rounded-2xl border-2 border-primary/10 shadow-xl shadow-primary/5">
 				<div className="flex items-center gap-2 mb-3">
-					<Info className="h-4 w-4" />
+					<Info className="h-4 w-4 text-primary" />
 					<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl text-orange-500">Disclamer</h3>
 				</div>
 				<ul className="list-disc list-inside text-justify">
@@ -27,9 +27,9 @@ export function Notes() {
 			</div>
 
 			{/* TECHNICAL NOTES */}
-			<div className="bg-card p-6 m-3 rounded-2xl border border-border shadow">
+			<div className="bg-card/60 backdrop-blur-md p-6 rounded-2xl border-2 border-primary/10 shadow-xl shadow-primary/5">
 				<div className="flex items-center gap-2 mb-3">
-					<Info className="h-4 w-4" />
+					<Info className="h-4 w-4 text-primary" />
 					<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">Technical Notes</h3>
 				</div>
 				<ul className="list-disc list-inside text-justify">
@@ -66,9 +66,9 @@ export function Notes() {
 			</div>
 
 			{/* ADDITIONAL INFORMATION */}
-			<div className="bg-card p-6 m-3 rounded-2xl border border-border shadow">
+			<div className="bg-card/60 backdrop-blur-md p-6 rounded-2xl border-2 border-primary/10 shadow-xl shadow-primary/5">
 				<div className="flex items-center gap-2 mb-3">
-					<Info className="h-4 w-4" />
+					<Info className="h-4 w-4 text-primary" />
 					<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">Additional Information</h3>
 				</div>
 				<ul className="list-disc list-inside">
