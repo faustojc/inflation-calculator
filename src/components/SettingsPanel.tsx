@@ -9,7 +9,7 @@ import { Calendar as CalendarIcon, FormIcon, MapPin, Settings2, Users } from "lu
 
 export function SettingsPanel() {
 	return (
-		<div id="settings-panel" className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 md:p-5 space-y-4">
+		<div id="settings-panel" className="bg-card border border-border rounded-xl shadow-sm p-4 md:p-5 space-y-4">
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 				<div id="location-control" className="space-y-1.5">
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">

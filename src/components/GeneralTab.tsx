@@ -10,7 +10,7 @@ export function GeneralTab() {
 		<div id="general-tab" className="space-y-3">
 			<div className="flex justify-between items-center">
 				<div className="flex items-center gap-2">
-					<h2 className="font-bold text-base text-slate-800">General Categories</h2>
+					<h2 className="font-bold text-base text-foreground">General Categories</h2>
 					<span className="bg-primary/10 text-primary text-xs font-semibold px-2 py-0.5 rounded-full">
 						{categories.length}
 					</span>

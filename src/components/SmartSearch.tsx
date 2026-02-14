@@ -86,7 +86,7 @@ export function SmartSearch() {
 						role="combobox"
 						id="smart-search"
 						aria-expanded={open}
-						className="w-full justify-between text-left font-normal h-14 px-4 bg-white/95 backdrop-blur-sm border-2 border-primary/20 hover:border-primary/50 hover:bg-white shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all rounded-xl group"
+						className="w-full justify-between text-left font-normal h-14 px-4 bg-card/95 backdrop-blur-sm border-2 border-primary/20 hover:border-primary/50 hover:bg-card shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all rounded-xl group"
 					>
 						<span className="flex items-center gap-3 text-muted-foreground group-hover:text-primary transition-colors text-base overflow-hidden">
 							<div className="bg-primary/10 p-1.5 rounded-md group-hover:bg-primary group-hover:text-white transition-all">
@@ -97,14 +97,14 @@ export function SmartSearch() {
 							</span>
 						</span>
 						{!isMobile && (
-							<div className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-xs font-mono text-muted-foreground group-hover:text-primary">
+							<div className="bg-muted px-2 py-0.5 rounded text-xs font-mono text-muted-foreground group-hover:text-primary">
 								Ctrl K
 							</div>
 						)}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
-					<Command shouldFilter={false}>
+					<Command shouldFilter={true}>
 						<CommandInput placeholder="Type to search items..." value={query} onValueChange={setQuery} />
 						<CommandList>
 							{filteredOptions.length === 0 && query.length >= 2 && (
@@ -119,7 +119,7 @@ export function SmartSearch() {
 										value={item.keyword}
 										onSelect={() => handleSelect(item)}
 									>
-										<LucideNavigation className="ml-4 h-4 w-4 text-blue-600 opacity-60 shrink-0" />
+										<LucideNavigation className="ml-4 h-4 w-4 text-primary opacity-60 shrink-0" />
 										<div className="flex-1 flex flex-col gap-0.5 min-w-0">
 											<div className="flex items-center gap-2 flex-wrap">
 												<span className="font-medium truncate">

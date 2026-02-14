@@ -170,8 +170,8 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-slate-800 mb-1">Consumer Price Index (CPI)</h3>
-							<p className="text-base text-slate-600 leading-relaxed">
+							<h3 className="font-semibold text-foreground mb-1">Consumer Price Index (CPI)</h3>
+							<p className="text-base text-muted-foreground leading-relaxed">
 								The PSA releases monthly CPI data — an indicator of the average change in retail prices of a fixed
 								basket of goods and services commonly purchased by Filipino households. It shows how much, on
 								average, prices have changed from a particular base year (2018 = 100).
@@ -189,8 +189,8 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-slate-800 mb-1">Inflation Rate</h3>
-							<p className="text-base text-slate-600 leading-relaxed">
+							<h3 className="font-semibold text-foreground mb-1">Inflation Rate</h3>
+							<p className="text-base text-muted-foreground leading-relaxed">
 								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
 								prices have increased or decreased compared to the previous year. Because the CPI reflects the
 								"typical" household, it may not match your personal spending pattern — especially if you spend
@@ -209,8 +209,8 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-slate-800 mb-1">Why This Calculator?</h3>
-							<p className="text-base text-slate-600 leading-relaxed">
+							<h3 className="font-semibold text-foreground mb-1">Why This Calculator?</h3>
+							<p className="text-base text-muted-foreground leading-relaxed">
 								The PSA developed this tool so you can estimate <strong>your own inflation rate</strong> based on
 								your actual spending. By entering how you allocate your budget across commodity groups, the
 								calculator produces a personal inflation rate and compares it with official rates for your
@@ -229,8 +229,8 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-slate-800 mb-1">What You'll Get</h3>
-							<p className="text-base text-slate-600 leading-relaxed">
+							<h3 className="font-semibold text-foreground mb-1">What You'll Get</h3>
+							<p className="text-base text-muted-foreground leading-relaxed">
 								Your results will show your computed personal inflation rate alongside official rates, and
 								identify the commodity groups that contribute most to your personal inflation.
 							</p>
@@ -247,17 +247,17 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-slate-800 mb-1">How to Use the Personal Inflation Calculator</h3>
-							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-slate-600">
+							<h3 className="font-semibold text-foreground mb-1">How to Use the Personal Inflation Calculator</h3>
+							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-muted-foreground">
 								<li>
 									<strong>Choose your Province/City.</strong>
-									<p className="text-slate-500">
+									<p className="text-muted-foreground">
 										This must be the area where you usually buy or consume household goods and services.
 									</p>
 								</li>
 								<li>
 									<strong>Select the Income Bracket.</strong>
-									<p className="text-slate-500">
+									<p className="text-muted-foreground">
 										This is the consumer group which you want your personal inflation to be computed and
 										compared. Currently, All Income Households is enabled, while the Bottom 30% Income
 										Households and other income deciles will be available in the future.
@@ -265,7 +265,7 @@ export const Onboarding = () => {
 								</li>
 								<li>
 									<strong>Select the Month and Year.</strong>
-									<p className="text-slate-500">
+									<p className="text-muted-foreground">
 										This is the reference period you prefer the personal inflation rate to be computed. By
 										default, the month and year selected refer to the latest reference period with available
 										official data on CPI and inflation rate.
@@ -273,7 +273,7 @@ export const Onboarding = () => {
 								</li>
 								<li>
 									<strong>Select Input Type</strong>
-									<p className="text-slate-500">
+									<p className="text-muted-foreground">
 										Choose “Amount” if you want to input your monthly expenditure for each commodity group,
 										and “Percent” if you want to input the percentage of your monthly expenditure allotted for
 										each commodity group.
@@ -281,12 +281,12 @@ export const Onboarding = () => {
 								</li>
 								<li>
 									<strong>Select the Commodity Group.</strong>
-									<p className="text-slate-500">
+									<p className="text-muted-foreground">
 										If “General” is selected, the inputs will be asked for the 13 major commodity groups only.
 										If “Specific” is selected, the inputs will be asked for specific commodity groups.
 									</p>
 								</li>
-								<li className="text-slate-500">
+								<li className="text-muted-foreground">
 									Press <strong>Calculate</strong> to compute your personal inflation rate.
 								</li>
 							</ol>
@@ -295,7 +295,7 @@ export const Onboarding = () => {
 				</div>
 
 				{/* Footer CTA — sticky bottom */}
-				<DialogFooter className="shrink-0 px-6 py-4 border-t bg-slate-50/80 rounded-b-2xl">
+				<DialogFooter className="shrink-0 px-6 py-4 border-t bg-muted/80 rounded-b-2xl">
 					<Button
 						size="lg"
 						className="w-full bg-psa-gradient hover:opacity-90 text-white font-bold py-5 rounded-xl shadow-sm cursor-pointer"

@@ -30,9 +30,7 @@ const Footer = () => {
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
 			const currentTab = activeTab.get();
-			const items = Object.values(
-				currentTab === "general" ? generalExpenses.get() : detailedExpenses.get(),
-			);
+			const items = Object.values(currentTab === "general" ? generalExpenses.get() : detailedExpenses.get());
 
 			const targetYear = startDate.getFullYear();
 			const targetMonth = startDate.getMonth() + 1;
@@ -129,7 +127,7 @@ const Footer = () => {
 	};
 
 	return (
-		<footer className="sticky bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
+		<footer className="sticky bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
 			<div className="max-w-5xl mx-auto px-4 py-3">
 				<CalculationFooter />
 				<Button
@@ -137,7 +135,7 @@ const Footer = () => {
 					id="calculate-btn"
 					onClick={handleCalculate}
 					disabled={isCalculating || isDisabled}
-					className="w-full text-sm uppercase font-bold h-11 bg-psa-gradient hover:opacity-90 shadow-lg shadow-primary/25 transition-all active:scale-[0.98] cursor-pointer gap-2"
+					className="text-white w-full text-sm uppercase font-bold h-11 bg-psa-gradient hover:opacity-90 shadow-lg shadow-primary/25 transition-all active:scale-[0.98] cursor-pointer gap-2"
 				>
 					{isCalculating ? (
 						<>

@@ -43,13 +43,13 @@ export function ExpenseTab() {
 		<div id="detailed-tab" className="space-y-3">
 			<div className="flex justify-between items-center">
 				<div>
-					<h2 className="font-bold text-base text-slate-800 flex items-center gap-2">Commodity Breakdown</h2>
+					<h2 className="font-bold text-base text-foreground flex items-center gap-2">Commodity Breakdown</h2>
 					<p className="text-xs text-muted-foreground">Expand categories to input specific expenses</p>
 				</div>
 				<ClearButton />
 			</div>
 
-			<div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+			<div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
 				<div className="pb-1">
 					{tree.map((node) => (
 						<ExpenseNode key={node.code} node={node} level={0} />

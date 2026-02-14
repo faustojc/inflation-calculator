@@ -97,33 +97,37 @@
 	}
 
 	.dark {
-		--background: 222.2 84% 4.9%;
-		--foreground: 210 40% 98%;
+		/* PSA Dark: deep navy-black base preserving brand feel */
+		--background: 220 30% 8%;
+		--foreground: 210 40% 96%;
 
-		--card: 222.2 84% 4.9%;
-		--card-foreground: 210 40% 98%;
+		--card: 220 25% 11%;
+		--card-foreground: 210 40% 96%;
 
-		--popover: 222.2 84% 4.9%;
-		--popover-foreground: 210 40% 98%;
+		--popover: 220 25% 11%;
+		--popover-foreground: 210 40% 96%;
 
-		--primary: 217.2 91.2% 59.8%;
-		--primary-foreground: 222.2 47.4% 11.2%;
+		/* PSA Blue — brighter for dark bg readability */
+		--primary: 220 90% 60%;
+		--primary-foreground: 220 30% 8%;
 
-		--secondary: 217.2 32.6% 17.5%;
-		--secondary-foreground: 210 40% 98%;
+		/* PSA Yellow — retained for brand, slightly desaturated */
+		--secondary: 48 90% 50%;
+		--secondary-foreground: 220 30% 8%;
 
-		--destructive: 0 62.8% 30.6%;
+		/* PSA Red — brightened for accessibility on dark */
+		--destructive: 353 80% 55%;
 		--destructive-foreground: 210 40% 98%;
 
-		--muted: 217.2 32.6% 17.5%;
-		--muted-foreground: 215 20.2% 65.1%;
+		--muted: 220 20% 16%;
+		--muted-foreground: 215 20% 65%;
 
-		--accent: 217.2 32.6% 17.5%;
-		--accent-foreground: 210 40% 98%;
+		--accent: 220 20% 16%;
+		--accent-foreground: 210 40% 96%;
 
-		--border: 217.2 32.6% 17.5%;
-		--input: 217.2 32.6% 17.5%;
-		--ring: 224.3 76.3% 48%;
+		--border: 220 15% 20%;
+		--input: 220 15% 20%;
+		--ring: 220 90% 60%;
 	}
 }
 
@@ -191,6 +195,11 @@ html.font-xl {
 	background-color: hsl(210, 13%, 94%);
 	background-image: radial-gradient(circle, hsl(220 10% 88% / 0.3) 1px, transparent 1px);
 	background-size: 24px 24px;
+}
+
+.dark .bg-page-pattern {
+	background-color: hsl(220, 30%, 6%);
+	background-image: radial-gradient(circle, hsl(220 20% 14% / 0.4) 1px, transparent 1px);
 }
 
 .tooltip-content {
@@ -382,4 +391,61 @@ html.font-xl {
 
 .driver-fade .driver-popover {
 	animation: driver-popover-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Dark mode: Driver.js overrides ── */
+.dark .driver-popover {
+	background-color: hsl(220 25% 11%);
+	border-color: hsl(220 15% 20%);
+	box-shadow:
+		0 8px 32px rgba(0, 0, 0, 0.4),
+		0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dark .driver-popover-title {
+	color: hsl(220 90% 70%);
+}
+
+.dark .driver-popover-description {
+	color: hsl(215 20% 65%);
+}
+
+.dark .driver-popover-close-btn {
+	color: hsl(215 20% 55%);
+}
+
+.dark .driver-popover-close-btn:hover,
+.dark .driver-popover-close-btn:focus {
+	color: hsl(220 90% 70%);
+	background-color: hsl(220 20% 16%);
+}
+
+.dark .driver-popover-footer {
+	border-top-color: hsl(220 15% 20%);
+}
+
+.dark .driver-popover-progress-text {
+	color: hsl(210 40% 96%);
+}
+
+.dark .driver-popover-footer button:hover,
+.dark .driver-popover-footer button:focus {
+	background-color: hsl(220 20% 16%);
+	border-color: hsl(220 15% 25%);
+	color: hsl(210 40% 96%);
+}
+
+.dark .driver-popover-navigation-btns button:first-child {
+	color: hsl(210 40% 96%);
+	border-color: hsl(220 15% 25%);
+}
+
+.dark .driver-popover-navigation-btns button + button {
+	color: hsl(215 20% 65%);
+	background-color: hsl(220 25% 11%);
+	border-color: hsl(220 15% 20%);
+}
+
+.dark .driver-popover-arrow {
+	border-color: hsl(220 25% 11%);
 }

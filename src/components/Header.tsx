@@ -1,3 +1,4 @@
+import { ModeToggle } from "@/components/ModeToggle";
 import { showOnboarding } from "@/components/Onboarding";
 import { Button } from "@/components/ui/button";
 import { HelpCircle } from "lucide-react";
@@ -34,6 +35,8 @@ export const Header = () => {
 							<HelpCircle className="h-6 w-6" />
 							<span className="hidden sm:inline">Help</span>
 						</Button>
+
+						<ModeToggle />
 					</div>
 				</div>
 			</div>

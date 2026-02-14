@@ -10,6 +10,7 @@ import { Onboarding } from "@/components/Onboarding";
 import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { dataStore, initializeApp } from "@/stores/dataStore";
 import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
@@ -45,7 +46,7 @@ export default function App() {
 			buildSearchIndex();
 
 			dataStore.setKey("isLoading", false);
-      dataStore.setKey("isReady", true);
+			dataStore.setKey("isReady", true);
 		});
 	}, []);
 
@@ -55,7 +56,7 @@ export default function App() {
 				<div className="flex flex-col items-center gap-4 p-8">
 					<Loader2 className="h-10 w-10 animate-spin text-primary" />
 					<div className="text-center">
-						<h1 className="font-bold text-lg text-slate-800">Initializing Calculator</h1>
+						<h1 className="font-bold text-lg text-foreground">Initializing Calculator</h1>
 						<p className="text-sm text-muted-foreground mt-1">Loading and indexing PSA data...</p>
 					</div>
 				</div>
@@ -66,7 +67,7 @@ export default function App() {
 	if (error) {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center p-4 bg-page-pattern">
-				<div className="flex flex-col items-center gap-4 p-8 bg-white rounded-2xl shadow-lg border border-slate-100">
+				<div className="flex flex-col items-center gap-4 p-8 bg-card rounded-2xl shadow-lg border border-border">
 					<AlertTriangle className="h-12 w-12 text-destructive" />
 					<h2 className="text-xl font-bold">Service Unavailable</h2>
 					<p className="text-muted-foreground">{error}</p>
@@ -79,15 +80,18 @@ export default function App() {
 	}
 
 	return (
-		<>
+		<ThemeProvider>
 			<Toaster position="top-center" closeButton />
 
 			<div className="min-h-screen w-full font-sans bg-page-pattern">
 				<Header />
 
 				<div className="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
-					<SettingsPanel />
+					<h1 className="text-center text-sm md:text-2xl lg:text-3xl font-bold text-foreground uppercase tracking-wider">
+						Personal Inflation Calculator
+					</h1>
 
+					<SettingsPanel />
 					<SmartSearch />
 
 					<div id="commodity-inputs">
@@ -106,6 +110,6 @@ export default function App() {
 
 			<ResultsDrawer />
 			<Onboarding />
-		</>
+		</ThemeProvider>
 	);
 }

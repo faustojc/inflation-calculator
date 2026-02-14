@@ -44,8 +44,8 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 			<div
 				ref={rowRef}
 				className={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
-					${isMatch ? "bg-yellow-50 border-yellow-300 ring-1 ring-inset ring-yellow-400/50" : "border-slate-100 hover:bg-slate-50/80"}
-					${level === 0 ? "bg-slate-50/50" : ""}
+					${isMatch ? "bg-yellow-50 dark:bg-amber-950/30 border-yellow-300 dark:border-amber-600/50 ring-1 ring-inset ring-yellow-400/50 dark:ring-amber-500/30" : "border-border hover:bg-muted/50"}
+					${level === 0 ? "bg-muted/50" : ""}
 				`}
 				style={{ paddingLeft: `${level * 20 + 12}px` }}
 			>
@@ -71,7 +71,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 								</Popover>
 							)}
 							<p
-								className={`text-sm text-wrap text-left ${level === 0 ? "font-semibold text-slate-800" : "text-slate-600"}`}
+								className={`text-sm text-wrap text-left ${level === 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}
 							>
 								{node.name}
 							</p>
@@ -84,15 +84,17 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 						</div>
 					</div>
 
-					<div className={`col-span-2 relative rounded-xl ${!hasChildren ? "border-2 border-zinc-100" : ""}`}>
+					<div
+						className={`col-span-2 relative rounded-xl ${!hasChildren ? "border-2 border-zinc-100 dark:border-border/50" : ""}`}
+					>
 						<span
-							className={`absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold ${hasChildren ? "text-slate-600" : "text-muted-foreground"}`}
+							className={`absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold ${hasChildren ? "text-muted-foreground" : "text-muted-foreground"}`}
 						>
 							{hasChildren ? "=" : currMode === "percent" ? "%" : "PhP"}
 						</span>
 
 						{hasChildren ? (
-							<div className="h-8 pl-6 pr-3 flex items-center justify-end text-sm font-semibold text-slate-700 bg-slate-200 rounded-md tabular-nums">
+							<div className="h-8 pl-6 pr-3 flex items-center justify-end text-sm font-semibold text-foreground/80 bg-muted/60 rounded-md tabular-nums">
 								{displayValue.toLocaleString(undefined, {
 									maximumFractionDigits: 2,
 								})}
@@ -103,10 +105,10 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 								type="number"
 								className={`h-8 pl-6 text-right font-mono text-sm transition-all${
 									isMatch
-										? "ring-2 ring-yellow-400 border-yellow-400 bg-white scale-105"
+										? "ring-2 ring-yellow-400 dark:ring-amber-500/50 border-yellow-400 dark:border-amber-500/50 bg-card scale-105"
 										: displayValue > 0
 											? "bg-primary/5 border-primary/20 font-semibold"
-											: "bg-transparent border-transparent hover:border-slate-200 hover:bg-white"
+											: "bg-transparent border-transparent hover:border-border hover:bg-card"
 								}`}
 								placeholder="-"
 								value={displayValue || ""}

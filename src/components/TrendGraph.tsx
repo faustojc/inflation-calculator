@@ -26,7 +26,9 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	const hasRegion = hierarchy.region && hierarchy.region.key !== hierarchy.target.key;
 
 	const yAxisConfig = useMemo(() => {
-		const allValues = trend.flatMap((d) => [d.personal, d.area, d.region, d.province, d.national]).filter((v): v is number => typeof v === "number");
+		const allValues = trend
+			.flatMap((d) => [d.personal, d.area, d.region, d.province, d.national])
+			.filter((v): v is number => typeof v === "number");
 
 		if (allValues.length === 0) return { domain: [0, 5], ticks: [0, 1, 2, 3, 4, 5] };
 
@@ -89,9 +91,9 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	};
 
 	return (
-		<div className="bg-white p-5 m-0 md:rounded-2xl border-y-2 md:border md:border-slate-200 shadow-sm space-y-4">
+		<div className="bg-card p-5 m-0 md:rounded-2xl border-y-2 md:border md:border-border shadow-sm space-y-4">
 			<div className="flex flex-col sm:flex-row items-center justify-between">
-				<div className="flex items-center gap-2 text-blue-600">
+				<div className="flex items-center gap-2 text-primary">
 					<TrendingUp className="h-5 w-5" />
 					<h3 className="font-bold text-sm uppercase tracking-wide">Inflation Trend</h3>
 				</div>
@@ -116,10 +118,10 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 			<div className="h-90 w-full mt-4">
 				<ResponsiveContainer width="100%" height="100%">
 					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 12, left: -22, bottom: 0 }}>
-						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
 						<XAxis
 							dataKey="date"
-							tick={{ fontSize: 16 }}
+							tick={{ fontSize: 16, fill: "hsl(var(--muted-foreground))" }}
 							padding={{ left: 15, right: 15 }}
 							tickMargin={15}
 							axisLine={false}
@@ -132,14 +134,20 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							ticks={yAxisConfig.ticks}
 							includeHidden={true}
 							interval={0}
-							tick={{ fontSize: 14 }}
+							tick={{ fontSize: 14, fill: "hsl(var(--muted-foreground))" }}
 							axisLine={false}
 							tickLine={false}
 							type="number"
 							tickFormatter={(value) => value.toFixed(1)}
 						/>
 						<Tooltip
-							contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+							contentStyle={{
+								borderRadius: "12px",
+								border: "1px solid hsl(var(--border))",
+								boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+								backgroundColor: "hsl(var(--card))",
+								color: "hsl(var(--foreground))",
+							}}
 							itemStyle={{ fontSize: "18px", fontWeight: 400 }}
 							itemSorter={(item) => sortItems(item.dataKey as string)}
 						/>
@@ -153,7 +161,15 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							)}
 						/>
 
-						<Line type="monotone" dataKey="personal" name="My Inflation" stroke="#2563eb" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
+						<Line
+							type="monotone"
+							dataKey="personal"
+							name="My Inflation"
+							stroke="#2563eb"
+							strokeWidth={3}
+							dot={false}
+							activeDot={{ r: 6 }}
+						/>
 
 						{showLine("area") && (
 							<Line

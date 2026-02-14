@@ -31,10 +31,10 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 				grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl border transition-all duration-300
 				${
 					isMatch
-						? "bg-yellow-50 border-yellow-400 ring-2 ring-yellow-400/50 shadow-md"
+						? "bg-yellow-50 dark:bg-amber-950/20 border-yellow-400 dark:border-amber-600/50 ring-2 ring-yellow-400/50 dark:ring-amber-500/30 shadow-md"
 						: hasFilled
 							? "bg-primary/5 border-primary/20 shadow-sm"
-							: "bg-white border-slate-200 hover:border-primary/30 hover:shadow-sm"
+							: "bg-card border-border hover:border-primary/30 hover:shadow-sm"
 				}
 			`}
 		>
@@ -43,7 +43,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 					<span className="font-mono text-[0.65rem] text-white bg-primary/80 px-1.5 py-0.5 rounded font-semibold shrink-0">
 						{cat.code}
 					</span>
-					<h3 className="font-semibold text-base text-slate-800 text-wrap">{cat.name}</h3>
+					<h3 className={`font-semibold text-base text-wrap ${isMatch && "text-primary"}`}>{cat.name}</h3>
 					{isMatch && (
 						<span className="text-[0.65rem] font-bold text-primary animate-in fade-in shrink-0">
 							← {highlight?.label || "It"} belongs here
@@ -52,8 +52,8 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 				</div>
 			</div>
 
-			<div className="col-span-2 md:col-span-1 order-last md:order-0 w-full shrink-0">
-				<div className="relative">
+			<div className="col-span-2 md:col-span-1 flex items-center justify-center order-last md:order-0 w-full shrink-0">
+				<div className="relative w-full">
 					<span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-semibold">
 						{m === "percent" ? "%" : "PhP"}
 					</span>
@@ -64,8 +64,8 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 						max={500000}
 						placeholder="0"
 						className={`
-							pl-8 font-mono text-right text-sm h-9 border-2 border-zinc-200
-							${isMatch ? "ring-2 ring-yellow-400 border-yellow-400" : ""}
+							pl-8 font-mono text-right text-sm h-9
+							${isMatch ? "ring-2 ring-yellow-400 dark:ring-amber-500/50 border-yellow-400 dark:border-amber-500/50" : ""}
 							${hasFilled ? "border-primary font-semibold" : ""}
 						`}
 						value={value || ""}
