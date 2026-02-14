@@ -276,10 +276,11 @@ html.font-xl {
 }
 
 /* Footer */
-.driver-popover-footer {
+.driver-popover-footer button {
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid #f1f5f9;
+	text-shadow: none !important;
 	gap: 12px;
 }
 
@@ -301,23 +302,31 @@ html.font-xl {
 /* Primary / Next button — last button in navigation */
 .driver-popover-navigation-btns button:last-child {
 	background: linear-gradient(135deg, #054288 0%, #0038a8 100%);
-	color: #ffffff;
-	border-color: #cbd5e1;
+	color: hsl(var(--primary-foreground));
+	border-color: transparent;
 	border-radius: 30px;
 	box-shadow: 0 2px 8px rgba(0, 56, 168, 0.25);
 }
 
 /* Previous button */
 .driver-popover-navigation-btns button:first-child {
-	color: #000000;
-	border-color: #cbd5e1;
+	color: hsl(var(--foreground));
+	border-color: hsl(var(--border));
+	background-color: transparent;
 	border-radius: 30px;
-	box-shadow: 0 2px 8px rgba(0, 56, 168, 0.25);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	padding: 10px 24px;
 	min-height: 35px;
 	font-size: 0.95rem;
 	line-height: 1.4;
 	letter-spacing: 0.02em;
+	transition: all 0.15s ease;
+}
+
+.driver-popover-navigation-btns button:first-child:hover {
+	background-color: hsl(var(--muted));
+	border-color: hsl(var(--border));
+	color: hsl(var(--foreground));
 }
 
 .driver-popover-navigation-btns button:last-child:hover,
@@ -436,16 +445,24 @@ html.font-xl {
 }
 
 .dark .driver-popover-navigation-btns button:first-child {
-	color: hsl(210 40% 96%);
 	border-color: hsl(220 15% 25%);
+	color: hsl(210 40% 96%);
+	background-color: transparent;
 }
 
-.dark .driver-popover-navigation-btns button + button {
-	color: hsl(215 20% 65%);
-	background-color: hsl(220 25% 11%);
-	border-color: hsl(220 15% 20%);
+.dark .driver-popover-navigation-btns button:first-child:hover {
+	background-color: hsl(220 20% 16%);
+	color: #ffffff;
 }
 
-.dark .driver-popover-arrow {
-	border-color: hsl(220 25% 11%);
+.dark .driver-popover-navigation-btns button:last-child {
+	color: hsl(220 30% 8%);
+	background: hsl(220 90% 60%);
+	border-color: hsl(220 90% 60%);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark .driver-popover-navigation-btns button:last-child:hover {
+	background: hsl(220 100% 65%);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }

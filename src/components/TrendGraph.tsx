@@ -91,7 +91,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	};
 
 	return (
-		<div className="bg-card/60 backdrop-blur-md p-5 m-0 md:rounded-2xl border-y-2 md:border-2 border-primary/10 shadow-xl shadow-primary/5 space-y-4">
+		<div className="bg-card/70 p-5 m-0 md:rounded-2xl border-y-2 md:border-2 border-primary/10 shadow-lg shadow-primary/5 space-y-4">
 			<div className="flex flex-col sm:flex-row items-center justify-between">
 				<div className="flex items-center gap-2 text-primary">
 					<TrendingUp className="h-5 w-5" />
@@ -99,9 +99,9 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 				</div>
 
 				<div className="flex items-center gap-2">
-					<p className="text-muted-foreground">Compare to:</p>
+					<p className="text-foreground">Compare to:</p>
 					<Select value={compareMode} onValueChange={(v) => setCompareMode(v as CompareMode)}>
-						<SelectTrigger className="w-40 h-8">
+						<SelectTrigger className="w-40 h-8 text-foreground border-foreground">
 							<SelectValue placeholder="Select..." />
 						</SelectTrigger>
 						<SelectContent>
@@ -121,7 +121,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 						<CartesianGrid vertical={false} stroke="hsl(var(--muted-foreground) / 0.35)" />
 						<XAxis
 							dataKey="date"
-							tick={{ fontSize: 16, fill: "hsl(var(--muted-foreground))" }}
+							tick={{ fontSize: 16, fill: "hsl(var(--foreground))" }}
 							padding={{ left: 15, right: 15 }}
 							tickMargin={15}
 							axisLine={false}
@@ -134,7 +134,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							ticks={yAxisConfig.ticks}
 							includeHidden={true}
 							interval={0}
-							tick={{ fontSize: 14, fill: "hsl(var(--muted-foreground))" }}
+							tick={{ fontSize: 14, fill: "hsl(var(--foreground))" }}
 							axisLine={false}
 							tickLine={false}
 							type="number"

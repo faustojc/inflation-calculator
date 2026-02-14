@@ -31,10 +31,10 @@ export function ResultsDrawer() {
 
 	return (
 		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
-			<DrawerContent className="h-[95vh] flex flex-col font-sans backdrop-blur-xs bg-background/40 border-t-primary/20">
-				<div className="flex items-center justify-center w-full flex-col h-full rounded-t-3xl overflow-hidden bg-transparent">
+			<DrawerContent className="h-[95vh] rounded-t-4xl flex flex-col font-sans backdrop-blur-sm bg-background/70 border-t-primary/20 transform-gpu will-change-[backdrop-filter]">
+				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0">
 					{/* Header */}
-					<DrawerHeader className="text-center w-full pb-3 bg-psa-gradient backdrop-blur-md border-b border-white/10 shrink-0">
+					<DrawerHeader className="text-center rounded-t-4xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10">
 						<DrawerTitle className="text-xl md:text-2xl font-bold tracking-tight text-white">
 							Inflation Report
 						</DrawerTitle>
@@ -49,7 +49,7 @@ export function ResultsDrawer() {
 					{/* Body */}
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 overflow-y-auto p-4 w-full bg-transparent">
 						{/* Personal inflation rate card */}
-						<div className="col-span-3 md:col-span-1 bg-card/60 backdrop-blur-md border-2 border-primary/10 p-6 md:p-8 rounded-2xl flex flex-col gap-4 sm:gap-8 items-center justify-center text-center shadow-xl shadow-primary/5">
+						<div className="col-span-3 md:col-span-1 bg-card/70 border-2 border-primary/10 p-6 md:p-8 rounded-2xl flex flex-col gap-4 sm:gap-8 items-center justify-center text-center shadow-lg shadow-primary/5">
 							<div className="flex flex-col items-center gap-2">
 								<span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
 									Personal Inflation Rate
@@ -84,11 +84,11 @@ export function ResultsDrawer() {
 
 						{/* Contributors */}
 						<div className="col-span-3">
-							<div className="bg-card/60 backdrop-blur-md p-5 rounded-2xl border-2 border-primary/10 shadow-xl shadow-primary/5">
+							<div className="bg-card/70 p-5 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5">
 								<h3 className="font-bold uppercase tracking-wide text-sm sm:text-base text-foreground">
 									Major Contributors to Inflation
 								</h3>
-								<p className="text-sm text-muted-foreground mb-3">
+								<p className="text-sm text-foreground mb-3">
 									Top 3 items that had the biggest impact on your personal inflation rate and how they compare
 									to other areas.
 								</p>
@@ -98,7 +98,7 @@ export function ResultsDrawer() {
 
 						{/* Analysis */}
 						<div className="col-span-3">
-							<div className="bg-card/60 backdrop-blur-md p-5 rounded-2xl border-2 border-primary/10 shadow-xl shadow-primary/5">
+							<div className="bg-card/70 p-5 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5">
 								<div className="flex items-center gap-2 mb-3">
 									<Info className="h-4 w-4 text-primary" />
 									<h3 className="font-bold uppercase tracking-wide text-base text-foreground">Analysis</h3>
@@ -120,7 +120,7 @@ export function ResultsDrawer() {
 					</div>
 
 					{/* Footer */}
-					<DrawerFooter className="shrink-0 w-full py-4 border-t border-primary/10 bg-card/85 backdrop-blur-lg">
+					<DrawerFooter className="shrink-0 w-full py-4 border-t border-primary/10 bg-card/70 z-10">
 						<DrawerClose asChild>
 							<Button
 								size="lg"

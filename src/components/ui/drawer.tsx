@@ -41,11 +41,7 @@ function DrawerContent({ className, children, ...props }: ComponentProps<typeof 
 			<DrawerPrimitive.Content
 				data-slot="drawer-content"
 				className={cn(
-					"group/drawer-content bg-background fixed z-50 flex h-auto flex-col",
-					"data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b",
-					"data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[86vh] sm:data-[vaul-drawer-direction=bottom]:max-h-[96vh] data-[vaul-drawer-direction=bottom]:rounded-t-lg",
-					"data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm",
-					"data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm",
+					"group/drawer-content bg-background fixed z-50 flex h-auto flex-col inset-x-0 bottom-0 mt-24 max-h-[86vh] sm:max-h-[96vh]",
 					className,
 				)}
 				{...props}
@@ -74,11 +70,30 @@ function DrawerFooter({ className, ...props }: ComponentProps<"div">) {
 }
 
 function DrawerTitle({ className, ...props }: ComponentProps<typeof DrawerPrimitive.Title>) {
-	return <DrawerPrimitive.Title data-slot="drawer-title" className={cn("text-foreground font-semibold", className)} {...props} />;
+	return (
+		<DrawerPrimitive.Title data-slot="drawer-title" className={cn("text-foreground font-semibold", className)} {...props} />
+	);
 }
 
 function DrawerDescription({ className, ...props }: ComponentProps<typeof DrawerPrimitive.Description>) {
-	return <DrawerPrimitive.Description data-slot="drawer-description" className={cn("text-muted-foreground text-sm", className)} {...props} />;
+	return (
+		<DrawerPrimitive.Description
+			data-slot="drawer-description"
+			className={cn("text-muted-foreground text-sm", className)}
+			{...props}
+		/>
+	);
 }
 
-export { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerPortal, DrawerTitle, DrawerTrigger };
+export {
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerOverlay,
+	DrawerPortal,
+	DrawerTitle,
+	DrawerTrigger,
+};
