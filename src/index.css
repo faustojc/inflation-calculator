@@ -199,24 +199,6 @@ button {
 	cursor: pointer;
 }
 
-.glass-card {
-	background: rgba(255, 255, 255, 0.1);
-	backdrop-filter: blur(7px);
-	-webkit-backdrop-filter: blur(7px);
-	border-radius: 20px;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.glass-card::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 1.1px;
-	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-}
-
 /* PSA Brand Utilities */
 .bg-psa-gradient {
 	background: linear-gradient(135deg, #054288 0%, #00338a 50%, #0d48bd 100%);
@@ -516,8 +498,60 @@ svg.driver-overlay path {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-@layer utilities {
-	.glass-panel {
-		@apply backdrop-blur-sm bg-background/50 border-primary/20 transform-gpu will-change-[backdrop-filter];
-	}
+/* Glass Panel - Layout Container */
+.glass-panel {
+	background-color: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(40px);
+	-webkit-backdrop-filter: blur(40px) saturate(180%);
+	transform: translateZ(0);
+	will-change: backdrop-filter;
+	border: none !important;
+}
+
+.dark .glass-panel {
+	background-color: rgba(15, 23, 42, 0.75);
+}
+
+/* Glass Card - Base / Light Mode */
+.glass-card {
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border-radius: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.4);
+	box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Base rim light effect */
+/* Base rim light effect */
+.glass-card::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: 20px;
+	padding: 1px;
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+
+	/* Explicit mask definition for better compatibility */
+	mask-image: linear-gradient(#fff, #fff), linear-gradient(#fff, #fff);
+	-webkit-mask-image: linear-gradient(#fff, #fff), linear-gradient(#fff, #fff);
+
+	mask-clip: content-box, border-box;
+	-webkit-mask-clip: content-box, border-box;
+
+	mask-composite: exclude;
+	-webkit-mask-composite: xor;
+
+	pointer-events: none;
+}
+
+/* Glass Card - Dark Mode */
+.dark .glass-card {
+	background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(30, 41, 59, 0.3));
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.25);
+}
+
+.dark .glass-card::before {
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
 }

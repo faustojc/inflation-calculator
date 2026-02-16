@@ -30,10 +30,10 @@ export function ResultsDrawer() {
 
 	return (
 		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
-			<DrawerContent className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-t-primary/20">
+			<DrawerContent className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-none">
 				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0">
 					{/* Header */}
-					<DrawerHeader className="text-center rounded-t-4xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10">
+					<DrawerHeader className="text-center rounded-t-2xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10">
 						<DrawerTitle className="text-xl md:text-2xl font-bold tracking-tight text-white">
 							Inflation Report
 						</DrawerTitle>
@@ -46,11 +46,11 @@ export function ResultsDrawer() {
 					</DrawerHeader>
 
 					{/* Body */}
-					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 overflow-y-auto p-4 w-full bg-transparent">
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 overflow-y-auto p-4 w-full bg-transparent border-none">
 						{/* Personal inflation rate card */}
 						<div className="col-span-3 md:col-span-1 glass-card p-6 md:p-8 flex flex-col gap-4 sm:gap-8 items-center justify-center text-center">
 							<div className="flex flex-col items-center gap-2">
-								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-muted-foreground">
+								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
 									Personal Inflation Rate
 								</span>
 								<p className="text-5xl md:text-6xl lg:text-8xl font-black tracking-tighter tabular-nums text-primary">
@@ -66,7 +66,7 @@ export function ResultsDrawer() {
 							<Separator className="bg-foreground" />
 
 							<div className="flex flex-col items-center gap-1">
-								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-muted-foreground">
+								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
 									Consumer Price Index
 								</span>
 								<p className="text-xl md:text-2xl lg:text-4xl font-bold text-foreground">
