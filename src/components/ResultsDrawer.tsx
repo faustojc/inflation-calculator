@@ -115,7 +115,53 @@ export function ResultsDrawer() {
 
 						{/* Notes */}
 						<div className="col-span-3 space-y-3">
-							<Notes />
+							{/* ADDITIONAL INFORMATION */}
+							<div className="bg-card/70 p-6 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5">
+								<div className="flex items-center gap-2 mb-3">
+									<Info className="h-4 w-4 text-primary" />
+									<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">
+										Additional Information
+									</h3>
+								</div>
+								<ul className="list-disc list-inside">
+									<li className="text-base sm:text-lg text-foreground/80 mb-4 wrap-break-word">
+										Monthly CPI and inflation rate releases:
+										<br />
+										<a
+											href="https://psa.gov.ph/price-indices/cpi-ir"
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline text-primary"
+										>
+											https://psa.gov.ph/price-indices/cpi-ir
+										</a>
+									</li>
+									<li className="text-base sm:text-lg text-foreground/80 mb-4 wrap-break-word">
+										Time-series data:
+										<br />
+										<a
+											href="https://openstat.psa.gov.ph/Database/Prices/Price-Indices"
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline text-primary"
+										>
+											https://openstat.psa.gov.ph/Database/Prices/Price-Indices
+										</a>
+									</li>
+									<li className="text-base sm:text-lg text-foreground/80 mb-4 wrap-break-word">
+										Frequently asked questions about CPI:
+										<br />
+										<a
+											href="https://psa.gov.ph/price-indices/cpi-ir/faqs"
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline text-blue-500"
+										>
+											https://psa.gov.ph/price-indices/cpi-ir/faqs
+										</a>
+									</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 

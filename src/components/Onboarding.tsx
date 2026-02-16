@@ -7,6 +7,7 @@ import "driver.js/dist/driver.css";
 import { BarChart3, BookOpen, Calculator, CircleQuestionMark, TrendingUp } from "lucide-react";
 import { atom } from "nanostores";
 import { useCallback, useEffect } from "react";
+import { Notes } from "./Notes";
 
 export const openOnboarding = atom(false);
 
@@ -147,21 +148,21 @@ export const Onboarding = () => {
 				if (!isOpen) handleClose();
 			}}
 		>
-			<DialogContent className="sm:max-w-lg h-[91vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
+			<DialogContent className="sm:max-w-2xl h-[91vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
 				{/* PSA-branded header — sticky top */}
 				<div className="shrink-0 bg-psa-gradient rounded-t-2xl px-6 pt-6 pb-5">
 					<DialogHeader>
-						<DialogTitle className="text-white text-lg md:text-xl font-bold tracking-tight leading-snug">
+						<DialogTitle className="text-white text-lg md:text-2xl font-bold tracking-tight leading-snug">
 							Determining Your Personal Inflation
 						</DialogTitle>
 					</DialogHeader>
 					<p className="text-white/70 text-xs mt-1 tracking-wide uppercase font-medium">
-						Philippine Statistics Authority
+						Philippines Statistics Authority
 					</p>
 				</div>
 
 				{/* Content body — scrollable */}
-				<div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-4">
+				<div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-5">
 					{/* What is CPI */}
 					<section className="flex gap-3">
 						<div className="shrink-0 mt-0.5">
@@ -171,7 +172,7 @@ export const Onboarding = () => {
 						</div>
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">Consumer Price Index (CPI)</h3>
-							<p className="text-base text-muted-foreground leading-relaxed">
+							<p className="text-base text-justify text-muted-foreground leading-relaxed">
 								The PSA releases monthly CPI data — an indicator of the average change in retail prices of a fixed
 								basket of goods and services commonly purchased by Filipino households. It shows how much, on
 								average, prices have changed from a particular base year (2018 = 100).
@@ -190,7 +191,7 @@ export const Onboarding = () => {
 						</div>
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">Inflation Rate</h3>
-							<p className="text-base text-muted-foreground leading-relaxed">
+							<p className="text-base text-justify text-muted-foreground leading-relaxed">
 								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
 								prices have increased or decreased compared to the previous year. Because the CPI reflects the
 								"typical" household, it may not match your personal spending pattern — especially if you spend
@@ -210,7 +211,7 @@ export const Onboarding = () => {
 						</div>
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">Why This Calculator?</h3>
-							<p className="text-base text-muted-foreground leading-relaxed">
+							<p className="text-base text-justify text-muted-foreground leading-relaxed">
 								The PSA developed this tool so you can estimate <strong>your own inflation rate</strong> based on
 								your actual spending. By entering how you allocate your budget across commodity groups, the
 								calculator produces a personal inflation rate and compares it with official rates for your
@@ -230,7 +231,7 @@ export const Onboarding = () => {
 						</div>
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">What You'll Get</h3>
-							<p className="text-base text-muted-foreground leading-relaxed">
+							<p className="text-base text-justify text-muted-foreground leading-relaxed">
 								Your results will show your computed personal inflation rate alongside official rates, and
 								identify the commodity groups that contribute most to your personal inflation.
 							</p>
@@ -248,7 +249,7 @@ export const Onboarding = () => {
 						</div>
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">How to Use the Personal Inflation Calculator</h3>
-							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-muted-foreground">
+							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-justify text-muted-foreground">
 								<li>
 									<strong>Choose your Province/City.</strong>
 									<p className="text-muted-foreground">
@@ -291,6 +292,12 @@ export const Onboarding = () => {
 								</li>
 							</ol>
 						</div>
+					</section>
+
+					<Separator className="mb-7" />
+
+					<section className="space-y-3">
+						<Notes />
 					</section>
 				</div>
 

@@ -43,11 +43,11 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 					<span className="font-mono text-[0.65rem] text-white bg-primary/80 px-1.5 py-0.5 rounded font-semibold shrink-0">
 						{cat.code}
 					</span>
-					<h3 className={`font-semibold text-base text-wrap ${isMatch && "text-primary"}`}>{cat.name}</h3>
+					<h3 className={`font-semibold text-base text-wrap ${isMatch && "font-extrabold!"}`}>{cat.name}</h3>
 					{isMatch && (
-						<span className="text-[0.65rem] font-bold text-primary animate-in fade-in shrink-0">
+						<p className="text-xs font-bold text-primary text-wrap animate-in fade-in">
 							← {highlight?.label || "It"} belongs here
-						</span>
+						</p>
 					)}
 				</div>
 			</div>

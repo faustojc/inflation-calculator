@@ -71,13 +71,13 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 								</Popover>
 							)}
 							<p
-								className={`text-sm text-wrap text-left ${level === 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+								className={`text-sm text-wrap text-left ${level === 0 ? "font-bold" : "text-foreground"} ${isMatch && "font-extrabold"}`}
 							>
 								{node.name}
 							</p>
 
 							{isMatch && (
-								<span className="text-[0.65rem] font-bold text-primary animate-in fade-in slide-in-from-left-2 shrink-0">
+								<span className="text-xs font-bold text-primary text-wrap animate-in fade-in slide-in-from-left-2">
 									← {highlight.label} belongs here
 								</span>
 							)}

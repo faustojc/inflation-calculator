@@ -11,17 +11,17 @@
 		<script type="module" src="/src/main.tsx"></script>
 	</body>
 
-	<script>
+	<script lang="ts" defer>
 		const root = window.document.documentElement;
 		const theme = localStorage.getItem("vite-ui-theme");
-
-		console.log(theme);
 
 		if (theme === "system") {
 			const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 			root.className = systemTheme;
 		} else {
-			root.className = theme;
+			root.className = theme ?? "light";
 		}
+
+		localStorage.setItem("vite-ui-theme", theme ?? root.className);
 	</script>
 </html>
