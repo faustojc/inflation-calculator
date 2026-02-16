@@ -91,7 +91,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	};
 
 	return (
-		<div className="bg-card/70 p-5 m-0 md:rounded-2xl border-y-2 md:border-2 border-primary/10 shadow-lg shadow-primary/5 space-y-4">
+		<div className="glass-card p-5 m-0 md:rounded-2xl border-y-2 md:border-2 space-y-4">
 			<div className="flex flex-col sm:flex-row items-center justify-between">
 				<div className="flex items-center gap-2 text-primary">
 					<TrendingUp className="h-5 w-5" />
@@ -148,6 +148,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								backgroundColor: "hsl(var(--card))",
 								color: "hsl(var(--foreground))",
 							}}
+							labelStyle={{ color: "hsl(var(--foreground))" }}
 							itemStyle={{ fontSize: "18px", fontWeight: 400 }}
 							itemSorter={(item) => sortItems(item.dataKey as string)}
 						/>
@@ -165,8 +166,8 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							type="monotone"
 							dataKey="personal"
 							name="My Inflation"
-							stroke="#2563eb"
-							strokeWidth={3}
+							stroke="hsl(var(--primary))"
+							strokeWidth={3.5}
 							dot={false}
 							activeDot={{ r: 6 }}
 						/>
@@ -176,7 +177,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								type="monotone"
 								dataKey="area"
 								name={hierarchy.target.name}
-								stroke="#ed7c02"
+								stroke="#ff9800"
 								strokeDasharray={lineDasharray}
 								strokeWidth={2}
 								dot={false}
@@ -212,7 +213,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 								type="monotone"
 								dataKey="national"
 								name="Philippines"
-								stroke="#7119a8"
+								stroke="#a83fe0"
 								strokeDasharray={lineDasharray}
 								strokeWidth={2}
 								dot={false}

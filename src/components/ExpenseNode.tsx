@@ -1,4 +1,5 @@
 import type { DisplayNode } from "@/components/ExpenseTab";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -40,7 +41,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 	}, [isMatch, hasChildren]);
 
 	return (
-		<div className="w-full">
+		<Collapsible open={isOpen} onOpenChange={(open) => toggleExpansion(node.code, open)} className="w-full">
 			<div
 				ref={rowRef}
 				className={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
@@ -50,13 +51,14 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 				style={{ paddingLeft: `${level * 20 + 12}px` }}
 			>
 				{hasChildren && (
-					<button
-						onClick={() => toggleExpansion(node.code)}
-						disabled={!hasChildren}
-						className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary/60 hover:text-primary hover:bg-primary/10 cursor-pointer" : "text-transparent w-5"}`}
-					>
-						{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-					</button>
+					<CollapsibleTrigger asChild>
+						<button
+							disabled={!hasChildren}
+							className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary hover:text-primary hover:bg-primary/20 cursor-pointer" : "text-transparent w-5"}`}
+						>
+							{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+						</button>
+					</CollapsibleTrigger>
 				)}
 
 				<div className="grid grid-cols-5 items-center w-full gap-2">
@@ -65,7 +67,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 							{node.description && (
 								<Popover>
 									<PopoverTrigger asChild>
-										<InfoIcon className="h-3.5 w-3.5 shrink-0 text-primary/50 hover:text-primary cursor-pointer transition-colors" />
+										<InfoIcon className="h-3.5 w-3.5 shrink-0 text-primary/60 hover:text-primary cursor-pointer transition-colors" />
 									</PopoverTrigger>
 									<PopoverContent className="w-72 p-3 text-sm">{node.description}</PopoverContent>
 								</Popover>
@@ -129,14 +131,16 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 				</div>
 			</div>
 
-			{isOpen && hasChildren && (
-				<div className="w-full">
-					{node.children.map((child) => (
-						<ExpenseNode key={child.code} node={child} level={level + 1} />
-					))}
-				</div>
+			{hasChildren && (
+				<CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+					<div className="w-full">
+						{node.children.map((child) => (
+							<ExpenseNode key={child.code} node={child} level={level + 1} />
+						))}
+					</div>
+				</CollapsibleContent>
 			)}
-		</div>
+		</Collapsible>
 	);
 });
 

@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/drawer";
 
 import { ContributorTable } from "@/components/ContributorTable";
-import { Notes } from "@/components/Notes";
 import { TrendGraph } from "@/components/TrendGraph";
 import { Separator } from "@/components/ui/separator";
 import { calculationResult } from "@/stores/inflationStore";
@@ -31,7 +30,7 @@ export function ResultsDrawer() {
 
 	return (
 		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
-			<DrawerContent className="h-[95vh] rounded-t-4xl flex flex-col font-sans backdrop-blur-sm bg-background/70 border-t-primary/20 transform-gpu will-change-[backdrop-filter]">
+			<DrawerContent className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-t-primary/20">
 				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0">
 					{/* Header */}
 					<DrawerHeader className="text-center rounded-t-4xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10">
@@ -49,17 +48,17 @@ export function ResultsDrawer() {
 					{/* Body */}
 					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 overflow-y-auto p-4 w-full bg-transparent">
 						{/* Personal inflation rate card */}
-						<div className="col-span-3 md:col-span-1 bg-card/70 border-2 border-primary/10 p-6 md:p-8 rounded-2xl flex flex-col gap-4 sm:gap-8 items-center justify-center text-center shadow-lg shadow-primary/5">
+						<div className="col-span-3 md:col-span-1 glass-card p-6 md:p-8 flex flex-col gap-4 sm:gap-8 items-center justify-center text-center">
 							<div className="flex flex-col items-center gap-2">
-								<span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-muted-foreground">
 									Personal Inflation Rate
 								</span>
-								<p className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter tabular-nums text-primary">
+								<p className="text-5xl md:text-6xl lg:text-8xl font-black tracking-tighter tabular-nums text-primary">
 									{personalRate > 0 ? "+" : ""}
 									{personalRate.toFixed(1)}%
 								</p>
-								<div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-									<TrendingUp className="h-3 w-3" />
+								<div className="flex items-center gap-1 text-sm text-foreground mt-1">
+									<TrendingUp className="h-4 w-5" />
 									<span>Year-over-year change</span>
 								</div>
 							</div>
@@ -67,12 +66,12 @@ export function ResultsDrawer() {
 							<Separator className="bg-foreground" />
 
 							<div className="flex flex-col items-center gap-1">
-								<span className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-muted-foreground">
 									Consumer Price Index
 								</span>
-								<p className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
+								<p className="text-xl md:text-2xl lg:text-4xl font-bold text-foreground">
 									{yearlyCpiEnd.toFixed(1)}
-									<span className="text-sm font-normal text-muted-foreground ml-1">(2018=100)</span>
+									<span className="text-base font-normal text-muted-foreground ml-1">(2018=100)</span>
 								</p>
 							</div>
 						</div>
@@ -84,7 +83,7 @@ export function ResultsDrawer() {
 
 						{/* Contributors */}
 						<div className="col-span-3">
-							<div className="bg-card/70 p-5 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5">
+							<div className="glass-card p-5">
 								<h3 className="font-bold uppercase tracking-wide text-sm sm:text-base text-foreground">
 									Major Contributors to Inflation
 								</h3>
@@ -98,7 +97,7 @@ export function ResultsDrawer() {
 
 						{/* Analysis */}
 						<div className="col-span-3">
-							<div className="bg-card/70 p-5 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5">
+							<div className="glass-card p-5">
 								<div className="flex items-center gap-2 mb-3">
 									<Info className="h-4 w-4 text-primary" />
 									<h3 className="font-bold uppercase tracking-wide text-base text-foreground">Analysis</h3>
@@ -116,7 +115,7 @@ export function ResultsDrawer() {
 						{/* Notes */}
 						<div className="col-span-3 space-y-3">
 							{/* ADDITIONAL INFORMATION */}
-							<div className="bg-card/70 p-6 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5">
+							<div className="glass-card p-6">
 								<div className="flex items-center gap-2 mb-3">
 									<Info className="h-4 w-4 text-primary" />
 									<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">

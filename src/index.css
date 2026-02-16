@@ -37,6 +37,8 @@
 
 	--animate-accordion-down: accordion-down 0.2s ease-out;
 	--animate-accordion-up: accordion-up 0.2s ease-out;
+	--animate-collapsible-down: collapsible-down 0.2s ease-out;
+	--animate-collapsible-up: collapsible-up 0.2s ease-out;
 
 	@keyframes accordion-down {
 		from {
@@ -51,6 +53,26 @@
 	@keyframes accordion-up {
 		from {
 			height: var(--radix-accordion-content-height);
+		}
+
+		to {
+			height: 0;
+		}
+	}
+
+	@keyframes collapsible-down {
+		from {
+			height: 0;
+		}
+
+		to {
+			height: var(--radix-collapsible-content-height);
+		}
+	}
+
+	@keyframes collapsible-up {
+		from {
+			height: var(--radix-collapsible-content-height);
 		}
 
 		to {
@@ -171,6 +193,28 @@ html.font-lg {
 
 html.font-xl {
 	--font-scale: 1.5;
+}
+
+button {
+	cursor: pointer;
+}
+
+.glass-card {
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
+	border-radius: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 1.1px;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
 }
 
 /* PSA Brand Utilities */
@@ -470,4 +514,10 @@ svg.driver-overlay path {
 .dark .driver-popover-navigation-btns button:last-child:hover {
 	background: hsl(220 100% 65%);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+@layer utilities {
+	.glass-panel {
+		@apply backdrop-blur-sm bg-background/50 border-primary/20 transform-gpu will-change-[backdrop-filter];
+	}
 }
