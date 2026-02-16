@@ -55,3 +55,8 @@ export interface SearchOption {
 	code: string;
 	commodityName: string;
 }
+
+export interface AreaManifest {
+	dates: Record<string, number>;
+	weights: number[];
+}

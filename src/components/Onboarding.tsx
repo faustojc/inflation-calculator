@@ -14,7 +14,7 @@ const startTour = () => {
 	const driverObj = driver({
 		showProgress: true,
 		animate: true,
-		overlayColor: "rgba(0, 14, 42, 0.55)",
+		overlayColor: "rgba(0, 14, 42, 0.50)",
 		stagePadding: 12,
 		stageRadius: 12,
 		popoverOffset: 16,

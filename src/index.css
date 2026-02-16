@@ -210,6 +210,11 @@ html.font-xl {
 
 /* ── Driver.js Onboarding Tour Overrides ── */
 
+svg.driver-overlay path {
+	fill: rgba(0, 9, 29, 0.8) !important;
+	opacity: 1 !important;
+}
+
 .driver-popover {
 	background-color: #ffffff;
 	border-radius: 16px;

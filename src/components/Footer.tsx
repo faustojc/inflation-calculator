@@ -48,8 +48,8 @@ const Footer = () => {
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
 			const hierarchy = getAreaHierarchy(areaKey);
-			const { areaYearsMap } = dataStore.get();
-			const areaAvailableYears = areaYearsMap[hierarchy.target.key] || [];
+			const { currentManifest } = dataStore.get();
+			const areaAvailableYears = currentManifest?.dates ? Object.keys(currentManifest.dates).map(Number) : [];
 
 			if (areaAvailableYears.length > 0) {
 				const missingYears: number[] = [];

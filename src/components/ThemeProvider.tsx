@@ -26,16 +26,14 @@ export function ThemeProvider({ children, defaultTheme = "system", storageKey = 
 	useEffect(() => {
 		const root = window.document.documentElement;
 
-		root.classList.remove("light", "dark");
-
 		if (theme === "system") {
 			const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
-			root.classList.add(systemTheme);
+			root.className = systemTheme;
 			return;
 		}
 
-		root.classList.add(theme);
+		root.className = theme;
 	}, [theme]);
 
 	const value = {

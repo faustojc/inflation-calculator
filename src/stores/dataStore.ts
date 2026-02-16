@@ -1,13 +1,14 @@
 import type {
 	AreaDef,
 	AreaHierarchy,
+	AreaManifest,
 	CommodityDef,
 	DataIndex,
 	SearchOption,
 	TreeNode,
 	YearlyDataFile,
 } from "@/lib/types";
-import { FILE_CACHE, formatLocationName, WEIGHTS_CACHE } from "@/utils/metadata";
+import { FILE_CACHE, formatLocationName, MANIFEST_CACHE } from "@/utils/metadata";
 import { fetchWithCache } from "@/utils/storage";
 import { computed, map } from "nanostores";
 
@@ -20,7 +21,7 @@ interface DataState {
 	areas: AreaDef[];
 	commodities: CommodityDef[];
 	availableYears: string[];
-	areaYearsMap: Record<string, number[]>;
+	currentManifest: AreaManifest | null;
 	searchOptions: SearchOption[];
 	flatCodes: string[]; // Sorted by length desc
 	parentIndex: Record<string, string>;
@@ -33,7 +34,6 @@ interface Metadata {
 		max: number;
 	};
 	areas: AreaDef[];
-	areaYears: Record<string, number[]>;
 }
 
 export const dataStore = map<DataState>({
@@ -43,7 +43,7 @@ export const dataStore = map<DataState>({
 	areas: [],
 	commodities: [],
 	availableYears: [],
-	areaYearsMap: {},
+	currentManifest: null,
 	searchOptions: [],
 	flatCodes: [],
 	parentIndex: {},
@@ -120,11 +120,12 @@ export async function initializeApp() {
 			area.name = formatLocationName(area.name);
 		});
 
+		await setCurrentArea(meta.areas.at(1)!.key);
+
 		dataStore.set({
 			...dataStore.get(),
 			areas: meta.areas,
 			availableYears: years,
-			areaYearsMap: meta.areaYears || {},
 			commodities,
 			searchOptions,
 			error: null,
@@ -142,11 +143,35 @@ export async function initializeApp() {
 	}
 }
 
-export async function getCalculationData(
-	areaKeys: string[],
-	startYear: number,
-	endYear: number,
-): Promise<DataIndex> {
+export async function getAreaManifest(areaKey: string): Promise<AreaManifest | null> {
+	if (MANIFEST_CACHE.has(areaKey)) {
+		return MANIFEST_CACHE.get(areaKey)!;
+	}
+
+	const manifestPromise = fetchWithCache(`${API_URL}/data/${areaKey}/manifest.json`, "cache-first")
+		.then(async (r) => {
+			if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
+				return r.json();
+			}
+			return null;
+		})
+		.catch((error) => {
+			console.warn(`[Inflation] Failed to load manifest for ${areaKey}`, error);
+			return null;
+		});
+
+	MANIFEST_CACHE.set(areaKey, manifestPromise);
+	return manifestPromise;
+}
+
+export async function setCurrentArea(areaKey: string) {
+	const manifest = await getAreaManifest(areaKey);
+	if (manifest) {
+		dataStore.setKey("currentManifest", manifest);
+	}
+}
+
+export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<DataIndex> {
 	const uniqueKeys = new Set<string>();
 	for (const key of areaKeys) {
 		for (let y = startYear; y <= endYear; y++) {
@@ -208,28 +233,9 @@ export async function getWeights(areaKeys: string[]): Promise<Record<string, num
 	const pending: Promise<void>[] = [];
 
 	for (const key of areaKeys) {
-		const cacheKey = `${key}|weights`;
-		let weightPromise = WEIGHTS_CACHE.get(cacheKey);
-
-		if (!weightPromise) {
-			weightPromise = fetchWithCache(`${API_URL}/data/${key}/weights.json`, "cache-first")
-				.then(async (r) => {
-					if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
-						const w = await r.json();
-						return Array.isArray(w) ? w : null;
-					}
-					return null;
-				})
-				.catch((error) => {
-					console.warn(`[Inflation] Failed to load weights for ${key}`, error);
-					return null;
-				});
-			WEIGHTS_CACHE.set(cacheKey, weightPromise);
-		}
-
 		pending.push(
-			weightPromise.then((w) => {
-				if (w) results[key] = w;
+			getAreaManifest(key).then((m) => {
+				if (m?.weights) results[key] = m.weights;
 			}),
 		);
 	}
@@ -267,10 +273,7 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 			province = selectedArea;
 		} else {
 			province = areas.find(
-				(a) =>
-					a.regionId === selectedArea.regionId &&
-					a.provinceId === selectedArea.provinceId &&
-					a.cityId === undefined,
+				(a) => a.regionId === selectedArea.regionId && a.provinceId === selectedArea.provinceId && a.cityId === undefined,
 			);
 		}
 	}
@@ -324,7 +327,5 @@ export const commodityTree = computed(dataStore, (state) => {
 });
 
 export const majorCategories = computed(dataStore, (state) => {
-	return state.commodities
-		.filter((c) => !c.code.includes("."))
-		.sort((a, b) => a.code.localeCompare(b.code));
+	return state.commodities.filter((c) => !c.code.includes(".")).sort((a, b) => a.code.localeCompare(b.code));
 });

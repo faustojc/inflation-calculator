@@ -21,7 +21,7 @@ export default function App() {
 	const currTab = useStore(activeTab);
 
 	useEffect(() => {
-		initializeApp().then((meta) => {
+		initializeApp().then(async (meta) => {
 			if (meta) {
 				const now = new Date();
 				const maxYear = meta.year_range.max;

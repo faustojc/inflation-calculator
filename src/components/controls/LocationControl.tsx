@@ -10,13 +10,13 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { dataStore } from "@/stores/dataStore";
+import { dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
 import { settings } from "@/stores/inflationStore";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 
 const LocationControl = () => {
-	const { areas, areaYearsMap } = dataStore.get();
+	const { areas } = dataStore.get();
 	const appSettings = settings.get();
 
 	const [openProvince, setOpenProvince] = useState(false);
@@ -61,19 +61,25 @@ const LocationControl = () => {
 		return grouped;
 	}, [areas]);
 
-	const handleAreaSelect = (areaName: string) => {
+	const handleAreaSelect = async (areaName: string) => {
 		const match = areas.find((a) => a.name === areaName);
 		if (match) {
 			setSelectArea(match.name);
+			await setCurrentArea(match.key);
+
+			const manifest = await getAreaManifest(match.key);
 			settings.setKey("areaKey", match.key);
 
-			const newAreaYears = areaYearsMap[match.key] || [];
-			const currentYear = appSettings.startDate.getFullYear();
-			if (newAreaYears.length > 0 && !newAreaYears.includes(currentYear)) {
-				const latestYear = Math.max(...newAreaYears);
-				const newDate = new Date(appSettings.startDate);
-				newDate.setFullYear(latestYear);
-				settings.setKey("startDate", newDate);
+			if (manifest?.dates) {
+				const availableYears = Object.keys(manifest.dates).map(Number);
+				const currentYear = appSettings.startDate.getFullYear();
+
+				if (availableYears.length > 0 && !availableYears.includes(currentYear)) {
+					const latestYear = Math.max(...availableYears);
+					const newDate = new Date(appSettings.startDate);
+					newDate.setFullYear(latestYear);
+					settings.setKey("startDate", newDate);
+				}
 			}
 		}
 		setOpenProvince(false);

@@ -1,4 +1,4 @@
-import type { YearlyDataFile } from "@/lib/types";
+import type { AreaManifest, YearlyDataFile } from "@/lib/types";
 import type { Mode } from "@/stores/inflationStore";
 import type { KeyboardEvent } from "react";
 export const MONTHS = [
@@ -34,6 +34,7 @@ export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
 
 export const FILE_CACHE = new Map<string, Promise<YearlyDataFile | null>>();
 export const WEIGHTS_CACHE = new Map<string, Promise<number[] | null>>();
+export const MANIFEST_CACHE = new Map<string, Promise<AreaManifest | null>>();
 
 export function formatLocationName(str: string, locale = "en") {
 	str = str.trim();

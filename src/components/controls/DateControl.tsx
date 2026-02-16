@@ -5,23 +5,30 @@ import { cn } from "@/lib/utils";
 import { dataStore } from "@/stores/dataStore";
 import { settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
+import { useStore } from "@nanostores/react";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const DateControl = () => {
-	const appSettings = settings.get();
-	const { areaYearsMap } = dataStore.get();
+	const appSettings = useStore(settings);
+	const { currentManifest } = useStore(dataStore);
 
 	const [openYear, setOpenYear] = useState(false);
-	const [month, setMonth] = useState(MONTHS[appSettings.startDate.getMonth()]);
+	const [month, setMonth] = useState(() => {
+		const year = appSettings.startDate.getFullYear();
+		const available = currentManifest?.dates?.[year] ?? 12;
+		return MONTHS[available - 1];
+	});
 
 	const areaAvailableYears = useMemo(() => {
-		const years = areaYearsMap[appSettings.areaKey] || [];
+		if (!currentManifest?.dates) return new Set<number>();
+
+		const years = Object.keys(currentManifest.dates).map(Number);
 		if (years.length === 0) return new Set<number>();
 
-		const minYear = Math.min(...years.map(Number));
-		const maxYear = Math.max(...years.map(Number));
+		const minYear = Math.min(...years);
+		const maxYear = Math.max(...years);
 
 		const set = new Set<number>();
 		for (let year = maxYear; year >= minYear; year--) {
@@ -29,7 +36,13 @@ const DateControl = () => {
 		}
 
 		return set;
-	}, [areaYearsMap, appSettings.areaKey]);
+	}, [currentManifest]);
+
+	const maxMonthForYear = useMemo(() => {
+		const year = appSettings.startDate.getFullYear();
+		if (!currentManifest?.dates) return 12;
+		return currentManifest.dates[year] ?? 12;
+	}, [currentManifest, appSettings.startDate]);
 
 	const handleMonthChange = (m: string) => {
 		setMonth(m);
@@ -43,10 +56,40 @@ const DateControl = () => {
 		if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
 			const newDate = new Date(appSettings.startDate);
 			newDate.setFullYear(yearNum);
+
+			// Validate month for new year
+			const maxMonth = currentManifest?.dates?.[yearNum] ?? 12;
+			if (newDate.getMonth() + 1 > maxMonth) {
+				newDate.setMonth(maxMonth - 1);
+				setMonth(MONTHS[maxMonth - 1]);
+			}
+
 			settings.setKey("startDate", newDate);
 		}
 		setOpenYear(false);
 	};
+
+	// Sync startup/manifest changes with store validation
+	useEffect(() => {
+		if (!currentManifest?.dates) return;
+
+		const year = appSettings.startDate.getFullYear();
+		const maxMonthCount = currentManifest.dates[year] ?? 12;
+		const currentMonthIndex = appSettings.startDate.getMonth();
+
+		// If current setting is beyond available data (e.g. selected June but data only up to March)
+		if (currentMonthIndex + 1 > maxMonthCount) {
+			const newDate = new Date(appSettings.startDate);
+			newDate.setMonth(maxMonthCount - 1);
+			settings.setKey("startDate", newDate);
+			setMonth(MONTHS[maxMonthCount - 1]);
+		} else {
+			const storeMonthName = MONTHS[currentMonthIndex];
+			if (month !== storeMonthName) {
+				setMonth(storeMonthName);
+			}
+		}
+	}, [currentManifest, appSettings.startDate]);
 
 	return (
 		<div className="flex gap-4">
@@ -56,8 +99,13 @@ const DateControl = () => {
 						<SelectValue placeholder="Month" />
 					</SelectTrigger>
 					<SelectContent>
-						{MONTHS.map((m) => (
-							<SelectItem key={m} value={m}>
+						{MONTHS.filter((_, i) => i < maxMonthForYear).map((m, i) => (
+							<SelectItem
+								key={m}
+								defaultValue={maxMonthForYear.toString()}
+								value={m}
+								disabled={i >= maxMonthForYear}
+							>
 								{m}
 							</SelectItem>
 						))}
