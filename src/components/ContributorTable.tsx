@@ -33,10 +33,14 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 						<Table>
 							<TableHeader>
 								<TableRow>
-									<TableHead className="w-12 h-8 text-xs">RK</TableHead>
-									<TableHead className="h-8 text-xs">Commodity</TableHead>
-									<TableHead className="text-right h-8 text-xs w-16">%Shr</TableHead>
-									<TableHead className="text-right h-8 text-xs w-16">%Pt</TableHead>
+									<TableHead className="w-12 h-8 text-xs">RANK</TableHead>
+									<TableHead className="h-8 text-xs">Group</TableHead>
+									<TableHead className="text-right h-8 text-xs w-16" title="Percentage Share">
+										%SHR
+									</TableHead>
+									<TableHead className="text-right h-8 text-xs w-16" title="Percentage Point contribution">
+										%PT
+									</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -92,7 +96,7 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 							))}
 						</tr>
 						<tr className="border-b border-border bg-muted">
-							<th className="p-2 border-r border-border sticky left-0 bg-muted z-10 text-center text-[10px] uppercase font-bold text-muted-foreground w-12">
+							<th className="p-2 border-r border-border sticky left-0 bg-muted z-10 text-center text-xs uppercase font-bold text-muted-foreground w-12">
 								Rank
 							</th>
 							{contributors.map((f) => (
@@ -100,10 +104,16 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 									<th className="p-2 text-left font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border">
 										Group
 									</th>
-									<th className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border w-16">
+									<th
+										className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border w-16"
+										title="Percentage Share"
+									>
 										%Shr
 									</th>
-									<th className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border last:border-r-0 w-16">
+									<th
+										className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border last:border-r-0 w-16"
+										title="Percentage Point contribution"
+									>
 										%Pt
 									</th>
 								</React.Fragment>

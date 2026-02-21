@@ -113,6 +113,16 @@ const startTour = () => {
 					align: "start",
 				},
 			},
+			{
+				element: "#theme-toggle",
+				popover: {
+					title: "Theme Toggle",
+					description:
+						"Toggle between light and dark mode.",
+					side: "bottom",
+					align: "start",
+				},
+			},
 		],
 	});
 
@@ -173,9 +183,10 @@ export const Onboarding = () => {
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">Consumer Price Index (CPI)</h3>
 							<p className="text-base text-justify text-muted-foreground leading-relaxed">
-								The PSA releases monthly CPI data — an indicator of the average change in retail prices of a fixed
-								basket of goods and services commonly purchased by Filipino households. It shows how much, on
-								average, prices have changed from a particular base year (2018 = 100).
+								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the average
+								change in retail prices of a fixed basket of goods and services commonly purchased by Filipino
+								households. It shows how much, on average, prices have changed from a particular base year (2018 =
+								100).
 							</p>
 						</div>
 					</section>
@@ -194,8 +205,9 @@ export const Onboarding = () => {
 							<p className="text-base text-justify text-muted-foreground leading-relaxed">
 								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
 								prices have increased or decreased compared to the previous year. Because the CPI reflects the
-								"typical" household, it may not match your personal spending pattern — especially if you spend
-								more on food, rent, transport, tuition, or utilities.
+								&quot;typical&quot; household, it may not match your personal spending pattern, especially if you
+								spend more on a particular set of goods or services such as food, rent, transport, tuition, or
+								utilities.
 							</p>
 						</div>
 					</section>
@@ -212,10 +224,10 @@ export const Onboarding = () => {
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">Why This Calculator?</h3>
 							<p className="text-base text-justify text-muted-foreground leading-relaxed">
-								The PSA developed this tool so you can estimate <strong>your own inflation rate</strong> based on
-								your actual spending. By entering how you allocate your budget across commodity groups, the
-								calculator produces a personal inflation rate and compares it with official rates for your
-								selected province/city, region, and the Philippines.
+								The PSA developed this tool so you can estimate your own inflation rate based on your actual
+								spending. By entering how you allocate your budget across commodity groups, the calculator
+								produces a personal inflation rate and compares it with official rates for your selected
+								province/city, region, and the Philippines.
 							</p>
 						</div>
 					</section>
@@ -232,8 +244,9 @@ export const Onboarding = () => {
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">What You'll Get</h3>
 							<p className="text-base text-justify text-muted-foreground leading-relaxed">
-								Your results will show your computed personal inflation rate alongside official rates, and
-								identify the commodity groups that contribute most to your personal inflation.
+								The results will show your computed personal inflation rate for the past 13 months alongside
+								official inflation rates, and identify the commodity groups that contribute most to your personal
+								inflation.
 							</p>
 						</div>
 					</section>
@@ -277,7 +290,8 @@ export const Onboarding = () => {
 									<p className="text-muted-foreground">
 										Choose “Amount” if you want to input your monthly expenditure for each commodity group,
 										and “Percent” if you want to input the percentage of your monthly expenditure allotted for
-										each commodity group.
+										each commodity group. This will be used as statistical weight in computing the personal
+										CPI and inflation rate.
 									</p>
 								</li>
 								<li>

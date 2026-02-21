@@ -17,14 +17,14 @@ const DateControl = () => {
 	const [openYear, setOpenYear] = useState(false);
 	const [month, setMonth] = useState(() => {
 		const year = appSettings.startDate.getFullYear();
-		const available = currentManifest?.dates?.[year] ?? 12;
+		const available = currentManifest?.dates?.[appSettings.incomeClass]?.[year] ?? 12;
 		return MONTHS[available - 1];
 	});
 
 	const areaAvailableYears = useMemo(() => {
 		if (!currentManifest?.dates) return new Set<number>();
 
-		const years = Object.keys(currentManifest.dates).map(Number);
+		const years = Object.keys(currentManifest.dates[appSettings.incomeClass]).map(Number);
 		if (years.length === 0) return new Set<number>();
 
 		const minYear = Math.min(...years);
@@ -36,13 +36,13 @@ const DateControl = () => {
 		}
 
 		return set;
-	}, [currentManifest]);
+	}, [currentManifest, appSettings.incomeClass]);
 
 	const maxMonthForYear = useMemo(() => {
 		const year = appSettings.startDate.getFullYear();
 		if (!currentManifest?.dates) return 12;
-		return currentManifest.dates[year] ?? 12;
-	}, [currentManifest, appSettings.startDate]);
+		return currentManifest.dates[appSettings.incomeClass]?.[year] ?? 12;
+	}, [currentManifest, appSettings.startDate, appSettings.incomeClass]);
 
 	const handleMonthChange = (m: string) => {
 		setMonth(m);
@@ -58,7 +58,7 @@ const DateControl = () => {
 			newDate.setFullYear(yearNum);
 
 			// Validate month for new year
-			const maxMonth = currentManifest?.dates?.[yearNum] ?? 12;
+			const maxMonth = currentManifest?.dates?.[appSettings.incomeClass]?.[yearNum] ?? 12;
 			if (newDate.getMonth() + 1 > maxMonth) {
 				newDate.setMonth(maxMonth - 1);
 				setMonth(MONTHS[maxMonth - 1]);
@@ -74,7 +74,7 @@ const DateControl = () => {
 		if (!currentManifest?.dates) return;
 
 		const year = appSettings.startDate.getFullYear();
-		const maxMonthCount = currentManifest.dates[year] ?? 12;
+		const maxMonthCount = currentManifest.dates[appSettings.incomeClass]?.[year] ?? 12;
 		const currentMonthIndex = appSettings.startDate.getMonth();
 
 		// If current setting is beyond available data (e.g. selected June but data only up to March)
@@ -89,7 +89,7 @@ const DateControl = () => {
 				setMonth(storeMonthName);
 			}
 		}
-	}, [currentManifest, appSettings.startDate]);
+	}, [currentManifest, appSettings.startDate, appSettings.incomeClass]);
 
 	return (
 		<div className="flex gap-4">

@@ -86,8 +86,6 @@ export interface CalculationResult {
 	};
 }
 
-const ALL_CODE = "0";
-
 /**
  * Finds the CPI value for a specific area, year, month, and code.
  * @param index The data index.
@@ -122,7 +120,7 @@ function calcGrowth(current: number, previous: number): number {
  * @param code The code.
  * @returns The year-over-year growth rate.
  */
-function calculateYoY(dataIndex: DataIndex, key: string | undefined, year: number, month: number, code: string = ALL_CODE): number {
+function calculateYoY(dataIndex: DataIndex, key: string | undefined, year: number, month: number, code: string): number {
 	if (!key) return 0;
 	const curr = findCpi(dataIndex, key, year, month, code);
 	const prev = findCpi(dataIndex, key, year - 1, month, code);
@@ -177,20 +175,21 @@ function processTrendMonth(
 	dataIndex: DataIndex,
 	hierarchy: LocationContext["hierarchy"],
 	itemsWithWeights: { code: string; weight: number }[],
+	code: string,
 ): TrendPoint | null {
 	const personalRate = calculatePersonalTrend(dataIndex, hierarchy.target.key, itemsWithWeights, year, month);
-	const areaRate = calculateYoY(dataIndex, hierarchy.target.key, year, month);
-	const regionRate = calculateYoY(dataIndex, hierarchy.region?.key, year, month);
+	const areaRate = calculateYoY(dataIndex, hierarchy.target.key, year, month, code);
+	const regionRate = calculateYoY(dataIndex, hierarchy.region?.key, year, month, code);
 
 	const safeVal = (v: number | null) => (v === null ? null : Number(v.toFixed(1)));
 
 	let provinceRate: number | undefined | null;
 	if (hierarchy.province && hierarchy.province.key !== hierarchy.target.key) {
-		const pRate = calculateYoY(dataIndex, hierarchy.province.key, year, month);
+		const pRate = calculateYoY(dataIndex, hierarchy.province.key, year, month, code);
 		provinceRate = pRate === null ? undefined : Number(pRate.toFixed(1));
 	}
 
-	const natRate = calculateYoY(dataIndex, hierarchy.national?.key, year, month);
+	const natRate = calculateYoY(dataIndex, hierarchy.national?.key, year, month, code);
 
 	const dateObj = new Date(year, month - 1);
 	return {
@@ -210,6 +209,7 @@ function generateTrend(
 	dates: DateRange,
 	config: CalculationConfig,
 	dataIndex: DataIndex,
+	code: string,
 ): TrendPoint[] {
 	const series: TrendPoint[] = [];
 	const totalInput = config.totalInput || 1;
@@ -223,7 +223,7 @@ function generateTrend(
 		const endM = year === dates.endYear ? dates.endMonth : 12;
 
 		for (let month = startM; month <= endM; month++) {
-			const point = processTrendMonth(year, month, dataIndex, hierarchy, itemsWithWeights);
+			const point = processTrendMonth(year, month, dataIndex, hierarchy, itemsWithWeights, code);
 			if (point) {
 				series.push(point);
 			}
@@ -370,8 +370,8 @@ export function calculatePersonalInflation(
 
 	// Get need Start/End CPI for "ALL" items to calculate official rates
 	const getOfficialRate = (key: string) => {
-		const start = findCpi(dataIndex, key, dates.startYear, dates.startMonth, ALL_CODE);
-		const end = findCpi(dataIndex, key, dates.endYear, dates.endMonth, ALL_CODE);
+		const start = findCpi(dataIndex, key, dates.startYear, dates.startMonth, "0");
+		const end = findCpi(dataIndex, key, dates.endYear, dates.endMonth, "0");
 		return start && end ? calcGrowth(end, start) : 0;
 	};
 
@@ -458,7 +458,7 @@ export function calculatePersonalInflation(
 
 	contributors.push(calculateContributors("National", "Philippines", comparators.nationalRate, "philippines"));
 
-	const trend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex);
+	const trend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex, "0");
 	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, { location, dates });
 
 	return {

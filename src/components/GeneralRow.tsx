@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import type { CommodityDef } from "@/lib/types";
 import { generalExpenses, highlightState, mode, updateExpenseValue } from "@/stores/inflationStore";
-import { CATEGORY_DESCRIPTIONS, getLimitValue, preventNonNumeric } from "@/utils/metadata";
+import { MAJOR_CATEGORY_DESCRIPTIONS, getLimitValue, preventNonNumeric } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { useEffect, useRef } from "react";
 
@@ -83,7 +83,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			</div>
 
 			<p className="col-span-3 text-sm text-muted-foreground leading-relaxed line-clamp-2">
-				{CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}
+				{MAJOR_CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}
 			</p>
 		</div>
 	);

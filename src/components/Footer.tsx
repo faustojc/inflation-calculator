@@ -26,7 +26,7 @@ const Footer = () => {
 		setIsCalculating(true);
 
 		try {
-			const { areaKey, startDate } = settings.get();
+			const { areaKey, startDate, incomeClass } = settings.get();
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
 			const currentTab = activeTab.get();
@@ -49,7 +49,7 @@ const Footer = () => {
 
 			const hierarchy = getAreaHierarchy(areaKey);
 			const { currentManifest } = dataStore.get();
-			const areaAvailableYears = currentManifest?.dates ? Object.keys(currentManifest.dates).map(Number) : [];
+			const areaAvailableYears = currentManifest?.dates ? Object.keys(currentManifest.dates[incomeClass]).map(Number) : [];
 
 			if (areaAvailableYears.length > 0) {
 				const missingYears: number[] = [];
@@ -73,8 +73,8 @@ const Footer = () => {
 			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
 			const [batchMap, weightsMap] = await Promise.all([
-				getCalculationData(keysToFetch, dates.startYear - 1, dates.endYear),
-				getWeights(keysToFetch),
+				getCalculationData(keysToFetch, incomeClass, dates.startYear - 1, dates.endYear),
+				getWeights(keysToFetch, incomeClass),
 			]);
 
 			const { commodities } = dataStore.get();
@@ -127,7 +127,7 @@ const Footer = () => {
 	};
 
 	return (
-		<footer className="sticky bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
+		<footer className="sticky bottom-0 left-0 right-0 z-50 bg-card/95 border-t border-border">
 			<div className="max-w-5xl mx-auto px-4 py-3">
 				<CalculationFooter />
 				<Button

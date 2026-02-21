@@ -8,6 +8,7 @@ import type {
 	TreeNode,
 	YearlyDataFile,
 } from "@/lib/types";
+import type { IncomeClass } from "@/stores/inflationStore";
 import { FILE_CACHE, formatLocationName, MANIFEST_CACHE } from "@/utils/metadata";
 import { fetchWithCache } from "@/utils/storage";
 import { computed, map } from "nanostores";
@@ -171,7 +172,12 @@ export async function setCurrentArea(areaKey: string) {
 	}
 }
 
-export async function getCalculationData(areaKeys: string[], startYear: number, endYear: number): Promise<DataIndex> {
+export async function getCalculationData(
+	areaKeys: string[],
+	incomeClass: IncomeClass,
+	startYear: number,
+	endYear: number,
+): Promise<DataIndex> {
 	const uniqueKeys = new Set<string>();
 	for (const key of areaKeys) {
 		for (let y = startYear; y <= endYear; y++) {
@@ -208,11 +214,11 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 	const index: DataIndex = {};
 
 	for (const file of results) {
-		if (!file?.data?.ALL) {
+		if (!file?.data?.[incomeClass]) {
 			continue;
 		}
 
-		for (const [code, values] of Object.entries(file.data.ALL)) {
+		for (const [code, values] of Object.entries(file.data[incomeClass])) {
 			for (let i = 0; i < values.length; i++) {
 				const val = values[i];
 				if (val !== null && val !== undefined) {
@@ -228,14 +234,14 @@ export async function getCalculationData(areaKeys: string[], startYear: number, 
 	return index;
 }
 
-export async function getWeights(areaKeys: string[]): Promise<Record<string, number[]>> {
+export async function getWeights(areaKeys: string[], incomeClass: IncomeClass): Promise<Record<string, number[]>> {
 	const results: Record<string, number[]> = {};
 	const pending: Promise<void>[] = [];
-
+	
 	for (const key of areaKeys) {
 		pending.push(
 			getAreaManifest(key).then((m) => {
-				if (m?.weights) results[key] = m.weights;
+				if (m?.weights?.[incomeClass]) results[key] = m.weights?.[incomeClass];
 			}),
 		);
 	}

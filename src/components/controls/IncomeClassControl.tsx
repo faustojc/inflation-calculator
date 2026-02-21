@@ -1,22 +1,18 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { settings } from "@/stores/inflationStore";
+import { settings, type IncomeClass } from "@/stores/inflationStore";
+import { useStore } from "@nanostores/react";
 
 const IncomeClassControl = () => {
-	const appSettings = settings.get();
+	const appSettings = useStore(settings);
 
 	return (
-		<Select
-			value={appSettings.incomeClass}
-			onValueChange={(val) => settings.setKey("incomeClass", val as "all" | "bottom30")}
-		>
+		<Select value={appSettings.incomeClass} onValueChange={(val) => settings.setKey("incomeClass", val as IncomeClass)}>
 			<SelectTrigger className="w-full">
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent>
-				<SelectItem value="all">All Income Households</SelectItem>
-				<SelectItem value="bottom30" disabled>
-					Bottom 30% Income
-				</SelectItem>
+				<SelectItem value="ALL">All Income Households</SelectItem>
+				<SelectItem value="B30">Bottom 30% Income</SelectItem>
 			</SelectContent>
 		</Select>
 	);

@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarDays, Info, TrendingUp } from "lucide-react";
+import { CalendarDays, FileText, Info, LineChart, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,9 +12,11 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 
-import { ContributorTable } from "@/components/ContributorTable";
-import { TrendGraph } from "@/components/TrendGraph";
-import { Separator } from "@/components/ui/separator";
+import AdditionalInfoTab from "@/components/tabs/AdditionalInfoTab";
+import AnalysisTab from "@/components/tabs/AnalysisTab";
+import ContributorTab from "@/components/tabs/ContributorTab";
+import InflationDataTab from "@/components/tabs/InflationDataTab";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculationResult } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 
@@ -31,145 +33,70 @@ export function ResultsDrawer() {
 	return (
 		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
 			<DrawerContent className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-none">
-				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0">
+				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0 p-0 m-0">
 					{/* Header */}
-					<DrawerHeader className="text-center rounded-t-2xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10">
-						<DrawerTitle className="text-xl md:text-2xl font-bold tracking-tight text-white">
+					<DrawerHeader className="text-center rounded-t-2xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10 px-4">
+						<DrawerTitle className="text-xl md:text-2xl font-bold tracking-tight text-white mt-2">
 							Inflation Report
 						</DrawerTitle>
-						<DrawerDescription className="flex justify-center items-center gap-3 mt-1.5">
-							<span className="flex items-center gap-1.5 text-xs sm:text-sm text-white/80 bg-white/15 px-3 py-1 rounded-full">
-								<CalendarDays className="h-3.5 w-3.5" />
-								{startDateStr} to {endDateStr}
+						<DrawerDescription className="flex justify-center items-center gap-3 mt-2">
+							<span className="flex flex-row items-center justify-center gap-1.5 text-xs sm:text-sm text-white/90 bg-white/15 px-3 py-1 rounded-full whitespace-nowrap">
+								<CalendarDays className="h-3.5 w-3.5 shrink-0" />
+								{startDateStr} - {endDateStr}
 							</span>
 						</DrawerDescription>
 					</DrawerHeader>
 
 					{/* Body */}
-					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 overflow-y-auto p-4 w-full bg-transparent border-none">
-						{/* Personal inflation rate card */}
-						<div className="col-span-3 md:col-span-1 glass-card p-6 md:p-8 flex flex-col gap-4 sm:gap-8 items-center justify-center text-center">
-							<div className="flex flex-col items-center gap-2">
-								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
-									Personal Inflation Rate
-								</span>
-								<p className="text-5xl md:text-6xl lg:text-8xl font-black tracking-tighter tabular-nums text-primary">
-									{personalRate > 0 ? "+" : ""}
-									{personalRate.toFixed(1)}%
-								</p>
-								<div className="flex items-center gap-1 text-sm text-foreground mt-1">
-									<TrendingUp className="h-4 w-5" />
-									<span>Year-over-year change</span>
-								</div>
-							</div>
-
-							<Separator className="bg-foreground" />
-
-							<div className="flex flex-col items-center gap-1">
-								<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
-									Consumer Price Index
-								</span>
-								<p className="text-xl md:text-2xl lg:text-4xl font-bold text-foreground">
-									{yearlyCpiEnd.toFixed(1)}
-									<span className="text-base font-normal text-muted-foreground ml-1">(2018=100)</span>
-								</p>
-							</div>
+					<Tabs defaultValue="inflation-data" className="flex flex-col flex-1 w-full min-h-0 overflow-hidden">
+						{/* Tabs Row */}
+						<div className="w-full px-2 py-1 shrink-0 z-10 border-b border-primary/10">
+							<TabsList className="w-full grid grid-cols-4 h-auto p-1.5 bg-muted/60 rounded-xl gap-1">
+								<TabsTrigger value="inflation-data" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+									<LineChart className="size-4 md:size-5 mb-1.5 text-primary/80" />
+									Data
+								</TabsTrigger>
+								<TabsTrigger value="contributor" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+									<Users className="size-4 md:size-5 mb-1.5 text-primary/80" />
+									Contributors
+								</TabsTrigger>
+								<TabsTrigger value="analysis" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+									<FileText className="size-4 md:size-5 mb-1.5 text-primary/80" />
+									Analysis
+								</TabsTrigger>
+								<TabsTrigger value="additional-info" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+									<Info className="size-4 md:size-5 mb-1.5 text-primary/80" />
+									Info
+								</TabsTrigger>
+							</TabsList>
 						</div>
 
-						{/* Trend graph */}
-						<div className="col-span-3 md:col-span-2">
-							<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
-						</div>
+						{/* Scrollable Content */}
+						<div className="flex-1 overflow-y-auto w-full px-4 pt-4 pb-8">
+							<TabsContent value="inflation-data" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
+								<InflationDataTab personalRate={personalRate} yearlyCpiEnd={yearlyCpiEnd} trend={trend} meta={meta} startDateStr={startDateStr} endDateStr={endDateStr} />
+							</TabsContent>
 
-						{/* Contributors */}
-						<div className="col-span-3">
-							<div className="glass-card p-5">
-								<h3 className="font-bold uppercase tracking-wide text-sm sm:text-base text-foreground">
-									Major Contributors to Inflation
-								</h3>
-								<p className="text-sm text-foreground mb-3">
-									Top 3 items that had the biggest impact on your personal inflation rate and how they compare
-									to other areas.
-								</p>
-								<ContributorTable contributors={contributors} />
-							</div>
-						</div>
+							<TabsContent value="contributor" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
+								<ContributorTab contributors={contributors} />
+							</TabsContent>
 
-						{/* Analysis */}
-						<div className="col-span-3">
-							<div className="glass-card p-5">
-								<div className="flex items-center gap-2 mb-3">
-									<Info className="h-4 w-4 text-primary" />
-									<h3 className="font-bold uppercase tracking-wide text-base text-foreground">Analysis</h3>
-								</div>
-								<ul className="list-disc list-inside space-y-2">
-									{interpretation.map((p, i) => (
-										<li key={i} className="text-base leading-relaxed text-foreground">
-											{p}
-										</li>
-									))}
-								</ul>
-							</div>
-						</div>
+							<TabsContent value="analysis" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
+								<AnalysisTab interpretation={interpretation} />
+							</TabsContent>
 
-						{/* Notes */}
-						<div className="col-span-3 space-y-3">
-							{/* ADDITIONAL INFORMATION */}
-							<div className="glass-card p-6">
-								<div className="flex items-center gap-2 mb-3">
-									<Info className="h-4 w-4 text-primary" />
-									<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">
-										Additional Information
-									</h3>
-								</div>
-								<ul className="list-disc list-inside">
-									<li className="text-base sm:text-lg text-foreground/80 mb-4 wrap-break-word">
-										Monthly CPI and inflation rate releases:
-										<br />
-										<a
-											href="https://psa.gov.ph/price-indices/cpi-ir"
-											target="_blank"
-											rel="noopener noreferrer"
-											className="underline text-primary"
-										>
-											https://psa.gov.ph/price-indices/cpi-ir
-										</a>
-									</li>
-									<li className="text-base sm:text-lg text-foreground/80 mb-4 wrap-break-word">
-										Time-series data:
-										<br />
-										<a
-											href="https://openstat.psa.gov.ph/Database/Prices/Price-Indices"
-											target="_blank"
-											rel="noopener noreferrer"
-											className="underline text-primary"
-										>
-											https://openstat.psa.gov.ph/Database/Prices/Price-Indices
-										</a>
-									</li>
-									<li className="text-base sm:text-lg text-foreground/80 mb-4 wrap-break-word">
-										Frequently asked questions about CPI:
-										<br />
-										<a
-											href="https://psa.gov.ph/price-indices/cpi-ir/faqs"
-											target="_blank"
-											rel="noopener noreferrer"
-											className="underline text-blue-500"
-										>
-											https://psa.gov.ph/price-indices/cpi-ir/faqs
-										</a>
-									</li>
-								</ul>
-							</div>
+							<TabsContent value="additional-info" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
+								<AdditionalInfoTab />
+							</TabsContent>
 						</div>
-					</div>
+					</Tabs>
 
 					{/* Footer */}
-					<DrawerFooter className="shrink-0 w-full py-4 border-t border-primary/10 bg-card/70 z-10">
+					<DrawerFooter className="shrink-0 w-full px-6 py-4 border-t border-primary/10 bg-card/95 z-10 backdrop-blur-md">
 						<DrawerClose asChild>
 							<Button
 								size="lg"
-								className="text-white w-full text-sm font-bold py-5 bg-psa-gradient hover:opacity-90 shadow-md"
+								className="text-white w-full text-base font-bold py-6 rounded-xl bg-psa-gradient hover:opacity-90 shadow-md transition-all active:scale-[0.98]"
 							>
 								Close Report
 							</Button>

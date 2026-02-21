@@ -11,7 +11,7 @@ import {
 	toggleExpansion,
 	updateExpenseValue,
 } from "@/stores/inflationStore";
-import { getLimitValue, preventNonNumeric } from "@/utils/metadata";
+import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
@@ -64,12 +64,12 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 				<div className="grid grid-cols-5 items-center w-full gap-2">
 					<div className="col-span-3">
 						<div className="flex items-center gap-2">
-							{node.description && (
+							{SUB_CATEGORY_DESCRIPTIONS[node.code] && (
 								<Popover>
 									<PopoverTrigger asChild>
 										<InfoIcon className="h-3.5 w-3.5 shrink-0 text-primary/60 hover:text-primary cursor-pointer transition-colors" />
 									</PopoverTrigger>
-									<PopoverContent className="w-72 p-3 text-sm">{node.description}</PopoverContent>
+									<PopoverContent className="w-72 p-3 text-sm">{SUB_CATEGORY_DESCRIPTIONS[node.code]}</PopoverContent>
 								</Popover>
 							)}
 							<p
@@ -112,7 +112,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 											? "bg-primary/5 border-primary/20 font-semibold"
 											: "bg-transparent border-transparent hover:border-border hover:bg-card"
 								}`}
-								placeholder="-"
+								placeholder="0"
 								value={displayValue || ""}
 								min={0}
 								max={500000}

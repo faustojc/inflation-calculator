@@ -1,3 +1,5 @@
+import type { IncomeClass } from "@/stores/inflationStore";
+
 export type DataIndex = Record<string, Record<number, Record<number, Record<string, number>>>>;
 
 export type TreeNode = {
@@ -57,6 +59,6 @@ export interface SearchOption {
 }
 
 export interface AreaManifest {
-	dates: Record<string, number>;
-	weights: number[];
+	dates: Record<IncomeClass, Record<number, number>>;
+	weights: Record<IncomeClass, number[]>;
 }
