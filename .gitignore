@@ -27,3 +27,5 @@ info.md
 .env
 .agent
 .zed
+.tscanner
+.trunk
