@@ -10,7 +10,7 @@ import type {
 } from "@/lib/types";
 import type { IncomeClass } from "@/stores/inflationStore";
 import { FILE_CACHE, formatLocationName, MANIFEST_CACHE } from "@/utils/metadata";
-import { fetchWithCache } from "@/utils/storage";
+import { fetchWithCache, invalidateStaleCacheOnMonthChange } from "@/utils/storage";
 import { computed, map } from "nanostores";
 
 const API_URL = import.meta.env?.PUBLIC_VITE_API_URL || "/api/v1";
@@ -55,6 +55,9 @@ export async function initializeApp() {
 
 	try {
 		dataStore.setKey("isLoading", true);
+
+		// Purge cache if the month has rolled over (PSA uploads new CPI data monthly)
+		await invalidateStaleCacheOnMonthChange();
 		const [metaRes, commRes] = await Promise.all([
 			fetchWithCache(`${API_URL}/metadata.json`, "network-first"),
 			fetchWithCache(`${API_URL}/commodities.json`, "network-first"),
