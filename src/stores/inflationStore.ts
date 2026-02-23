@@ -1,4 +1,4 @@
-import type { CommodityDef } from "@/lib/types";
+import type { AreaDef, CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
 import type { CalculationResult } from "@/utils/inflationCompute";
 import { atom, computed, map } from "nanostores";
@@ -14,7 +14,7 @@ export type ExpenseItem = {
 };
 
 export type AppSettings = {
-	areaKey: string;
+	area: AreaDef;
 	incomeClass: IncomeClass;
 	startDate: Date;
 	endDate: Date;
@@ -32,7 +32,12 @@ const lastYear = new Date();
 lastYear.setFullYear(today.getFullYear() - 1);
 
 export const settings = map<AppSettings>({
-	areaKey: "abra",
+	area: {
+		key: "abra",
+		name: "Abra",
+		regionId: 1,
+		capita: 0,
+	},
 	incomeClass: "ALL",
 	startDate: lastYear,
 	endDate: today,

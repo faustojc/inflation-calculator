@@ -2,14 +2,14 @@ import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
 import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/stores/dataStore";
 import {
-	activeTab,
-	calculationResult,
-	detailedExpenses,
-	generalExpenses,
-	isCalculationDisabled,
-	mode,
-	settings,
-	totalAllocation,
+    activeTab,
+    calculationResult,
+    detailedExpenses,
+    generalExpenses,
+    isCalculationDisabled,
+    mode,
+    settings,
+    totalAllocation,
 } from "@/stores/inflationStore";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
 import { useStore } from "@nanostores/react";
@@ -26,7 +26,7 @@ const Footer = () => {
 		setIsCalculating(true);
 
 		try {
-			const { areaKey, startDate, incomeClass } = settings.get();
+			const { area, startDate, incomeClass } = settings.get();
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
 			const currentTab = activeTab.get();
@@ -47,7 +47,7 @@ const Footer = () => {
 			const activeCodes = items.filter((i) => i.value > 0).map((i) => i.code);
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
-			const hierarchy = getAreaHierarchy(areaKey);
+			const hierarchy = getAreaHierarchy(area.key);
 			const { currentManifest } = dataStore.get();
 			const areaAvailableYears = currentManifest?.dates ? Object.keys(currentManifest.dates[incomeClass]).map(Number) : [];
 

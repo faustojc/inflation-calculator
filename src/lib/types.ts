@@ -24,6 +24,7 @@ export interface AreaDef {
 	regionId: number;
 	provinceId?: number;
 	cityId?: number;
+	capita?: number;
 }
 
 export interface AreaHierarchy {

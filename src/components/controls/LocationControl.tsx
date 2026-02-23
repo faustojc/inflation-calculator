@@ -22,8 +22,8 @@ const LocationControl = () => {
 
 	const [openProvince, setOpenProvince] = useState(false);
 	const [selectArea, setSelectArea] = useState<string>(() => {
-		if (appSettings.areaKey && areas.length > 0) {
-			const match = areas.find((p) => p.key === appSettings.areaKey);
+		if (appSettings.area && areas.length > 0) {
+			const match = areas.find((p) => p.key === appSettings.area.key);
 			if (match) {
 				return match.name;
 			}
@@ -38,15 +38,6 @@ const LocationControl = () => {
 
 		for (const area of filteredArea) {
 			grouped[area.regionId] ??= [];
-
-			if (area.key.toLowerCase() === "ncr") {
-				grouped[area.regionId]!.push({
-					key: area.key,
-					regionName: area.name,
-					areaName: area.name,
-				});
-				continue;
-			}
 
 			if (area.cityId === undefined && area.provinceId === undefined) {
 				grouped[area.regionId]!.push({
@@ -69,7 +60,7 @@ const LocationControl = () => {
 			await setCurrentArea(match.key);
 
 			const manifest = await getAreaManifest(match.key);
-			settings.setKey("areaKey", match.key);
+			settings.setKey("area", match);
 
 			if (manifest?.dates) {
 				const incomeClass = appSettings.incomeClass;
@@ -117,33 +108,33 @@ const LocationControl = () => {
 					<CommandList className="overflow-y-auto">
 						<CommandEmpty>No location found.</CommandEmpty>
 						{Object.entries(groupedAreas).map(([region, areas], i) => {
-							if (region === "13") {
-								const ncr = areas.find((a) => a.key === "ncr");
-								if (!ncr) return null;
+							// if (region === "13") {
+							// 	const ncr = areas.find((a) => a.key === "ncr");
+							// 	if (!ncr) return null;
 
-								return (
-									<CommandGroup key={region + i} heading={ncr.regionName}>
-										<CommandItem key={ncr.key} value={ncr.areaName} onSelect={(key) => handleAreaSelect(key)}>
-											<Check
-												className={cn(
-													"mr-2 h-4 w-4",
-													selectArea === ncr.areaName ? "opacity-100" : "opacity-0",
-												)}
-											/>
-											{ncr.areaName}
-										</CommandItem>
-									</CommandGroup>
-								);
-							}
+							// 	return (
+							// 		<CommandGroup key={region + i} heading={ncr.regionName}>
+							// 			<CommandItem key={ncr.key} value={ncr.areaName} onSelect={(key) => handleAreaSelect(key)}>
+							// 				<Check
+							// 					className={cn(
+							// 						"mr-2 h-4 w-4",
+							// 						selectArea === ncr.areaName ? "opacity-100" : "opacity-0",
+							// 					)}
+							// 				/>
+							// 				{ncr.areaName}
+							// 			</CommandItem>
+							// 		</CommandGroup>
+							// 	);
+							// }
 
 							return (
 								<Fragment key={region}>
 									<CommandGroup key={region + i} heading={areas.find((a) => a.regionName)?.regionName}>
 										{areas
 											.filter((a) => a.regionName === undefined)
-											.map((a) => (
+											.map((a, i) => (
 												<CommandItem
-													key={a.key}
+													key={a.key + i}
 													value={a.areaName}
 													onSelect={(key) => handleAreaSelect(key)}
 												>
