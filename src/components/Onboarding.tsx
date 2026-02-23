@@ -182,7 +182,7 @@ export const Onboarding = () => {
 						</div>
 						<div>
 							<h3 className="font-semibold text-foreground mb-1">Consumer Price Index (CPI)</h3>
-							<p className="text-base text-justify text-muted-foreground leading-relaxed">
+							<p className="text-base text-justify text-foreground leading-relaxed">
 								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the average
 								change in retail prices of a fixed basket of goods and services commonly purchased by Filipino
 								households. It shows how much, on average, prices have changed from a particular base year (2018 =

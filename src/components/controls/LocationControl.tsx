@@ -62,27 +62,22 @@ const LocationControl = () => {
 			const manifest = await getAreaManifest(match.key);
 			settings.setKey("area", match);
 
-			if (manifest?.dates) {
-				const incomeClass = appSettings.incomeClass;
-				const classDates = manifest.dates[incomeClass];
+			if (manifest?.dates && manifest.dates[appSettings.incomeClass]) {
+				const availableYears = Object.keys(manifest.dates[appSettings.incomeClass]).map(Number);
+				const currentYear = appSettings.startDate.getFullYear();
 
-				if (classDates) {
-					const availableYears = Object.keys(classDates).map(Number);
-					const currentYear = appSettings.startDate.getFullYear();
+				if (availableYears.length > 0 && !availableYears.includes(currentYear)) {
+					const latestYear = Math.max(...availableYears);
+					const newDate = new Date(appSettings.startDate);
+					newDate.setFullYear(latestYear);
 
-					if (availableYears.length > 0 && !availableYears.includes(currentYear)) {
-						const latestYear = Math.max(...availableYears);
-						const newDate = new Date(appSettings.startDate);
-						newDate.setFullYear(latestYear);
-
-						// Also validate month for the new year
-						const maxMonth = classDates[latestYear] ?? 12;
-						if (newDate.getMonth() + 1 > maxMonth) {
-							newDate.setMonth(maxMonth - 1);
-						}
-
-						settings.setKey("startDate", newDate);
+					// Also validate month for the new year
+					const maxMonth = manifest.dates[appSettings.incomeClass][latestYear] ?? 12;
+					if (newDate.getMonth() + 1 > maxMonth) {
+						newDate.setMonth(maxMonth - 1);
 					}
+
+					settings.setKey("startDate", newDate);
 				}
 			}
 		}
