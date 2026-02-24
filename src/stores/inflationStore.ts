@@ -1,7 +1,8 @@
 import type { AreaDef, CommodityDef } from "@/lib/types";
-import { dataStore } from "@/stores/dataStore";
+import { dataStore, getAreaHierarchy, getCalculationData } from "@/stores/dataStore";
 import type { CalculationResult } from "@/utils/inflationCompute";
 import { atom, computed, map } from "nanostores";
+import { toast } from "sonner";
 
 export type IncomeClass = "ALL" | "B30";
 
@@ -58,6 +59,10 @@ export const calculationResult = map<{
 	data: null,
 });
 
+export const missingDataItems = atom<Set<string>>(new Set());
+export const prefetchLoading = atom<boolean>(false);
+export const prefetchReady = atom<boolean>(false);
+
 export const generalExpenses = map<Record<string, ExpenseItem>>({});
 export const detailedExpenses = map<Record<string, ExpenseItem>>({});
 export const expenses = computed([activeTab, generalExpenses, detailedExpenses], (tab, general, detailed) => {
@@ -106,6 +111,119 @@ export function initializeExpenses() {
 	generalExpenses.set({ ...initialExpenses });
 	detailedExpenses.set({ ...initialExpenses });
 }
+
+export async function prefetchConstraints() {
+	const currentSettings = settings.get();
+	const { area, incomeClass, startDate } = currentSettings;
+	
+	const targetYear = startDate.getFullYear();
+	const baseYear = targetYear - 1;
+
+	const { commodities } = dataStore.get();
+	if (commodities.length === 0) return;
+
+	prefetchLoading.set(true);
+
+	try {
+		const hierarchy = getAreaHierarchy(area.key);
+		const uniqueKeys = new Set([
+			hierarchy.target.key,
+			hierarchy.province?.key,
+			hierarchy.region?.key,
+			hierarchy.national?.key,
+		]);
+		const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
+
+		const batchMap = await getCalculationData(keysToFetch, incomeClass, baseYear, targetYear);
+		
+		const missingCodes = new Set<string>();
+
+		const targetMonth = startDate.getMonth() + 1;
+
+		commodities.forEach((node) => {
+			const checkCode = (code: string) => {
+				const key = hierarchy.target.key;
+				const currentVal = batchMap[key]?.[targetYear]?.[targetMonth]?.[code];
+				const baseVal = batchMap[key]?.[baseYear]?.[targetMonth]?.[code];
+
+				if (currentVal !== undefined && currentVal > 0 && baseVal !== undefined && baseVal > 0) {
+					// has data
+				} else {
+					missingCodes.add(code);
+				}
+			};
+
+			const traverse = (children: CommodityDef[]) => {
+				children.forEach((child) => {
+					checkCode(child.code);
+					if (child.children) traverse(child.children);
+				});
+			};
+			
+			checkCode(node.code);
+			if (node.children) traverse(node.children);
+		});
+
+		missingDataItems.set(missingCodes);
+		prefetchReady.set(true);
+
+		// Clear any previously entered values for newly-missing codes
+		if (missingCodes.size > 0) {
+			const genStore = generalExpenses.get();
+			const detStore = detailedExpenses.get();
+			const newGenStore = { ...genStore };
+			const newDetStore = { ...detStore };
+			let genChanged = false;
+			let detChanged = false;
+
+			missingCodes.forEach((code) => {
+				if (newGenStore[code] && newGenStore[code].value !== 0) {
+					newGenStore[code] = { ...newGenStore[code], value: 0 };
+					genChanged = true;
+				}
+				if (newDetStore[code] && newDetStore[code].value !== 0) {
+					newDetStore[code] = { ...newDetStore[code], value: 0 };
+					detChanged = true;
+				}
+			});
+
+			if (genChanged) generalExpenses.set(newGenStore);
+			if (detChanged) detailedExpenses.set(newDetStore);
+
+			if (genChanged || detChanged) {
+				toast.warning("The system cleared the values of some items because they are missing data for the selected period, income class, and area.");
+			}
+			
+		}
+
+	} catch (err) {
+		console.error("Failed to prefetch constraints:", err);
+	} finally {
+		prefetchLoading.set(false);
+	}
+}
+
+// Debounced prefetch to avoid rapid-fire during initialization
+let prefetchTimer: ReturnType<typeof setTimeout> | null = null;
+function debouncedPrefetch() {
+	if (prefetchTimer) clearTimeout(prefetchTimer);
+	prefetchTimer = setTimeout(() => {
+		prefetchConstraints();
+	}, 300);
+}
+
+// Automatically trigger predictive prefetch when dependent config changes
+settings.listen(() => {
+	debouncedPrefetch();
+});
+
+let initialPrefetchDone = false;
+dataStore.listen((state) => {
+	if (!initialPrefetchDone && state.commodities.length > 0 && state.areas.length > 0) {
+		initialPrefetchDone = true;
+		debouncedPrefetch();
+	}
+});
 
 export function toggleExpansion(code: string, forceState?: boolean) {
 	const current = expandedNodes.get();
@@ -156,6 +274,25 @@ export function locateCategory(searchCode: string, searchName: string) {
 	}, 4500);
 }
 
+export function setMissingItems(codes: string[]) {
+	missingDataItems.set(new Set(codes));
+
+	if (codes.length > 0 && activeTab.get() === "detailed") {
+		const updates = { ...expandedNodes.get() };
+		
+		codes.forEach((code) => {
+			let ptr = uiParentIndex.get(code);
+
+			while (ptr) {
+				updates[ptr] = true;
+				ptr = uiParentIndex.get(ptr) || null;
+			}
+		});
+
+		expandedNodes.set(updates);
+	}
+}
+
 export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: number }) {
 	const currentTab = activeTab.get();
 	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
@@ -186,6 +323,45 @@ export function updateExpenseValue(code: string, name: string, newValue: number,
 	} else {
 		targetStore.setKey(code, { id: code, code, name, value: newValue });
 	}
+
+	if (newValue === 0) {
+		const missing = missingDataItems.get();
+		if (missing.has(code)) {
+			const next = new Set(missing);
+			next.delete(code);
+			missingDataItems.set(next);
+		}
+	}
+}
+
+export function clearMissingExpenses() {
+	const missing = missingDataItems.get();
+	if (missing.size === 0) return;
+
+	const genStore = generalExpenses.get();
+	const detStore = detailedExpenses.get();
+
+	const newGenStore = { ...genStore };
+	const newDetStore = { ...detStore };
+
+	let genChanged = false;
+	let detChanged = false;
+
+	missing.forEach((code) => {
+		if (newGenStore[code]) {
+			newGenStore[code] = { ...newGenStore[code], value: 0 };
+			genChanged = true;
+		}
+		if (newDetStore[code]) {
+			newDetStore[code] = { ...newDetStore[code], value: 0 };
+			detChanged = true;
+		}
+	});
+
+	if (genChanged) generalExpenses.set(newGenStore);
+	if (detChanged) detailedExpenses.set(newDetStore);
+
+	missingDataItems.set(new Set());
 }
 
 export function removeExpense(id: string) {

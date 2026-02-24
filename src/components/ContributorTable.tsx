@@ -73,45 +73,53 @@ export function ContributorTable({ contributors }: Readonly<ContributorTableProp
 			<div className="overflow-x-auto">
 				<table className="w-full text-sm border-collapse">
 					<thead>
-						<tr className="border-b bg-muted">
-							<th className="p-2 border-r border-border sticky left-0 bg-muted z-10 w-12"></th>
-							{contributors.map((f) => (
+						<tr >
+							<th className="p-2 border-r border-border sticky left-0 bg-primary z-10 w-12"></th>
+							{contributors.map((f, i) => (
 								<th
 									key={f.factorName}
 									colSpan={3}
-									className="p-3 border-r border-border last:border-r-0 text-center min-w-[240px]"
+									className={`p-3 border-r border-border last:border-r-0 text-center min-w-[240px] ${
+										i % 2 == 0 ? "bg-primary/85" : "bg-primary/75"
+									}`}
 								>
-									<div className="font-bold tracking-wider text-xs flex items-center justify-center gap-1">
+									<div className="font-bold tracking-wider text-xs text-white flex items-center justify-center gap-1">
 										{f.factorName.toLowerCase() === "personal" && (
 											<span className="font-bold text-base">{f.factorName}</span>
 										)}
 										{f.factorName.toLowerCase() !== "personal" && (
 											<span className="font-bold text-base">{f.areaName}</span>
 										)}
-										<span className="bg-card border px-1.5 rounded text-sm font-mono leading-none py-0.5">
+										{/* <span className="bg-card border px-1.5 rounded text-sm font-mono leading-none py-0.5">
 											{f.inflationRate.toFixed(1)}%
-										</span>
+										</span> */}
 									</div>
 								</th>
 							))}
 						</tr>
 						<tr className="border-b border-border bg-muted">
-							<th className="p-2 border-r border-border sticky left-0 bg-muted z-10 text-center text-xs uppercase font-bold text-muted-foreground w-12">
+							<th className="p-2 border-r border-border sticky left-0 bg-primary z-10 text-center text-xs uppercase font-bold text-white w-12">
 								Rank
 							</th>
-							{contributors.map((f) => (
+							{contributors.map((f, i) => (
 								<React.Fragment key={f.factorName}>
-									<th className="p-2 text-left font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border">
+									<th className={`p-2 text-left font-medium text-base text-white sm:text-sm uppercase border-r border-border border-t ${
+										i % 2 == 0 ? "bg-primary/85" : "bg-primary/75"
+									}`}>
 										Group
 									</th>
 									<th
-										className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border w-16"
+										className={`p-2 text-right font-medium text-base text-white sm:text-sm uppercase border-r border-border border-t w-16 ${
+											i % 2 == 0 ? "bg-primary/85" : "bg-primary/75"
+										}`}
 										title="Percentage Share"
 									>
 										%Shr
 									</th>
 									<th
-										className="p-2 text-right font-medium text-base sm:text-sm uppercase text-muted-foreground border-r border-border last:border-r-0 w-16"
+										className={`p-2 text-right font-medium text-base text-white sm:text-sm uppercase border-r border-border border-t last:border-r-0 w-16 ${
+											i % 2 == 0 ? "bg-primary/85" : "bg-primary/75"
+										}`}
 										title="Percentage Point contribution"
 									>
 										%Pt

@@ -7,7 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { fuzzyScore, type FuzzyMatch } from "@/lib/fuzzySearch";
 import type { SearchOption } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
-import { locateCategory } from "@/stores/inflationStore";
+import { locateCategory, missingDataItems } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { LucideNavigation, Search, Tag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -21,6 +21,7 @@ export function SmartSearch() {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 	const { searchOptions, isReady } = useStore(dataStore);
+	const missing = useStore(missingDataItems);
 
 	const isMobile = useIsMobile();
 
@@ -33,6 +34,9 @@ export function SmartSearch() {
 		const scored: ScoredOption[] = [];
 
 		for (const item of searchOptions) {
+			// Skip items whose commodity code has no CPI data
+			if (missing.has(item.code)) continue;
+
 			// Score against keyword text
 			const match = fuzzyScore(item.keywordLower, lowerQuery);
 			if (match.score > 0) {
@@ -56,7 +60,7 @@ export function SmartSearch() {
 		});
 
 		return scored.slice(0, 25);
-	}, [query, searchOptions, isReady]);
+	}, [query, searchOptions, isReady, missing]);
 
 	const handleSelect = (item: SearchOption) => {
 		locateCategory(item.code, item.keyword);

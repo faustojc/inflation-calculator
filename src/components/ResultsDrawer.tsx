@@ -37,14 +37,8 @@ export function ResultsDrawer() {
 					{/* Header */}
 					<DrawerHeader className="text-center rounded-t-2xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10 px-4">
 						<DrawerTitle className="text-xl md:text-2xl font-bold tracking-tight text-white mt-2">
-							Inflation Report
+							INFLATION REPORT
 						</DrawerTitle>
-						<DrawerDescription className="flex justify-center items-center gap-3 mt-2">
-							<span className="flex flex-row items-center justify-center gap-1.5 text-xs sm:text-sm text-white/90 bg-white/15 px-3 py-1 rounded-full whitespace-nowrap">
-								<CalendarDays className="h-3.5 w-3.5 shrink-0" />
-								{startDateStr} - {endDateStr}
-							</span>
-						</DrawerDescription>
 					</DrawerHeader>
 
 					{/* Body */}

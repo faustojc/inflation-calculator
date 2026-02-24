@@ -29,7 +29,7 @@ const startTour = () => {
 				popover: {
 					title: "Step 1: Set Your Preferences",
 					description:
-						"Start here — select your <strong>location</strong> (province/city), <strong>income bracket</strong>, and the <strong>time period</strong> you want to analyze.",
+						"Start here! Pick your <strong>location</strong>, your <strong>income level</strong>, and the <strong>month and year</strong> you want to check.",
 					side: "bottom",
 				},
 			},
@@ -37,7 +37,7 @@ const startTour = () => {
 				element: "#location-control",
 				popover: {
 					title: "📍 Choose your Province/City",
-					description: "This must be the area where you usually buy or consume household goods and services.",
+					description: "Select the province or city where you do most of your daily shopping and spending.",
 					side: "bottom",
 				},
 			},
@@ -46,7 +46,7 @@ const startTour = () => {
 				popover: {
 					title: "💰 Select Income Bracket",
 					description:
-						"This is the consumer group which you want your personal inflation to be computed and compared. Currently, <strong>'All Income Households'</strong> is enabled while the <strong>Bottom 30% Income Households</strong> and other income deciles will be available in the future",
+						"Choose your income level so we can compare your personal inflation with others in the same group.",
 					side: "bottom",
 				},
 			},
@@ -55,7 +55,7 @@ const startTour = () => {
 				popover: {
 					title: "📅 Select Month and Year",
 					description:
-						"This is the reference period you prefer the personal inflation rate to be computed. By default, the month and year selected refer to the <strong>latest reference period</strong> with available <strong>official data on CPI and inflation rate</strong>.",
+						"Pick the specific month and year you want to calculate for. It automatically shows the most recent date with available official data.",
 					side: "bottom",
 				},
 			},
@@ -64,7 +64,7 @@ const startTour = () => {
 				popover: {
 					title: "📝 Select the Input Type",
 					description:
-						"Choose <strong>Amount</strong> if you want to input your monthly expenditure for each commodity group, and <strong>Percent</strong> if you want to input the percentage of your monthly expenditure allotted for each commodity group.",
+						"Choose <strong>Amount (₱)</strong> to enter your actual monthly spending in pesos, or choose <strong>Percent (%)</strong> to enter how much of your budget goes towards each category.",
 					side: "bottom",
 				},
 			},
@@ -73,7 +73,7 @@ const startTour = () => {
 				popover: {
 					title: "📊 Select the Commodity Group",
 					description:
-						"If <strong>General</strong> is selected, the inputs will be asked for the 13 major commodity groups only. If <strong>Detailed</strong> is selected, the inputs will be asked for specific commodity groups.",
+						"Use <strong>General</strong> for a quick summary of 13 broad categories, or <strong>Detailed</strong> if you want to break down your expenses more specifically.",
 					side: "top",
 				},
 			},
@@ -82,7 +82,7 @@ const startTour = () => {
 				popover: {
 					title: "🔍 Find Any Item Quickly",
 					description:
-						"Search for specific goods or services (e.g., <strong>'Rice'</strong>, <strong>'Electricity'</strong>) to find items that you regularly purchase and it will be highlighted on which category/commodity it belongs to.",
+						"Can't find a category? Type what you bought (like <strong>'Rice'</strong> or <strong>'Electricity'</strong>), and we'll highlight where to put it.",
 					side: "bottom",
 				},
 			},
@@ -90,7 +90,7 @@ const startTour = () => {
 				element: "#commodity-inputs",
 				popover: {
 					title: "Step 2. Enter Your Monthly Expenses",
-					description: "Enter your <strong>monthly expenses</strong> for each category/commodity.",
+					description: "Fill in exactly how much you spend in a typical month for each category listed here.",
 					side: "top",
 				},
 			},
@@ -99,7 +99,7 @@ const startTour = () => {
 				popover: {
 					title: "Step 3. Calculate Your Rate",
 					description:
-						"After entering your expenses, press this button to generate your <strong>personal inflation report</strong> with trends and analysis.",
+						"All done? Click here to see your personalized report showing how inflation actually affects you.",
 					side: "top",
 				},
 			},
@@ -108,7 +108,7 @@ const startTour = () => {
 				popover: {
 					title: "What is the output?",
 					description:
-						"The output will provide comparison of your computed personal inflation rate with the official inflation rates of the Province/City, Region, and Philippines.  It will also display the commodity groups that contributed the most to the inflation rate.",
+						"Your results will compare your personal inflation to the official rates in your area and the whole country. It will also show which daily expenses are hitting your budget the hardest!",
 					side: "bottom",
 					align: "start",
 				},
@@ -118,7 +118,7 @@ const startTour = () => {
 				popover: {
 					title: "Theme Toggle",
 					description:
-						"Toggle between light and dark mode.",
+						"Switch between light and dark mode for easier viewing.",
 					side: "bottom",
 					align: "start",
 				},
@@ -181,12 +181,12 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-foreground mb-1">Consumer Price Index (CPI)</h3>
+							<h3 className="font-bold text-foreground mb-1">Consumer Price Index (CPI)</h3>
 							<p className="text-base text-justify text-foreground leading-relaxed">
-								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the average
-								change in retail prices of a fixed basket of goods and services commonly purchased by Filipino
-								households. It shows how much, on average, prices have changed from a particular base year (2018 =
-								100).
+								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the
+								average change in retail prices of a fixed basket of goods and services commonly
+								purchased by Filipino households. It shows how much, on average, prices have
+								changed from a particular base year (2018 = 100).
 							</p>
 						</div>
 					</section>
@@ -201,13 +201,13 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-foreground mb-1">Inflation Rate</h3>
-							<p className="text-base text-justify text-muted-foreground leading-relaxed">
-								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
-								prices have increased or decreased compared to the previous year. Because the CPI reflects the
-								&quot;typical&quot; household, it may not match your personal spending pattern, especially if you
-								spend more on a particular set of goods or services such as food, rent, transport, tuition, or
-								utilities.
+							<h3 className="font-bold text-foreground mb-1">Inflation Rate</h3>
+							<p className="text-base text-justify text-foreground leading-relaxed">
+								The inflation rate is the year-on-year percent change in the CPI. It measures how fast
+								overall prices have increased or decreased compared to the previous year. Because the
+								CPI reflects the &quot;typical&quot; household, it may not match your personal spending pattern,
+								especially if you spend more on a particular set of goods or services such as food, rent,
+								transport, tuition, or utilities.
 							</p>
 						</div>
 					</section>
@@ -222,12 +222,12 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-foreground mb-1">Why This Calculator?</h3>
-							<p className="text-base text-justify text-muted-foreground leading-relaxed">
-								The PSA developed this tool so you can estimate your own inflation rate based on your actual
-								spending. By entering how you allocate your budget across commodity groups, the calculator
-								produces a personal inflation rate and compares it with official rates for your selected
-								province/city, region, and the Philippines.
+							<h3 className="font-bold text-foreground mb-1">Why This Calculator?</h3>
+							<p className="text-base text-justify text-foreground leading-relaxed">
+								The PSA developed this tool so you can estimate your own inflation rate based on your
+								actual spending. By entering how you allocate your budget across commodity groups,
+								the calculator produces a personal inflation rate and compares it with official rates for
+								your selected province/city, region, and the Philippines.
 							</p>
 						</div>
 					</section>
@@ -242,8 +242,8 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-foreground mb-1">What You'll Get</h3>
-							<p className="text-base text-justify text-muted-foreground leading-relaxed">
+							<h3 className="font-bold text-foreground mb-1">What You'll Get</h3>
+							<p className="text-base text-justify text-foreground leading-relaxed">
 								The results will show your computed personal inflation rate for the past 13 months alongside
 								official inflation rates, and identify the commodity groups that contribute most to your personal
 								inflation.
@@ -261,8 +261,8 @@ export const Onboarding = () => {
 							</div>
 						</div>
 						<div>
-							<h3 className="font-semibold text-foreground mb-1">How to Use the Personal Inflation Calculator</h3>
-							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-justify text-muted-foreground">
+							<h3 className="font-bold text-foreground mb-1">How to Use the Personal Inflation Calculator</h3>
+							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-justify text-foreground">
 								<li>
 									<strong>Choose your Province/City.</strong>
 									<p className="text-muted-foreground">

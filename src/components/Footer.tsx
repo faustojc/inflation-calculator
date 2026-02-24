@@ -2,14 +2,16 @@ import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
 import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/stores/dataStore";
 import {
-    activeTab,
-    calculationResult,
-    detailedExpenses,
-    generalExpenses,
-    isCalculationDisabled,
-    mode,
-    settings,
-    totalAllocation,
+	activeTab,
+	calculationResult,
+	clearMissingExpenses,
+	detailedExpenses,
+	generalExpenses,
+	isCalculationDisabled,
+	mode,
+	setMissingItems,
+	settings,
+	totalAllocation,
 } from "@/stores/inflationStore";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
 import { useStore } from "@nanostores/react";
@@ -92,25 +94,6 @@ const Footer = () => {
 				weightsMap,
 				majorCategoryNames,
 			);
-
-			if (result?.missingItems && result.missingItems.length > 0) {
-				calculationResult.set({ show: false, data: null });
-
-				const missingList = result.missingItems.slice(0, 3).join(" | ");
-				const suffix = result.missingItems.length > 3 ? "..." : "";
-
-				toast("Cannot calculate", {
-					description: `Data missing for ${missingList}${suffix}. Please remove these items or choose a different date.`,
-					action: {
-						label: "X",
-						onClick() {
-							toast.dismiss();
-						},
-					},
-				});
-
-				return;
-			}
 
 			if (result) {
 				calculationResult.set({ show: true, data: result });

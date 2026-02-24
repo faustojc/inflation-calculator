@@ -79,7 +79,6 @@ export interface CalculationResult {
 	trend: TrendPoint[];
 	comparators: Comparators;
 	interpretation: string[];
-	missingItems: string[];
 	meta: {
 		location: LocationContext;
 		dates: DateRange;
@@ -302,7 +301,6 @@ export function calculatePersonalInflation(
 	if (config.mode === "amount" && config.totalInput === 0) return null;
 
 	const breakdown: ItemBreakdown[] = [];
-	const missingItems: string[] = [];
 
 	let sumWeightedCpiStart = 0;
 	let sumWeightedCpiEnd = 0;
@@ -314,13 +312,8 @@ export function calculatePersonalInflation(
 		// Formula: (Input / Sum) * 100 or just the value if percent
 		const weight = config.mode === "amount" ? (item.value / config.totalInput) * 100 : item.value;
 
-		const cpiStart = findCpi(dataIndex, location.hierarchy.target.key, dates.startYear, dates.startMonth, item.code);
-		const cpiEnd = findCpi(dataIndex, location.hierarchy.target.key, dates.endYear, dates.endMonth, item.code);
-
-		if (cpiStart === null || cpiEnd === null) {
-			missingItems.push(item.name);
-			continue;
-		}
+		const cpiStart = findCpi(dataIndex, location.hierarchy.target.key, dates.startYear, dates.startMonth, item.code)!;
+		const cpiEnd = findCpi(dataIndex, location.hierarchy.target.key, dates.endYear, dates.endMonth, item.code)!;
 
 		// STEP 2: WEIGHTED CPI
 		// Formula: CPI * Weight
@@ -346,22 +339,6 @@ export function calculatePersonalInflation(
 			itemInflationRate,
 			isMissing: false,
 		});
-	}
-
-	if (missingItems.length > 0) {
-		return {
-			personalRate: 0,
-			yearlyCpiStart: 0,
-			yearlyCpiEnd: 0,
-			totalSpend: 0,
-			breakdown: [],
-			contributors: [],
-			trend: [],
-			comparators: { areaRate: 0, regionRate: 0, nationalRate: 0, ncrRate: 0 },
-			interpretation: [],
-			missingItems,
-			meta: { location, dates },
-		};
 	}
 
 	const yearlyCpiStart = sumWeightedCpiStart / 100;
@@ -471,7 +448,6 @@ export function calculatePersonalInflation(
 		trend,
 		comparators,
 		interpretation,
-		missingItems: [],
 		meta: { location, dates },
 	};
 }

@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
-import { TrendingUp } from "lucide-react";
+import { CalendarDays, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -92,10 +92,14 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 
 	return (
 		<div className="glass-card p-5 m-0 md:rounded-2xl border-y-2 md:border-2 space-y-4">
-			<div className="flex flex-col sm:flex-row items-center justify-between">
+			<div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
 				<div className="flex items-center gap-2 text-primary">
 					<TrendingUp className="h-5 w-5" />
 					<h3 className="font-bold text-sm uppercase tracking-wide">Inflation Trend</h3>
+					<p className="flex flex-row items-center justify-center gap-1.5 text-[10px] sm:text-xs text-white bg-primary/70 px-2 py-1 rounded-full whitespace-nowrap">
+						<CalendarDays className="h-3.5 w-3.5 shrink-0" />
+						{startDateStr} to {endDateStr}
+					</p>
 				</div>
 
 				<div className="flex items-center gap-2">

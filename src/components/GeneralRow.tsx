@@ -1,8 +1,9 @@
 import { Input } from "@/components/ui/input";
 import type { CommodityDef } from "@/lib/types";
-import { generalExpenses, highlightState, mode, updateExpenseValue } from "@/stores/inflationStore";
+import { generalExpenses, highlightState, missingDataItems, mode, prefetchReady, updateExpenseValue } from "@/stores/inflationStore";
 import { MAJOR_CATEGORY_DESCRIPTIONS, getLimitValue, preventNonNumeric } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
+import { AlertCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
@@ -15,6 +16,11 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 
 	const value = getLimitValue(m, items[cat.code]?.value || 0);
 	const isMatch = highlight?.code === cat.code;
+	
+	const missing = useStore(missingDataItems);
+	const isReady = useStore(prefetchReady);
+	const isMissing = isReady && missing.has(cat.code);
+
 	const hasFilled = value > 0;
 
 	useEffect(() => {
@@ -30,17 +36,19 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			className={`
 				grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl border transition-all duration-300
 				${
-					isMatch
-						? "bg-yellow-50 dark:bg-amber-950/20 border-yellow-400 dark:border-amber-600/50 ring-2 ring-yellow-400/50 dark:ring-amber-500/30 shadow-md"
-						: hasFilled
-							? "bg-primary/5 border-primary/20 shadow-sm"
-							: "bg-card border-border hover:border-primary/30 hover:shadow-sm"
+					isMissing 
+						? "bg-red-50 dark:bg-red-950/20 border-red-400 dark:border-red-600/50 ring-2 ring-red-400/50 dark:ring-red-500/30 shadow-md"
+						: isMatch
+							? "bg-yellow-50 dark:bg-amber-950/20 border-yellow-400 dark:border-amber-600/50 ring-2 ring-yellow-400/50 dark:ring-amber-500/30 shadow-md"
+							: hasFilled
+								? "bg-primary/5 border-primary/20 shadow-sm"
+								: "bg-card border-border hover:border-primary/30 hover:shadow-sm"
 				}
 			`}
 		>
 			<div className="col-span-2 min-w-0">
 				<div className="flex items-center gap-2 mb-0.5">
-					<span className="font-mono text-[0.65rem] text-white bg-primary/80 px-1.5 py-0.5 rounded font-semibold shrink-0">
+					<span className={`font-mono text-[0.65rem] text-white px-1.5 py-0.5 rounded font-semibold shrink-0 ${isMissing ? "bg-red-500/80" : "bg-primary/80"}`}>
 						{cat.code}
 					</span>
 					<h3 className={`font-semibold text-base text-wrap ${isMatch && "font-extrabold!"}`}>{cat.name}</h3>
@@ -48,6 +56,12 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 						<p className="text-xs font-bold text-primary text-wrap animate-in fade-in">
 							← {highlight?.label || "It"} belongs here
 						</p>
+					)}
+					{isMissing && (
+						<div className="flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
+							<AlertCircle className="w-3.5 h-3.5" />
+							<span>No Data Available</span>
+						</div>
 					)}
 				</div>
 			</div>
@@ -65,10 +79,12 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 						placeholder="0"
 						className={`
 							pl-8 font-mono text-right text-sm h-9
-							${isMatch ? "ring-2 ring-yellow-400 dark:ring-amber-500/50 border-yellow-400 dark:border-amber-500/50" : ""}
-							${hasFilled ? "border-primary font-semibold" : ""}
+							${isMissing ? "ring-2 ring-red-400 dark:ring-red-500/50 border-red-400 dark:border-red-500/50 text-red-600 dark:text-red-400 font-semibold opacity-70 cursor-not-allowed" : 
+							  isMatch ? "ring-2 ring-yellow-400 dark:ring-amber-500/50 border-yellow-400 dark:border-amber-500/50" : 
+							  hasFilled ? "border-primary font-semibold" : ""}
 						`}
 						value={value || ""}
+						disabled={isMissing}
 						onKeyDown={preventNonNumeric}
 						onChange={(e) => {
 							let v = Number.parseFloat(e.target.value);
