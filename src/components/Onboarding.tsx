@@ -7,7 +7,6 @@ import "driver.js/dist/driver.css";
 import { BarChart3, BookOpen, Calculator, CircleQuestionMark, TrendingUp } from "lucide-react";
 import { atom } from "nanostores";
 import { useCallback, useEffect } from "react";
-import { Notes } from "./Notes";
 
 export const openOnboarding = atom(false);
 
@@ -37,7 +36,7 @@ const startTour = () => {
 				element: "#location-control",
 				popover: {
 					title: "📍 Choose your Province/City",
-					description: "Select the province or city where you do most of your daily shopping and spending.",
+					description: "This must be the area where you usually buy or consume household goods and services.",
 					side: "bottom",
 				},
 			},
@@ -45,8 +44,7 @@ const startTour = () => {
 				element: "#income-class-control",
 				popover: {
 					title: "💰 Select Income Bracket",
-					description:
-						"Choose your income level so we can compare your personal inflation with others in the same group.",
+					description: "This is the consumer group to which you want your personal inflation to be compared.",
 					side: "bottom",
 				},
 			},
@@ -64,7 +62,7 @@ const startTour = () => {
 				popover: {
 					title: "📝 Select the Input Type",
 					description:
-						"Choose <strong>Amount (₱)</strong> to enter your actual monthly spending in pesos, or choose <strong>Percent (%)</strong> to enter how much of your budget goes towards each category.",
+						"Choose <strong>Amount (₱)</strong> if you want to input your monthly or annual expenditure for each commodity group. Choose <strong>Percent (%)</strong> if you want to input the only percentage of your monthly expenditure allotted for each commodity group.",
 					side: "bottom",
 				},
 			},
@@ -73,7 +71,7 @@ const startTour = () => {
 				popover: {
 					title: "📊 Select the Commodity Group",
 					description:
-						"Use <strong>General</strong> for a quick summary of 13 broad categories, or <strong>Detailed</strong> if you want to break down your expenses more specifically.",
+						"If <strong>General</strong> is selected, the inputs will be asked for the 13 major commodity groups only. If <strong>Detailed</strong> is selected, the inputs will be asked for specific commodity groups. Commodity Grouping is based on the 2020 Philippine Classification of Individual Consumption According to Purpose (PCOICOP).",
 					side: "top",
 				},
 			},
@@ -82,7 +80,7 @@ const startTour = () => {
 				popover: {
 					title: "🔍 Find Any Item Quickly",
 					description:
-						"Can't find a category? Type what you bought (like <strong>'Rice'</strong> or <strong>'Electricity'</strong>), and we'll highlight where to put it.",
+						"Search for specific good or service (e.g., <strong>Rice</strong>, <strong>Electricity</strong>) to find commodities that you regularly purchase. The commodity group where the commodity belongs will be highlighted.",
 					side: "bottom",
 				},
 			},
@@ -99,7 +97,7 @@ const startTour = () => {
 				popover: {
 					title: "Step 3. Calculate Your Rate",
 					description:
-						"All done? Click here to see your personalized report showing how inflation actually affects you.",
+						"After entering your expenses, press this button to generate your <strong>personal inflation rate</strong> with trends and analysis.",
 					side: "top",
 				},
 			},
@@ -117,8 +115,7 @@ const startTour = () => {
 				element: "#theme-toggle",
 				popover: {
 					title: "Theme Toggle",
-					description:
-						"Switch between light and dark mode for easier viewing.",
+					description: "Switch between light and dark mode for easier viewing.",
 					side: "bottom",
 					align: "start",
 				},
@@ -183,10 +180,10 @@ export const Onboarding = () => {
 						<div>
 							<h3 className="font-bold text-foreground mb-1">Consumer Price Index (CPI)</h3>
 							<p className="text-base text-justify text-foreground leading-relaxed">
-								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the
-								average change in retail prices of a fixed basket of goods and services commonly
-								purchased by Filipino households. It shows how much, on average, prices have
-								changed from a particular base year (2018 = 100).
+								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the average
+								change in retail prices of a fixed basket of goods and services commonly purchased by Filipino
+								households. It shows how much, on average, prices have changed from a particular base year (2018 =
+								100).
 							</p>
 						</div>
 					</section>
@@ -203,11 +200,11 @@ export const Onboarding = () => {
 						<div>
 							<h3 className="font-bold text-foreground mb-1">Inflation Rate</h3>
 							<p className="text-base text-justify text-foreground leading-relaxed">
-								The inflation rate is the year-on-year percent change in the CPI. It measures how fast
-								overall prices have increased or decreased compared to the previous year. Because the
-								CPI reflects the &quot;typical&quot; household, it may not match your personal spending pattern,
-								especially if you spend more on a particular set of goods or services such as food, rent,
-								transport, tuition, or utilities.
+								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
+								prices have increased or decreased compared to the previous year. Because the CPI reflects the
+								&quot;typical&quot; household, it may not match your personal spending pattern, especially if you
+								spend more on a particular set of goods or services such as food, rent, transport, tuition, or
+								utilities.
 							</p>
 						</div>
 					</section>
@@ -224,10 +221,10 @@ export const Onboarding = () => {
 						<div>
 							<h3 className="font-bold text-foreground mb-1">Why This Calculator?</h3>
 							<p className="text-base text-justify text-foreground leading-relaxed">
-								The PSA developed this tool so you can estimate your own inflation rate based on your
-								actual spending. By entering how you allocate your budget across commodity groups,
-								the calculator produces a personal inflation rate and compares it with official rates for
-								your selected province/city, region, and the Philippines.
+								The PSA developed this tool so you can estimate your own inflation rate based on your actual
+								spending. By entering how you allocate your budget across commodity groups, the calculator
+								produces a personal inflation rate and compares it with official rates for your selected
+								province/city, region, and the Philippines.
 							</p>
 						</div>
 					</section>
@@ -265,21 +262,31 @@ export const Onboarding = () => {
 							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-justify text-foreground">
 								<li>
 									<strong>Choose your Province/City.</strong>
-									<p className="text-muted-foreground">
+									<p className="text-foreground">
 										This must be the area where you usually buy or consume household goods and services.
 									</p>
 								</li>
 								<li>
 									<strong>Select the Income Bracket.</strong>
-									<p className="text-muted-foreground">
+									<p className="text-foreground">
 										This is the consumer group which you want your personal inflation to be computed and
-										compared. Currently, All Income Households is enabled, while the Bottom 30% Income
-										Households and other income deciles will be available in the future.
+										compared.
+										<br />
+										If “All Income Households” is selected, the personal inflation rate will be computed using
+										the average prices of commodities in the market basket of all income households of the
+										selected province/city. The personal inflation rate will also be compared with the
+										official CPI and inflation rate for All Income Households.
+										<br />
+										If Bottom 30% Income Households is selected, the personal inflation rate will be computed
+										using the average prices of commodities in the market basket of the bottom 30&amp; income
+										households of the selected province/city. Each province/city has its own income bracket
+										for the bottom 30% income households. The income brackets are based on the average annual
+										per capita income by decile from the 2018 Family Income and Expenditure Survey.
 									</p>
 								</li>
 								<li>
 									<strong>Select the Month and Year.</strong>
-									<p className="text-muted-foreground">
+									<p className="text-foreground">
 										This is the reference period you prefer the personal inflation rate to be computed. By
 										default, the month and year selected refer to the latest reference period with available
 										official data on CPI and inflation rate.
@@ -287,31 +294,39 @@ export const Onboarding = () => {
 								</li>
 								<li>
 									<strong>Select Input Type</strong>
-									<p className="text-muted-foreground">
-										Choose “Amount” if you want to input your monthly expenditure for each commodity group,
-										and “Percent” if you want to input the percentage of your monthly expenditure allotted for
-										each commodity group. This will be used as statistical weight in computing the personal
-										CPI and inflation rate.
+									<p className="text-foreground">
+										Input type requires monthly or annual expenditure by commodity group.
+										<br />
+										Choose “Amount” if you want to input your monthly or annual expenditure for each commodity
+										group. As guide, the total expenditure is computed while the entries are being typed. The
+										total amount is shown at the bottom of the page.
+										<br />
+										Choose “Percent” if you only want to provide the percentage of your monthly or annual
+										expenditure allotted for each commodity group. The total percentage should be equal to
+										100%. The total percentage encoded is also shown at the bottom of the page.
+										<br />
+										The information on monthly or annual expenditure represents your expenditure pattern. This
+										will be used as statistical weight in computing the personal CPI and inflation rate.
 									</p>
 								</li>
 								<li>
 									<strong>Select the Commodity Group.</strong>
-									<p className="text-muted-foreground">
+									<p className="text-foreground">
 										If “General” is selected, the inputs will be asked for the 13 major commodity groups only.
+										<br />
 										If “Specific” is selected, the inputs will be asked for specific commodity groups.
+										<br />
+										The commodity groups are based on the 2020 Philippine Classification of Individual
+										consumption According to Purpose (PCOICOP). Only the Group-level (3-digit PCOICOP Codes)
+										are used in this application.
 									</p>
 								</li>
-								<li className="text-muted-foreground">
-									Press <strong>Calculate</strong> to compute your personal inflation rate.
+								<li className="text-foreground">
+									Press <strong>Calculate</strong> to compute your personal inflation rate and display the
+									analysis.
 								</li>
 							</ol>
 						</div>
-					</section>
-
-					<Separator className="mb-7" />
-
-					<section className="space-y-3">
-						<Notes />
 					</section>
 				</div>
 
