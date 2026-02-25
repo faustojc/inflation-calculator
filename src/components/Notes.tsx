@@ -11,11 +11,11 @@ export function Notes({ className }: { className?: string }) {
 				</div>
 				<ul className="list-disc list-inside text-justify text-base leading-relaxed text-foreground/80 space-y-4">
 					<li>
-						The personal inflation calculator is an application that lets the User to compute their personal inflation
-						rate based on their own <strong>consumption pattern</strong>.
+						The personal inflation calculator is an application that allows the User of the application to compute
+						their personal inflation rate based on their own <strong>consumption pattern</strong>.
 					</li>
 					<li>
-						The calculator allows the User to compare their <strong>personal inflation rate</strong> with the
+						The calculator allows the User to compare their <strong>personal inflation rate</strong> with the{" "}
 						<strong>official inflation data</strong> by providing information on the commodity groups that contribute
 						to the computed inflation.
 					</li>
@@ -42,29 +42,32 @@ export function Notes({ className }: { className?: string }) {
 				</div>
 				<ul className="list-disc list-inside text-justify">
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The CPI measures the <strong>average price change of goods and services</strong> commonly consumed by the
-						households.
+						The <strong>CPI</strong> measures the average price change of goods and services commonly consumed by the
+						households relative to the reference or base year. The current base year of the CPI is 2018.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						Inflation rate is the <strong>year-over-year change in the CPI</strong>.
+						Inflation rate is the{" "}
+						<i>
+							<strong>year-over-year</strong>
+						</i>{" "}
+						change in the CPI.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The personal inflation calculator requires monthly or annual expenditure data from the user. This
+						The personal inflation calculator requires monthly or annual expenditure data from the User. This
 						information is <strong>used as the statistical weight</strong> (expenditure pattern) of the User in
 						computing the personal CPI and personal inflation rate.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The prices of goods and services used by the application comes from the result of the{" "}
-						<strong>Retail Price Survey of Selected Commodities for the Generation of CPI</strong> conducted regularly
-						by the <strong>Philippine Statistics Authority</strong>.
+						The <strong>prices of goods and services</strong> used by the application in computing the CPI comes from
+						the result of the <strong>Retail Price Survey of Selected Commodities for the Generation of CPI</strong>{" "}
+						conducted regularly by the Philippine Statistics Authority. Each province has its own CPI market basket
+						both for All Income Households and Bottom 30% Income Households.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The list of goods and services included in the price collection of the Philippine Statistics Authority are
-						the most commonly purchased or availed of by the <strong>Filipino Households</strong> as determined using
-						the result of the <strong>Survey of Key Informants</strong>.
-					</li>
-					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The official CPI and inflation rates uses <strong>2018</strong> as the reference year.
+						The <strong>list of goods and services</strong> included in the price collection of the Philippine
+						Statistics Authority are the most commonly purchased or availed of by the{" "}
+						<strong>Filipino Households</strong> as determined using the result of the{" "}
+						<strong>Survey of Key Informants (SKI) and Commodity and Outlet Survey (COS)</strong>.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
 						Commodity groupings are based on the{" "}

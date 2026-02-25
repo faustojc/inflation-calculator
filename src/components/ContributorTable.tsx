@@ -25,9 +25,6 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 								<span className="font-bold text-base text-primary-foreground tracking-wider">
 									{factor.factorName.toLowerCase() === "personal" ? factor.factorName : factor.areaName}
 								</span>
-								<span className="bg-card px-2 py-1 rounded text-xs border font-mono">
-									{factor.inflationRate.toFixed(1)}%
-								</span>
 							</div>
 
 							{/* Column table */}
@@ -38,7 +35,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 											#
 										</TableHead>
 										<TableHead className="h-9 text-xs text-primary-foreground font-bold uppercase tracking-wide">
-											Group
+											Commodity
 										</TableHead>
 										<TableHead
 											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
@@ -150,7 +147,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 									<th
 										className={`p-2 text-left font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
 									>
-										Group
+										Commodity Group
 									</th>
 									<th
 										className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
