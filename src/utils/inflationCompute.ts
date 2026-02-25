@@ -44,8 +44,9 @@ export interface Comparators {
 export interface CommodityContribution {
 	code: string;
 	name: string;
+	weight: number;
+	inflationRate: number;
 	percentShare: number;
-	percentPointShare: number;
 }
 
 export interface ContributionFactor {
@@ -235,7 +236,10 @@ function generateInterpretation(
 	personalRate: number,
 	personalCpi: number,
 	comps: Comparators,
-	meta: { location: { hierarchy: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef } }; dates: DateRange },
+	meta: {
+		location: { hierarchy: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef } };
+		dates: DateRange;
+	},
 ): string[] {
 	const { location, dates } = meta;
 	const monthStr = new Date(dates.endYear, dates.endMonth - 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
@@ -368,45 +372,59 @@ export function calculatePersonalInflation(
 	): ContributionFactor => {
 		const contributions: CommodityContribution[] = [];
 
+		// "ALL ITEMS" is always rank 0 — top of the commodity hierarchy
+		const allItems: CommodityContribution = {
+			code: "0",
+			name: "ALL ITEMS",
+			weight: 100,
+			inflationRate,
+			percentShare: 100,
+		};
+
 		if (isPersonal) {
 			let totalWeightedCpiEnd = 0;
 			breakdown.forEach((b) => (totalWeightedCpiEnd += b.weightedCpiEnd));
 			breakdown.forEach((b) => {
 				const percentShare = (b.weightedCpiEnd / totalWeightedCpiEnd) * 100;
-				const percentPointShare = (percentShare / 100) * personalRate;
 				contributions.push({
 					code: b.categoryCode,
 					name: b.name,
+					weight: b.weight,
+					inflationRate: b.itemInflationRate,
 					percentShare,
-					percentPointShare,
 				});
 			});
 		} else if (areaKey && weightsMap[areaKey]) {
 			const areaWeights = weightsMap[areaKey];
 			const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
 			let totalWeightedCpi = 0;
-			const tempContribs: { code: string; weightedCpi: number }[] = [];
+			const tempContribs: { code: string; weightedCpi: number; weight: number; itemInflation: number }[] = [];
 
 			for (let i = 0; i < codes.length; i++) {
 				const code = codes[i]!;
-				const weight = areaWeights[i]; // Corresponding weight
-				const cpi = findCpi(dataIndex, areaKey, dates.endYear, dates.endMonth, code);
+				const weight = areaWeights[i];
+				const cpiEnd = findCpi(dataIndex, areaKey, dates.endYear, dates.endMonth, code);
+				const cpiStart = findCpi(dataIndex, areaKey, dates.startYear, dates.startMonth, code);
 
-				if (cpi !== null && weight !== undefined) {
-					const weightedCpi = cpi * weight;
+				if (cpiEnd !== null && weight !== undefined) {
+					const weightedCpi = cpiEnd * weight;
 					totalWeightedCpi += weightedCpi;
-					tempContribs.push({ code, weightedCpi });
+					const itemInflation = cpiStart && cpiStart > 0 ? calcGrowth(cpiEnd, cpiStart) : 0;
+					tempContribs.push({ code, weightedCpi, weight, itemInflation });
 				}
 			}
 
+			// Use actual sum of area weights for ALL ITEMS weight
+			allItems.weight = areaWeights.reduce((sum, w) => sum + w, 0);
+
 			tempContribs.forEach((tc) => {
 				const percentShare = (tc.weightedCpi / totalWeightedCpi) * 100;
-				const percentPointShare = (percentShare / 100) * inflationRate;
 				contributions.push({
 					code: tc.code,
 					name: majorCategoryNames[tc.code] || tc.code,
+					weight: tc.weight,
+					inflationRate: tc.itemInflation,
 					percentShare,
-					percentPointShare,
 				});
 			});
 		}
@@ -416,7 +434,7 @@ export function calculatePersonalInflation(
 			factorName,
 			areaName,
 			inflationRate,
-			contributors: contributions.slice(0, 3),
+			contributors: [allItems, ...contributions.slice(0, 3)],
 		};
 	};
 
@@ -426,11 +444,25 @@ export function calculatePersonalInflation(
 	];
 
 	if (location.hierarchy.province && location.hierarchy.province.key !== location.hierarchy.target.key) {
-		contributors.push(calculateContributors("Province", location.hierarchy.province.name, comparators.provinceRate || 0, location.hierarchy.province.key));
+		contributors.push(
+			calculateContributors(
+				"Province",
+				location.hierarchy.province.name,
+				comparators.provinceRate || 0,
+				location.hierarchy.province.key,
+			),
+		);
 	}
 
 	if (location.hierarchy.region && comparators.regionRate) {
-		contributors.push(calculateContributors("Region", location.hierarchy.region.name, comparators.regionRate, location.hierarchy.region.key));
+		contributors.push(
+			calculateContributors(
+				"Region",
+				location.hierarchy.region.name,
+				comparators.regionRate,
+				location.hierarchy.region.key,
+			),
+		);
 	}
 
 	contributors.push(calculateContributors("National", "Philippines", comparators.nationalRate, "philippines"));

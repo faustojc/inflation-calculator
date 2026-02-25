@@ -1,16 +1,8 @@
 import { format } from "date-fns";
-import { CalendarDays, FileText, Info, LineChart, Users } from "lucide-react";
+import { FileText, Info, LineChart, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-	Drawer,
-	DrawerClose,
-	DrawerContent,
-	DrawerDescription,
-	DrawerFooter,
-	DrawerHeader,
-	DrawerTitle,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 
 import AdditionalInfoTab from "@/components/tabs/AdditionalInfoTab";
 import AnalysisTab from "@/components/tabs/AnalysisTab";
@@ -46,19 +38,31 @@ export function ResultsDrawer() {
 						{/* Tabs Row */}
 						<div className="w-full px-2 py-1 shrink-0 z-10 border-b border-primary/10">
 							<TabsList className="w-full grid grid-cols-4 h-auto p-1.5 bg-muted/60 rounded-xl gap-1">
-								<TabsTrigger value="inflation-data" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+								<TabsTrigger
+									value="inflation-data"
+									className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg"
+								>
 									<LineChart className="size-4 md:size-5 mb-1.5 text-primary/80" />
 									Data
 								</TabsTrigger>
-								<TabsTrigger value="contributor" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+								<TabsTrigger
+									value="contributor"
+									className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg"
+								>
 									<Users className="size-4 md:size-5 mb-1.5 text-primary/80" />
 									Contributors
 								</TabsTrigger>
-								<TabsTrigger value="analysis" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+								<TabsTrigger
+									value="analysis"
+									className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg"
+								>
 									<FileText className="size-4 md:size-5 mb-1.5 text-primary/80" />
 									Analysis
 								</TabsTrigger>
-								<TabsTrigger value="additional-info" className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg">
+								<TabsTrigger
+									value="additional-info"
+									className="flex-col h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg"
+								>
 									<Info className="size-4 md:size-5 mb-1.5 text-primary/80" />
 									Info
 								</TabsTrigger>
@@ -68,7 +72,14 @@ export function ResultsDrawer() {
 						{/* Scrollable Content */}
 						<div className="flex-1 overflow-y-auto w-full px-4 pt-4 pb-8">
 							<TabsContent value="inflation-data" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
-								<InflationDataTab personalRate={personalRate} yearlyCpiEnd={yearlyCpiEnd} trend={trend} meta={meta} startDateStr={startDateStr} endDateStr={endDateStr} />
+								<InflationDataTab
+									personalRate={personalRate}
+									yearlyCpiEnd={yearlyCpiEnd}
+									trend={trend}
+									meta={meta}
+									startDateStr={startDateStr}
+									endDateStr={endDateStr}
+								/>
 							</TabsContent>
 
 							<TabsContent value="contributor" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
@@ -79,7 +90,10 @@ export function ResultsDrawer() {
 								<AnalysisTab interpretation={interpretation} />
 							</TabsContent>
 
-							<TabsContent value="additional-info" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
+							<TabsContent
+								value="additional-info"
+								className="mt-0 outline-none h-full data-[state=inactive]:hidden"
+							>
 								<AdditionalInfoTab />
 							</TabsContent>
 						</div>
