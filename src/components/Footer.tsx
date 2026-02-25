@@ -4,12 +4,10 @@ import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/s
 import {
 	activeTab,
 	calculationResult,
-	clearMissingExpenses,
 	detailedExpenses,
 	generalExpenses,
 	isCalculationDisabled,
 	mode,
-	setMissingItems,
 	settings,
 	totalAllocation,
 } from "@/stores/inflationStore";
