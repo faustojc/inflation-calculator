@@ -39,6 +39,19 @@ const LocationControl = () => {
 		for (const area of filteredArea) {
 			grouped[area.regionId] ??= [];
 
+			if (area.key === "ncr" && !area.provinceId && !area.cityId) {
+				grouped[area.regionId]!.push({
+					key: area.key,
+					regionName: area.name,
+					areaName: area.name,
+				});
+				grouped[area.regionId]!.push({
+					key: area.key,
+					areaName: area.name,
+				});
+				continue;
+			}
+
 			if (area.cityId === undefined && area.provinceId === undefined) {
 				grouped[area.regionId]!.push({
 					key: area.key,
