@@ -82,7 +82,7 @@ export function SmartSearch() {
 	}, []);
 
 	return (
-		<div className="sticky top-20 sm:top-[100px] z-30 transition-all duration-300" id="smart-search-container">
+		<div className="sticky top-18 sm:top-[100px] z-30 transition-all duration-300" id="smart-search-container">
 			<Popover open={open} onOpenChange={setOpen} modal={true}>
 				<PopoverTrigger asChild>
 					<Button
