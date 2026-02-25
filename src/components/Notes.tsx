@@ -20,8 +20,16 @@ export function Notes({ className }: { className?: string }) {
 						to the computed inflation.
 					</li>
 					<li>
-						<strong>However</strong>, it is not meant to replace the original inflation data released by the
-						Philippine Statistics Authority.
+						<strong>The computed persona CPI and inflation rate</strong> are not meant to replace the official CPI and
+						inflation data released by the Philippine Statistics Authority.
+					</li>
+					<li>
+						The Philippine Statistics Authority does not archive any information from the User. The information
+						entered will automatically be deleted once the application is closed.
+					</li>
+					<li>
+						The reference file used in the Seach option of the application is based on the list of commodities in the
+						CPI market basket, and thus, may not include all the products and services consumed by the User.
 					</li>
 				</ul>
 			</div>
@@ -34,18 +42,20 @@ export function Notes({ className }: { className?: string }) {
 				</div>
 				<ul className="list-disc list-inside text-justify">
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The CPI measures the <strong>average price change of goods and services</strong> commonly consumed by the households.
+						The CPI measures the <strong>average price change of goods and services</strong> commonly consumed by the
+						households.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
 						Inflation rate is the <strong>year-over-year change in the CPI</strong>.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The personal inflation calculator requires monthly or annual expenditure data from
-						the user. This information is <strong>used as the statistical weight</strong> (expenditure pattern) of the
-						User in computing the personal CPI and personal inflation rate.
+						The personal inflation calculator requires monthly or annual expenditure data from the user. This
+						information is <strong>used as the statistical weight</strong> (expenditure pattern) of the User in
+						computing the personal CPI and personal inflation rate.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						The prices of goods and services used by the application comes from the result of the <strong>Retail Price Survey of Selected Commodities for the Generation of CPI</strong> conducted regularly
+						The prices of goods and services used by the application comes from the result of the{" "}
+						<strong>Retail Price Survey of Selected Commodities for the Generation of CPI</strong> conducted regularly
 						by the <strong>Philippine Statistics Authority</strong>.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
@@ -57,7 +67,8 @@ export function Notes({ className }: { className?: string }) {
 						The official CPI and inflation rates uses <strong>2018</strong> as the reference year.
 					</li>
 					<li className="text-base leading-relaxed text-foreground/80 mb-4">
-						Commodity groupings are based on the <strong>2020 Philippine Classification of Individual Consumption According to Purpose (PCOICOP)</strong>.
+						Commodity groupings are based on the{" "}
+						<strong>2020 Philippine Classification of Individual Consumption According to Purpose (PCOICOP)</strong>.
 					</li>
 				</ul>
 			</div>
