@@ -115,7 +115,7 @@ export function initializeExpenses() {
 export async function prefetchConstraints() {
 	const currentSettings = settings.get();
 	const { area, incomeClass, startDate } = currentSettings;
-	
+
 	const targetYear = startDate.getFullYear();
 	const baseYear = targetYear - 1;
 
@@ -135,7 +135,7 @@ export async function prefetchConstraints() {
 		const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
 		const batchMap = await getCalculationData(keysToFetch, incomeClass, baseYear, targetYear);
-		
+
 		const missingCodes = new Set<string>();
 
 		const targetMonth = startDate.getMonth() + 1;
@@ -159,7 +159,7 @@ export async function prefetchConstraints() {
 					if (child.children) traverse(child.children);
 				});
 			};
-			
+
 			checkCode(node.code);
 			if (node.children) traverse(node.children);
 		});
@@ -191,11 +191,19 @@ export async function prefetchConstraints() {
 			if (detChanged) detailedExpenses.set(newDetStore);
 
 			if (genChanged || detChanged) {
-				toast.warning("The system cleared the values of some items because they are missing data for the selected period, income class, and area.");
+				toast.warning("Some inputs were cleared", {
+					description:
+						"Certain items you entered have no recorded CPI data for the selected location and period. Their values have been reset to prevent calculation errors.",
+					duration: 8000,
+					classNames: {
+						toast: "!border-amber-400 !dark:border-amber-500/60 !bg-amber-50 !dark:bg-amber-950/40 !shadow-lg !shadow-amber-200/30 !dark:shadow-amber-900/20 !px-3 !py-2 !gap-3.5",
+						title: "!text-amber-900 !dark:text-amber-200 !text-[0.95rem] !font-bold !tracking-tight",
+						description: "!text-amber-800/80 !dark:text-amber-300/80 !text-[0.85rem] !leading-relaxed !mt-1",
+						icon: "!text-amber-500 !dark:text-amber-400",
+					},
+				});
 			}
-			
 		}
-
 	} catch (err) {
 		console.error("Failed to prefetch constraints:", err);
 	} finally {
@@ -279,7 +287,7 @@ export function setMissingItems(codes: string[]) {
 
 	if (codes.length > 0 && activeTab.get() === "detailed") {
 		const updates = { ...expandedNodes.get() };
-		
+
 		codes.forEach((code) => {
 			let ptr = uiParentIndex.get(code);
 
