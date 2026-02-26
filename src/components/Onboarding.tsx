@@ -71,7 +71,7 @@ const startTour = () => {
 				popover: {
 					title: "📊 Select the Commodity Group",
 					description:
-						"If <strong>General</strong> is selected, the inputs will be asked for the 13 major commodity groups only. If <strong>Detailed</strong> is selected, the inputs will be asked for specific commodity groups. Commodity Grouping is based on the 2020 Philippine Classification of Individual Consumption According to Purpose (PCOICOP).",
+						"If <strong>General</strong> is selected, inputs will be asked for the 13 major commodity groups only. If <strong>Detailed</strong> is selected, inputs will be asked for specific commodity groups. Commodity Grouping is based on the 2020 Philippine Classification of Individual Consumption According to Purpose (PCOICOP).",
 					side: "top",
 				},
 			},
@@ -312,9 +312,9 @@ export const Onboarding = () => {
 								<li>
 									<strong>Select the Commodity Group.</strong>
 									<p className="text-foreground">
-										If “General” is selected, the inputs will be asked for the 13 major commodity groups only.
+										If “General” is selected, inputs will be asked for the 13 major commodity groups only.
 										<br /> <br />
-										If “Specific” is selected, the inputs will be asked for specific commodity groups.
+										If “Specific” is selected, inputs will be asked for specific commodity groups.
 										<br /> <br />
 										The commodity groups are based on the 2020 Philippine Classification of Individual
 										consumption According to Purpose (PCOICOP). Only the Group-level (3-digit PCOICOP Codes)

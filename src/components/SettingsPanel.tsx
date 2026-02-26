@@ -33,7 +33,7 @@ export function SettingsPanel() {
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<CalendarIcon className="h-3.5 w-3.5 text-primary" />
 						Select Period
-						<ControlInfo content="Pick the specific month and year you want to calculate for. It automatically shows the most recent date with available official data." />
+						<ControlInfo content="Pick the specific month and year you want your inflation rate to be calculated. It automatically shows the most recent date with available official data." />
 					</Label>
 					<DateControl />
 				</div>
@@ -45,8 +45,8 @@ export function SettingsPanel() {
 						<ControlInfo
 							content={
 								<>
-									Choose <strong>Amount (₱)</strong> if you want to input your monthly or annual expenditure for
-									each commodity group. Choose <strong>Percent (%)</strong> if you want to input the only
+									Choose <strong>Amount (PhP)</strong> if you want to input your monthly or annual expenditure
+									for each commodity group. Choose <strong>Percent (%)</strong> if you want to input only
 									percentage of your monthly expenditure allotted for each commodity group.
 								</>
 							}
