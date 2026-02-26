@@ -259,7 +259,7 @@ export const Onboarding = () => {
 						</div>
 						<div>
 							<h3 className="font-bold text-foreground mb-1">How to Use the Personal Inflation Calculator</h3>
-							<ol className="list-decimal list-inside space-y-1 leading-relaxed text-base text-justify text-foreground">
+							<ol className="list-decimal list-inside space-y-3 leading-relaxed text-base text-justify text-foreground">
 								<li>
 									<strong>Choose your Province/City.</strong>
 									<p className="text-foreground">
@@ -271,12 +271,12 @@ export const Onboarding = () => {
 									<p className="text-foreground">
 										This is the consumer group which you want your personal inflation to be computed and
 										compared.
-										<br />
+										<br /> <br />
 										If “All Income Households” is selected, the personal inflation rate will be computed using
 										the average prices of commodities in the market basket of all income households of the
 										selected province/city. The personal inflation rate will also be compared with the
 										official CPI and inflation rate for All Income Households.
-										<br />
+										<br /> <br />
 										If Bottom 30% Income Households is selected, the personal inflation rate will be computed
 										using the average prices of commodities in the market basket of the bottom 30&amp; income
 										households of the selected province/city. Each province/city has its own income bracket
@@ -296,15 +296,15 @@ export const Onboarding = () => {
 									<strong>Select Input Type</strong>
 									<p className="text-foreground">
 										Input type requires monthly or annual expenditure by commodity group.
-										<br />
+										<br /> <br />
 										Choose “Amount” if you want to input your monthly or annual expenditure for each commodity
 										group. As guide, the total expenditure is computed while the entries are being typed. The
 										total amount is shown at the bottom of the page.
-										<br />
+										<br /> <br />
 										Choose “Percent” if you only want to provide the percentage of your monthly or annual
 										expenditure allotted for each commodity group. The total percentage should be equal to
 										100%. The total percentage encoded is also shown at the bottom of the page.
-										<br />
+										<br /> <br />
 										The information on monthly or annual expenditure represents your expenditure pattern. This
 										will be used as statistical weight in computing the personal CPI and inflation rate.
 									</p>
@@ -313,9 +313,9 @@ export const Onboarding = () => {
 									<strong>Select the Commodity Group.</strong>
 									<p className="text-foreground">
 										If “General” is selected, the inputs will be asked for the 13 major commodity groups only.
-										<br />
+										<br /> <br />
 										If “Specific” is selected, the inputs will be asked for specific commodity groups.
-										<br />
+										<br /> <br />
 										The commodity groups are based on the 2020 Philippine Classification of Individual
 										consumption According to Purpose (PCOICOP). Only the Group-level (3-digit PCOICOP Codes)
 										are used in this application.

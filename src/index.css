@@ -199,6 +199,10 @@ button {
 	cursor: pointer;
 }
 
+ol > li::marker {
+	font-weight: bold;
+}
+
 /* PSA Brand Utilities */
 .bg-psa-gradient {
 	background: linear-gradient(135deg, #054288 0%, #00338a 50%, #0d48bd 100%);
