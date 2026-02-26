@@ -24,7 +24,10 @@ export function ResultsDrawer() {
 
 	return (
 		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
-			<DrawerContent className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-none">
+			<DrawerContent
+				aria-describedby="inflation-report"
+				className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-none"
+			>
 				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0 p-0 m-0">
 					{/* Header */}
 					<DrawerHeader className="text-center rounded-t-2xl w-full pb-3 bg-psa-gradient shrink-0 shadow-sm z-10 px-4">

@@ -15,7 +15,7 @@ export function SettingsPanel() {
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<MapPin className="h-3.5 w-3.5 text-primary" />
 						Location
-						<ControlInfo content="Select the location where you usually reside and consume goods and services." />
+						<ControlInfo content="This must be the area where you usually buy or consume household goods and services." />
 					</Label>
 					<LocationControl />
 				</div>
@@ -24,7 +24,7 @@ export function SettingsPanel() {
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<Users className="h-3.5 w-3.5 text-primary" />
 						Income Bracket
-						<ControlInfo content="Select which consumer group you want your personal inflation to be computed and compared." />
+						<ControlInfo content="This is the consumer group to which you want your personal inflation to be compared." />
 					</Label>
 					<IncomeClassControl />
 				</div>
@@ -33,7 +33,7 @@ export function SettingsPanel() {
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<CalendarIcon className="h-3.5 w-3.5 text-primary" />
 						Select Period
-						<ControlInfo content="Select the month and year you want the inflation to be computed (by default, the latest month and year with available data)." />
+						<ControlInfo content="Pick the specific month and year you want to calculate for. It automatically shows the most recent date with available official data." />
 					</Label>
 					<DateControl />
 				</div>
@@ -42,7 +42,15 @@ export function SettingsPanel() {
 					<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 						<Settings2 className="h-3.5 w-3.5 text-primary" />
 						Input Type
-						<ControlInfo content="Choose whether to input monthly expenditure (PhP) or percentage share of each commodity group." />
+						<ControlInfo
+							content={
+								<>
+									Choose <strong>Amount (₱)</strong> if you want to input your monthly or annual expenditure for
+									each commodity group. Choose <strong>Percent (%)</strong> if you want to input the only
+									percentage of your monthly expenditure allotted for each commodity group.
+								</>
+							}
+						/>
 					</Label>
 					<InputTypeControl />
 				</div>
@@ -52,7 +60,16 @@ export function SettingsPanel() {
 				<Label className="flex items-center gap-1.5 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
 					<FormIcon className="h-3.5 w-3.5 text-primary" />
 					Commodity Group
-					<ControlInfo content="General shows 13 broad categories. Detailed lets you drill into specific items for more accurate results." />
+					<ControlInfo
+						content={
+							<>
+								If <strong>General</strong> is selected, the inputs will be asked for the 13 major commodity
+								groups only. If <strong>Detailed</strong> is selected, the inputs will be asked for specific
+								commodity groups. Commodity Grouping is based on the 2020 Philippine Classification of Individual
+								Consumption According to Purpose (PCOICOP).
+							</>
+						}
+					/>
 				</Label>
 				<TabControl />
 			</div>

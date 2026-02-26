@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { fuzzyScore, type FuzzyMatch } from "@/lib/fuzzySearch";
 import type { SearchOption } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
@@ -24,6 +25,8 @@ export function SmartSearch() {
 	const missing = useStore(missingDataItems);
 
 	const isMobile = useIsMobile();
+	const scrollDirection = useScrollDirection({ enabled: isMobile });
+	const headerHidden = isMobile && scrollDirection === "down";
 
 	const filteredOptions = useMemo(() => {
 		if (!isReady || !query || query.length < 2) return [];
@@ -82,7 +85,11 @@ export function SmartSearch() {
 	}, []);
 
 	return (
-		<div className="sticky top-18 sm:top-[100px] z-30 transition-all duration-300" id="smart-search-container">
+		<div
+			className="sticky top-18 sm:top-[100px] z-30 transition-[top] duration-300 ease-in-out motion-reduce:transition-none"
+			style={isMobile ? { top: headerHidden ? 0 : undefined } : undefined}
+			id="smart-search-container"
+		>
 			<Popover open={open} onOpenChange={setOpen} modal={true}>
 				<PopoverTrigger asChild>
 					<Button

@@ -41,7 +41,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
 											title="Weight"
 										>
-											Wt
+											Weight
 										</TableHead>
 										<TableHead
 											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
@@ -53,13 +53,13 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
 											title="Inflation Rate"
 										>
-											Rate
+											Infl. Rate
 										</TableHead>
 										<TableHead
 											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
 											title="Percentage Share to Inflation"
 										>
-											%Shr
+											%Shr Inflation
 										</TableHead>
 									</TableRow>
 								</TableHeader>
@@ -99,7 +99,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 												<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
 													{c.inflationRate.toFixed(1)}
 												</TableCell>
-												<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono font-semibold">
+												<TableCell className="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
 													{c.percentShare.toFixed(1)}
 												</TableCell>
 											</TableRow>
@@ -192,7 +192,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 									{/* Rank cell */}
 									<td
 										className={`p-3 border-r border-border text-center font-bold sticky left-0 z-10 ${
-											isAllItems ? "bg-primary/5 text-primary" : "bg-card text-muted-foreground"
+											isAllItems ? "bg-blue-700 text-white" : "bg-card text-muted-foreground"
 										}`}
 									>
 										{isAllItems ? "—" : rankIndex}

@@ -164,7 +164,7 @@ export const Onboarding = () => {
 						</DialogTitle>
 					</DialogHeader>
 					<p className="text-white/70 text-xs mt-1 tracking-wide uppercase font-medium">
-						Philippines Statistics Authority
+						Philippine Statistics Authority
 					</p>
 				</div>
 
@@ -223,7 +223,7 @@ export const Onboarding = () => {
 							<p className="text-base text-justify text-foreground leading-relaxed">
 								The PSA developed this tool so you can estimate your own inflation rate based on your actual
 								spending. By entering how you allocate your budget across commodity groups, the calculator
-								produces a personal inflation rate and compares it with official rates for your selected
+								produces a personal inflation data and compares it with official rates for your selected
 								province/city, region, and the Philippines.
 							</p>
 						</div>

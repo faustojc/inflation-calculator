@@ -1,7 +1,8 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { InfoIcon } from "lucide-react";
+import { type ReactNode } from "react";
 
-const ControlInfo = ({ content }: Readonly<{ content: string }>) => {
+const ControlInfo = ({ content }: Readonly<{ content: ReactNode }>) => {
 	return (
 		<Popover>
 			<PopoverTrigger className="cursor-pointer">
