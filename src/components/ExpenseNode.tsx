@@ -32,7 +32,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 	const displayValue = hasChildren ? totals[node.code] || 0 : allExpenses[node.code]?.value || 0;
 	const isOpen = expandedMap[node.code] ?? (level < 1 || displayValue > 0);
 	const isMatch = highlight?.code === node.code;
-	
+
 	const missing = useStore(missingDataItems);
 	const isReady = useStore(prefetchReady);
 	const isMissing = isReady && missing.has(node.code);
@@ -51,8 +51,13 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 			<div
 				ref={rowRef}
 				className={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
-					${isMissing ? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-600/50 ring-1 ring-inset ring-red-400/50 dark:ring-red-500/30" : 
-					  isMatch ? "bg-yellow-50 dark:bg-amber-950/30 border-yellow-300 dark:border-amber-600/50 ring-1 ring-inset ring-yellow-400/50 dark:ring-amber-500/30" : "border-border hover:bg-muted/50"}
+					${
+						isMissing
+							? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-600/50 ring-1 ring-inset ring-red-400/50 dark:ring-red-500/30"
+							: isMatch
+								? "bg-yellow-50 dark:bg-amber-950/30 border-yellow-300 dark:border-amber-600/50 ring-1 ring-inset ring-yellow-400/50 dark:ring-amber-500/30"
+								: "border-border hover:bg-muted/50"
+					}
 					${level === 0 ? "bg-muted/50" : ""}
 				`}
 				style={{ paddingLeft: `${level * 20 + 12}px` }}
@@ -76,7 +81,9 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 									<PopoverTrigger asChild>
 										<InfoIcon className="h-3.5 w-3.5 shrink-0 text-primary/60 hover:text-primary cursor-pointer transition-colors" />
 									</PopoverTrigger>
-									<PopoverContent className="w-72 p-3 text-sm">{SUB_CATEGORY_DESCRIPTIONS[node.code]}</PopoverContent>
+									<PopoverContent className="w-72 p-3 text-sm">
+										{SUB_CATEGORY_DESCRIPTIONS[node.code]}
+									</PopoverContent>
 								</Popover>
 							)}
 							<p
@@ -93,7 +100,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 							{isMissing && (
 								<div className="flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
 									<AlertCircle className="w-3.5 h-3.5" />
-									<span>No Data</span>
+									<span>No official CPI data</span>
 								</div>
 							)}
 						</div>

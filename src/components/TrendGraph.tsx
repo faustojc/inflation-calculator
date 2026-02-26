@@ -103,7 +103,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 					</p>
 				</div>
 
-				<div className="flex items-center justify-evenly lg:justify-start gap-2 w-full">
+				<div className="flex items-center justify-evenly lg:justify-start gap-2 w-full lg:w-fit">
 					<p className="text-foreground text-sm sm:text-base">Compare to:</p>
 					<Select value={compareMode} onValueChange={(v) => setCompareMode(v as CompareMode)}>
 						<SelectTrigger className="w-40 h-8 text-foreground border-foreground">
