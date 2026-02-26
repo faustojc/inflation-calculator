@@ -269,8 +269,8 @@ export const Onboarding = () => {
 								<li>
 									<strong>Select the Income Bracket.</strong>
 									<p className="text-foreground">
-										This is the consumer group which you want your personal inflation to be computed and
-										compared.
+										This is the consumer group you want to use for computing and comparing your personal
+										inflation.
 										<br /> <br />
 										If “All Income Households” is selected, the personal inflation rate will be computed using
 										the average prices of commodities in the market basket of all income households of the
