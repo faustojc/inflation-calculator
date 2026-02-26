@@ -91,14 +91,15 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 	};
 
 	return (
-		<div className="glass-card p-5 m-0 md:rounded-2xl border-y-2 md:border-2 space-y-4">
-			<div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-				<div className="flex items-center gap-2 text-primary">
-					<div className="flex items-center gap-2">
+		<div className="glass-card p-5 m-0 md:rounded-2xl border-y-2 md:border-2 space-y-4 h-full">
+			<div className="flex flex-col xl:flex-row gap-4 items-center justify-between">
+				<div className="flex items-center justify-around sm:justify-between gap-2 text-sm sm:text-base">
+					<div className="text-primary flex items-center gap-2">
 						<TrendingUp className="h-5 w-5" />
-						<h3 className="font-bold text-sm uppercase tracking-wide">Inflation Trend</h3>
+						<h3 className="font-bold uppercase tracking-wide">Inflation Trends</h3>
 					</div>
-					<p className="text-xs sm:text-sm text-white bg-primary/70 px-3 py-1 rounded-full whitespace-nowrap">
+					<p className="flex-1 font-bold">:</p>
+					<p className="font-semibold uppercase text-foreground text-center md:whitespace-nowrap">
 						{startDateStr} to {endDateStr}
 					</p>
 				</div>
@@ -126,13 +127,25 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 						<CartesianGrid vertical={false} stroke="hsl(var(--muted-foreground) / 0.35)" />
 						<XAxis
 							dataKey="date"
-							tick={{ fontSize: 16, fill: "hsl(var(--foreground))" }}
+							tick={({ x, y, payload }) => {
+								const [month, year] = (payload.value as string).split(" ");
+								return (
+									<text x={x} y={y} textAnchor="middle" fill="hsl(var(--foreground))" className="text-sm">
+										<tspan x={x} dy="0.8em">
+											{month}
+										</tspan>
+										<tspan x={x} dy="1.2em">
+											{year}
+										</tspan>
+									</text>
+								);
+							}}
+							height={50}
 							padding={{ left: 15, right: 15 }}
-							tickMargin={15}
+							tickMargin={4}
 							axisLine={false}
 							tickLine={false}
-							minTickGap={20}
-							angle={-40}
+							minTickGap={10}
 						/>
 						<YAxis
 							domain={yAxisConfig.domain}
@@ -158,10 +171,10 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							itemSorter={(item) => sortItems(item.dataKey as string)}
 						/>
 						<Legend
-							wrapperStyle={{ fontSize: "18px", bottom: "-19px", left: "0px", paddingTop: "5px" }}
+							wrapperStyle={{ fontSize: "18px", left: "0px", paddingTop: "5px" }}
 							itemSorter={(item) => sortItems(item.dataKey as string)}
 							formatter={(value, _, index) => (
-								<span key={index} className="mr-2.5">
+								<span key={index} className="mr-2.5 md:mr-7.5">
 									{value}
 								</span>
 							)}
@@ -226,10 +239,6 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 						)}
 					</LineChart>
 				</ResponsiveContainer>
-			</div>
-
-			<div className="text-center text-muted-foreground italic pt-2">
-				Chart shows movement from {startDateStr} to {endDateStr}.
 			</div>
 		</div>
 	);

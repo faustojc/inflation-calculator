@@ -1,249 +1,282 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { type ContributionFactor } from "@/utils/inflationCompute";
-import React from "react";
+import React, { useMemo, useState } from "react";
 
 export function ContributorTable({ contributors }: Readonly<{ contributors: ContributionFactor[] }>) {
 	const isMobile = useIsMobile();
-	const maxRows = Math.max(...contributors.map((f) => f.contributors.length));
+
+	const personal = contributors[0];
+	const comparisonOptions = contributors.slice(1);
+
+	const [selectedFactorName, setSelectedFactorName] = useState<string>(comparisonOptions[0]?.factorName ?? "");
+
+	const selectedComparison = useMemo(() => {
+		const found = comparisonOptions.find((c) => c.factorName === selectedFactorName);
+		return found ? found : comparisonOptions[0];
+	}, [comparisonOptions, selectedFactorName]);
+
+	const visibleContributors = useMemo(() => {
+		const result: ContributionFactor[] = [];
+		if (personal) result.push(personal);
+		if (selectedComparison) result.push(selectedComparison);
+		return result;
+	}, [personal, selectedComparison]);
+
+	const maxRows = Math.max(...visibleContributors.map((f) => f.contributors.length));
 
 	if (!contributors || contributors.length === 0) return null;
 
+	const CompareSelector = () => (
+		<div className="flex items-center gap-2">
+			<p className="text-foreground text-sm whitespace-nowrap">Compare to:</p>
+			<Select value={selectedComparison?.factorName ?? ""} onValueChange={(v) => setSelectedFactorName(v)}>
+				<SelectTrigger className="w-44 h-8 text-foreground border-foreground">
+					<SelectValue placeholder="Select area..." />
+				</SelectTrigger>
+				<SelectContent>
+					{comparisonOptions.map((opt) => (
+						<SelectItem key={opt.factorName} value={opt.factorName}>
+							{opt.factorName.toLowerCase() === "city/mun" ? opt.areaName : opt.areaName}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+		</div>
+	);
+
 	if (isMobile) {
 		return (
-			<div className="space-y-6">
-				{contributors.map((factor) => {
-					const totalWeight = factor.contributors[0]?.weight || 1;
+			<div className="space-y-4">
+				<CompareSelector />
 
-					return (
-						<div
-							key={factor.factorName}
-							className="border rounded-lg overflow-hidden shadow-sm bg-card border-border"
-						>
-							{/* Factor header */}
-							<div className="bg-primary px-4 py-3 flex justify-between items-center">
-								<span className="font-bold text-base text-primary-foreground tracking-wider">
-									{factor.factorName.toLowerCase() === "personal" ? factor.factorName : factor.areaName}
-								</span>
-							</div>
+				<div className="space-y-6">
+					{visibleContributors.map((factor) => {
+						const totalWeight = factor.contributors[0]?.weight || 1;
 
-							{/* Column table */}
-							<Table>
-								<TableHeader>
-									<TableRow className="bg-primary/90">
-										<TableHead className="w-8 h-9 text-xs text-primary-foreground font-bold uppercase tracking-wide">
-											#
-										</TableHead>
-										<TableHead className="h-9 text-xs text-primary-foreground font-bold uppercase tracking-wide">
-											Commodity
-										</TableHead>
-										<TableHead
-											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
-											title="Weight"
-										>
-											Weight
-										</TableHead>
-										<TableHead
-											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
-											title="Percentage Weight"
-										>
-											%Wt
-										</TableHead>
-										<TableHead
-											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
-											title="Inflation Rate"
-										>
-											Infl. Rate
-										</TableHead>
-										<TableHead
-											className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
-											title="Percentage Share to Inflation"
-										>
-											%Shr Inflation
-										</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{factor.contributors.map((c, i) => {
-										const isAllItems = c.code === "0";
-										const pctWeight = isAllItems ? 100 : (c.weight / totalWeight) * 100;
-										return (
-											<TableRow
-												key={c.code}
-												className={isAllItems ? "bg-primary/8 border-b-2 border-primary/20" : ""}
+						return (
+							<div
+								key={factor.factorName}
+								className="border rounded-lg overflow-hidden shadow-sm bg-card border-border"
+							>
+								{/* Factor header */}
+								<div className="bg-primary px-4 py-3 flex justify-between items-center">
+									<span className="font-bold text-base text-primary-foreground tracking-wider">
+										{factor.factorName.toLowerCase() === "personal" ? factor.factorName : factor.areaName}
+									</span>
+								</div>
+
+								{/* Column table */}
+								<Table>
+									<TableHeader>
+										<TableRow className="bg-primary/90">
+											<TableHead className="w-8 h-9 text-xs text-primary-foreground font-bold uppercase tracking-wide">
+												#
+											</TableHead>
+											<TableHead className="h-9 text-xs text-primary-foreground font-bold uppercase tracking-wide">
+												Commodity
+											</TableHead>
+											<TableHead
+												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
+												title="Weight"
 											>
-												<TableCell
-													className={`text-center py-2 h-auto text-xs ${
-														isAllItems
-															? "font-bold text-primary"
-															: "font-medium text-muted-foreground"
-													}`}
+												Weight
+											</TableHead>
+											<TableHead
+												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
+												title="Percentage Weight"
+											>
+												%Wt
+											</TableHead>
+											<TableHead
+												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
+												title="Inflation Rate"
+											>
+												Infl. Rate
+											</TableHead>
+											<TableHead
+												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
+												title="Percentage Share to Inflation"
+											>
+												%Shr Inflation
+											</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{factor.contributors.map((c, i) => {
+											const isAllItems = c.code === "0";
+											const pctWeight = isAllItems ? 100 : (c.weight / totalWeight) * 100;
+											return (
+												<TableRow
+													key={c.code}
+													className={isAllItems ? "bg-primary/8 border-b-2 border-primary/20" : ""}
 												>
-													{isAllItems ? "—" : i}
-												</TableCell>
-												<TableCell
-													className={`py-2 h-auto text-xs max-w-[130px] ${
-														isAllItems ? "font-bold" : "font-medium"
-													}`}
-												>
-													<div className="line-clamp-2" title={c.name}>
-														{c.name}
-													</div>
-												</TableCell>
-												<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
-													{c.weight.toFixed(1)}
-												</TableCell>
-												<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
-													{pctWeight.toFixed(1)}
-												</TableCell>
-												<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
-													{c.inflationRate.toFixed(1)}
-												</TableCell>
-												<TableCell className="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
-													{c.percentShare.toFixed(1)}
-												</TableCell>
-											</TableRow>
-										);
-									})}
-								</TableBody>
-							</Table>
-						</div>
-					);
-				})}
+													<TableCell
+														className={`text-center py-2 h-auto text-xs ${
+															isAllItems
+																? "font-bold text-primary"
+																: "font-medium text-muted-foreground"
+														}`}
+													>
+														{isAllItems ? "—" : i}
+													</TableCell>
+													<TableCell
+														className={`py-2 h-auto text-xs max-w-[130px] ${
+															isAllItems ? "font-bold" : "font-medium"
+														}`}
+													>
+														<div className="line-clamp-2" title={c.name}>
+															{c.name}
+														</div>
+													</TableCell>
+													<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+														{pctWeight.toFixed(1)}
+													</TableCell>
+													<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+														{c.inflationRate.toFixed(1)}
+													</TableCell>
+													<TableCell className="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
+														{c.percentShare.toFixed(1)}
+													</TableCell>
+												</TableRow>
+											);
+										})}
+									</TableBody>
+								</Table>
+							</div>
+						);
+					})}
+				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="border rounded-lg overflow-hidden shadow-sm bg-card border-border">
-			<div className="overflow-x-auto">
-				<table className="w-full text-sm border-collapse">
-					<thead>
-						{/* Row 1: Factor group names */}
-						<tr>
-							<th className="p-2 border-r border-primary-foreground/20 sticky left-0 bg-primary z-10 w-12" />
-							{contributors.map((f, i) => (
-								<th
-									key={f.factorName}
-									colSpan={5}
-									className={`p-3 border-r border-primary-foreground/20 last:border-r-0 text-center min-w-[300px] ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
-								>
-									<div className="font-bold tracking-wider text-white flex items-center justify-center gap-2">
-										<span className="text-base">
-											{f.factorName.toLowerCase() === "personal" ? f.factorName : f.areaName}
-										</span>
-									</div>
+		<div className="space-y-4">
+			<CompareSelector />
+
+			<div className="border rounded-lg overflow-hidden shadow-sm bg-card border-border">
+				<div className="overflow-x-auto">
+					<table className="w-full text-sm border-collapse">
+						<thead>
+							{/* Row 1: Factor group names */}
+							<tr>
+								<th className="p-2 border-r border-primary-foreground/20 sticky left-0 bg-primary z-10 w-12" />
+								{visibleContributors.map((f, i) => (
+									<th
+										key={f.factorName}
+										colSpan={4}
+										className={`p-3 border-r border-primary-foreground/20 last:border-r-0 text-center min-w-[300px] ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
+									>
+										<div className="font-bold tracking-wider text-white flex items-center justify-center gap-2">
+											<span className="text-base">
+												{f.factorName.toLowerCase() === "personal" ? f.factorName : f.areaName}
+											</span>
+										</div>
+									</th>
+								))}
+							</tr>
+
+							{/* Row 2: Column sub-headers */}
+							<tr className="border-b border-primary-foreground/20">
+								<th className="p-2 border-r border-primary-foreground/20 sticky left-0 bg-primary z-10 text-center text-xs uppercase font-bold text-white w-12">
+									Rank
 								</th>
-							))}
-						</tr>
+								{visibleContributors.map((f, i) => (
+									<React.Fragment key={f.factorName}>
+										<th
+											className={`p-2 text-left font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
+										>
+											Commodity Group
+										</th>
+										<th
+											className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
+											title="Percentage Weight"
+										>
+											Weight <br /> (in percent)
+										</th>
+										<th
+											className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
+											title="Inflation Rate"
+										>
+											Inflation Rate
+										</th>
+										<th
+											className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
+											title="Percentage Share to Inflation"
+										>
+											% Share to Inflation
+										</th>
+									</React.Fragment>
+								))}
+							</tr>
+						</thead>
 
-						{/* Row 2: Column sub-headers */}
-						<tr className="border-b border-primary-foreground/20">
-							<th className="p-2 border-r border-primary-foreground/20 sticky left-0 bg-primary z-10 text-center text-xs uppercase font-bold text-white w-12">
-								Rank
-							</th>
-							{contributors.map((f, i) => (
-								<React.Fragment key={f.factorName}>
-									<th
-										className={`p-2 text-left font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
-									>
-										Commodity Group
-									</th>
-									<th
-										className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
-										title="Weight"
-									>
-										Weight
-									</th>
-									<th
-										className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
-										title="Percentage Weight"
-									>
-										% Weight
-									</th>
-									<th
-										className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
-										title="Inflation Rate"
-									>
-										Inflation Rate
-									</th>
-									<th
-										className={`p-2 text-center font-semibold text-xs uppercase text-white border-r border-primary-foreground/20 border-t ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
-										title="Percentage Share to Inflation"
-									>
-										% Share to Inflation
-									</th>
-								</React.Fragment>
-							))}
-						</tr>
-					</thead>
+						<tbody>
+							{Array.from({ length: maxRows }, (_, rankIndex) => {
+								const isAllItems = rankIndex === 0;
 
-					<tbody>
-						{Array.from({ length: maxRows }, (_, rankIndex) => {
-							const isAllItems = rankIndex === 0;
-
-							return (
-								<tr
-									key={rankIndex}
-									className={`border-b border-border last:border-b-0 transition-colors ${
-										isAllItems ? "bg-primary/5 font-semibold" : "hover:bg-muted/50"
-									}`}
-								>
-									{/* Rank cell */}
-									<td
-										className={`p-3 border-r border-border text-center font-bold sticky left-0 z-10 ${
-											isAllItems ? "bg-blue-700 text-white" : "bg-card text-muted-foreground"
+								return (
+									<tr
+										key={rankIndex}
+										className={`border-b border-border last:border-b-0 transition-colors ${
+											isAllItems ? "bg-primary/5 font-semibold" : "hover:bg-muted/50"
 										}`}
 									>
-										{isAllItems ? "—" : rankIndex}
-									</td>
+										{/* Rank cell */}
+										<td
+											className={`p-3 border-r border-border text-center font-bold sticky left-0 z-10 ${
+												isAllItems ? "bg-blue-700 text-white" : "bg-card text-muted-foreground"
+											}`}
+										>
+											{isAllItems ? "—" : rankIndex}
+										</td>
 
-									{/* Contributor cells per factor */}
-									{contributors.map((f) => {
-										const c = f.contributors[rankIndex];
-										if (!c)
+										{/* Contributor cells per factor */}
+										{visibleContributors.map((f) => {
+											const c = f.contributors[rankIndex];
+											if (!c)
+												return (
+													<td
+														key={f.factorName + "empty"}
+														colSpan={4}
+														className="border-r border-border last:border-r-0 bg-muted/20"
+													/>
+												);
+
+											const totalWeight = f.contributors[0]?.weight || 1;
+											const pctWeight = isAllItems ? 100 : (c.weight / totalWeight) * 100;
+
 											return (
-												<td
-													key={f.factorName + "empty"}
-													colSpan={5}
-													className="border-r border-border last:border-r-0 bg-muted/20"
-												/>
+												<React.Fragment key={f.factorName}>
+													<td
+														className={`p-2 border-r border-border text-sm max-w-[200px] ${
+															isAllItems ? "font-bold" : ""
+														}`}
+													>
+														<div className="line-clamp-2 pl-1" title={c.name}>
+															{c.name}
+														</div>
+													</td>
+													<td className="p-2 border-r border-border text-sm text-right font-mono tabular-nums text-muted-foreground">
+														{pctWeight.toFixed(1)}
+													</td>
+													<td className="p-2 border-r border-border text-sm text-right font-mono tabular-nums text-muted-foreground">
+														{c.inflationRate.toFixed(1)}
+													</td>
+													<td className="p-2 border-r border-border last:border-r-0 text-sm text-right font-mono tabular-nums font-semibold">
+														{c.percentShare.toFixed(1)}
+													</td>
+												</React.Fragment>
 											);
-
-										const totalWeight = f.contributors[0]?.weight || 1;
-										const pctWeight = isAllItems ? 100 : (c.weight / totalWeight) * 100;
-
-										return (
-											<React.Fragment key={f.factorName}>
-												<td
-													className={`p-2 border-r border-border text-sm max-w-[200px] ${
-														isAllItems ? "font-bold" : ""
-													}`}
-												>
-													<div className="line-clamp-2 pl-1" title={c.name}>
-														{c.name}
-													</div>
-												</td>
-												<td className="p-2 border-r border-border text-sm text-right font-mono tabular-nums text-muted-foreground">
-													{c.weight.toFixed(1)}
-												</td>
-												<td className="p-2 border-r border-border text-sm text-right font-mono tabular-nums text-muted-foreground">
-													{pctWeight.toFixed(1)}
-												</td>
-												<td className="p-2 border-r border-border text-sm text-right font-mono tabular-nums text-muted-foreground">
-													{c.inflationRate.toFixed(1)}
-												</td>
-												<td className="p-2 border-r border-border last:border-r-0 text-sm text-right font-mono tabular-nums font-semibold">
-													{c.percentShare.toFixed(1)}
-												</td>
-											</React.Fragment>
-										);
-									})}
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
+										})}
+									</tr>
+								);
+							})}
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	);

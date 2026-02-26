@@ -193,7 +193,7 @@ function processTrendMonth(
 
 	const dateObj = new Date(year, month - 1);
 	return {
-		date: dateObj.toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+		date: dateObj.toLocaleDateString("en-US", { month: "short", year: "numeric" }),
 		sortKey: year * 100 + month,
 		personal: safeVal(personalRate),
 		area: safeVal(areaRate),
@@ -382,10 +382,16 @@ export function calculatePersonalInflation(
 		};
 
 		if (isPersonal) {
-			let totalWeightedCpiEnd = 0;
-			breakdown.forEach((b) => (totalWeightedCpiEnd += b.weightedCpiEnd));
+			// Compute weighted CPI change per item: (CPI_start - CPI_end) * weight
+			// where CPI_start = selected date (cpiEnd in code), CPI_end = previous date (cpiStart in code)
+			let totalWeightedChange = 0;
 			breakdown.forEach((b) => {
-				const percentShare = (b.weightedCpiEnd / totalWeightedCpiEnd) * 100;
+				totalWeightedChange += (b.cpiEnd - b.cpiStart) * b.weight;
+			});
+
+			breakdown.forEach((b) => {
+				const weightedChange = (b.cpiEnd - b.cpiStart) * b.weight;
+				const percentShare = totalWeightedChange !== 0 ? (weightedChange / totalWeightedChange) * 100 : 0;
 				contributions.push({
 					code: b.categoryCode,
 					name: b.name,
@@ -397,8 +403,8 @@ export function calculatePersonalInflation(
 		} else if (areaKey && weightsMap[areaKey]) {
 			const areaWeights = weightsMap[areaKey];
 			const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
-			let totalWeightedCpi = 0;
-			const tempContribs: { code: string; weightedCpi: number; weight: number; itemInflation: number }[] = [];
+			let totalWeightedChange = 0;
+			const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] = [];
 
 			for (let i = 0; i < codes.length; i++) {
 				const code = codes[i]!;
@@ -406,27 +412,27 @@ export function calculatePersonalInflation(
 				const cpiEnd = findCpi(dataIndex, areaKey, dates.endYear, dates.endMonth, code);
 				const cpiStart = findCpi(dataIndex, areaKey, dates.startYear, dates.startMonth, code);
 
-				if (cpiEnd !== null && weight !== undefined) {
-					const weightedCpi = cpiEnd * weight;
-					totalWeightedCpi += weightedCpi;
-					const itemInflation = cpiStart && cpiStart > 0 ? calcGrowth(cpiEnd, cpiStart) : 0;
-					tempContribs.push({ code, weightedCpi, weight, itemInflation });
+				if (cpiEnd !== null && cpiStart !== null && weight !== undefined) {
+					const weightedChange = (cpiEnd - cpiStart) * weight;
+					totalWeightedChange += weightedChange;
+					const itemInflation = cpiStart > 0 ? calcGrowth(cpiEnd, cpiStart) : 0;
+					tempContribs.push({ code, weightedChange, weight, itemInflation });
 				}
 			}
 
 			// Use actual sum of area weights for ALL ITEMS weight
 			allItems.weight = areaWeights.reduce((sum, w) => sum + w, 0);
 
-			tempContribs.forEach((tc) => {
-				const percentShare = (tc.weightedCpi / totalWeightedCpi) * 100;
+			for (const c of tempContribs) {
+				const percentShare = totalWeightedChange !== 0 ? (c.weightedChange / totalWeightedChange) * 100 : 0;
 				contributions.push({
-					code: tc.code,
-					name: majorCategoryNames[tc.code] || tc.code,
-					weight: tc.weight,
-					inflationRate: tc.itemInflation,
+					code: c.code,
+					name: majorCategoryNames[c.code] || c.code,
+					weight: c.weight,
+					inflationRate: c.itemInflation,
 					percentShare,
 				});
-			});
+			}
 		}
 
 		contributions.sort((a, b) => b.percentShare - a.percentShare);

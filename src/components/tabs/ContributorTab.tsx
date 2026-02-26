@@ -9,19 +9,13 @@ const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }
 					Major Contributors to Inflation
 				</h3>
 				<p className="text-sm text-foreground mb-3">
-					Top 3 items that had the biggest impact on your personal inflation rate and how they compare to other areas.
+					Top 3 commodity groups that had the biggest impact on your personal inflation rate and how they compare to
+					other areas.
 				</p>
 			</div>
 			<ContributorTable contributors={contributors} />
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-1 border-t border-border pt-3">
-				<div className="space-y-1">
-					<p className="text-base font-bold text-primary uppercase tracking-wider">Weight</p>
-					<p className="text-sm text-muted-foreground leading-snug">
-						The proportion of the commodity group in the expenditure basket. A higher weight means the item has more
-						influence on the overall inflation rate.
-					</p>
-				</div>
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-1 border-t border-border pt-3">
 				<div className="space-y-1">
 					<p className="text-base font-bold text-primary uppercase tracking-wider">% Weight</p>
 					<p className="text-sm text-muted-foreground leading-snug">
