@@ -2,6 +2,7 @@ import { useStore } from "@nanostores/react";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
+import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
 import Footer from "@/components/Footer";
 import { GeneralTab } from "@/components/GeneralTab";
@@ -92,6 +93,24 @@ export default function App() {
 					</h1>
 
 					<SettingsPanel />
+
+					{currTab === "general" ? (
+						<div className="flex justify-between items-center my-5">
+							<h2 className="font-bold text-base text-foreground">General Commodities</h2>
+							<ClearButton />
+						</div>
+					) : (
+						<div className="flex justify-between items-center my-5">
+							<div>
+								<h2 className="font-bold text-base text-foreground flex items-center gap-2">
+									Commodity Breakdown
+								</h2>
+								<p className="text-xs text-muted-foreground">Expand categories to input specific expenses</p>
+							</div>
+							<ClearButton />
+						</div>
+					)}
+
 					<SmartSearch />
 
 					<div id="commodity-inputs">

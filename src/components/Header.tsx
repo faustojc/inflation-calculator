@@ -22,7 +22,7 @@ export const Header = () => {
 					<img
 						src="/psa_header.png"
 						alt="PSA Logo"
-						className="h-9 sm:h-12 md:h-14 w-auto object-contain  sm:max-w-none"
+						className="h-9 sm:h-12 md:h-14 object-contain w-45 sm:max-w-none md:w-auto"
 					/>
 					<div className="flex items-center gap-1 sm:gap-2 shrink-0">
 						<img

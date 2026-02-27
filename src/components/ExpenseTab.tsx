@@ -1,4 +1,3 @@
-import ClearButton from "@/components/ClearButton";
 import ExpenseNode from "@/components/ExpenseNode";
 import type { CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
@@ -41,14 +40,6 @@ export function ExpenseTab() {
 
 	return (
 		<div id="detailed-tab" className="space-y-3">
-			<div className="flex justify-between items-center">
-				<div>
-					<h2 className="font-bold text-base text-foreground flex items-center gap-2">Commodity Breakdown</h2>
-					<p className="text-xs text-muted-foreground">Expand categories to input specific expenses</p>
-				</div>
-				<ClearButton />
-			</div>
-
 			<div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
 				<div className="pb-1">
 					{tree.map((node) => (
