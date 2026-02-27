@@ -10,7 +10,7 @@ import type {
 } from "@/lib/types";
 import type { IncomeClass } from "@/stores/inflationStore";
 import { FILE_CACHE, formatLocationName, MANIFEST_CACHE } from "@/utils/metadata";
-import { fetchWithCache, invalidateStaleCacheOnMonthChange } from "@/utils/storage";
+import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 import { computed, map } from "nanostores";
 
 const API_URL = import.meta.env?.PUBLIC_VITE_API_URL || "/api/v1";
@@ -56,14 +56,24 @@ export async function initializeApp() {
 	try {
 		dataStore.setKey("isLoading", true);
 
-		// Purge cache if the month has rolled over (PSA uploads new CPI data monthly)
-		await invalidateStaleCacheOnMonthChange();
-		const [metaRes, commRes] = await Promise.all([
+		let [metaRes, commRes] = await Promise.all([
 			fetchWithCache(`${API_URL}/metadata.json`, "network-first"),
 			fetchWithCache(`${API_URL}/commodities.json`, "network-first"),
 		]);
 
 		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
+
+		const tempMeta: Metadata = await metaRes.clone().json();
+		const wasInvalidated = await invalidateIfDataChanged(tempMeta.generated_at);
+
+		if (wasInvalidated) {
+			[metaRes, commRes] = await Promise.all([
+				fetchWithCache(`${API_URL}/metadata.json`, "network-first"),
+				fetchWithCache(`${API_URL}/commodities.json`, "network-first"),
+			]);
+
+			if (!metaRes.ok || !commRes.ok) throw new Error("Failed to reload data after cache invalidation");
+		}
 
 		const meta: Metadata = await metaRes.json();
 		let commodities: CommodityDef[] = await commRes.json();
@@ -240,7 +250,7 @@ export async function getCalculationData(
 export async function getWeights(areaKeys: string[], incomeClass: IncomeClass): Promise<Record<string, number[]>> {
 	const results: Record<string, number[]> = {};
 	const pending: Promise<void>[] = [];
-	
+
 	for (const key of areaKeys) {
 		pending.push(
 			getAreaManifest(key).then((m) => {

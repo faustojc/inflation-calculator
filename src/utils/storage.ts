@@ -1,43 +1,39 @@
 import { FILE_CACHE, MANIFEST_CACHE, WEIGHTS_CACHE } from "@/utils/metadata";
 
-export const CACHE_NAME = "inflation-data-v1";
-const CACHE_TIMESTAMP_KEY = "inflation-cache-month";
+export const CACHE_NAME = "inflation-data-v2";
+const CACHE_VERSION_KEY = "inflation-cache-version";
 
 type CacheStrategy = "cache-first" | "network-first";
 
 /**
- * Returns a "YYYY-MM" string for the given date, representing the cache epoch.
- * Cache is considered stale when this value changes (i.e., a new month begins).
+ * Checks if the upstream data has changed by comparing the `generated_at`
+ * field from the freshly fetched metadata against the locally stored version.
+ *
+ * If the version differs (e.g. new data published, correction uploaded),
+ * all Cache Storage entries and in-memory caches are purged so the app
+ * re-fetches the latest CPI data on next access.
+ *
+ * @param generatedAt - The `generated_at` value from the latest metadata.json.
+ * @returns `true` if the cache was invalidated, `false` otherwise.
  */
-function getCurrentCacheEpoch(): string {
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = String(now.getMonth() + 1).padStart(2, "0");
-	return `${year}-${month}`;
-}
+export async function invalidateIfDataChanged(generatedAt: string): Promise<boolean> {
+	const storedVersion = localStorage.getItem(CACHE_VERSION_KEY);
 
-/**
- * Checks if the cached data belongs to a previous month and, if so,
- * purges both the Cache Storage and in-memory caches so that the app
- * re-fetches the latest CPI data from the CDN.
- */
-export async function invalidateStaleCacheOnMonthChange(): Promise<void> {
-	const currentEpoch = getCurrentCacheEpoch();
-	const storedEpoch = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-
-	if (storedEpoch && storedEpoch !== currentEpoch) {
-		console.info(
-			`[Cache] Month changed (${storedEpoch} → ${currentEpoch}). Clearing stale CPI cache.`,
-		);
+	if (storedVersion && storedVersion !== generatedAt) {
+		console.info(`[Cache] Data version changed (${storedVersion} → ${generatedAt}). Purging stale CPI cache.`);
 
 		await clearDataCache();
 
 		FILE_CACHE.clear();
 		MANIFEST_CACHE.clear();
 		WEIGHTS_CACHE.clear();
+
+		localStorage.setItem(CACHE_VERSION_KEY, generatedAt);
+		return true;
 	}
 
-	localStorage.setItem(CACHE_TIMESTAMP_KEY, currentEpoch);
+	localStorage.setItem(CACHE_VERSION_KEY, generatedAt);
+	return false;
 }
 
 /**
