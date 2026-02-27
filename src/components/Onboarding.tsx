@@ -112,6 +112,16 @@ const startTour = () => {
 				},
 			},
 			{
+				element: "#onboarding",
+				popover: {
+					title: "Replay App Guide",
+					description:
+						"Don't worry about remembering everything. Click here anytime to reopen this guide and restart the introductory tour.",
+					side: "bottom",
+					align: "start",
+				},
+			},
+			{
 				element: "#theme-toggle",
 				popover: {
 					title: "Theme Toggle",
