@@ -32,7 +32,7 @@ const IncomeClassControl = () => {
 					<SelectItem value="B30">Bottom 30% Income</SelectItem>
 				</SelectContent>
 			</Select>
-			{appSettings.area.capita && appSettings.incomeClass === "B30" && (
+			{appSettings.area.capita !== undefined && appSettings.area.capita > 0 && appSettings.incomeClass === "B30" && (
 				<span className="text-xs text-foreground space-x-1">
 					<div className="space-x-1">
 						<span>Annual per Capita:</span>

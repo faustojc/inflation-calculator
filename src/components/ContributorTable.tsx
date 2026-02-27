@@ -93,7 +93,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
 												title="Percentage Share to Inflation"
 											>
-												%Shr Inflation
+												%Share Inflation
 											</TableHead>
 										</TableRow>
 									</TableHeader>
