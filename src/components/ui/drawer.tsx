@@ -41,7 +41,7 @@ function DrawerContent({ className, children, ...props }: ComponentProps<typeof 
 			<DrawerPrimitive.Content
 				data-slot="drawer-content"
 				className={cn(
-					"group/drawer-content bg-background fixed z-50 flex h-auto flex-col inset-x-0 bottom-0 mt-24 max-h-[86vh] sm:max-h-[96vh]",
+					"group/drawer-content bg-background fixed z-50 flex h-auto flex-col inset-x-0 bottom-0 mt-24 max-h-screen md:max-h-[96vh]",
 					className,
 				)}
 				{...props}
