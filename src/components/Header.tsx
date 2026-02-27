@@ -38,7 +38,7 @@ export const Header = () => {
 							onClick={() => showOnboarding()}
 						>
 							<HelpCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-							<span className="hidden sm:inline">How it works</span>
+							<span className="hidden sm:inline">Guide</span>
 						</Button>
 
 						<ModeToggle />
