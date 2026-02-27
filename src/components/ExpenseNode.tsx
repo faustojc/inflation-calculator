@@ -2,6 +2,7 @@ import type { DisplayNode } from "@/components/ExpenseTab";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
 	categoryTotals,
 	detailedExpenses,
@@ -15,7 +16,7 @@ import {
 } from "@/stores/inflationStore";
 import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
-import { AlertCircle, ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
 
 const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number }) => {
@@ -36,6 +37,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 	const missing = useStore(missingDataItems);
 	const isReady = useStore(prefetchReady);
 	const isMissing = isReady && missing.has(node.code);
+	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		if (isMatch) {
@@ -97,9 +99,9 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 									← {highlight.label} belongs here
 								</span>
 							)}
-							{isMissing && (
-								<div className="flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
-									<AlertCircle className="w-3.5 h-3.5" />
+							{!isMobile && isMissing && (
+								<div className="flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
+									<AlertTriangle className="w-3.5 h-3.5" />
 									<span>No official CPI data</span>
 								</div>
 							)}
@@ -151,6 +153,12 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 							/>
 						)}
 					</div>
+					{isMobile && isMissing && !hasChildren && (
+						<div className="col-span-5 flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
+							<AlertTriangle className="w-3.5 h-3.5" />
+							<span>No official CPI data</span>
+						</div>
+					)}
 				</div>
 			</div>
 
