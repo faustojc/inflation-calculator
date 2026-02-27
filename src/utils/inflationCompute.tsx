@@ -1,5 +1,6 @@
 import type { AreaDef, DataIndex } from "@/lib/types";
 import { type ExpenseItem } from "@/stores/inflationStore";
+import type { ReactNode } from "react";
 
 export interface LocationContext {
 	hierarchy: {
@@ -79,7 +80,7 @@ export interface CalculationResult {
 	contributors: ContributionFactor[];
 	trend: TrendPoint[];
 	comparators: Comparators;
-	interpretation: string[];
+	interpretation: ReactNode[];
 	meta: {
 		location: LocationContext;
 		dates: DateRange;
@@ -240,7 +241,7 @@ function generateInterpretation(
 		location: { hierarchy: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef } };
 		dates: DateRange;
 	},
-): string[] {
+): ReactNode[] {
 	const { location, dates } = meta;
 	const monthStr = new Date(dates.endYear, dates.endMonth - 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
@@ -255,38 +256,80 @@ function generateInterpretation(
 	const areaName = location.hierarchy.target.name || "Selected Area";
 	const regionName = location.hierarchy.region?.name;
 
-	const p1 = `Your computed consumer price index is ${personalCpi.toFixed(1)}. It means that average price of your commonly purchased goods and services have ${getDir(
-		personalCpi - 100,
-	)} by ${percentChange}% compared with their average prices in 2018. Subsequently, in ${monthStr}, you will need PhP ${purchasingPower} to buy the same set of goods and services worth PhP 100.00 in 2018.`;
+	const p1 = (
+		<>
+			Your computed consumer price index is <strong>{personalCpi.toFixed(1)}</strong>. It means that average price of your
+			commonly purchased goods and services have{" "}
+			<strong>
+				{getDir(personalCpi - 100)} by {percentChange}%
+			</strong>{" "}
+			compared with their average prices in 2018. Subsequently, in {monthStr}, you will need{" "}
+			<strong>PhP {purchasingPower}</strong> to buy the same set of goods and services worth PhP 100.00 in 2018.
+		</>
+	);
 
-	const p2 = `You live in ${areaName}${regionName ? ` located in ${regionName}` : ""}.`;
+	const p2 = (
+		<>
+			You live in <strong>{areaName}</strong>
+			{regionName ? (
+				<>
+					{" "}
+					located in <strong>{regionName}</strong>
+				</>
+			) : (
+				""
+			)}
+			.
+		</>
+	);
 
-	const p3 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(personalRate, comps.areaRate)} than the inflation rate of the average households in ${
-		areaName
-	} (${comps.areaRate.toFixed(1)}%). This means that you are ${getAff(personalRate, comps.areaRate)} affected by the price increases in ${
-		areaName
-	} compared with the average household in the area.`;
+	const p3 = (
+		<>
+			Your personal inflation rate of{" "}
+			<strong>
+				{personalRate.toFixed(1)}% is {getComp(personalRate, comps.areaRate)}
+			</strong>{" "}
+			than the inflation rate of the average households in{" "}
+			<strong>
+				{areaName} ({comps.areaRate.toFixed(1)}%)
+			</strong>
+			. This means that you are {getAff(personalRate, comps.areaRate)} affected by the price increases in{" "}
+			<strong>{areaName}</strong> compared with the average household in the area.
+		</>
+	);
 
-	const interpretation = [p2, p1, p3];
+	const interpretation: ReactNode[] = [p2, p1, p3];
 
 	if (regionName && comps.regionRate !== undefined) {
-		const p4 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(
-			personalRate,
-			comps.regionRate,
-		)} than the inflation rate of the average households in ${regionName} (${comps.regionRate.toFixed(1)}%). This means that you are ${getAff(
-			personalRate,
-			comps.regionRate,
-		)} affected by the price increases in ${regionName} compared to the average household in the region.`;
+		const p4 = (
+			<>
+				Your personal inflation rate of{" "}
+				<strong>
+					{personalRate.toFixed(1)}% is {getComp(personalRate, comps.regionRate)}{" "}
+				</strong>{" "}
+				than the inflation rate of the average households in{" "}
+				<strong>
+					{regionName} ({comps.regionRate.toFixed(1)}%)
+				</strong>
+				. This means that you are {getAff(personalRate, comps.regionRate)} affected by the price increases in {regionName}{" "}
+				compared to the average household in the region.
+			</>
+		);
 		interpretation.push(p4);
 	}
 
-	const p5 = `Your personal inflation rate of ${personalRate.toFixed(1)}% is ${getComp(
-		personalRate,
-		comps.nationalRate,
-	)} than the inflation rate of the average households in the Philippines (${comps.nationalRate.toFixed(1)}%). This means that you are ${getAff(
-		personalRate,
-		comps.nationalRate,
-	)} affected by the price increases in the country compared with the average household.`;
+	const p5 = (
+		<>
+			Your personal inflation rate of{" "}
+			<strong>
+				{personalRate.toFixed(1)}% is {getComp(personalRate, comps.nationalRate)}
+			</strong>{" "}
+			than the inflation rate of the average households in the{" "}
+			<strong>Philippines ({comps.nationalRate.toFixed(1)}%)</strong>. This means that you are{" "}
+			<strong>{getAff(personalRate, comps.nationalRate)}</strong> affected by the price increases in the country compared
+			with the average household.
+		</>
+	);
 	interpretation.push(p5);
 
 	return interpretation;

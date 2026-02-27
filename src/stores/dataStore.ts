@@ -170,7 +170,7 @@ export async function getAreaManifest(areaKey: string): Promise<AreaManifest | n
 			return null;
 		})
 		.catch((error) => {
-			console.warn(`[Inflation] Failed to load manifest for ${areaKey}`, error);
+			console.warn(`Failed to load manifest for ${areaKey}`, error);
 			return null;
 		});
 
@@ -214,7 +214,7 @@ export async function getCalculationData(
 					return null;
 				})
 				.catch((error) => {
-					console.warn(`[Inflation] Failed to load ${requestKey}`, error);
+					console.warn(`Failed to load ${requestKey}`, error);
 					return null;
 				});
 
