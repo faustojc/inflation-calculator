@@ -124,10 +124,10 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 															{c.name}
 														</div>
 													</TableCell>
-													<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+													<TableCell className="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
 														{pctWeight.toFixed(1)}
 													</TableCell>
-													<TableCell className="text-right py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+													<TableCell className="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
 														{c.inflationRate.toFixed(1)}
 													</TableCell>
 													<TableCell className="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
