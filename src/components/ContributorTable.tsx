@@ -79,21 +79,15 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 											</TableHead>
 											<TableHead
 												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
-												title="Weight"
-											>
-												Weight
-											</TableHead>
-											<TableHead
-												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
 												title="Percentage Weight"
 											>
-												%Wt
+												Weight (in percent)
 											</TableHead>
 											<TableHead
 												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
 												title="Inflation Rate"
 											>
-												Infl. Rate
+												Inflation Rate
 											</TableHead>
 											<TableHead
 												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
