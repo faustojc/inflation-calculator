@@ -145,7 +145,17 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							tickMargin={4}
 							axisLine={false}
 							tickLine={false}
-							minTickGap={10}
+							{...(isMobile
+								? {
+										ticks:
+											trend.length > 1
+												? [trend[0]!.date, trend[Math.floor(trend.length / 2)]!.date, trend.at(-1)!.date]
+												: trend.length === 1
+													? [trend[0]!.date]
+													: [],
+										interval: 0 as const,
+									}
+								: { minTickGap: 10 })}
 						/>
 						<YAxis
 							domain={yAxisConfig.domain}
