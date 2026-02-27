@@ -88,7 +88,8 @@ const startTour = () => {
 				element: "#commodity-inputs",
 				popover: {
 					title: "Step 2. Enter Your Monthly Expenses",
-					description: "Fill in exactly how much you spend in a typical month for each category listed here.",
+					description:
+						"Fill in exactly how much you spend in a typical month for each category listed here. <strong>In Detailed tab</strong>, some inputs that are highlighted in red with <strong>'No official CPI data'</strong> are disabled because there is no official CPI data for those commodities.",
 					side: "top",
 				},
 			},
