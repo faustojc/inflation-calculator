@@ -189,12 +189,11 @@ export async function prefetchConstraints() {
 
 			if (genChanged) generalExpenses.set(newGenStore);
 			if (detChanged) detailedExpenses.set(newDetStore);
-
 			if (genChanged || detChanged) {
 				toast.warning("Some inputs were cleared", {
 					description:
-						"Certain items you entered have no recorded CPI data for the selected location and period. Their values have been reset to prevent calculation errors.",
-					duration: 8000,
+						"Certain items you entered have no recorded CPI data for the selected location, income bracket, and period/date. Their values have been reset to prevent calculation errors.",
+					duration: 10000,
 					classNames: {
 						toast: "!border-amber-400 !dark:border-amber-500/60 !bg-amber-50 !dark:bg-amber-950/40 !shadow-lg !shadow-amber-200/30 !dark:shadow-amber-900/20 !px-3 !py-2 !gap-3.5",
 						title: "!text-amber-900 !dark:text-amber-200 !text-[0.95rem] !font-bold !tracking-tight",
