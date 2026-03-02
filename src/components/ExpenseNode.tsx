@@ -154,7 +154,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 						)}
 					</div>
 					{isMobile && isMissing && !hasChildren && (
-						<div className="col-span-5 flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
+						<div className="col-span-5 flex items-center justify-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
 							<AlertTriangle className="w-3.5 h-3.5" />
 							<span>No official CPI data</span>
 						</div>

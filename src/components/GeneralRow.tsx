@@ -66,12 +66,6 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 							← {highlight?.label || "It"} belongs here
 						</p>
 					)}
-					{isMissing && (
-						<div className="flex items-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
-							<AlertCircle className="w-3.5 h-3.5" />
-							<span>No official CPI data</span>
-						</div>
-					)}
 				</div>
 			</div>
 
@@ -116,6 +110,12 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			<p className="col-span-3 text-sm text-muted-foreground leading-relaxed line-clamp-2">
 				{MAJOR_CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}
 			</p>
+			{isMissing && (
+				<div className="col-span-3 flex items-center justify-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
+					<AlertCircle className="w-3.5 h-3.5" />
+					<span>No official CPI data</span>
+				</div>
+			)}
 		</div>
 	);
 }
