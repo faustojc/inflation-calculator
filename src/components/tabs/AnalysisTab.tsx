@@ -8,7 +8,7 @@ const AnalysisTab = ({ interpretation }: { interpretation: ReactNode[] }) => {
 				<Info className="h-4 w-4 text-primary" />
 				<h3 className="font-bold uppercase tracking-wide text-base text-foreground">Analysis</h3>
 			</div>
-			<ul className="list-disc list-inside space-y-2">
+			<ul className="list-disc list-inside space-y-2 text-justify">
 				{interpretation.map((p, i) => (
 					<li key={i} className="text-base leading-relaxed text-foreground">
 						{p}

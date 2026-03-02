@@ -92,7 +92,7 @@ export function formatLocationName(str: string, locale = "en") {
 		return txt.charAt(0).toLocaleUpperCase(locale) + txt.slice(1).toLocaleLowerCase(locale);
 	});
 
-	const exceptions = ["de", "del", "la", "las", "los", "y", "and", "of", "in"];
+	const exceptions = ["de", "del", "las", "los", "y", "and", "of", "in"];
 	str = str.replaceAll(new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"), function (match: string, offset: number) {
 		return offset === 0 ? match : match.toLowerCase();
 	});
@@ -114,7 +114,7 @@ export function formatLocationName(str: string, locale = "en") {
 			.join("");
 
 		// If the content is an acronym of the name (e.g. NCR == N(ational)C(apital)R(egion))
-		if (generatedAcronym.length > 1 && acronymTarget === generatedAcronym || acronymTarget === "CALABARZON") {
+		if ((generatedAcronym.length > 1 && acronymTarget === generatedAcronym) || acronymTarget === "CALABARZON") {
 			return "(" + acronymTarget + ")";
 		}
 

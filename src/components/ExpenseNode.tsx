@@ -25,19 +25,19 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 	const totals = useStore(categoryTotals);
 	const expandedMap = useStore(expandedNodes);
 	const allExpenses = useStore(detailedExpenses);
+	const missing = useStore(missingDataItems);
+	const isReady = useStore(prefetchReady);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const rowRef = useRef<HTMLDivElement>(null);
+
+	const isMobile = useIsMobile();
 
 	const hasChildren = node.children && node.children.length > 0;
 	const displayValue = hasChildren ? totals[node.code] || 0 : allExpenses[node.code]?.value || 0;
 	const isOpen = expandedMap[node.code] ?? (level < 1 || displayValue > 0);
 	const isMatch = highlight?.code === node.code;
-
-	const missing = useStore(missingDataItems);
-	const isReady = useStore(prefetchReady);
 	const isMissing = isReady && missing.has(node.code);
-	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		if (isMatch) {

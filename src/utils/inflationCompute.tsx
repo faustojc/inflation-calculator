@@ -271,13 +271,11 @@ function generateInterpretation(
 	const p2 = (
 		<>
 			You live in <strong>{areaName}</strong>
-			{regionName ? (
+			{regionName && (
 				<>
 					{" "}
 					located in <strong>{regionName}</strong>
 				</>
-			) : (
-				""
 			)}
 			.
 		</>
@@ -293,7 +291,7 @@ function generateInterpretation(
 			<strong>
 				{areaName} ({comps.areaRate.toFixed(1)}%)
 			</strong>
-			. This means that you are {getAff(personalRate, comps.areaRate)} affected by the price increases in{" "}
+			. This means that you are <strong>{getAff(personalRate, comps.areaRate)} affected</strong> by the price increases in{" "}
 			<strong>{areaName}</strong> compared with the average household in the area.
 		</>
 	);
@@ -311,8 +309,8 @@ function generateInterpretation(
 				<strong>
 					{regionName} ({comps.regionRate.toFixed(1)}%)
 				</strong>
-				. This means that you are {getAff(personalRate, comps.regionRate)} affected by the price increases in {regionName}{" "}
-				compared to the average household in the region.
+				. This means that you are <strong>{getAff(personalRate, comps.regionRate)} affected</strong> by the price
+				increases in <strong>{regionName}</strong> compared to the average household in the region.
 			</>
 		);
 		interpretation.push(p4);
@@ -326,7 +324,7 @@ function generateInterpretation(
 			</strong>{" "}
 			than the inflation rate of the average households in the{" "}
 			<strong>Philippines ({comps.nationalRate.toFixed(1)}%)</strong>. This means that you are{" "}
-			<strong>{getAff(personalRate, comps.nationalRate)}</strong> affected by the price increases in the country compared
+			<strong>{getAff(personalRate, comps.nationalRate)} affected</strong> by the price increases in the country compared
 			with the average household.
 		</>
 	);

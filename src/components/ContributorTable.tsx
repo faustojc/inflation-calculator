@@ -62,7 +62,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 							>
 								{/* Factor header */}
 								<div className="bg-primary px-4 py-3 flex justify-between items-center">
-									<span className="font-bold text-base text-primary-foreground tracking-wider">
+									<span className="font-bold text-base text-white tracking-wider">
 										{factor.factorName.toLowerCase() === "personal" ? factor.factorName : factor.areaName}
 									</span>
 								</div>
@@ -71,26 +71,26 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 								<Table>
 									<TableHeader>
 										<TableRow className="bg-primary/90">
-											<TableHead className="w-8 h-9 text-xs text-primary-foreground font-bold uppercase tracking-wide">
+											<TableHead className="w-8 h-9 text-xs text-white font-bold uppercase tracking-wide">
 												#
 											</TableHead>
-											<TableHead className="h-9 text-xs text-primary-foreground font-bold uppercase tracking-wide">
+											<TableHead className="h-9 text-xs text-white font-bold uppercase tracking-wide">
 												Commodity
 											</TableHead>
 											<TableHead
-												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
+												className="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
 												title="Percentage Weight"
 											>
 												Weight (in percent)
 											</TableHead>
 											<TableHead
-												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
+												className="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
 												title="Inflation Rate"
 											>
 												Inflation Rate
 											</TableHead>
 											<TableHead
-												className="text-right h-9 text-xs w-[52px] text-primary-foreground font-bold uppercase tracking-wide"
+												className="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
 												title="Percentage Share to Inflation"
 											>
 												%Share Inflation
@@ -116,7 +116,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 														{isAllItems ? "—" : i}
 													</TableCell>
 													<TableCell
-														className={`py-2 h-auto text-xs max-w-[130px] ${
+														className={`py-2 h-auto text-xsmax-w-[380px] ${
 															isAllItems ? "font-bold" : "font-medium"
 														}`}
 													>
@@ -245,7 +245,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 											return (
 												<React.Fragment key={f.factorName}>
 													<td
-														className={`p-2 border-r border-border text-sm max-w-[200px] ${
+														className={`p-2 border-r border-border text-sm min-w-[180px] sm:min-w-xs ${
 															isAllItems ? "font-bold" : ""
 														}`}
 													>

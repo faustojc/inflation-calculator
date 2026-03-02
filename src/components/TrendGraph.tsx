@@ -172,9 +172,11 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 							contentStyle={{
 								borderRadius: "12px",
 								border: "1px solid hsl(var(--border))",
-								boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+								boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
 								backgroundColor: "hsl(var(--card))",
 								color: "hsl(var(--foreground))",
+								maxWidth: "350px",
+								whiteSpace: "wrap",
 							}}
 							labelStyle={{ color: "hsl(var(--foreground))" }}
 							itemStyle={{ fontSize: "18px", fontWeight: 400 }}
