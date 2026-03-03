@@ -109,15 +109,19 @@ export default function App() {
 										}),
 									});
 									localStorage.setItem("visited", "true");
-								} catch (err) {
+								} catch {
 									fallbackTrack();
 								}
 							},
-							() => fallbackTrack(),
+							(error) => {
+								if (error.code !== error.PERMISSION_DENIED) {
+									fallbackTrack();
+								} else {
+									localStorage.setItem("visited", "true");
+								}
+							},
 							{ timeout: 15000 },
 						);
-					} else {
-						fallbackTrack();
 					}
 				}
 			}
