@@ -24,8 +24,10 @@ dist-ssr
 *.sw?
 
 info.md
+schema
 .env
 .agent
 .zed
 .tscanner
 .trunk
+.wrangler
