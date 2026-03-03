@@ -21,16 +21,19 @@ const LocationControl = () => {
 	const appSettings = useStore(settings);
 
 	const [openProvince, setOpenProvince] = useState(false);
-	const [selectArea, setSelectArea] = useState<string>(() => {
+	const selectArea = useMemo(() => {
 		if (appSettings.area && areas.length > 0) {
-			const match = areas.find((p) => p.key === appSettings.area.key);
-			if (match) {
-				return match.name;
-			}
+			const match = areas.find(
+				(p) =>
+					p.key === appSettings.area.key &&
+					p.regionId === appSettings.area.regionId &&
+					p.provinceId === appSettings.area.provinceId &&
+					p.cityId === appSettings.area.cityId,
+			);
+			if (match) return match.name;
 		}
-
 		return "National Capital Region (NCR)";
-	});
+	}, [appSettings.area, areas]);
 
 	const groupedAreas: Record<number, { key: string; areaName: string; regionName?: string }[]> = useMemo(() => {
 		const grouped: Record<number, { key: string; areaName: string; regionName?: string }[]> = {};
@@ -69,7 +72,6 @@ const LocationControl = () => {
 	const handleAreaSelect = async (areaName: string) => {
 		const match = areas.find((a) => a.name === areaName);
 		if (match) {
-			setSelectArea(match.name);
 			await setCurrentArea(match.key);
 
 			const manifest = await getAreaManifest(match.key);
@@ -116,25 +118,6 @@ const LocationControl = () => {
 					<CommandList className="overflow-y-auto">
 						<CommandEmpty>No location found.</CommandEmpty>
 						{Object.entries(groupedAreas).map(([region, areas], i) => {
-							// if (region === "13") {
-							// 	const ncr = areas.find((a) => a.key === "ncr");
-							// 	if (!ncr) return null;
-
-							// 	return (
-							// 		<CommandGroup key={region + i} heading={ncr.regionName}>
-							// 			<CommandItem key={ncr.key} value={ncr.areaName} onSelect={(key) => handleAreaSelect(key)}>
-							// 				<Check
-							// 					className={cn(
-							// 						"mr-2 h-4 w-4",
-							// 						selectArea === ncr.areaName ? "opacity-100" : "opacity-0",
-							// 					)}
-							// 				/>
-							// 				{ncr.areaName}
-							// 			</CommandItem>
-							// 		</CommandGroup>
-							// 	);
-							// }
-
 							return (
 								<Fragment key={region}>
 									<CommandGroup key={region + i} heading={areas.find((a) => a.regionName)?.regionName}>
