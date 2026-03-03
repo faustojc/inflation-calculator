@@ -25,6 +25,7 @@ dist-ssr
 
 info.md
 schema
+worker-configuration.d.ts
 .env
 .agent
 .zed

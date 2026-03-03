@@ -22,6 +22,11 @@ export default function App() {
 	const currTab = useStore(activeTab);
 
 	useEffect(() => {
+		if (localStorage.getItem("visited") !== "true") {
+			fetch("/api/track", { method: "POST" })
+				.then(() => localStorage.setItem("visited", "true"))
+				.catch(() => {});
+		}
 		initializeApp().then(async (meta) => {
 			if (meta) {
 				const now = new Date();

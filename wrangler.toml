@@ -1,3 +1,8 @@
-name="inflation-calculatorv2"
+name = "inflation-calculatorv2"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-01-19"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "psa-visitor-db"
+database_id = "ed101e01-facc-4383-a1bf-17d388e11b5a"
