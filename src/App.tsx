@@ -44,10 +44,12 @@ export default function App() {
 				settings.setKey("endDate", newEndDate);
 				settings.setKey("area", meta.areas.at(1)!);
 
-				if (localStorage.getItem("visited") !== "true") {
+				const locationKey = "location_accepted";
+
+				if (localStorage.getItem(locationKey) !== "true") {
 					const fallbackTrack = () => {
 						fetch("/api/track", { method: "POST" })
-							.then(() => localStorage.setItem("visited", "true"))
+							.then(() => localStorage.setItem(locationKey, "true"))
 							.catch(() => {});
 					};
 
@@ -108,7 +110,7 @@ export default function App() {
 											city: city,
 										}),
 									});
-									localStorage.setItem("visited", "true");
+									localStorage.setItem(locationKey, "true");
 								} catch {
 									fallbackTrack();
 								}
@@ -116,8 +118,6 @@ export default function App() {
 							(error) => {
 								if (error.code !== error.PERMISSION_DENIED) {
 									fallbackTrack();
-								} else {
-									localStorage.setItem("visited", "true");
 								}
 							},
 							{ timeout: 15000 },
