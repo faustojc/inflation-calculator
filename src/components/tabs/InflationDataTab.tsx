@@ -1,8 +1,26 @@
 import { TrendGraph } from "@/components/TrendGraph";
 import { Separator } from "@/components/ui/separator";
+import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 import { TrendingUp } from "lucide-react";
 
-const InflationDataTab = ({ personalRate, yearlyCpiEnd, trend, meta, startDateStr, endDateStr }: any) => {
+const InflationDataTab = ({
+	personalRate,
+	yearlyCpiEnd,
+	trend,
+	meta,
+	startDateStr,
+	endDateStr,
+}: {
+	personalRate: number;
+	yearlyCpiEnd: number;
+	trend: TrendPoint[];
+	meta: {
+		location: LocationContext;
+		dates: DateRange;
+	};
+	startDateStr: string;
+	endDateStr: string;
+}) => {
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-8 gap-4 overflow-y-auto w-full">
 			{/* Personal inflation rate card */}

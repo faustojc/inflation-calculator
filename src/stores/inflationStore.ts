@@ -134,10 +134,9 @@ export async function prefetchConstraints() {
 		]);
 		const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
-		const batchMap = await getCalculationData(keysToFetch, incomeClass, baseYear, targetYear);
+		const batchMap = await getCalculationData(keysToFetch, incomeClass, baseYear, targetYear, activeTab.get());
 
 		const missingCodes = new Set<string>();
-
 		const targetMonth = startDate.getMonth() + 1;
 
 		commodities.forEach((node) => {

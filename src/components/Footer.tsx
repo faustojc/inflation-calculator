@@ -73,7 +73,7 @@ const Footer = () => {
 			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
 			const [batchMap, weightsMap] = await Promise.all([
-				getCalculationData(keysToFetch, incomeClass, dates.startYear - 1, dates.endYear),
+				getCalculationData(keysToFetch, incomeClass, dates.startYear - 1, dates.endYear, currentTab),
 				getWeights(keysToFetch, incomeClass),
 			]);
 

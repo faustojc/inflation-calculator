@@ -190,6 +190,7 @@ export async function getCalculationData(
 	incomeClass: IncomeClass,
 	startYear: number,
 	endYear: number,
+	currTab: "general" | "detailed",
 ): Promise<DataIndex> {
 	const uniqueKeys = new Set<string>();
 	for (const key of areaKeys) {
@@ -225,8 +226,13 @@ export async function getCalculationData(
 	}
 	const results = await Promise.all(pendingRequests);
 	const index: DataIndex = {};
+	const dataType = currTab === "general" ? "official" : "personal";
+
+	// TODO: add a data type to the data store
+	console.info("TODO: add data type key", dataType);
 
 	for (const file of results) {
+		// !file?.data?.[dataType]?.[incomeClass]
 		if (!file?.data?.[incomeClass]) {
 			continue;
 		}
@@ -281,11 +287,10 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 	}
 
 	let province: AreaDef | undefined;
-	let region: AreaDef | undefined;
 
 	const national = areas.find((a) => a.key === "philippines");
 	const ncr = areas.find((a) => a.key === "ncr");
-	region = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === undefined);
+	const region = areas.find((a) => a.regionId === selectedArea.regionId && a.provinceId === undefined);
 
 	if (selectedArea.provinceId !== undefined) {
 		if (selectedArea.cityId === undefined) {

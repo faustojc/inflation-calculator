@@ -1,8 +1,8 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { type ContributionFactor } from "@/utils/inflationCompute";
 import React, { useMemo, useState } from "react";
+import CompareSelector from "./CompareSelector";
 
 export function ContributorTable({ contributors }: Readonly<{ contributors: ContributionFactor[] }>) {
 	const isMobile = useIsMobile();
@@ -28,28 +28,14 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 
 	if (!contributors || contributors.length === 0) return null;
 
-	const CompareSelector = () => (
-		<div className="flex items-center gap-2">
-			<p className="text-foreground text-sm whitespace-nowrap">Compare to:</p>
-			<Select value={selectedComparison?.factorName ?? ""} onValueChange={(v) => setSelectedFactorName(v)}>
-				<SelectTrigger className="w-44 h-8 text-foreground border-foreground">
-					<SelectValue placeholder="Select area..." />
-				</SelectTrigger>
-				<SelectContent>
-					{comparisonOptions.map((opt) => (
-						<SelectItem key={opt.factorName} value={opt.factorName}>
-							{opt.factorName.toLowerCase() === "city/mun" ? opt.areaName : opt.areaName}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-		</div>
-	);
-
 	if (isMobile) {
 		return (
 			<div className="space-y-4">
-				<CompareSelector />
+				<CompareSelector
+					selectedComparison={selectedComparison}
+					comparisonOptions={comparisonOptions}
+					setSelectedFactorName={setSelectedFactorName}
+				/>
 
 				<div className="space-y-6">
 					{visibleContributors.map((factor) => {
@@ -148,7 +134,11 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 
 	return (
 		<div className="space-y-4">
-			<CompareSelector />
+			<CompareSelector
+				selectedComparison={selectedComparison}
+				comparisonOptions={comparisonOptions}
+				setSelectedFactorName={setSelectedFactorName}
+			/>
 
 			<div className="border rounded-lg overflow-hidden shadow-sm bg-card border-border">
 				<div className="overflow-x-auto">

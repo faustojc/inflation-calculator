@@ -1,8 +1,8 @@
 import { ModeToggle } from "@/components/ModeToggle";
-import { showOnboarding } from "@/components/Onboarding";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
+import { showOnboarding } from "@/stores/onboardingStore";
 import { HelpCircle } from "lucide-react";
 
 export const Header = () => {
@@ -35,7 +35,7 @@ export const Header = () => {
 							size="icon"
 							variant="ghost"
 							className="text-white/90 hover:bg-white/10 hover:text-white sm:w-auto sm:px-4 sm:gap-1.5 h-9 w-9 sm:h-10"
-							onClick={() => showOnboarding()}
+							onClick={showOnboarding}
 						>
 							<HelpCircle className="h-5 w-5 sm:h-6 sm:w-6" />
 							<span className="hidden sm:inline">Guide</span>
