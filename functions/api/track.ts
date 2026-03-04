@@ -1,4 +1,4 @@
-/// <reference path="../../worker-configuration.d.ts" />
+import "../../worker-configuration.d.ts";
 
 export const onRequest: PagesFunction<Env> = async (context) => {
 	const { request, env } = context;
@@ -11,16 +11,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 	let region = (request.cf?.region as string) || "Unknown";
 	let city = (request.cf?.city as string) || "Unknown";
 
-	try {
-		const contentType = request.headers.get("content-type");
-		if (contentType?.includes("application/json")) {
-			const body = await request.clone().json<{ country?: string; region?: string; city?: string }>();
-			if (body?.country) country = body.country;
-			if (body?.region) region = body.region;
-			if (body?.city) city = body.city;
-		}
-	} catch (e) {
-		// Ignore JSON parse errors, fallback to CF headers
+	const contentType = request.headers.get("content-type");
+	if (contentType?.includes("application/json")) {
+		request
+			.clone()
+			.json<{ country?: string; region?: string; city?: string }>()
+			.then((body) => {
+				if (body?.country) country = body.country;
+				if (body?.region) region = body.region;
+				if (body?.city) city = body.city;
+			});
 	}
 
 	context.waitUntil(
