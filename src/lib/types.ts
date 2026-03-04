@@ -1,6 +1,8 @@
 import type { IncomeClass } from "@/stores/inflationStore";
 
-export type DataIndex = Record<string, Record<number, Record<number, Record<string, number>>>>;
+// index[area][year][dataType][month][code] = value
+export type DataIndex = Record<string, Record<number, Partial<Record<DataType, Record<number, Record<string, number | null>>>>>>;
+export type DataType = "official" | "personal";
 
 export type TreeNode = {
 	code: string;
@@ -46,9 +48,13 @@ export interface YearlyDataFile {
 		c?: number;
 	};
 	data: {
-		[incomeKey: string]: {
-			[code: string]: (number | null)[];
-		};
+		[dataset in DataType]:
+			| {
+					[incomeKey: string]: {
+						[code: string]: (number | null)[];
+					};
+			  }
+			| undefined;
 	};
 }
 
@@ -60,6 +66,6 @@ export interface SearchOption {
 }
 
 export interface AreaManifest {
-	dates: Record<IncomeClass, Record<number, number>>;
+	dates: Record<DataType, Record<IncomeClass, Record<number, number>>>;
 	weights: Record<IncomeClass, number[]>;
 }

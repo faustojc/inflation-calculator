@@ -3,7 +3,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { dataStore } from "@/stores/dataStore";
-import { settings } from "@/stores/inflationStore";
+import { activeTab, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -13,22 +13,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 const DateControl = () => {
 	const appSettings = useStore(settings);
 	const { currentManifest } = useStore(dataStore);
+	const currentTab = useStore(activeTab);
+
+	const dataType = useMemo(() => {
+		return currentTab === "general" ? "official" : "personal";
+	}, [currentTab]);
 
 	const [openYear, setOpenYear] = useState(false);
 	const [month, setMonth] = useState(() => {
 		const year = appSettings.startDate.getFullYear();
-		const available = currentManifest?.dates?.[appSettings.incomeClass]?.[year] ?? 12;
+		const available = currentManifest?.dates?.[dataType]?.[appSettings.incomeClass]?.[year] ?? 12;
 		return MONTHS[available - 1];
 	});
 
 	const areaAvailableYears = useMemo(() => {
 		if (!currentManifest?.dates) return new Set<number>();
 
-		const years = Object.keys(currentManifest.dates[appSettings.incomeClass]).map(Number);
+		const years = Object.keys(currentManifest.dates[dataType][appSettings.incomeClass]).map(Number);
 		if (years.length === 0) return new Set<number>();
 
-		const minYear = Math.min(...years);
-		const maxYear = Math.max(...years);
+		// Filter years to the range allowed by the active data type
+		const metaYearRange = dataStore.get().metaYearRange;
+		const rangeMin = metaYearRange?.[dataType]?.min ?? Math.min(...years);
+		const rangeMax = metaYearRange?.[dataType]?.max ?? Math.max(...years);
+
+		const filtered = years.filter((y) => y >= rangeMin && y <= rangeMax);
+		if (filtered.length === 0) return new Set<number>();
+
+		const minYear = Math.min(...filtered);
+		const maxYear = Math.max(...filtered);
 
 		const set = new Set<number>();
 		for (let year = maxYear; year >= minYear; year--) {
@@ -36,12 +49,12 @@ const DateControl = () => {
 		}
 
 		return set;
-	}, [currentManifest, appSettings.incomeClass]);
+	}, [currentManifest, appSettings.incomeClass, currentTab]);
 
 	const maxMonthForYear = useMemo(() => {
 		const year = appSettings.startDate.getFullYear();
 		if (!currentManifest?.dates) return 12;
-		return currentManifest.dates[appSettings.incomeClass]?.[year] ?? 12;
+		return currentManifest.dates[dataType]![appSettings.incomeClass]?.[year] ?? 12;
 	}, [currentManifest, appSettings.startDate, appSettings.incomeClass]);
 
 	const handleMonthChange = (m: string) => {
@@ -58,7 +71,7 @@ const DateControl = () => {
 			newDate.setFullYear(yearNum);
 
 			// Validate month for new year
-			const maxMonth = currentManifest?.dates?.[appSettings.incomeClass]?.[yearNum] ?? 12;
+			const maxMonth = currentManifest?.dates?.[dataType][appSettings.incomeClass]?.[yearNum] ?? 12;
 			if (newDate.getMonth() + 1 > maxMonth) {
 				newDate.setMonth(maxMonth - 1);
 				setMonth(MONTHS[maxMonth - 1]);
@@ -74,7 +87,25 @@ const DateControl = () => {
 		if (!currentManifest?.dates) return;
 
 		const year = appSettings.startDate.getFullYear();
-		const maxMonthCount = currentManifest.dates[appSettings.incomeClass]?.[year] ?? 12;
+
+		// Clamp year if it falls outside the available range for the current tab
+		if (areaAvailableYears.size > 0 && !areaAvailableYears.has(year)) {
+			const years = Array.from(areaAvailableYears);
+			const closestYear = years[0]!; // The first entry is the max year (descending)
+			const newDate = new Date(appSettings.startDate);
+			newDate.setFullYear(closestYear);
+
+			const maxMonthCount = currentManifest.dates[dataType][appSettings.incomeClass]?.[closestYear] ?? 12;
+			if (newDate.getMonth() + 1 > maxMonthCount) {
+				newDate.setMonth(maxMonthCount - 1);
+				setMonth(MONTHS[maxMonthCount - 1]);
+			}
+
+			settings.setKey("startDate", newDate);
+			return;
+		}
+
+		const maxMonthCount = currentManifest.dates[dataType][appSettings.incomeClass]?.[year] ?? 12;
 		const currentMonthIndex = appSettings.startDate.getMonth();
 
 		// If current setting is beyond available data (e.g. selected June but data only up to March)
@@ -89,7 +120,7 @@ const DateControl = () => {
 				setMonth(storeMonthName);
 			}
 		}
-	}, [currentManifest, appSettings.startDate, appSettings.incomeClass]);
+	}, [currentManifest, appSettings.startDate, appSettings.incomeClass, currentTab, areaAvailableYears]);
 
 	return (
 		<div className="flex gap-4">

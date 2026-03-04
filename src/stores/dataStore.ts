@@ -4,6 +4,7 @@ import type {
 	AreaManifest,
 	CommodityDef,
 	DataIndex,
+	DataType,
 	SearchOption,
 	TreeNode,
 	YearlyDataFile,
@@ -26,13 +27,14 @@ interface DataState {
 	searchOptions: SearchOption[];
 	flatCodes: string[]; // Sorted by length desc
 	parentIndex: Record<string, string>;
+	metaYearRange: { official: { min: number; max: number }; personal: { min: number; max: number } } | null;
 }
 
 interface Metadata {
 	generated_at: string;
 	year_range: {
-		min: number;
-		max: number;
+		official: { min: number; max: number };
+		personal: { min: number; max: number };
 	};
 	areas: AreaDef[];
 }
@@ -48,6 +50,7 @@ export const dataStore = map<DataState>({
 	searchOptions: [],
 	flatCodes: [],
 	parentIndex: {},
+	metaYearRange: null,
 });
 
 export async function initializeApp() {
@@ -99,7 +102,10 @@ export async function initializeApp() {
 		traverse(commodities, null);
 		flatCodes.sort((a, b) => b.length - a.length);
 
-		for (let y = meta.year_range.max; y >= meta.year_range.min; y--) {
+		// Use the widest range (official goes back further)
+		const globalMin = Math.min(meta.year_range.official.min, meta.year_range.personal.min);
+		const globalMax = Math.max(meta.year_range.official.max, meta.year_range.personal.max);
+		for (let y = globalMax; y >= globalMin; y--) {
 			years.push(String(y));
 		}
 
@@ -145,6 +151,7 @@ export async function initializeApp() {
 			error: null,
 			flatCodes,
 			parentIndex,
+			metaYearRange: meta.year_range,
 		});
 
 		return meta;
@@ -190,7 +197,6 @@ export async function getCalculationData(
 	incomeClass: IncomeClass,
 	startYear: number,
 	endYear: number,
-	currTab: "general" | "detailed",
 ): Promise<DataIndex> {
 	const uniqueKeys = new Set<string>();
 	for (const key of areaKeys) {
@@ -226,25 +232,28 @@ export async function getCalculationData(
 	}
 	const results = await Promise.all(pendingRequests);
 	const index: DataIndex = {};
-	const dataType = currTab === "general" ? "official" : "personal";
 
-	// TODO: add a data type to the data store
-	console.info("TODO: add data type key", dataType);
-
+	// TODO: improve this
 	for (const file of results) {
-		// !file?.data?.[dataType]?.[incomeClass]
-		if (!file?.data?.[incomeClass]) {
+		if (!file?.data) {
 			continue;
 		}
 
-		for (const [code, values] of Object.entries(file.data[incomeClass])) {
-			for (let i = 0; i < values.length; i++) {
-				const val = values[i];
-				if (val !== null && val !== undefined) {
-					index[file.area] ??= {};
-					index[file.area]![file.year] ??= {};
-					index[file.area]![file.year]![i + 1] ??= {};
-					index[file.area]![file.year]![i + 1]![code] = val;
+		for (const type of Object.keys(file.data)) {
+			const dataType = type as DataType;
+			const dataTypeBlock = file.data[dataType];
+			if (!dataTypeBlock?.[incomeClass]) continue;
+
+			for (const [code, values] of Object.entries(dataTypeBlock[incomeClass])) {
+				for (let i = 0; i < values.length; i++) {
+					const val = values[i];
+					if (val !== null && val !== undefined) {
+						index[file.area] ??= {};
+						index[file.area]![file.year] ??= {};
+						index[file.area]![file.year]![dataType] ??= {};
+						index[file.area]![file.year]![dataType]![i + 1] ??= {};
+						index[file.area]![file.year]![dataType]![i + 1]![code] = val;
+					}
 				}
 			}
 		}

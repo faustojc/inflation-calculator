@@ -27,8 +27,8 @@ export default function App() {
 		initializeApp().then(async (meta) => {
 			if (meta) {
 				const now = new Date();
-				const maxYear = meta.year_range.max;
-				const minYear = meta.year_range.min;
+				const maxYear = meta.year_range.official.max;
+				const minYear = meta.year_range.official.min;
 
 				const isCurrentYear = maxYear === now.getFullYear();
 				const targetMonth = isCurrentYear ? now.getMonth() : 11;

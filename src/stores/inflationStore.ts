@@ -134,20 +134,19 @@ export async function prefetchConstraints() {
 		]);
 		const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
-		const batchMap = await getCalculationData(keysToFetch, incomeClass, baseYear, targetYear, activeTab.get());
+		const batchMap = await getCalculationData(keysToFetch, incomeClass, baseYear, targetYear);
 
 		const missingCodes = new Set<string>();
 		const targetMonth = startDate.getMonth() + 1;
+		const dataType = activeTab.get() === "general" ? "official" : "personal";
 
 		commodities.forEach((node) => {
 			const checkCode = (code: string) => {
 				const key = hierarchy.target.key;
-				const currentVal = batchMap[key]?.[targetYear]?.[targetMonth]?.[code];
-				const baseVal = batchMap[key]?.[baseYear]?.[targetMonth]?.[code];
+				const currentVal = batchMap[key]?.[targetYear]?.[dataType]?.[targetMonth]?.[code];
+				const baseVal = batchMap[key]?.[baseYear]?.[dataType]?.[targetMonth]?.[code];
 
-				if (currentVal !== undefined && currentVal > 0 && baseVal !== undefined && baseVal > 0) {
-					// has data
-				} else {
+				if (currentVal === undefined || currentVal === 0 || baseVal === undefined || baseVal === 0) {
 					missingCodes.add(code);
 				}
 			};

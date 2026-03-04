@@ -49,7 +49,11 @@ const Footer = () => {
 
 			const hierarchy = getAreaHierarchy(area.key);
 			const { currentManifest } = dataStore.get();
-			const areaAvailableYears = currentManifest?.dates ? Object.keys(currentManifest.dates[incomeClass]).map(Number) : [];
+			const dataType = currentTab === "general" ? "official" : "personal";
+
+			const areaAvailableYears = currentManifest?.dates
+				? Object.keys(currentManifest.dates[dataType][incomeClass]).map(Number)
+				: [];
 
 			if (areaAvailableYears.length > 0) {
 				const missingYears: number[] = [];
@@ -73,7 +77,7 @@ const Footer = () => {
 			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
 			const [batchMap, weightsMap] = await Promise.all([
-				getCalculationData(keysToFetch, incomeClass, dates.startYear - 1, dates.endYear, currentTab),
+				getCalculationData(keysToFetch, incomeClass, dates.startYear - 1, dates.endYear),
 				getWeights(keysToFetch, incomeClass),
 			]);
 
@@ -91,6 +95,7 @@ const Footer = () => {
 				batchMap,
 				weightsMap,
 				majorCategoryNames,
+				dataType,
 			);
 
 			if (result) {
