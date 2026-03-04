@@ -205,10 +205,14 @@ export async function prefetchConstraints() {
 			if (genChanged) generalExpenses.set(newGenStore);
 			if (detChanged) detailedExpenses.set(newDetStore);
 			if (genChanged || detChanged) {
-				toast.warning("Some inputs were cleared", {
+				const whatInputsAreCleared =
+					genChanged && detChanged ? "both General and Detailed tabs" : genChanged ? "General tab" : "Detailed tab";
+				const title = `Some inputs were cleared in ${whatInputsAreCleared}`;
+
+				toast.warning(title, {
 					description:
-						"Certain items you entered have no recorded CPI data for the selected location, income bracket, and period/date. Their values have been reset to prevent calculation errors.",
-					duration: 10000,
+						"Certain items you entered have NO recorded CPI data for the selected location, income bracket, and period/date. Their values have been reset to prevent calculation errors.",
+					duration: 11000,
 					classNames: {
 						toast: "!border-amber-400 !dark:border-amber-500/60 !bg-amber-50 !dark:bg-amber-950/40 !shadow-lg !shadow-amber-200/30 !dark:shadow-amber-900/20 !px-3 !py-2 !gap-3.5",
 						title: "!text-amber-900 !dark:text-amber-200 !text-[0.95rem] !font-bold !tracking-tight",
