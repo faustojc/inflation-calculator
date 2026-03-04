@@ -83,11 +83,13 @@ const DateControl = () => {
 		if (!currentManifest?.dates) return;
 
 		const year = appSettings.startDate.getFullYear();
+		const yearsArr = Array.from(areaAvailableYears);
+		const minYear = yearsArr.length > 0 ? yearsArr[yearsArr.length - 1]! : null;
 
-		// Clamp year if it falls outside the available range for the current tab
-		if (areaAvailableYears.size > 0 && !areaAvailableYears.has(year)) {
-			const years = Array.from(areaAvailableYears);
-			const closestYear = years[0]!;
+		// Clamp year if it's outside the available range or equals the disabled base year
+		const needsClamp = areaAvailableYears.size > 0 && (!areaAvailableYears.has(year) || year === minYear);
+		if (needsClamp) {
+			const closestYear = yearsArr[0]!;
 			const newDate = new Date(appSettings.startDate);
 			newDate.setFullYear(closestYear);
 
