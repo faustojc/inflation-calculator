@@ -41,7 +41,11 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 
 	useEffect(() => {
 		if (isMatch) {
-			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+			rowRef.current?.scrollTo({
+				behavior: "smooth",
+				top: rowRef.current?.offsetTop ?? 0,
+				left: rowRef.current?.offsetLeft ?? 0,
+			});
 			if (!hasChildren) {
 				setTimeout(() => inputRef.current?.focus(), 500);
 			}
