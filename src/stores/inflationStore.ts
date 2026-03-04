@@ -59,7 +59,11 @@ export const calculationResult = map<{
 	data: null,
 });
 
-export const missingDataItems = atom<Set<string>>(new Set());
+export const missingGeneralItems = atom<Set<string>>(new Set());
+export const missingDetailedItems = atom<Set<string>>(new Set());
+export const missingDataItems = computed([activeTab, missingGeneralItems, missingDetailedItems], (tab, general, detailed) => {
+	return tab === "general" ? general : detailed;
+});
 export const prefetchLoading = atom<boolean>(false);
 export const prefetchReady = atom<boolean>(false);
 
@@ -136,18 +140,27 @@ export async function prefetchConstraints() {
 
 		const batchMap = await getCalculationData(keysToFetch, incomeClass, baseYear, targetYear);
 
-		const missingCodes = new Set<string>();
+		const missingGeneral = new Set<string>();
+		const missingPersonal = new Set<string>();
 		const targetMonth = startDate.getMonth() + 1;
-		const dataType = activeTab.get() === "general" ? "official" : "personal";
 
 		commodities.forEach((node) => {
 			const checkCode = (code: string) => {
 				const key = hierarchy.target.key;
-				const currentVal = batchMap[key]?.[targetYear]?.[dataType]?.[targetMonth]?.[code];
-				const baseVal = batchMap[key]?.[baseYear]?.[dataType]?.[targetMonth]?.[code];
 
-				if (currentVal === undefined || currentVal === 0 || baseVal === undefined || baseVal === 0) {
-					missingCodes.add(code);
+				const officialCurrent = batchMap[key]?.[targetYear]?.["official"]?.[targetMonth]?.[code];
+				const officialBase = batchMap[key]?.[baseYear]?.["official"]?.[targetMonth]?.[code];
+				if (officialCurrent == null || officialCurrent === 0 || officialBase == null || officialBase === 0) {
+					missingGeneral.add(code);
+				}
+
+				// Personal dataset only has leaf-level codes (e.g. 01.1), not major categories (01–13)
+				if (!code.includes(".")) return;
+
+				const personalCurrent = batchMap[key]?.[targetYear]?.["personal"]?.[targetMonth]?.[code];
+				const personalBase = batchMap[key]?.[baseYear]?.["personal"]?.[targetMonth]?.[code];
+				if (personalCurrent == null || personalCurrent === 0 || personalBase == null || personalBase === 0) {
+					missingPersonal.add(code);
 				}
 			};
 
@@ -162,11 +175,12 @@ export async function prefetchConstraints() {
 			if (node.children) traverse(node.children);
 		});
 
-		missingDataItems.set(missingCodes);
+		missingGeneralItems.set(missingGeneral);
+		missingDetailedItems.set(missingPersonal);
 		prefetchReady.set(true);
 
 		// Clear any previously entered values for newly-missing codes
-		if (missingCodes.size > 0) {
+		if (missingGeneral.size > 0 || missingPersonal.size > 0) {
 			const genStore = generalExpenses.get();
 			const detStore = detailedExpenses.get();
 			const newGenStore = { ...genStore };
@@ -174,11 +188,14 @@ export async function prefetchConstraints() {
 			let genChanged = false;
 			let detChanged = false;
 
-			missingCodes.forEach((code) => {
+			missingGeneral.forEach((code: string) => {
 				if (newGenStore[code] && newGenStore[code].value !== 0) {
 					newGenStore[code] = { ...newGenStore[code], value: 0 };
 					genChanged = true;
 				}
+			});
+
+			missingPersonal.forEach((code: string) => {
 				if (newDetStore[code] && newDetStore[code].value !== 0) {
 					newDetStore[code] = { ...newDetStore[code], value: 0 };
 					detChanged = true;
@@ -280,9 +297,11 @@ export function locateCategory(searchCode: string, searchName: string) {
 }
 
 export function setMissingItems(codes: string[]) {
-	missingDataItems.set(new Set(codes));
+	const tab = activeTab.get();
+	const targetAtom = tab === "general" ? missingGeneralItems : missingDetailedItems;
+	targetAtom.set(new Set(codes));
 
-	if (codes.length > 0 && activeTab.get() === "detailed") {
+	if (codes.length > 0 && tab === "detailed") {
 		const updates = { ...expandedNodes.get() };
 
 		codes.forEach((code) => {
@@ -330,18 +349,21 @@ export function updateExpenseValue(code: string, name: string, newValue: number,
 	}
 
 	if (newValue === 0) {
-		const missing = missingDataItems.get();
+		const tab = activeTab.get();
+		const targetAtom = tab === "general" ? missingGeneralItems : missingDetailedItems;
+		const missing = targetAtom.get();
 		if (missing.has(code)) {
 			const next = new Set(missing);
 			next.delete(code);
-			missingDataItems.set(next);
+			targetAtom.set(next);
 		}
 	}
 }
 
 export function clearMissingExpenses() {
-	const missing = missingDataItems.get();
-	if (missing.size === 0) return;
+	const genMissing = missingGeneralItems.get();
+	const detMissing = missingDetailedItems.get();
+	if (genMissing.size === 0 && detMissing.size === 0) return;
 
 	const genStore = generalExpenses.get();
 	const detStore = detailedExpenses.get();
@@ -352,11 +374,14 @@ export function clearMissingExpenses() {
 	let genChanged = false;
 	let detChanged = false;
 
-	missing.forEach((code) => {
+	genMissing.forEach((code) => {
 		if (newGenStore[code]) {
 			newGenStore[code] = { ...newGenStore[code], value: 0 };
 			genChanged = true;
 		}
+	});
+
+	detMissing.forEach((code) => {
 		if (newDetStore[code]) {
 			newDetStore[code] = { ...newDetStore[code], value: 0 };
 			detChanged = true;
@@ -366,7 +391,8 @@ export function clearMissingExpenses() {
 	if (genChanged) generalExpenses.set(newGenStore);
 	if (detChanged) detailedExpenses.set(newDetStore);
 
-	missingDataItems.set(new Set());
+	missingGeneralItems.set(new Set());
+	missingDetailedItems.set(new Set());
 }
 
 export function removeExpense(id: string) {

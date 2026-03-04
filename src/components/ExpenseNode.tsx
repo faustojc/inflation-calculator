@@ -8,7 +8,7 @@ import {
 	detailedExpenses,
 	expandedNodes,
 	highlightState,
-	missingDataItems,
+	missingDetailedItems,
 	mode,
 	prefetchReady,
 	toggleExpansion,
@@ -25,7 +25,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 	const totals = useStore(categoryTotals);
 	const expandedMap = useStore(expandedNodes);
 	const allExpenses = useStore(detailedExpenses);
-	const missing = useStore(missingDataItems);
+	const missing = useStore(missingDetailedItems);
 	const isReady = useStore(prefetchReady);
 
 	const inputRef = useRef<HTMLInputElement>(null);

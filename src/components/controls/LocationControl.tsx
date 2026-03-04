@@ -11,7 +11,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
-import { settings } from "@/stores/inflationStore";
+import { activeTab, settings } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
@@ -77,22 +77,27 @@ const LocationControl = () => {
 			const manifest = await getAreaManifest(match.key);
 			settings.setKey("area", match);
 
-			if (manifest?.dates && manifest.dates[appSettings.incomeClass]) {
-				const availableYears = Object.keys(manifest.dates[appSettings.incomeClass]).map(Number);
-				const currentYear = appSettings.startDate.getFullYear();
+			if (manifest?.dates) {
+				const dataType = activeTab.get() === "general" ? "official" : "personal";
+				const datesForType = manifest.dates[dataType]?.[appSettings.incomeClass];
 
-				if (availableYears.length > 0 && !availableYears.includes(currentYear)) {
-					const latestYear = Math.max(...availableYears);
-					const newDate = new Date(appSettings.startDate);
-					newDate.setFullYear(latestYear);
+				if (datesForType) {
+					const availableYears = Object.keys(datesForType).map(Number);
+					const currentYear = appSettings.startDate.getFullYear();
 
-					// Also validate month for the new year
-					const maxMonth = manifest.dates[appSettings.incomeClass][latestYear] ?? 12;
-					if (newDate.getMonth() + 1 > maxMonth) {
-						newDate.setMonth(maxMonth - 1);
+					if (availableYears.length > 0 && !availableYears.includes(currentYear)) {
+						const latestYear = Math.max(...availableYears);
+						const newDate = new Date(appSettings.startDate);
+						newDate.setFullYear(latestYear);
+
+						// Also validate month for the new year
+						const maxMonth = datesForType[latestYear] ?? 12;
+						if (newDate.getMonth() + 1 > maxMonth) {
+							newDate.setMonth(maxMonth - 1);
+						}
+
+						settings.setKey("startDate", newDate);
 					}
-
-					settings.setKey("startDate", newDate);
 				}
 			}
 		}

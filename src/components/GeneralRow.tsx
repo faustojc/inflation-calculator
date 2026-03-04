@@ -3,7 +3,7 @@ import type { CommodityDef } from "@/lib/types";
 import {
 	generalExpenses,
 	highlightState,
-	missingDataItems,
+	missingGeneralItems,
 	mode,
 	prefetchReady,
 	updateExpenseValue,
@@ -24,7 +24,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 	const value = getLimitValue(m, items[cat.code]?.value || 0);
 	const isMatch = highlight?.code === cat.code;
 
-	const missing = useStore(missingDataItems);
+	const missing = useStore(missingGeneralItems);
 	const isReady = useStore(prefetchReady);
 	const isMissing = isReady && missing.has(cat.code);
 
