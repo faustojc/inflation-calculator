@@ -1,4 +1,4 @@
-import type { AreaManifest, YearlyDataFile } from "@/lib/types";
+import type { AreaManifest, DataIndex, YearlyDataFile } from "@/lib/types";
 import type { Mode } from "@/stores/inflationStore";
 import type { KeyboardEvent } from "react";
 export const MONTHS = [
@@ -49,7 +49,7 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"05.4": "e.g. drinking glass, plate, water bottle, spoon, fork",
 	"05.5": "e.g. hammer, screwdriver, shovel, garden hose, light bulb, fluorescent lamp",
 	"05.6": "e.g. dishwashing soap, laundry soap, sponge, broom, battery, domestic help services",
-	"06.1": "e.g. amoxicillin, paracetamol, iodine solution, carbocistine, vitamin supplement",
+	"06.1": "e.g. amoxicillin, paracetamol, iodine solution, carbocisteine, vitamin supplement",
 	"06.2": "e.g. private medical services, services of midwife, services of dentist",
 	"06.3": "e.g. public hospital payward, private hospital payward",
 	"06.4": "e.g. laboratory services like CBC, X-ray, and consultation by OB-Gyne, pediatrician",
@@ -78,7 +78,19 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"13.9": "e.g. photocopying services, fee for issuance of civil registry document, power of attorney",
 };
 
-export const FILE_CACHE = new Map<string, Promise<YearlyDataFile | null>>();
+// Global indexing for serialized json data
+export const GLOBAL_INDEX: DataIndex = {};
+export const INDEXED_KEYS = new Set<string>();
+export const FETCH_CACHE = new Map<string, Promise<YearlyDataFile | null>>();
+
+export function clearGlobalIndex() {
+	for (const key of Object.keys(GLOBAL_INDEX)) {
+		delete GLOBAL_INDEX[key];
+	}
+	INDEXED_KEYS.clear();
+	FETCH_CACHE.clear();
+}
+
 export const WEIGHTS_CACHE = new Map<string, Promise<number[] | null>>();
 export const MANIFEST_CACHE = new Map<string, Promise<AreaManifest | null>>();
 

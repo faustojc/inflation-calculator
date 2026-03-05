@@ -10,7 +10,7 @@ import type {
 	YearlyDataFile,
 } from "@/lib/types";
 import type { IncomeClass } from "@/stores/inflationStore";
-import { FILE_CACHE, formatLocationName, MANIFEST_CACHE } from "@/utils/metadata";
+import { FETCH_CACHE, formatLocationName, GLOBAL_INDEX, INDEXED_KEYS, MANIFEST_CACHE } from "@/utils/metadata";
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 import { computed, map } from "nanostores";
 
@@ -192,74 +192,83 @@ export async function setCurrentArea(areaKey: string) {
 	}
 }
 
+function fetchYearlyData(area: string, year: number): Promise<YearlyDataFile | null> {
+	const cacheKey = `${area}|${year}`;
+	let promise = FETCH_CACHE.get(cacheKey);
+
+	if (!promise) {
+		promise = fetchWithCache(`${API_URL}/data/${area}/${year}.json`, "cache-first")
+			.then((r) => {
+				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
+					return r.json();
+				}
+				return null;
+			})
+			.catch((error) => {
+				console.warn(`Failed to load ${cacheKey}`, error);
+				return null;
+			});
+
+		FETCH_CACHE.set(cacheKey, promise);
+	}
+
+	return promise;
+}
+
+function indexFile(file: YearlyDataFile, incomeClass: IncomeClass) {
+	const indexKey = `${file.area}|${file.year}|${incomeClass}`;
+	if (INDEXED_KEYS.has(indexKey)) return;
+
+	for (const type of Object.keys(file.data)) {
+		const dataType = type as DataType;
+		const dataTypeBlock = file.data[dataType];
+		if (!dataTypeBlock?.[incomeClass]) continue;
+
+		for (const [code, values] of Object.entries(dataTypeBlock[incomeClass])) {
+			for (let i = 0; i < values.length; i++) {
+				const val = values[i];
+				if (val !== null && val !== undefined) {
+					GLOBAL_INDEX[file.area] ??= {};
+					GLOBAL_INDEX[file.area]![file.year] ??= {};
+					GLOBAL_INDEX[file.area]![file.year]![dataType] ??= {};
+					GLOBAL_INDEX[file.area]![file.year]![dataType]![i + 1] ??= {};
+					GLOBAL_INDEX[file.area]![file.year]![dataType]![i + 1]![code] = val;
+				}
+			}
+		}
+	}
+
+	INDEXED_KEYS.add(indexKey);
+}
+
 export async function getCalculationData(
 	areaKeys: string[],
 	incomeClass: IncomeClass,
 	startYear: number,
 	endYear: number,
 ): Promise<DataIndex> {
-	const uniqueKeys = new Set<string>();
-	for (const key of areaKeys) {
+	const pending: Promise<void>[] = [];
+
+	for (const area of areaKeys) {
 		for (let y = startYear; y <= endYear; y++) {
-			uniqueKeys.add(`${key}|${y}`);
-		}
-	}
+			const indexKey = `${area}|${y}|${incomeClass}`;
+			if (INDEXED_KEYS.has(indexKey)) continue;
 
-	const pendingRequests: Promise<YearlyDataFile | null>[] = [];
-
-	for (const requestKey of uniqueKeys) {
-		let dataPromise = FILE_CACHE.get(requestKey);
-
-		if (!dataPromise) {
-			const [area, yearStr] = requestKey.split("|");
-
-			dataPromise = fetchWithCache(`${API_URL}/data/${area}/${yearStr}.json`, "cache-first")
-				.then((r) => {
-					if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
-						return r.json();
+			pending.push(
+				fetchYearlyData(area, y).then((file) => {
+					if (file?.data) {
+						indexFile(file, incomeClass);
 					}
-					return null;
-				})
-				.catch((error) => {
-					console.warn(`Failed to load ${requestKey}`, error);
-					return null;
-				});
-
-			FILE_CACHE.set(requestKey, dataPromise);
-		}
-
-		pendingRequests.push(dataPromise);
-	}
-	const results = await Promise.all(pendingRequests);
-	const index: DataIndex = {};
-
-	// TODO: improve this
-	for (const file of results) {
-		if (!file?.data) {
-			continue;
-		}
-
-		for (const type of Object.keys(file.data)) {
-			const dataType = type as DataType;
-			const dataTypeBlock = file.data[dataType];
-			if (!dataTypeBlock?.[incomeClass]) continue;
-
-			for (const [code, values] of Object.entries(dataTypeBlock[incomeClass])) {
-				for (let i = 0; i < values.length; i++) {
-					const val = values[i];
-					if (val !== null && val !== undefined) {
-						index[file.area] ??= {};
-						index[file.area]![file.year] ??= {};
-						index[file.area]![file.year]![dataType] ??= {};
-						index[file.area]![file.year]![dataType]![i + 1] ??= {};
-						index[file.area]![file.year]![dataType]![i + 1]![code] = val;
-					}
-				}
-			}
+				}),
+			);
 		}
 	}
 
-	return index;
+	if (pending.length > 0) {
+		await Promise.all(pending);
+	}
+
+	return GLOBAL_INDEX;
 }
 
 export async function getWeights(areaKeys: string[], incomeClass: IncomeClass): Promise<Record<string, number[]>> {

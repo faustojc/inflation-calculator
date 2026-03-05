@@ -1,4 +1,4 @@
-import { FILE_CACHE, MANIFEST_CACHE, WEIGHTS_CACHE } from "@/utils/metadata";
+import { clearGlobalIndex, MANIFEST_CACHE, WEIGHTS_CACHE } from "@/utils/metadata";
 
 export const CACHE_NAME = "inflation-data-v2";
 const CACHE_VERSION_KEY = "inflation-cache-version";
@@ -24,7 +24,7 @@ export async function invalidateIfDataChanged(generatedAt: string): Promise<bool
 
 		await clearDataCache();
 
-		FILE_CACHE.clear();
+		clearGlobalIndex();
 		MANIFEST_CACHE.clear();
 		WEIGHTS_CACHE.clear();
 
