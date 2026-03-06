@@ -194,7 +194,7 @@ export const Onboarding = () => {
 										If “Specific” is selected, inputs will be asked for specific commodity groups.
 										<br /> <br />
 										The commodity groups are based on the 2020 Philippine Classification of Individual
-										consumption According to Purpose (PCOICOP). Only the Group-level (3-digit PCOICOP Codes)
+										Consumption According to Purpose (PCOICOP). Only the Group-level (3-digit PCOICOP Codes)
 										are used in this application.
 									</p>
 								</li>
