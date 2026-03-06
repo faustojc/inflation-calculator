@@ -14,7 +14,7 @@ import { FETCH_CACHE, formatLocationName, GLOBAL_INDEX, INDEXED_KEYS, MANIFEST_C
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 import { computed, map } from "nanostores";
 
-const API_URL = import.meta.env?.PUBLIC_VITE_API_URL || "/api/v1";
+const API_URL = import.meta.env?.PUBLIC_VITE_API_URL || "/api/v2";
 
 interface DataState {
 	isLoading: boolean;
