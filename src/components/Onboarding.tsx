@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { openOnboarding, startTour } from "@/stores/onboardingStore";
 import { useStore } from "@nanostores/react";
 import "driver.js/dist/driver.css";
-import { BarChart3, BookOpen, Calculator, CircleQuestionMark, TrendingUp } from "lucide-react";
+import { BarChart3, BookOpen, Calculator, HelpCircle, TrendingUp } from "lucide-react";
 import { useCallback, useEffect } from "react";
 
 export const Onboarding = () => {
@@ -92,7 +92,7 @@ export const Onboarding = () => {
 					<section className="flex gap-3">
 						<div className="shrink-0 mt-0.5">
 							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-								<CircleQuestionMark className="h-4 w-4 text-primary" />
+								<HelpCircle className="h-4 w-4 text-primary" />
 							</div>
 						</div>
 						<div>
@@ -155,7 +155,7 @@ export const Onboarding = () => {
 										official CPI and inflation rate for All Income Households.
 										<br /> <br />
 										If Bottom 30% Income Households is selected, the personal inflation rate will be computed
-										using the average prices of commodities in the market basket of the bottom 30&amp; income
+										using the average prices of commodities in the market basket of the bottom 30% income
 										households of the selected province/city. Each province/city has its own income bracket
 										for the bottom 30% income households. The income brackets are based on the average annual
 										per capita income by decile from the 2018 Family Income and Expenditure Survey.
@@ -175,8 +175,8 @@ export const Onboarding = () => {
 										Input type requires monthly or annual expenditure by commodity group.
 										<br /> <br />
 										Choose “Amount” if you want to input your monthly or annual expenditure for each commodity
-										group. As guide, the total expenditure is computed while the entries are being typed. The
-										total amount is shown at the bottom of the page.
+										group. As a guide, the total expenditure is computed while the entries are being typed.
+										The total amount is shown at the bottom of the page.
 										<br /> <br />
 										Choose “Percent” if you only want to provide the percentage of your monthly or annual
 										expenditure allotted for each commodity group. The total percentage should be equal to

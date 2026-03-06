@@ -11,31 +11,42 @@ import {
 import { MAJOR_CATEGORY_DESCRIPTIONS, getLimitValue, preventNonNumeric } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { AlertCircle } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { computed } from "nanostores";
+import { memo, useCallback, useEffect, useRef } from "react";
 
-export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
-	const items = useStore(generalExpenses);
+const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 	const m = useStore(mode);
-	const highlight = useStore(highlightState);
+
+	const value = useStore(computed(generalExpenses, (expenses) => getLimitValue(m, expenses[cat.code]?.value || 0)));
+	const isMatch = useStore(computed(highlightState, (h) => h?.code === cat.code));
+	const highlightLabel = useStore(computed(highlightState, (h) => (h?.code === cat.code ? h.label : "")));
+	const isMissing = useStore(computed(missingGeneralItems, (missing) => missing.has(cat.code)));
+
+	const isReady = useStore(prefetchReady);
+	const missingStatus = isReady && isMissing;
 
 	const rowRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
-
-	const value = getLimitValue(m, items[cat.code]?.value || 0);
-	const isMatch = highlight?.code === cat.code;
-
-	const missing = useStore(missingGeneralItems);
-	const isReady = useStore(prefetchReady);
-	const isMissing = isReady && missing.has(cat.code);
 
 	const hasFilled = value > 0;
 
 	useEffect(() => {
 		if (isMatch) {
 			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-			setTimeout(() => inputRef.current?.focus(), 500);
+			setTimeout(() => inputRef.current?.focus(), 300);
 		}
 	}, [isMatch]);
+
+	const handleChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			let v = Number.parseFloat(e.target.value);
+			if (v < 0 || (m === "percent" && v > 100)) return;
+
+			v = Number.isNaN(v) ? 0 : getLimitValue(m, v);
+			updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v, "general");
+		},
+		[cat.code, cat.name, m],
+	);
 
 	return (
 		<div
@@ -43,7 +54,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			className={`
 				grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl border transition-all duration-300
 				${
-					isMissing
+					missingStatus
 						? "bg-red-50 dark:bg-red-950/20 border-red-400 dark:border-red-600/50 ring-2 ring-red-400/50 dark:ring-red-500/30 shadow-md"
 						: isMatch
 							? "bg-yellow-50 dark:bg-amber-950/20 border-yellow-400 dark:border-amber-600/50 ring-2 ring-yellow-400/50 dark:ring-amber-500/30 shadow-md"
@@ -56,14 +67,14 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			<div className="col-span-2 min-w-0">
 				<div className="flex items-center gap-2 mb-0.5">
 					<span
-						className={`font-mono text-[0.65rem] text-white px-1.5 py-0.5 rounded font-semibold shrink-0 ${isMissing ? "bg-red-500/80" : "bg-primary/80"}`}
+						className={`font-mono text-[0.65rem] text-white px-1.5 py-0.5 rounded font-semibold shrink-0 ${missingStatus ? "bg-red-500/80" : "bg-primary/80"}`}
 					>
 						{cat.code}
 					</span>
-					<h3 className={`font-semibold text-base text-wrap ${isMatch && "font-extrabold!"}`}>{cat.name}</h3>
+					<h3 className={`font-semibold text-base text-wrap ${isMatch && "font-extrabold"}`}>{cat.name}</h3>
 					{isMatch && (
 						<p className="text-xs font-bold text-primary text-wrap animate-in fade-in">
-							← {highlight?.label || "It"} belongs here
+							← {highlightLabel || "It"} belongs here
 						</p>
 					)}
 				</div>
@@ -83,7 +94,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 						className={`
 							pl-8 font-mono text-right text-sm h-9
 							${
-								isMissing
+								missingStatus
 									? "ring-2 ring-red-400 dark:ring-red-500/50 border-red-400 dark:border-red-500/50 text-red-600 dark:text-red-400 font-semibold opacity-70 cursor-not-allowed"
 									: isMatch
 										? "ring-2 ring-yellow-400 dark:ring-amber-500/50 border-yellow-400 dark:border-amber-500/50"
@@ -93,16 +104,9 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 							}
 						`}
 						value={value || ""}
-						disabled={isMissing}
+						disabled={missingStatus}
 						onKeyDown={preventNonNumeric}
-						onChange={(e) => {
-							let v = Number.parseFloat(e.target.value);
-							if (v < 0 || (m === "percent" && v > 100)) return;
-
-							v = Number.isNaN(v) ? 0 : getLimitValue(m, v);
-
-							updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v, "general");
-						}}
+						onChange={handleChange}
 					/>
 				</div>
 			</div>
@@ -110,7 +114,7 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			<p className="col-span-3 text-sm text-muted-foreground leading-relaxed line-clamp-2">
 				{MAJOR_CATEGORY_DESCRIPTIONS[cat.code] || "General expenses"}
 			</p>
-			{isMissing && (
+			{missingStatus && (
 				<div className="col-span-3 flex items-center justify-center gap-1 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
 					<AlertCircle className="w-3.5 h-3.5" />
 					<span>No official CPI data</span>
@@ -118,4 +122,6 @@ export default function GeneralRow({ cat }: Readonly<{ cat: CommodityDef }>) {
 			)}
 		</div>
 	);
-}
+});
+
+export default GeneralRow;

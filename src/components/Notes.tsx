@@ -45,7 +45,7 @@ export function Notes({ className }: { className?: string }) {
 				</ul>
 			</div>
 
-			{/* DISCLAMER */}
+			{/* DISCLAIMER */}
 			<div className={`bg-card/70 p-6 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5 ${className}`}>
 				<div className="flex items-center gap-2 mb-3">
 					<Info className="h-4 w-4 text-primary" />
@@ -62,8 +62,8 @@ export function Notes({ className }: { className?: string }) {
 						to the computed inflation.
 					</li>
 					<li>
-						<strong>The computed persona CPI and inflation rate</strong> are not meant to replace the official CPI and
-						inflation data released by the Philippine Statistics Authority.
+						<strong>The computed personal CPI and inflation rate</strong> are not meant to replace the official CPI
+						and inflation data released by the Philippine Statistics Authority.
 					</li>
 					<li>
 						The Philippine Statistics Authority does not save or store any information from the User. The information

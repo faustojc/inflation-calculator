@@ -102,7 +102,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 														{isAllItems ? "—" : i}
 													</TableCell>
 													<TableCell
-														className={`py-2 h-auto text-xsmax-w-[380px] ${
+														className={`py-2 h-auto text-xs max-w-[380px] ${
 															isAllItems ? "font-bold" : "font-medium"
 														}`}
 													>
@@ -235,7 +235,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 											return (
 												<React.Fragment key={f.factorName}>
 													<td
-														className={`p-2 border-r border-border text-sm min-w-[180px] sm:min-w-xs ${
+														className={`p-2 border-r border-border text-sm min-w-[180px] ${
 															isAllItems ? "font-bold" : ""
 														}`}
 													>

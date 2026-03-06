@@ -7,7 +7,7 @@ import { activeTab, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const DateControl = () => {
@@ -72,7 +72,9 @@ const DateControl = () => {
 				newDate.setMonth(maxMonth - 1);
 			}
 
-			settings.setKey("startDate", newDate);
+			startTransition(() => {
+				settings.setKey("startDate", newDate);
+			});
 		}
 		setOpenYear(false);
 	};

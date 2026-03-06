@@ -29,7 +29,7 @@ export const MAJOR_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"10": "e.g. tuition fees",
 	"11": "e.g. hotel accommodation fee, take-away food, meals eaten at restaurants",
 	"12": "e.g. ATM withdrawal fee, money transfer charges",
-	"13": "e.g. personal hygiene, payment for parlor and barbershop services, jewelries",
+	"13": "e.g. personal hygiene, payment for parlor and barbershop services, jewelry",
 };
 
 export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
@@ -56,7 +56,7 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"07.1": "e.g. purchase of motor car, motorcycle, and bicycle",
 	"07.2": "e.g. vehicle tire, engine oil, lubricating oil, diesel, gasoline, maintenance of motor vehicles",
 	"07.3": "e.g. transportation fare for jeepney, bus, taxi, tricycle, airplane, ship",
-	"07.4": "e.g. payment for courier services, delivery of good, delivery of food for immediate consumption",
+	"07.4": "e.g. payment for courier services, delivery of goods, delivery of food for immediate consumption",
 	"08.1": "e.g. mobile phone, television, personal computer, tablet computer, hard drive, microphone, rent of videoke machine",
 	"08.3": "e.g. internet access service, landline telephone service, prepaid and postpaid mobile phone service",
 	"09.1": "e.g. digital camera, video camera",
