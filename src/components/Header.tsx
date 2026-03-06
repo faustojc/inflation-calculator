@@ -22,12 +22,14 @@ export const Header = () => {
 					<img
 						src="/psa_header.png"
 						alt="PSA Logo"
+						fetchPriority="high"
 						className="h-9 sm:h-12 md:h-14 object-contain w-45 sm:max-w-none md:w-auto"
 					/>
 					<div className="flex items-center gap-1 sm:gap-2 shrink-0">
 						<img
 							src="/bagong_pilipinas_logo.svg"
 							alt="Bagong Pilipinas"
+							fetchPriority="high"
 							className="h-10 sm:h-12 md:h-14 w-auto object-contain max-w-[85px] sm:max-w-[140px] md:max-w-none"
 						/>
 						<Button
