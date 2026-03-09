@@ -44,15 +44,12 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const rowRef = useRef<HTMLDivElement>(null);
+	const isPointerDown = useRef(false);
 	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		if (isMatch) {
-			rowRef.current?.scrollTo({
-				behavior: "smooth",
-				top: rowRef.current?.offsetTop ?? 0,
-				left: rowRef.current?.offsetLeft ?? 0,
-			});
+			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 			if (!hasChildren) {
 				setTimeout(() => inputRef.current?.focus(), 500);
 			}
@@ -77,6 +74,16 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 		[node.code],
 	);
 
+	const handleFocus = useCallback(() => {
+		if (isPointerDown.current) {
+			isPointerDown.current = false;
+			return;
+		}
+		setTimeout(() => {
+			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+		}, 50);
+	}, []);
+
 	return (
 		<Collapsible open={isOpen} onOpenChange={handleToggle} className="w-full">
 			<div
@@ -97,6 +104,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 					<CollapsibleTrigger asChild>
 						<button
 							disabled={!hasChildren}
+							tabIndex={-1}
 							className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary hover:text-primary hover:bg-primary/20 cursor-pointer" : "text-transparent w-5"}`}
 						>
 							{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -109,7 +117,10 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 						<div className="flex items-center gap-2">
 							{SUB_CATEGORY_DESCRIPTIONS[node.code] && (
 								<Popover>
-									<PopoverTrigger asChild>
+									<PopoverTrigger
+										tabIndex={-1}
+										className="outline-none focus:ring-0 flex items-center justify-center bg-transparent border-0 p-0"
+									>
 										<InfoIcon className="h-3.5 w-3.5 shrink-0 text-primary/60 hover:text-primary cursor-pointer transition-colors" />
 									</PopoverTrigger>
 									<PopoverContent className="w-72 p-3 text-sm">
@@ -156,7 +167,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 							<Input
 								ref={inputRef}
 								type="number"
-								className={`h-8 pl-6 text-right font-mono text-sm transition-all ${
+								className={`commodity-input h-8 pl-6 text-right font-mono text-sm transition-all ${
 									missingStatus
 										? "ring-2 ring-red-400 dark:ring-red-500/50 border-red-400 dark:border-red-500/50 text-red-600 dark:text-red-400 font-semibold opacity-70 cursor-not-allowed"
 										: isMatch
@@ -172,6 +183,10 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 								disabled={missingStatus}
 								onKeyDown={preventNonNumeric}
 								onChange={handleChange}
+								onFocus={handleFocus}
+								onPointerDown={() => {
+									isPointerDown.current = true;
+								}}
 							/>
 						)}
 					</div>

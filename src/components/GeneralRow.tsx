@@ -27,6 +27,7 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 
 	const rowRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
+	const isPointerDown = useRef(false);
 
 	const hasFilled = value > 0;
 
@@ -47,6 +48,16 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 		},
 		[cat.code, cat.name, m],
 	);
+
+	const handleFocus = useCallback(() => {
+		if (isPointerDown.current) {
+			isPointerDown.current = false;
+			return;
+		}
+		setTimeout(() => {
+			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+		}, 50);
+	}, []);
 
 	return (
 		<div
@@ -92,6 +103,7 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 						max={500000}
 						placeholder="0"
 						className={`
+							commodity-input
 							pl-8 font-mono text-right text-sm h-9
 							${
 								missingStatus
@@ -107,6 +119,10 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 						disabled={missingStatus}
 						onKeyDown={preventNonNumeric}
 						onChange={handleChange}
+						onFocus={handleFocus}
+						onPointerDown={() => {
+							isPointerDown.current = true;
+						}}
 					/>
 				</div>
 			</div>

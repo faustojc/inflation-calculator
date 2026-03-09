@@ -18,10 +18,12 @@ import type { AreaDef } from "@/lib/types";
 import { dataStore, initializeApp } from "@/stores/dataStore";
 import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
 import { Toaster } from "sonner";
+import { useIsMobile } from "./hooks/use-mobile";
 
 export default function App() {
 	const { isReady, isLoading, error, commodities } = useStore(dataStore);
 	const currTab = useStore(activeTab);
+	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		initializeApp().then(async (meta) => {
@@ -138,6 +140,44 @@ export default function App() {
 		});
 	}, []);
 
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Tab") {
+				const inputs = Array.from(document.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
+					(el) => !el.disabled && el.offsetParent !== null,
+				);
+
+				if (inputs.length === 0) return;
+
+				const firstInput = inputs[0]!;
+				const lastInput = inputs[inputs.length - 1]!;
+				const activeElement = document.activeElement as HTMLInputElement;
+
+				if (!inputs.includes(activeElement)) {
+					e.preventDefault();
+					const target = e.shiftKey ? lastInput : firstInput;
+					target.focus();
+					return;
+				}
+
+				if (e.shiftKey) {
+					if (activeElement === firstInput) {
+						e.preventDefault();
+						lastInput.focus();
+					}
+				} else {
+					if (activeElement === lastInput) {
+						e.preventDefault();
+						firstInput.focus();
+					}
+				}
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, []);
+
 	if (isLoading || !isReady || commodities.length === 0) {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center bg-page-pattern font-sans">
@@ -175,8 +215,8 @@ export default function App() {
 				<Header />
 
 				<div className="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
-					<h1 className="text-center text-sm md:text-2xl lg:text-3xl font-bold text-foreground uppercase tracking-wider">
-						Personal Inflation Calculator
+					<h1 className="text-center text-sm md:text-2xl lg:text-3xl font-bold text-foreground tracking-wider">
+						PERSONAL INFLATION CALCULATOR
 					</h1>
 
 					<SettingsPanel />
@@ -192,13 +232,25 @@ export default function App() {
 								<h2 className="font-bold text-base text-foreground flex items-center gap-2">
 									Commodity Breakdown
 								</h2>
-								<p className="text-xs text-muted-foreground">Expand categories to input specific expenses</p>
+								<p className="text-xs sm:text-sm text-muted-foreground">
+									Expand categories to input specific expenses
+								</p>
 							</div>
 							<ClearButton />
 						</div>
 					)}
 
 					<SmartSearch />
+
+					{!isMobile && (
+						<div>
+							Use
+							<span className="mx-1 bg-primary px-2 py-0.5 rounded font-mono text-white">Tab</span>
+							to navigate <strong>next</strong> and
+							<span className="mx-1 bg-primary px-2 py-0.5 rounded font-mono text-white">Shift+Tab</span>
+							to navigate <strong>previous</strong> between commodity inputs
+						</div>
+					)}
 
 					<div id="commodity-inputs">
 						<div style={{ display: currTab === "general" ? "block" : "none" }}>

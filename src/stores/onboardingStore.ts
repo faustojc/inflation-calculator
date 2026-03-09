@@ -103,7 +103,7 @@ export const startTour = () => {
 				popover: {
 					title: "What is the output?",
 					description:
-						"Your results will compare your personal inflation to the official rates in your area and the whole country. It will also show which daily expenses are hitting your budget the hardest!",
+						"The results will compare your personal inflation to the official data in your area and the whole country. Your inflation rate is <strong>computed</strong> by weighting official price indices against your specific spending patterns, providing an <strong>analysis</strong> of top contributors and shifts in your purchasing power relative to the 2018 base year.",
 					side: "bottom",
 					align: "start",
 				},
