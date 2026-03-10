@@ -1,6 +1,8 @@
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { type ContributionFactor } from "@/utils/inflationCompute";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import CompareSelector from "./CompareSelector";
 
@@ -11,6 +13,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 	const comparisonOptions = contributors.slice(1);
 
 	const [selectedFactorName, setSelectedFactorName] = useState<string>(comparisonOptions[0]?.factorName ?? "");
+	const [isExpanded, setIsExpanded] = useState(false);
 
 	const selectedComparison = useMemo(() => {
 		const found = comparisonOptions.find((c) => c.factorName === selectedFactorName);
@@ -25,6 +28,8 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 	}, [personal, selectedComparison]);
 
 	const maxRows = Math.max(...visibleContributors.map((f) => f.contributors.length));
+	const displayRows = isExpanded ? maxRows : Math.min(maxRows, 4);
+	const canExpand = maxRows > 4;
 
 	if (!contributors || contributors.length === 0) return null;
 
@@ -84,7 +89,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{factor.contributors.map((c, i) => {
+										{factor.contributors.slice(0, displayRows).map((c, i) => {
 											const isAllItems = c.code === "0";
 											const pctWeight = isAllItems ? 100 : (c.weight / totalWeight) * 100;
 											return (
@@ -128,6 +133,28 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 						);
 					})}
 				</div>
+
+				{canExpand && (
+					<div className="flex justify-center py-2">
+						<Button
+							variant="outline"
+							onClick={() => setIsExpanded(!isExpanded)}
+							className="bg-card w-full max-w-sm rounded-full shadow-sm hover:shadow-md transition-shadow font-medium"
+						>
+							{isExpanded ? (
+								<>
+									<ChevronUp className="w-4 h-4 mr-2" />
+									Show Less
+								</>
+							) : (
+								<>
+									<ChevronDown className="w-4 h-4 mr-2" />
+									See More Contributors
+								</>
+							)}
+						</Button>
+					</div>
+				)}
 			</div>
 		);
 	}
@@ -198,7 +225,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 						</thead>
 
 						<tbody>
-							{Array.from({ length: maxRows }, (_, rankIndex) => {
+							{Array.from({ length: displayRows }, (_, rankIndex) => {
 								const isAllItems = rankIndex === 0;
 
 								return (
@@ -261,6 +288,28 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 						</tbody>
 					</table>
 				</div>
+
+				{canExpand && (
+					<div className="flex justify-center p-3 border-t border-border bg-muted/5 relative">
+						<Button
+							variant="outline"
+							onClick={() => setIsExpanded(!isExpanded)}
+							className="bg-card w-64 rounded-full shadow-sm hover:shadow-md transition-shadow font-medium"
+						>
+							{isExpanded ? (
+								<>
+									<ChevronUp className="w-4 h-4 mr-2 text-muted-foreground" />
+									Show Less
+								</>
+							) : (
+								<>
+									<ChevronDown className="w-4 h-4 mr-2 text-muted-foreground" />
+									See More Contributors
+								</>
+							)}
+						</Button>
+					</div>
+				)}
 			</div>
 		</div>
 	);
