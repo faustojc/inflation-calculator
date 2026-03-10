@@ -500,7 +500,7 @@ export function calculatePersonalInflation(
 			factorName,
 			areaName,
 			inflationRate,
-			contributors: [allItems, ...contributions.slice(0, 3)],
+			contributors: [allItems, ...contributions],
 		};
 	};
 
