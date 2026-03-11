@@ -444,12 +444,9 @@ export function calculatePersonalInflation(
 		if (isPersonal) {
 			// Compute weighted CPI change per item: (CPI_start - CPI_end) * weight
 			// where CPI_start = selected date (cpiEnd in code), CPI_end = previous date (cpiStart in code)
-			let totalWeightedChange = 0;
-			breakdown.forEach((b) => {
-				totalWeightedChange += (b.cpiEnd - b.cpiStart) * b.weight;
-			});
+			const totalWeightedChange = breakdown.reduce((acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight, 0);
 
-			breakdown.forEach((b) => {
+			for (const b of breakdown) {
 				const weightedChange = (b.cpiEnd - b.cpiStart) * b.weight;
 				const percentShare = totalWeightedChange !== 0 ? (weightedChange / totalWeightedChange) * 100 : 0;
 				contributions.push({
@@ -459,7 +456,7 @@ export function calculatePersonalInflation(
 					inflationRate: b.itemInflationRate,
 					percentShare,
 				});
-			});
+			}
 		} else if (areaKey && weightsMap[areaKey]) {
 			const areaWeights = weightsMap[areaKey];
 			const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];

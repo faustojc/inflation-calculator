@@ -58,7 +58,7 @@ export const startTour = () => {
 				popover: {
 					title: "📝 Select the Input Type",
 					description:
-						"Choose <strong>Amount (₱)</strong> if you want to input your monthly or annual expenditure for each commodity group. Choose <strong>Percent (%)</strong> if you want to input the only percentage of your monthly expenditure allotted for each commodity group.",
+						"Choose <strong>Amount (PhP)</strong> if you want to input your monthly or annual expenditure for each commodity group. Choose <strong>Percent (%)</strong> if you want to input the only percentage of your monthly expenditure allotted for each commodity group.",
 					side: "bottom",
 				},
 			},
