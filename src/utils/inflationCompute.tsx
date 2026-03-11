@@ -87,6 +87,14 @@ export interface CalculationResult {
 	};
 }
 
+// Moved outside to precreate the function
+// Get need Start/End CPI for "ALL" items to calculate official rates
+function getOfficialRate(key: string, dataIndex: DataIndex, dates: DateRange) {
+	const start = findCpi(dataIndex, key, dates.startYear, dates.startMonth, "0", "official");
+	const end = findCpi(dataIndex, key, dates.endYear, dates.endMonth, "0", "official");
+	return start && end ? calcGrowth(end, start) : 0;
+}
+
 /**
  * Finds the CPI value for a specific area, year, month, and code.
  * @param index The data index.
@@ -384,6 +392,8 @@ export function calculatePersonalInflation(
 		const weightedCpiStart = cpiStart * weight;
 		const weightedCpiEnd = cpiEnd * weight;
 
+		// NOTE: COMMODITY'S INFLATION RATE IS SAME AS OFFICIAL'S INFLATION RATE AS THEY USED
+		// THE SAME CPI DATA SOURCE BUT DIFFERENT WEIGHT
 		// Item Growth
 		const itemInflationRate = calcGrowth(cpiEnd, cpiStart);
 
@@ -409,18 +419,13 @@ export function calculatePersonalInflation(
 	const yearlyCpiEnd = sumWeightedCpiEnd / 100;
 	const personalRate = calcGrowth(yearlyCpiEnd, yearlyCpiStart);
 
-	// Get need Start/End CPI for "ALL" items to calculate official rates
-	const getOfficialRate = (key: string) => {
-		const start = findCpi(dataIndex, key, dates.startYear, dates.startMonth, "0", "official");
-		const end = findCpi(dataIndex, key, dates.endYear, dates.endMonth, "0", "official");
-		return start && end ? calcGrowth(end, start) : 0;
-	};
-
 	const comparators = {
-		areaRate: getOfficialRate(location.hierarchy.target.key),
-		regionRate: location.hierarchy.region ? getOfficialRate(location.hierarchy.region.key) : undefined,
-		nationalRate: getOfficialRate("philippines"),
-		provinceRate: location.hierarchy.province ? getOfficialRate(location.hierarchy.province.key) : undefined,
+		areaRate: getOfficialRate(location.hierarchy.target.key, dataIndex, dates),
+		regionRate: location.hierarchy.region ? getOfficialRate(location.hierarchy.region.key, dataIndex, dates) : undefined,
+		nationalRate: getOfficialRate("philippines", dataIndex, dates),
+		provinceRate: location.hierarchy.province
+			? getOfficialRate(location.hierarchy.province.key, dataIndex, dates)
+			: undefined,
 	};
 
 	const calculateContributors = (
@@ -472,6 +477,9 @@ export function calculatePersonalInflation(
 				if (cpiEnd !== null && cpiStart !== null && weight !== undefined) {
 					const weightedChange = (cpiEnd - cpiStart) * weight;
 					totalWeightedChange += weightedChange;
+
+					// NOTE: THIS OFFICIAL COMMODITY'S INFLATION RATE IS SAME AS PERSONAL'S INFLATION RATE AS THEY USED THE
+					// SAME CPI DATA SOURCE BUT DIFFERENT WEIGHT
 					const itemInflation = cpiStart > 0 ? calcGrowth(cpiEnd, cpiStart) : 0;
 					tempContribs.push({ code, weightedChange, weight, itemInflation });
 				}
