@@ -1,13 +1,13 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { compareMode, type CompareModeType } from "@/stores/graphStore";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
+import { useStore } from "@nanostores/react";
 import { TrendingUp } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-type CompareMode = "all" | "area" | "province" | "region" | "national";
-
-interface TrendGraphProps {
+interface Props {
 	trend: TrendPoint[];
 	startDateStr: string;
 	endDateStr: string;
@@ -17,8 +17,8 @@ interface TrendGraphProps {
 	};
 }
 
-export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<TrendGraphProps>) {
-	const [compareMode, setCompareMode] = useState<CompareMode>("all");
+export function TrendLine({ trend, startDateStr, endDateStr, meta }: Readonly<Props>) {
+	const mode = useStore(compareMode);
 	const isMobile = useIsMobile();
 
 	const hierarchy = meta.location.hierarchy;
@@ -82,11 +82,11 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 
 	const showLine = (key: string) => {
 		if (key === "personal") return true;
-		if (compareMode === "all") return true;
-		if (compareMode === "area" && key === "area") return true;
-		if (compareMode === "province" && key === "province") return true;
-		if (compareMode === "region" && key === "region") return true;
-		if (compareMode === "national" && key === "national") return true;
+		if (mode === "all") return true;
+		if (mode === "area" && key === "area") return true;
+		if (mode === "province" && key === "province") return true;
+		if (mode === "region" && key === "region") return true;
+		if (mode === "national" && key === "national") return true;
 		return false;
 	};
 
@@ -106,7 +106,7 @@ export function TrendGraph({ trend, startDateStr, endDateStr, meta }: Readonly<T
 
 				<div className="flex items-center justify-evenly lg:justify-start gap-2 w-full lg:w-fit">
 					<p className="text-foreground text-sm sm:text-base">Compare to:</p>
-					<Select value={compareMode} onValueChange={(v) => setCompareMode(v as CompareMode)}>
+					<Select value={mode} onValueChange={(v) => compareMode.set(v as CompareModeType)}>
 						<SelectTrigger className="w-40 h-8 text-foreground border-foreground">
 							<SelectValue placeholder="Select..." className="text-ellipsis" />
 						</SelectTrigger>

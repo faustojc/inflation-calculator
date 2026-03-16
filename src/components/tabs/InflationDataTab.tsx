@@ -1,4 +1,4 @@
-import { TrendGraph } from "@/components/TrendGraph";
+import { TrendLine } from "@/components/graphs/line/TrendLine";
 import { Separator } from "@/components/ui/separator";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 import { TrendingUp } from "lucide-react";
@@ -60,7 +60,7 @@ const InflationDataTab = ({
 
 			{/* Trend graph */}
 			<div className="col-span-8 lg:col-span-6">
-				<TrendGraph trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
+				<TrendLine trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
 			</div>
 		</div>
 	);

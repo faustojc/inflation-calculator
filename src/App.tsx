@@ -18,7 +18,7 @@ import type { AreaDef } from "@/lib/types";
 import { dataStore, initializeApp } from "@/stores/dataStore";
 import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
 import { Toaster } from "sonner";
-import { useIsMobile } from "./hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function App() {
 	const { isReady, isLoading, error, commodities } = useStore(dataStore);
@@ -215,7 +215,7 @@ export default function App() {
 				<Header />
 
 				<div className="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
-					<h1 className="text-center text-sm md:text-2xl lg:text-3xl font-bold text-foreground tracking-wider">
+					<h1 className="text-center text-xl md:text-2xl lg:text-3xl font-bold text-foreground text-balance">
 						PERSONAL INFLATION CALCULATOR
 					</h1>
 

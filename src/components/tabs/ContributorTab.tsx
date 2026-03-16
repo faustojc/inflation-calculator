@@ -1,7 +1,19 @@
 import { ContributorTable } from "@/components/ContributorTable";
 import type { ContributionFactor } from "@/utils/inflationCompute";
+import { useState } from "react";
+import CompareSelector from "@/components/CompareSelector";
+import { useStore } from "@nanostores/react";
+import { compareOfficial } from "@/stores/graphStore";
+import ContribInflationPie from "@/components/graphs/pie/ContribInflationPie";
+import ChartSelector from "@/components/ChartSelector";
 
 const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }) => {
+	const comparison = useStore(compareOfficial);
+	const [chartType, setChartType] = useState<"table" | "pie">("table");
+
+	const personal = contributors[0]!;
+	const comparisons = contributors.slice(1);
+
 	return (
 		<div className="glass-card p-4 space-y-4">
 			<div>
@@ -13,7 +25,17 @@ const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }
 					other areas.
 				</p>
 			</div>
-			<ContributorTable contributors={contributors} />
+
+			<div className="flex flex-wrap items-center justify-between md:justify-start gap-2 md:gap-4">
+				<CompareSelector selectedComparison={comparison} comparisons={comparisons} />
+				<ChartSelector chartType={chartType} setChartType={setChartType} />
+			</div>
+
+			{chartType === "table" ? (
+				<ContributorTable personal={personal} official={comparison!} />
+			) : (
+				<ContribInflationPie personal={personal} official={comparison!} />
+			)}
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-1 border-t border-border pt-3">
 				<div className="space-y-1">

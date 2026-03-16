@@ -78,6 +78,25 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"13.9": "e.g. photocopying services, fee for issuance of civil registry document, power of attorney",
 };
 
+const COMMODITY_COLORS: Record<string, string> = {
+	"01": "#E88D2A", // Amber (avoid red — conflicts with deflation overlay)
+	"02": "#3cb44b", // Green
+	"03": "#ffe119", // Yellow
+	"04": "#4363d8", // Blue
+	"05": "#f58231", // Orange
+	"06": "#911eb4", // Purple
+	"07": "#42d4f4", // Cyan
+	"08": "#f032e6", // Magenta
+	"09": "#bfef45", // Lime
+	"10": "#fabed4", // Pink
+	"11": "#469990", // Teal
+	"12": "#dcbeff", // Lavender
+	"13": "#9a6324", // Brown
+};
+
+export const NEG_STRIPE_COLOR = "rgba(220, 38, 38, 0.35)";
+export const NEG_STROKE_COLOR = "#DC2626";
+
 // Global indexing for serialized json data
 export const GLOBAL_INDEX: DataIndex = {};
 export const INDEXED_KEYS = new Set<string>();
@@ -148,4 +167,13 @@ export const getLimitValue = (m: Mode, v: number) => {
 	}
 
 	return (v = v > 500000 ? 500000 : v);
+};
+
+export const getColor = (code: string | undefined, index: number) => {
+	if (code && COMMODITY_COLORS[code]) {
+		return COMMODITY_COLORS[code];
+	}
+	// Fallback colors if code is missing or unknown
+	const fallbackColors = Object.values(COMMODITY_COLORS);
+	return fallbackColors[index % fallbackColors.length]!;
 };

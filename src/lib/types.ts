@@ -69,3 +69,12 @@ export interface AreaManifest {
 	dates: Record<DataType, Record<IncomeClass, Record<number, number>>>;
 	weights: Record<IncomeClass, number[]>;
 }
+
+export interface PieEntry {
+	name: string;
+	value: number;
+	originalShare: number;
+	code: string;
+	type: "positive" | "negative" | "filler";
+	negIdx?: number;
+}

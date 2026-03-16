@@ -1,4 +1,5 @@
 import type { AreaDef, DataIndex, DataType } from "@/lib/types";
+import { setCompareOfficial } from "@/stores/graphStore";
 import { type ExpenseItem } from "@/stores/inflationStore";
 import type { ReactNode } from "react";
 
@@ -93,6 +94,113 @@ function getOfficialRate(key: string, dataIndex: DataIndex, dates: DateRange) {
 	const start = findCpi(dataIndex, key, dates.startYear, dates.startMonth, "0", "official");
 	const end = findCpi(dataIndex, key, dates.endYear, dates.endMonth, "0", "official");
 	return start && end ? calcGrowth(end, start) : 0;
+}
+
+function calculateOfficialContribution(
+	dataIndex: DataIndex,
+	areaWeights: number[],
+	areaKey: string,
+	majorCategoryNames: Record<string, string>,
+	dates: DateRange,
+): { contributions: CommodityContribution[]; allItemsWeights: number } {
+	const contributions: CommodityContribution[] = [];
+	const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
+	let totalWeightedChange = 0;
+	const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] = [];
+
+	for (let i = 0; i < codes.length; i++) {
+		const code = codes[i]!;
+		const weight = areaWeights[i];
+		const cpiEnd = findCpi(dataIndex, areaKey, dates.endYear, dates.endMonth, code, "official");
+		const cpiStart = findCpi(dataIndex, areaKey, dates.startYear, dates.startMonth, code, "official");
+
+		if (cpiEnd !== null && cpiStart !== null && weight !== undefined) {
+			const weightedChange = (cpiEnd - cpiStart) * weight;
+			totalWeightedChange += weightedChange;
+
+			// NOTE: THIS OFFICIAL COMMODITY'S INFLATION RATE IS SAME AS PERSONAL'S INFLATION RATE AS THEY USED THE
+			// SAME CPI DATA SOURCE BUT DIFFERENT WEIGHT
+			const itemInflation = cpiStart > 0 ? calcGrowth(cpiEnd, cpiStart) : 0;
+			tempContribs.push({ code, weightedChange, weight, itemInflation });
+		}
+	}
+
+	// Use actual sum of area weights for ALL ITEMS weight
+	const allItemsWeights = areaWeights.reduce((sum, w) => sum + w, 0);
+
+	for (const c of tempContribs) {
+		const percentShare = totalWeightedChange !== 0 ? (c.weightedChange / totalWeightedChange) * 100 : 0;
+		contributions.push({
+			code: c.code,
+			name: majorCategoryNames[c.code] || c.code,
+			weight: c.weight,
+			inflationRate: c.itemInflation,
+			percentShare,
+		});
+	}
+
+	return { contributions, allItemsWeights };
+}
+
+function calculateContributors(
+	dataIndex: DataIndex,
+	breakdown: ItemBreakdown[],
+	weightsMap: Record<string, number[]>,
+	dates: DateRange,
+	majorCategoryNames: Record<string, string>,
+	factorName: string,
+	areaName: string,
+	inflationRate: number,
+	areaKey: string | null,
+	isPersonal = false,
+): ContributionFactor {
+	const contributions: CommodityContribution[] = [];
+
+	// "ALL ITEMS" is always rank 0 — top of the commodity hierarchy
+	const allItems: CommodityContribution = {
+		code: "0",
+		name: "ALL ITEMS",
+		weight: 100,
+		inflationRate,
+		percentShare: 100,
+	};
+
+	if (isPersonal) {
+		// Compute weighted CPI change per item: (CPI_start - CPI_end) * weight
+		// where CPI_start = selected date (cpiEnd in code), CPI_end = previous date (cpiStart in code)
+		const totalWeightedChange = breakdown.reduce((acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight, 0);
+
+		for (const b of breakdown) {
+			const weightedChange = (b.cpiEnd - b.cpiStart) * b.weight;
+			const percentShare = totalWeightedChange !== 0 ? (weightedChange / totalWeightedChange) * 100 : 0;
+			contributions.push({
+				code: b.categoryCode,
+				name: b.name,
+				weight: b.weight,
+				inflationRate: b.itemInflationRate,
+				percentShare,
+			});
+		}
+	} else if (areaKey && weightsMap[areaKey]) {
+		const { contributions: officialContributions, allItemsWeights } = calculateOfficialContribution(
+			dataIndex,
+			weightsMap[areaKey],
+			areaKey,
+			majorCategoryNames,
+			dates,
+		);
+
+		allItems.weight = allItemsWeights;
+		contributions.push(...officialContributions);
+	}
+
+	contributions.sort((a, b) => b.percentShare - a.percentShare);
+	return {
+		factorName,
+		areaName,
+		inflationRate,
+		contributors: [allItems, ...contributions],
+	};
 }
 
 /**
@@ -392,8 +500,8 @@ export function calculatePersonalInflation(
 		const weightedCpiStart = cpiStart * weight;
 		const weightedCpiEnd = cpiEnd * weight;
 
-		// NOTE: COMMODITY'S INFLATION RATE IS SAME AS OFFICIAL'S INFLATION RATE AS THEY USED
-		// THE SAME CPI DATA SOURCE BUT DIFFERENT WEIGHT
+		// NOTE: IN PERSONAL, EACH COMMODITY'S INFLATION RATE IS SAME AS OFFICIAL'S INFLATION RATE
+		// AS THEY USED THE SAME CPI DATA SOURCE BUT DIFFERENT WEIGHT
 		// Item Growth
 		const itemInflationRate = calcGrowth(cpiEnd, cpiStart);
 
@@ -428,95 +536,40 @@ export function calculatePersonalInflation(
 			: undefined,
 	};
 
-	const calculateContributors = (
-		factorName: string,
-		areaName: string,
-		inflationRate: number,
-		areaKey: string | null,
-		isPersonal = false,
-	): ContributionFactor => {
-		const contributions: CommodityContribution[] = [];
-
-		// "ALL ITEMS" is always rank 0 — top of the commodity hierarchy
-		const allItems: CommodityContribution = {
-			code: "0",
-			name: "ALL ITEMS",
-			weight: 100,
-			inflationRate,
-			percentShare: 100,
-		};
-
-		if (isPersonal) {
-			// Compute weighted CPI change per item: (CPI_start - CPI_end) * weight
-			// where CPI_start = selected date (cpiEnd in code), CPI_end = previous date (cpiStart in code)
-			const totalWeightedChange = breakdown.reduce((acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight, 0);
-
-			for (const b of breakdown) {
-				const weightedChange = (b.cpiEnd - b.cpiStart) * b.weight;
-				const percentShare = totalWeightedChange !== 0 ? (weightedChange / totalWeightedChange) * 100 : 0;
-				contributions.push({
-					code: b.categoryCode,
-					name: b.name,
-					weight: b.weight,
-					inflationRate: b.itemInflationRate,
-					percentShare,
-				});
-			}
-		} else if (areaKey && weightsMap[areaKey]) {
-			const areaWeights = weightsMap[areaKey];
-			const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
-			let totalWeightedChange = 0;
-			const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] = [];
-
-			for (let i = 0; i < codes.length; i++) {
-				const code = codes[i]!;
-				const weight = areaWeights[i];
-				const cpiEnd = findCpi(dataIndex, areaKey, dates.endYear, dates.endMonth, code, "official");
-				const cpiStart = findCpi(dataIndex, areaKey, dates.startYear, dates.startMonth, code, "official");
-
-				if (cpiEnd !== null && cpiStart !== null && weight !== undefined) {
-					const weightedChange = (cpiEnd - cpiStart) * weight;
-					totalWeightedChange += weightedChange;
-
-					// NOTE: THIS OFFICIAL COMMODITY'S INFLATION RATE IS SAME AS PERSONAL'S INFLATION RATE AS THEY USED THE
-					// SAME CPI DATA SOURCE BUT DIFFERENT WEIGHT
-					const itemInflation = cpiStart > 0 ? calcGrowth(cpiEnd, cpiStart) : 0;
-					tempContribs.push({ code, weightedChange, weight, itemInflation });
-				}
-			}
-
-			// Use actual sum of area weights for ALL ITEMS weight
-			allItems.weight = areaWeights.reduce((sum, w) => sum + w, 0);
-
-			for (const c of tempContribs) {
-				const percentShare = totalWeightedChange !== 0 ? (c.weightedChange / totalWeightedChange) * 100 : 0;
-				contributions.push({
-					code: c.code,
-					name: majorCategoryNames[c.code] || c.code,
-					weight: c.weight,
-					inflationRate: c.itemInflation,
-					percentShare,
-				});
-			}
-		}
-
-		contributions.sort((a, b) => b.percentShare - a.percentShare);
-		return {
-			factorName,
-			areaName,
-			inflationRate,
-			contributors: [allItems, ...contributions],
-		};
-	};
-
 	const contributors: ContributionFactor[] = [
-		calculateContributors("Personal", location.hierarchy.target.name, personalRate, null, true),
-		calculateContributors("City/Mun", location.hierarchy.target.name, comparators.areaRate, location.hierarchy.target.key),
+		calculateContributors(
+			dataIndex,
+			breakdown,
+			weightsMap,
+			dates,
+			majorCategoryNames,
+			"Personal",
+			location.hierarchy.target.name,
+			personalRate,
+			null,
+			true,
+		),
+		calculateContributors(
+			dataIndex,
+			breakdown,
+			weightsMap,
+			dates,
+			majorCategoryNames,
+			"City/Mun",
+			location.hierarchy.target.name,
+			comparators.areaRate,
+			location.hierarchy.target.key,
+		),
 	];
 
 	if (location.hierarchy.province && location.hierarchy.province.key !== location.hierarchy.target.key) {
 		contributors.push(
 			calculateContributors(
+				dataIndex,
+				breakdown,
+				weightsMap,
+				dates,
+				majorCategoryNames,
 				"Province",
 				location.hierarchy.province.name,
 				comparators.provinceRate || 0,
@@ -528,6 +581,11 @@ export function calculatePersonalInflation(
 	if (location.hierarchy.region && comparators.regionRate) {
 		contributors.push(
 			calculateContributors(
+				dataIndex,
+				breakdown,
+				weightsMap,
+				dates,
+				majorCategoryNames,
 				"Region",
 				location.hierarchy.region.name,
 				comparators.regionRate,
@@ -536,10 +594,24 @@ export function calculatePersonalInflation(
 		);
 	}
 
-	contributors.push(calculateContributors("National", "Philippines", comparators.nationalRate, "philippines"));
+	contributors.push(
+		calculateContributors(
+			dataIndex,
+			breakdown,
+			weightsMap,
+			dates,
+			majorCategoryNames,
+			"National",
+			"Philippines",
+			comparators.nationalRate,
+			"philippines",
+		),
+	);
 
 	const trend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex, "0", dataType);
 	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, { location, dates });
+
+	setCompareOfficial(contributors[1]);
 
 	return {
 		personalRate,

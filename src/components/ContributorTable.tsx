@@ -4,44 +4,27 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { type ContributionFactor } from "@/utils/inflationCompute";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import CompareSelector from "./CompareSelector";
 
-export function ContributorTable({ contributors }: Readonly<{ contributors: ContributionFactor[] }>) {
+interface Props {
+	personal: ContributionFactor;
+	official: ContributionFactor;
+}
+
+export function ContributorTable({ personal, official }: Props) {
 	const isMobile = useIsMobile();
-
-	const personal = contributors[0];
-	const comparisonOptions = contributors.slice(1);
-
-	const [selectedFactorName, setSelectedFactorName] = useState<string>(comparisonOptions[0]?.factorName ?? "");
 	const [isExpanded, setIsExpanded] = useState(false);
 
-	const selectedComparison = useMemo(() => {
-		const found = comparisonOptions.find((c) => c.factorName === selectedFactorName);
-		return found ? found : comparisonOptions[0];
-	}, [comparisonOptions, selectedFactorName]);
-
 	const visibleContributors = useMemo(() => {
-		const result: ContributionFactor[] = [];
-		if (personal) result.push(personal);
-		if (selectedComparison) result.push(selectedComparison);
-		return result;
-	}, [personal, selectedComparison]);
+		return [personal, official];
+	}, [personal, official]);
 
 	const maxRows = Math.max(...visibleContributors.map((f) => f.contributors.length));
 	const displayRows = isExpanded ? maxRows : Math.min(maxRows, 4);
 	const canExpand = maxRows > 4;
 
-	if (!contributors || contributors.length === 0) return null;
-
 	if (isMobile) {
 		return (
 			<div className="space-y-4">
-				<CompareSelector
-					selectedComparison={selectedComparison}
-					comparisonOptions={comparisonOptions}
-					setSelectedFactorName={setSelectedFactorName}
-				/>
-
 				<div className="space-y-6">
 					{visibleContributors.map((factor) => {
 						const totalWeight = factor.contributors[0]?.weight || 1;
@@ -107,7 +90,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 														{isAllItems ? "—" : i}
 													</TableCell>
 													<TableCell
-														className={`py-2 h-auto text-xs max-w-[380px] ${
+														className={`py-2 h-auto text-xs max-w-95 ${
 															isAllItems ? "font-bold" : "font-medium"
 														}`}
 													>
@@ -161,12 +144,6 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 
 	return (
 		<div className="space-y-4">
-			<CompareSelector
-				selectedComparison={selectedComparison}
-				comparisonOptions={comparisonOptions}
-				setSelectedFactorName={setSelectedFactorName}
-			/>
-
 			<div className="border rounded-lg overflow-hidden shadow-sm bg-card border-border">
 				<div className="overflow-x-auto">
 					<table className="w-full text-sm border-collapse">
@@ -178,7 +155,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 									<th
 										key={f.factorName}
 										colSpan={4}
-										className={`p-3 border-r border-primary-foreground/20 last:border-r-0 text-center min-w-[300px] ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
+										className={`p-3 border-r border-primary-foreground/20 last:border-r-0 text-center min-w-75 ${i % 2 === 0 ? "bg-primary/90" : "bg-primary/75"}`}
 									>
 										<div className="font-bold tracking-wider text-white flex items-center justify-center gap-2">
 											<span className="text-base">
@@ -262,7 +239,7 @@ export function ContributorTable({ contributors }: Readonly<{ contributors: Cont
 											return (
 												<React.Fragment key={f.factorName}>
 													<td
-														className={`p-2 border-r border-border text-sm min-w-[180px] ${
+														className={`p-2 border-r border-border text-sm min-w-45 ${
 															isAllItems ? "font-bold" : ""
 														}`}
 													>
