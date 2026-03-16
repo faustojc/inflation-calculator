@@ -2,7 +2,9 @@ import type { ContributionFactor } from "@/utils/inflationCompute";
 import { atom } from "nanostores";
 
 export type CompareModeType = "all" | "area" | "province" | "region" | "national";
+export type TrendType = "inflation" | "cpi";
 
+export const trendType = atom<TrendType>("inflation");
 export const compareMode = atom<CompareModeType>("all");
 export const compareOfficial = atom<ContributionFactor | undefined>(undefined);
 export const activeSlice = atom<string | null>(null);

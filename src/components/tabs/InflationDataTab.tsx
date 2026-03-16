@@ -6,14 +6,16 @@ import { TrendingUp } from "lucide-react";
 const InflationDataTab = ({
 	personalRate,
 	yearlyCpiEnd,
-	trend,
+	inflationTrend,
+	cpiTrend,
 	meta,
 	startDateStr,
 	endDateStr,
 }: {
 	personalRate: number;
 	yearlyCpiEnd: number;
-	trend: TrendPoint[];
+	inflationTrend: TrendPoint[];
+	cpiTrend: TrendPoint[];
 	meta: {
 		location: LocationContext;
 		dates: DateRange;
@@ -55,12 +57,30 @@ const InflationDataTab = ({
 						<span className="text-sm sm:text-base font-normal text-muted-foreground ml-1">(2018=100)</span>
 						<p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">{yearlyCpiEnd.toFixed(1)}</p>
 					</div>
+
+					<Separator className="bg-foreground" />
+
+					{/* Purchasing Power = (1/cpi) */}
+					<div className="flex flex-col items-center gap-1">
+						<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
+							Purchasing Power
+						</span>
+						<p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+							{((1 / yearlyCpiEnd) * 100).toFixed(2)}
+						</p>
+					</div>
 				</div>
 			</div>
 
 			{/* Trend graph */}
 			<div className="col-span-8 lg:col-span-6">
-				<TrendLine trend={trend} startDateStr={startDateStr} endDateStr={endDateStr} meta={meta} />
+				<TrendLine
+					inflationTrend={inflationTrend}
+					cpiTrend={cpiTrend}
+					startDateStr={startDateStr}
+					endDateStr={endDateStr}
+					meta={meta}
+				/>
 			</div>
 		</div>
 	);

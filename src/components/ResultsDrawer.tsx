@@ -17,7 +17,7 @@ export function ResultsDrawer() {
 
 	if (!data) return null;
 
-	const { personalRate, yearlyCpiEnd, trend, meta, interpretation, contributors } = data;
+	const { personalRate, yearlyCpiEnd, inflationTrend, cpiTrend, meta, interpretation, contributors } = data;
 
 	const startDateStr = format(new Date(meta.dates.startYear, meta.dates.startMonth - 1), "MMMM yyyy");
 	const endDateStr = format(new Date(meta.dates.endYear, meta.dates.endMonth - 1), "MMMM yyyy");
@@ -78,7 +78,8 @@ export function ResultsDrawer() {
 								<InflationDataTab
 									personalRate={personalRate}
 									yearlyCpiEnd={yearlyCpiEnd}
-									trend={trend}
+									inflationTrend={inflationTrend}
+									cpiTrend={cpiTrend}
 									meta={meta}
 									startDateStr={startDateStr}
 									endDateStr={endDateStr}
