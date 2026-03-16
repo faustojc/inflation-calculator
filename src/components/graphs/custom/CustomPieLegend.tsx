@@ -15,7 +15,7 @@ const CustomPieLegend = ({ props, patternPrefix }: { props: readonly LegendItem[
 
 	const setActiveSlice = useCallback(
 		(code: string, value: number) => {
-			if (value === 0) return;
+			if (value >= 0 && value <= 0.099) return;
 			const id = sliceId(code, value);
 			activeSlice.set(chartPrefix + id);
 		},
@@ -34,7 +34,7 @@ const CustomPieLegend = ({ props, patternPrefix }: { props: readonly LegendItem[
 				return (
 					<li
 						key={entry.code}
-						className="flex items-center gap-2 py-1 transition-opacity duration-200"
+						className="flex items-center gap-2 py-1 transition-opacity duration-200 cursor-pointer"
 						style={{ opacity: isAnyInThisChartSelected && !isActive ? 0.3 : 1 }}
 						onClick={() => setActiveSlice(entry.code, entry.value)}
 						onMouseOver={() => setActiveSlice(entry.code, entry.value)}
