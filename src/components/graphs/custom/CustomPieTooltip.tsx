@@ -1,8 +1,8 @@
 import type { TooltipContentProps } from "recharts";
 
-const CustomTooltip = ({ active, payload }: TooltipContentProps<number, string>) => {
-	if (active && payload && payload.length) {
-		const data = payload[0]!.payload;
+const CustomPieTooltip = ({ ...props }: TooltipContentProps<number, string>) => {
+	if (props.active && props.payload && props.payload.length) {
+		const data = props.payload[0]!.payload;
 
 		if (data?.type === "filler" || data?.name === "_filler") return null;
 
@@ -24,4 +24,4 @@ const CustomTooltip = ({ active, payload }: TooltipContentProps<number, string>)
 	return null;
 };
 
-export default CustomTooltip;
+export default CustomPieTooltip;

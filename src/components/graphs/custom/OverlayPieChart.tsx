@@ -1,5 +1,4 @@
 import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
-import CustomTooltip from "@/components/graphs/custom/CustomPieTooltip";
 import CustomPositiveLabel from "@/components/graphs/custom/CustomPositiveLabel";
 import CustomBaseSector from "@/components/graphs/custom/CustomBaseSector";
 import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector";
@@ -7,7 +6,8 @@ import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector"
 import type { PieEntry } from "@/lib/types";
 import type { CommodityContribution } from "@/utils/inflationCompute";
 import { NEG_STRIPE_COLOR } from "@/utils/metadata";
-import { Pie, PieChart, ResponsiveContainer, Tooltip, type PieLabelRenderProps } from "recharts";
+import { Pie, PieChart, ResponsiveContainer, Tooltip, type PieLabelRenderProps, type TooltipContentProps } from "recharts";
+import CustomPieTooltip from "@/components/graphs/custom/CustomPieTooltip";
 
 export function OverlayPieChart({
 	title,
@@ -105,7 +105,9 @@ export function OverlayPieChart({
 
 						<Tooltip
 							active={false}
-							content={CustomTooltip}
+							content={(props: TooltipContentProps<number, string>) => (
+								<CustomPieTooltip {...props} active={props.active} payload={props.payload} />
+							)}
 							allowEscapeViewBox={{ x: false, y: false }}
 							wrapperStyle={{ zIndex: 1000, pointerEvents: "none" }}
 						/>
