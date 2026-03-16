@@ -30,11 +30,7 @@ function processPie(pie: PieEntry[], cy: number, outerRadius: number, totalValue
 		const sliceAngle = (entry.value / totalValue) * 360;
 		const midAngle = currentAngle - sliceAngle / 2;
 
-		const skip =
-			entry.type === "filler" ||
-			(entry.originalShare >= 0 && entry.originalShare < 1 && !isNegative) ||
-			(entry.originalShare === 0 && isNegative) ||
-			entry.value === 0;
+		const skip = entry.type === "filler" || (entry.originalShare >= 0 && entry.originalShare <= 0.099) || entry.value === 0;
 
 		if (!skip) {
 			const theta = -RADIAN * midAngle;
