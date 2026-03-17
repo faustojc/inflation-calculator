@@ -17,6 +17,8 @@ import { dataStore, initializeApp } from "@/stores/dataStore";
 import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
 import { Toaster } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { fuzzyScore } from "@/lib/fuzzySearch";
+import type { AreaDef } from "@/lib/types";
 
 export default function App() {
 	const { isReady, isLoading, error, commodities } = useStore(dataStore);
@@ -45,11 +47,87 @@ export default function App() {
 				settings.setKey("area", meta.areas.at(1)!);
 
 				const locationKey = "location_accepted";
+				const fallbackTrack = () => {
+					if (localStorage.getItem(locationKey) !== "true") {
+						fetch("/api/track", { method: "POST" })
+							.then(() => localStorage.setItem(locationKey, "true"))
+							.catch(() => {});
+					}
+				};
 
-				if (localStorage.getItem(locationKey) !== "true") {
-					fetch("/api/track", { method: "POST" })
-						.then(() => localStorage.setItem(locationKey, "true"))
-						.catch(() => {});
+				if ("geolocation" in navigator) {
+					navigator.geolocation.getCurrentPosition(
+						async (position) => {
+							try {
+								const lat = position.coords.latitude;
+								const lon = position.coords.longitude;
+								const res = await fetch(
+									`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+								);
+								const data = await res.json();
+
+								const city = data.locality || data.city || "";
+								const region = data.principalSubdivision || "";
+								const country = data.countryName || "";
+
+								const areas = dataStore.get().areas;
+								let bestMatch: AreaDef | undefined = undefined;
+								let highestScore = -1;
+
+								if (city) {
+									const cityQuery = city.toLowerCase();
+
+									areas.forEach((a) => {
+										const areaName = a.name.toLowerCase();
+										const score = fuzzyScore(areaName, cityQuery).score;
+
+										if (score > highestScore) {
+											highestScore = score;
+											bestMatch = a;
+										}
+									});
+								}
+
+								if ((!bestMatch || highestScore < 100) && region) {
+									const regionQuery = region.toLowerCase();
+									areas.forEach((a) => {
+										const score = fuzzyScore(a.name.toLowerCase(), regionQuery).score;
+										if (score > highestScore) {
+											highestScore = score;
+											bestMatch = a;
+										}
+									});
+								}
+
+								if (bestMatch && highestScore >= 0) {
+									settings.setKey("area", bestMatch);
+								}
+
+								if (localStorage.getItem(locationKey) !== "true") {
+									await fetch("/api/track", {
+										method: "POST",
+										headers: { "Content-Type": "application/json" },
+										body: JSON.stringify({
+											country: country,
+											region: region,
+											city: city,
+										}),
+									});
+									localStorage.setItem(locationKey, "true");
+								}
+							} catch {
+								fallbackTrack();
+							}
+						},
+						(error) => {
+							if (error.code !== error.PERMISSION_DENIED) {
+								fallbackTrack();
+							}
+						},
+						{ timeout: 15000 },
+					);
+				} else {
+					fallbackTrack();
 				}
 			}
 
