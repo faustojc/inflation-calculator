@@ -147,7 +147,7 @@ export default function TrendLine({ inflationTrend, cpiTrend, startDateStr, endD
 
 			<div className="flex-1 w-full h-11/12 lg:min-h-0 px-2">
 				<ResponsiveContainer width="100%" height="100%">
-					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
 						<CartesianGrid vertical={false} stroke="hsl(var(--muted-foreground) / 0.35)" />
 						<XAxis
 							dataKey="date"
