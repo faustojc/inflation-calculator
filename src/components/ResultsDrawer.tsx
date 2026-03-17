@@ -23,7 +23,7 @@ export function ResultsDrawer() {
 	const endDateStr = format(new Date(meta.dates.endYear, meta.dates.endMonth - 1), "MMMM yyyy");
 
 	return (
-		<Drawer direction="bottom" open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
+		<Drawer direction="bottom" modal={true} open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
 			<DrawerContent
 				aria-describedby="inflation-report"
 				className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-none"

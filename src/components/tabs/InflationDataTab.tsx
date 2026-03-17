@@ -1,4 +1,4 @@
-import { TrendLine } from "@/components/graphs/line/TrendLine";
+import TrendLine from "@/components/graphs/line/TrendLine";
 import { Separator } from "@/components/ui/separator";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 import { TrendingUp } from "lucide-react";
@@ -24,9 +24,9 @@ const InflationDataTab = ({
 	endDateStr: string;
 }) => {
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-8 gap-4 overflow-y-auto w-full">
+		<div className="grid grid-cols-1 sm:grid-cols-8 gap-4 overflow-y-auto w-full py-3">
 			{/* Personal inflation rate card */}
-			<div className="col-span-8 lg:col-span-2 glass-card p-6 md:p-7 flex flex-col gap-4 sm:gap-8 items-center justify-around text-center">
+			<div className="col-span-8 lg:col-span-2 glass-card p-6 md:p-7 flex flex-col gap-4 sm:gap-8 items-center justify-around text-center border-primary! border-2! shadow-primary! shadow-md!">
 				<div className="flex flex-col items-center gap-1">
 					<h1 className="text-base md:text-2xl lg:text-4xl font-extrabold uppercase tracking-wide text-foreground">
 						Personal
@@ -73,7 +73,7 @@ const InflationDataTab = ({
 			</div>
 
 			{/* Trend graph */}
-			<div className="col-span-8 lg:col-span-6">
+			<div className="col-span-8 lg:col-span-6 min-h-112.5 lg:min-h-0">
 				<TrendLine
 					inflationTrend={inflationTrend}
 					cpiTrend={cpiTrend}

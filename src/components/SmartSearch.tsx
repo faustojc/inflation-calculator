@@ -86,7 +86,7 @@ export function SmartSearch() {
 
 	return (
 		<div
-			className="sticky top-18 sm:top-[100px] z-30 transition-[top] duration-300 ease-in-out motion-reduce:transition-none"
+			className="sticky top-18 sm:top-25 z-30 transition-[top] duration-300 ease-in-out motion-reduce:transition-none"
 			style={isMobile ? { top: headerHidden ? 0 : undefined } : undefined}
 			id="smart-search-container"
 		>

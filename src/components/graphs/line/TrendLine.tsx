@@ -18,7 +18,7 @@ interface Props {
 	};
 }
 
-export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, meta }: Readonly<Props>) {
+export default function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, meta }: Readonly<Props>) {
 	const mode = useStore(compareMode);
 	const currTrend = useStore(trendType);
 	const isMobile = useIsMobile();
@@ -101,8 +101,8 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 	};
 
 	return (
-		<div className="relative glass-card p-5 m-0 md:rounded-2xl border-y-2 md:border-2 flex flex-col gap-4 h-full">
-			<div className="flex flex-col md:flex-row gap-4 items-center shrink-0">
+		<div className="relative glass-card py-5 m-0 md:rounded-2xl border-y-2 md:border-2 flex flex-col gap-4 min-h-152.5 h-full">
+			<div className="flex flex-col md:flex-row gap-4 items-center shrink-0 px-5">
 				<div className="flex items-center justify-evenly lg:justify-start gap-2 w-full lg:w-fit">
 					<p className="text-foreground text-sm sm:text-base">Select Trend:</p>
 					<Select value={currTrend} onValueChange={(v) => trendType.set(v as TrendType)}>
@@ -133,7 +133,7 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 				</div>
 			</div>
 
-			<div className="flex items-center justify-center gap-2 text-sm sm:text-base shrink-0">
+			<div className="flex items-center justify-center gap-2 text-sm sm:text-base shrink-0 px-5">
 				<div className="text-primary flex items-center gap-2">
 					<TrendingUp className="h-5 w-5" />
 					<h3 className="font-bold uppercase tracking-wide">
@@ -145,9 +145,9 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 				</p>
 			</div>
 
-			<div className="flex-1 w-full min-h-0">
+			<div className="flex-1 w-full h-11/12 lg:min-h-0 px-2">
 				<ResponsiveContainer width="100%" height="100%">
-					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 12, left: -10, bottom: 0 }}>
+					<LineChart data={trend} width="100%" height="100%" margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
 						<CartesianGrid vertical={false} stroke="hsl(var(--muted-foreground) / 0.35)" />
 						<XAxis
 							dataKey="date"
@@ -215,7 +215,6 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 								</span>
 							)}
 						/>
-
 						<Line
 							type="monotone"
 							dataKey="personal"
@@ -225,7 +224,6 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 							dot={false}
 							activeDot={{ r: 6 }}
 						/>
-
 						{showLine("area") && (
 							<Line
 								type="monotone"
@@ -237,7 +235,6 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 								dot={false}
 							/>
 						)}
-
 						{hasProvince && showLine("province") && (
 							<Line
 								type="monotone"
@@ -249,7 +246,7 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 								dot={false}
 							/>
 						)}
-
+						TrendLine
 						{hasRegion && showLine("region") && (
 							<Line
 								type="monotone"
@@ -261,7 +258,6 @@ export function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, 
 								dot={false}
 							/>
 						)}
-
 						{showLine("national") && (
 							<Line
 								type="monotone"

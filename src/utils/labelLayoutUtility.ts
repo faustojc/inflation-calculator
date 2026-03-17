@@ -37,7 +37,7 @@ function processPie(pie: PieEntry[], cy: number, outerRadius: number, totalValue
 			const cos = Math.cos(theta);
 
 			// Push negative slightly out to avoid crossing
-			const radius = outerRadius + (isNegative ? 44 : 20);
+			const radius = outerRadius + (isNegative ? 30 : 18);
 
 			processed.push({
 				id: (isNegative ? "n_" : "p_") + entry.code,
@@ -83,9 +83,9 @@ function relaxSide(labels: ProcessedLabel[], minH: number, minY: number, maxY: n
 	// Enforce bounds cleanly to prevent vertical clipping outside the parent element
 	if (currentHeight > availableHeight) {
 		// Scale them to fit inside the bounds
-		const scale = availableHeight / Math.max(1, currentHeight);
+		const scale = availableHeight / Math.max(0.3, currentHeight);
 		for (let i = 0; i < sides.length; i++) {
-			sides[i]!.y = minY + (sides[i]!.y - sides[0]!.y) * scale;
+			sides[i]!.y = minY + (sides[i]!.y - sides[0]!.y) * scale * 1.1;
 		}
 	} else {
 		// Shift block if out of bounds
