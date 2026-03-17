@@ -5,7 +5,7 @@ import { type ReactNode } from "react";
 const ControlInfo = ({ content }: Readonly<{ content: ReactNode }>) => {
 	return (
 		<Popover>
-			<PopoverTrigger className="cursor-pointer">
+			<PopoverTrigger className="cursor-pointer" aria-label="More information">
 				<InfoIcon className="h-4 w-4 text-primary" />
 			</PopoverTrigger>
 			<PopoverContent className="text-base">{content}</PopoverContent>

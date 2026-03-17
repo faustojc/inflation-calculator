@@ -118,7 +118,7 @@ const DateControl = () => {
 	return (
 		<div className="flex gap-4">
 			<div className="w-full">
-				<Select value={month} onValueChange={handleMonthChange}>
+				<Select value={month} onValueChange={handleMonthChange} name="Month selection">
 					<SelectTrigger className="w-full">
 						<SelectValue placeholder="Month" />
 					</SelectTrigger>
@@ -153,7 +153,7 @@ const DateControl = () => {
 					</PopoverTrigger>
 					<PopoverContent className="w-35 p-0" align="start">
 						<Command>
-							<CommandInput placeholder="Year..." />
+							<CommandInput placeholder="Year..." name="Year selection" />
 							<CommandList>
 								<CommandEmpty>No year found.</CommandEmpty>
 								<CommandGroup className="max-h-62.5 overflow-y-auto">

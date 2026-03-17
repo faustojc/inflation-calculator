@@ -23,7 +23,11 @@ const IncomeClassControl = () => {
 
 	return (
 		<div className="space-y-1">
-			<Select value={appSettings.incomeClass} onValueChange={(val) => settings.setKey("incomeClass", val as IncomeClass)}>
+			<Select
+				name="Income class selection"
+				value={appSettings.incomeClass}
+				onValueChange={(val) => settings.setKey("incomeClass", val as IncomeClass)}
+			>
 				<SelectTrigger className="w-full">
 					<SelectValue />
 				</SelectTrigger>

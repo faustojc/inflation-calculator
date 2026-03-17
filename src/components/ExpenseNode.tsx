@@ -106,6 +106,8 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 							disabled={!hasChildren}
 							tabIndex={-1}
 							className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary hover:text-primary hover:bg-primary/20 cursor-pointer" : "text-transparent w-5"}`}
+							aria-label={isOpen ? `Collapse ${node.name}` : `Expand ${node.name}`}
+							aria-expanded={isOpen}
 						>
 							{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
 						</button>
@@ -120,6 +122,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 									<PopoverTrigger
 										tabIndex={-1}
 										className="outline-none focus:ring-0 flex items-center justify-center bg-transparent border-0 p-0"
+										aria-label={`View description for ${node.name}`}
 									>
 										<InfoIcon className="h-3.5 w-3.5 shrink-0 text-primary/60 hover:text-primary cursor-pointer transition-colors" />
 									</PopoverTrigger>
@@ -166,7 +169,10 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 						) : (
 							<Input
 								ref={inputRef}
+								id={node.code}
+								name={node.name}
 								type="number"
+								aria-label={`Expense amount for ${node.name}`}
 								className={`commodity-input h-8 pl-6 text-right font-mono text-sm transition-all ${
 									missingStatus
 										? "ring-2 ring-red-400 dark:ring-red-500/50 border-red-400 dark:border-red-500/50 text-red-600 dark:text-red-400 font-semibold opacity-70 cursor-not-allowed"
@@ -175,7 +181,7 @@ const ExpenseNode = memo(({ node, level }: { node: DisplayNode; level: number })
 											: displayValue > 0
 												? "bg-primary/5 border-primary/20 font-semibold"
 												: "bg-transparent border-transparent hover:border-border hover:bg-card"
-								}`}
+								}`.replace(/\s+/g, " ")}
 								placeholder="0"
 								value={displayValue || ""}
 								min={0}

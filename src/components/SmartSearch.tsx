@@ -108,7 +108,7 @@ export function SmartSearch() {
 							</span>
 						</span>
 						{!isMobile && (
-							<div className="bg-muted px-2 py-0.5 rounded text-xs font-mono text-muted-foreground group-hover:text-primary">
+							<div className="bg-muted px-2 py-0.5 rounded text-xs font-mono text-foreground group-hover:text-primary">
 								Ctrl K
 							</div>
 						)}

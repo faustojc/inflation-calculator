@@ -226,7 +226,7 @@ const LocationControl = () => {
 			</PopoverTrigger>
 			<PopoverContent className="w-75 p-0" align="start">
 				<Command>
-					<CommandInput placeholder="Search province or city..." />
+					<CommandInput placeholder="Search province or city..." name="Location selection" />
 					<CommandList className="overflow-y-auto">
 						<CommandEmpty>No location found.</CommandEmpty>
 						<CommandGroup>

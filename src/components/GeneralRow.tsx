@@ -73,7 +73,7 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 								? "bg-primary/5 border-primary/20 shadow-sm"
 								: "bg-card border-border hover:border-primary/30 hover:shadow-sm"
 				}
-			`}
+			`.replace(/\s+/g, " ")}
 		>
 			<div className="col-span-2 min-w-0">
 				<div className="flex items-center gap-2 mb-0.5">
@@ -99,6 +99,9 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 					<Input
 						ref={inputRef}
 						type="number"
+						id={cat.code}
+						name={cat.name}
+						aria-label={`Expense amount for ${cat.name}`}
 						min={0}
 						max={500000}
 						placeholder="0"
@@ -114,7 +117,7 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 											? "border-primary font-semibold"
 											: ""
 							}
-						`}
+						`.replace(/\s+/g, " ")}
 						value={value || ""}
 						disabled={missingStatus}
 						onKeyDown={preventNonNumeric}

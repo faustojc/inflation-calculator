@@ -135,7 +135,7 @@ export default function App() {
 			<div className="min-h-screen w-full font-sans bg-page-pattern">
 				<Header />
 
-				<div className="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
+				<main className="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
 					<h1 className="text-center text-xl md:text-2xl lg:text-3xl font-bold text-foreground text-balance">
 						PERSONAL INFLATION CALCULATOR
 					</h1>
@@ -182,7 +182,7 @@ export default function App() {
 							<ExpenseTab />
 						</div>
 					</div>
-				</div>
+				</main>
 
 				<Footer />
 			</div>
