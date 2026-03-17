@@ -13,14 +13,19 @@ import { cn } from "@/lib/utils";
 import { dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, LocateFixed } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
+import { fuzzyScore } from "@/lib/fuzzySearch";
+import type { AreaDef } from "@/lib/types";
+import { toast } from "sonner";
 
 const LocationControl = () => {
 	const { areas } = dataStore.get();
 	const appSettings = useStore(settings);
 
 	const [openProvince, setOpenProvince] = useState(false);
+	const [isLocating, setIsLocating] = useState(false);
+
 	const selectArea = useMemo(() => {
 		if (appSettings.area && areas.length > 0) {
 			const match = areas.find(
@@ -104,6 +109,108 @@ const LocationControl = () => {
 		setOpenProvince(false);
 	};
 
+	const handleUseLocation = () => {
+		if (!("geolocation" in navigator)) {
+			toast.error("Geolocation is not supported by your browser which is used to determine your location.");
+			return;
+		}
+
+		setIsLocating(true);
+
+		toast.promise(
+			new Promise((resolve, reject) => {
+				navigator.geolocation.getCurrentPosition(
+					async (position) => {
+						try {
+							const lat = position.coords.latitude;
+							const lon = position.coords.longitude;
+							const apiStr = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+
+							const res = await fetch(apiStr);
+							const data = await res.json();
+
+							const city = data.locality || data.city || "";
+							const region = data.principalSubdivision || "";
+							const country = data.countryName || "";
+
+							let bestMatch: AreaDef | undefined = undefined;
+							let highestScore = -1;
+
+							if (city) {
+								const cityQuery = city.toLowerCase();
+								for (const a of areas) {
+									const areaName = a.name.toLowerCase();
+									const score = fuzzyScore(areaName, cityQuery).score;
+
+									if (score > highestScore) {
+										highestScore = score;
+										bestMatch = a;
+									}
+								}
+							}
+
+							if ((!bestMatch || highestScore < 100) && region) {
+								const regionQuery = region.toLowerCase();
+								for (const a of areas) {
+									const score = fuzzyScore(a.name.toLowerCase(), regionQuery).score;
+									if (score > highestScore) {
+										highestScore = score;
+										bestMatch = a;
+									}
+								}
+							}
+
+							if (bestMatch && highestScore >= 0) {
+								await handleAreaSelect(bestMatch.name);
+							}
+
+							const locationKey = "location_saved";
+							if (localStorage.getItem(locationKey) !== "true") {
+								await fetch("/api/track", {
+									method: "POST",
+									headers: { "Content-Type": "application/json" },
+									body: JSON.stringify({
+										country: country,
+										region: region,
+										city: city,
+									}),
+								}).catch(() => {});
+								localStorage.setItem(locationKey, "true");
+							}
+
+							if (bestMatch) {
+								resolve(bestMatch.name);
+							} else {
+								resolve("Location found but no matching area");
+							}
+						} catch {
+							reject(new Error("Failed to process location"));
+						}
+					},
+					(error) => {
+						if (error.code === error.PERMISSION_DENIED) {
+							reject(new Error("Location permission denied"));
+						} else {
+							reject(
+								new Error(
+									`Failed to get location. Some private-focused browsers block this request by default. To enable, check your browser private settings.`,
+								),
+							);
+						}
+					},
+					{ timeout: 15000 },
+				);
+			}),
+			{
+				loading: "Getting your location...",
+				success: (areaName) => `Location set to ${areaName}`,
+				error: (err) => err.message,
+				finally: () => setIsLocating(false),
+				duration: 10000,
+			},
+		);
+	};
+
 	return (
 		<Popover open={openProvince} onOpenChange={setOpenProvince} modal={true}>
 			<PopoverTrigger asChild>
@@ -122,6 +229,17 @@ const LocationControl = () => {
 					<CommandInput placeholder="Search province or city..." />
 					<CommandList className="overflow-y-auto">
 						<CommandEmpty>No location found.</CommandEmpty>
+						<CommandGroup>
+							<CommandItem
+								onSelect={handleUseLocation}
+								disabled={isLocating}
+								className="font-medium text-primary cursor-pointer"
+							>
+								<LocateFixed className="mr-2 h-4 w-4" />
+								Use My Location
+							</CommandItem>
+						</CommandGroup>
+						<CommandSeparator />
 						{Object.entries(groupedAreas).map(([region, areas], i) => {
 							return (
 								<Fragment key={region}>
