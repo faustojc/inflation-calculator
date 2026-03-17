@@ -37,12 +37,12 @@ function processPie(pie: PieEntry[], cy: number, outerRadius: number, totalValue
 			const cos = Math.cos(theta);
 
 			// Push negative slightly out to avoid crossing
-			const radius = outerRadius + (isNegative ? 30 : 18);
+			const radius = outerRadius + (isNegative ? 20 : 20);
 
 			processed.push({
 				id: (isNegative ? "n_" : "p_") + entry.code,
 				idealTheta: theta,
-				y: cy + radius * Math.sin(theta),
+				y: cy + radius * Math.sin(theta) + 5,
 				side: cos >= 0 ? "right" : "left",
 				R: radius,
 			});
