@@ -561,3 +561,21 @@ svg.driver-overlay path {
 .dark .glass-panel {
 	backdrop-filter: blur(4px) !important;
 }
+
+/* Removes outline for general recharts components and SVG groups */
+.recharts-wrapper *:focus,
+.recharts-layer *:focus,
+g:focus,
+path:focus {
+	outline: none !important;
+}
+
+/* Specific for Pie Chart sectors */
+.recharts-pie-sector:focus,
+.recharts-pie-sector > g:focus,
+.recharts-pie-sector > g > g:focus {
+	outline: none !important;
+	outline-color: none;
+	outline-style: none;
+	outline-width: none;
+}
