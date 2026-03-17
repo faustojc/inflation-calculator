@@ -12,7 +12,7 @@ const InputTypeControl = () => {
 			<button
 				onClick={() => mode.set("amount")}
 				className={`flex-1 ml-1 px-4 py-1 rounded-md text-sm transition-all duration-200 ${
-					m === "amount" ? "bg-primary shadow text-white font-semibold" : "text-muted-foreground hover:text-foreground"
+					m === "amount" ? "bg-primary shadow text-white font-semibold" : "text-foreground hover:text-primary"
 				}`}
 			>
 				Amount
@@ -20,7 +20,7 @@ const InputTypeControl = () => {
 			<button
 				onClick={() => mode.set("percent")}
 				className={`flex-1 px-4 py-1 rounded-md text-sm transition-all duration-200 ${
-					m === "percent" ? "bg-primary shadow text-white font-semibold" : "text-muted-foreground hover:text-foreground"
+					m === "percent" ? "bg-primary shadow text-white font-semibold" : "text-foreground hover:text-primary"
 				}`}
 			>
 				Percent

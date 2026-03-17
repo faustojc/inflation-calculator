@@ -16,7 +16,7 @@ const TabControl = () => {
 				className={`flex-1 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
 					currTab === "general"
 						? "bg-primary text-white shadow-md shadow-primary/20 scale-[1.02]"
-						: "text-muted-foreground hover:text-primary hover:bg-card/50"
+						: "text-foreground hover:text-primary hover:bg-card/50"
 				}`}
 			>
 				General
@@ -26,7 +26,7 @@ const TabControl = () => {
 				className={`flex-1 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
 					currTab === "detailed"
 						? "bg-primary text-white shadow-md shadow-primary/20 scale-[1.02]"
-						: "text-muted-foreground hover:text-primary hover:bg-card/50"
+						: "text-foreground hover:text-primary hover:bg-card/50"
 				}`}
 			>
 				Detailed
