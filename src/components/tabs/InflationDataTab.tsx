@@ -24,7 +24,7 @@ const InflationDataTab = ({
 	endDateStr: string;
 }) => {
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-8 gap-4 overflow-y-auto w-full py-3">
+		<div className="grid grid-cols-1 sm:grid-cols-8 gap-4 overflow-y-auto min-h-112.5 w-full py-3">
 			{/* Personal inflation rate card */}
 			<div className="col-span-8 lg:col-span-2 glass-card p-6 md:p-7 flex flex-col gap-4 sm:gap-8 items-center justify-around text-center border-primary! border-2! shadow-primary! shadow-md!">
 				<div className="flex flex-col items-center gap-1">
@@ -73,7 +73,7 @@ const InflationDataTab = ({
 			</div>
 
 			{/* Trend graph */}
-			<div className="col-span-8 lg:col-span-6 min-h-112.5 lg:min-h-0">
+			<div className="col-span-8 lg:col-span-6 lg:min-h-0">
 				<TrendLine
 					inflationTrend={inflationTrend}
 					cpiTrend={cpiTrend}
