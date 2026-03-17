@@ -165,11 +165,11 @@ export default function App() {
 
 					{!isMobile && (
 						<div>
-							Use
+							To navigate, press
 							<span className="mx-1 bg-primary px-2 py-0.5 rounded font-mono text-white">Tab</span>
-							to navigate <strong>next</strong> and
+							to <strong>proceed</strong> to the next input field and
 							<span className="mx-1 bg-primary px-2 py-0.5 rounded font-mono text-white">Shift+Tab</span>
-							to navigate <strong>previous</strong> between commodity inputs
+							to <strong>go back</strong>.
 						</div>
 					)}
 
