@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "bunx --bun vite",
 		"dev:cf": "bun run build && bunx wrangler pages dev dist",
+		"build-only": "bunx --bun vite build",
 		"build": "bun run cf-typegen && tsc -b && bunx --bun vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
