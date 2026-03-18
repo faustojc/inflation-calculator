@@ -4,7 +4,7 @@ export function Notes() {
 	return (
 		<>
 			{/* TECHNICAL NOTES */}
-			<div className={`bg-card/70 p-6 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5 ${className}`}>
+			<div className="glass-card bg-card/70 p-6 rounded-2xl border-2 border-primary/10 shadow-lg shadow-primary/5">
 				<div className="flex items-center gap-2 mb-3">
 					<Info className="h-4 w-4 text-primary" />
 					<h3 className="font-bold uppercase tracking-wide text-base sm:text-2xl">Technical Notes</h3>
