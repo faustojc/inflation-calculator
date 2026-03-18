@@ -11,6 +11,12 @@ export default defineConfig({
 		minify: true,
 		cssMinify: true,
 		outDir: "dist",
+		watch: {
+			buildDelay: 300,
+			clearScreen: true,
+			exclude: "node_modules/**",
+			include: ["src/**", "public/api/**"],
+		},
 		rolldownOptions: {
 			output: {
 				manualChunks: (id) => {
