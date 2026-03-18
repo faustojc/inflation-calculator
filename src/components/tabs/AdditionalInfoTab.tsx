@@ -4,7 +4,7 @@ import { Info } from "lucide-react";
 const AdditionalInfoTab = () => {
 	return (
 		<div className="space-y-3">
-			<Notes className="glass-card" />
+			<Notes />
 
 			{/* ADDITIONAL INFORMATION */}
 			<div className="glass-card p-6">
