@@ -11,7 +11,7 @@ export default defineConfig({
 		minify: true,
 		cssMinify: true,
 		outDir: "dist",
-		rollupOptions: {
+		rolldownOptions: {
 			output: {
 				manualChunks: (id) => {
 					if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
