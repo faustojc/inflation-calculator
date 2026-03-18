@@ -36,16 +36,25 @@ const IncomeClassControl = () => {
 					<SelectItem value="B30">Bottom 30% Income</SelectItem>
 				</SelectContent>
 			</Select>
-			{appSettings.area.capita !== undefined && appSettings.area.capita > 0 && appSettings.incomeClass === "B30" && (
-				<span className="text-xs text-foreground space-x-1">
-					<div className="space-x-1">
-						<span>Annual per Capita:</span>
-						<span className="font-bold">PhP</span>
-						<span className="font-bold">{formatCurrency(appSettings.area.capita)}</span>
-					</div>
-					<span className="text-xs text-muted-foreground">(as of 2018)</span>
-				</span>
-			)}
+			{appSettings.area.annualCapita !== undefined &&
+				appSettings.area.annualCapita > 0 &&
+				appSettings.area.monthlyCapita !== undefined &&
+				appSettings.area.monthlyCapita > 0 &&
+				appSettings.incomeClass === "B30" && (
+					<span className="text-xs text-foreground space-x-1">
+						<div className="space-x-1">
+							<span>Annual per Capita:</span>
+							<span className="font-bold">PhP</span>
+							<span className="font-bold">{formatCurrency(appSettings.area.annualCapita)}</span>
+						</div>
+						<div className="space-x-1">
+							<span>Monthly per Capita:</span>
+							<span className="font-bold">PhP</span>
+							<span className="font-bold">{formatCurrency(appSettings.area.monthlyCapita)}</span>
+						</div>
+						<span className="text-xs text-muted-foreground">(as of 2018)</span>
+					</span>
+				)}
 		</div>
 	);
 };

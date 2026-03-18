@@ -37,7 +37,6 @@ export const settings = map<AppSettings>({
 		key: "abra",
 		name: "Abra",
 		regionId: 1,
-		capita: 0,
 	},
 	incomeClass: "ALL",
 	startDate: lastYear,
