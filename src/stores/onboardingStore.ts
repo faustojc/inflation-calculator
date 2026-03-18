@@ -1,6 +1,8 @@
 import { driver } from "driver.js";
 import { atom } from "nanostores";
 
+export const $openMenu = atom(false);
+
 export const openOnboarding = atom(false);
 export const showOnboarding = () => {
 	openOnboarding.set(true);
@@ -106,6 +108,19 @@ export const startTour = () => {
 						"The results will compare your personal inflation to the official data in your area and the whole country. Your inflation rate is <strong>computed</strong> by weighting official price indices against your specific spending patterns, providing an <strong>analysis</strong> of top contributors and shifts in your purchasing power relative to the 2018 base year.",
 					side: "bottom",
 					align: "start",
+					onNextClick: () => {
+						$openMenu.set(true);
+						driverObj.moveNext();
+					},
+				},
+			},
+			{
+				element: "#menu",
+				popover: {
+					title: "Menu",
+					description: "Click here to open the menu and access additional features.",
+					side: "bottom",
+					align: "start",
 				},
 			},
 			{
@@ -114,6 +129,15 @@ export const startTour = () => {
 					title: "Replay App Guide",
 					description:
 						"Don't worry about remembering everything. Click here anytime to reopen this guide and restart the introductory tour.",
+					side: "bottom",
+					align: "start",
+				},
+			},
+			{
+				element: "#faq",
+				popover: {
+					title: "FAQ",
+					description: "Find answers to common questions about the app and its features.",
 					side: "bottom",
 					align: "start",
 				},

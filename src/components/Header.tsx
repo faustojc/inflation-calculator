@@ -1,14 +1,26 @@
-import { ModeToggle } from "@/components/ModeToggle";
+import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
-import { showOnboarding } from "@/stores/onboardingStore";
-import { HelpCircle } from "lucide-react";
+import { $openMenu, showOnboarding } from "@/stores/onboardingStore";
+import { useStore } from "@nanostores/react";
+import { HelpCircle, Menu, MessageSquare, Moon, Sun, X } from "lucide-react";
 
 export const Header = () => {
+	const openMenu = useStore($openMenu);
 	const isMobile = useIsMobile();
 	const scrollDirection = useScrollDirection({ enabled: isMobile });
 	const isHidden = scrollDirection === "down";
+	const { theme, setTheme } = useTheme();
+
+	const toggleTheme = () => {
+		setTheme(theme === "dark" ? "light" : "dark");
+	};
+
+	const setOpenMenu = (value: boolean) => {
+		$openMenu.set(value);
+	};
 
 	return (
 		<header
@@ -34,19 +46,38 @@ export const Header = () => {
 							fetchPriority="high"
 							className="h-10 sm:h-12 md:h-14 w-auto object-contain max-w-21.25 sm:max-w-35 md:max-w-none"
 						/>
-						<Button
-							id="onboarding"
-							size="icon"
-							variant="ghost"
-							className="text-white/90 hover:bg-white/10 hover:text-white sm:w-auto sm:px-4 sm:gap-1.5 h-9 w-9 sm:h-10"
-							onClick={showOnboarding}
-							aria-label="Open User Guide"
-						>
-							<HelpCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-							<span className="hidden sm:inline">Guide</span>
-						</Button>
 
-						<ModeToggle />
+						<DropdownMenu open={openMenu} onOpenChange={setOpenMenu} modal={true}>
+							<DropdownMenuTrigger asChild>
+								<Button
+									id="menu"
+									size="icon"
+									variant="ghost"
+									className="text-white/90 hover:bg-white/10 hover:text-white h-9 w-9 sm:h-10 sm:w-10 rounded-full transition-colors focus-visible:ring-0 focus-visible:ring-offset-0"
+									aria-label="Menu"
+								>
+									{openMenu ? (
+										<X className="h-5 w-5 sm:h-6 sm:w-6" />
+									) : (
+										<Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+									)}
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" className="w-48">
+								<DropdownMenuItem id="onboarding" onClick={showOnboarding} className="cursor-pointer">
+									<HelpCircle className="mr-2 h-4 w-4" />
+									<span>Guide</span>
+								</DropdownMenuItem>
+								<DropdownMenuItem id="faq" className="cursor-pointer" disabled>
+									<MessageSquare className="mr-2 h-4 w-4" />
+									<span>FAQ (Coming Soon)</span>
+								</DropdownMenuItem>
+								<DropdownMenuItem id="theme-toggle" onClick={toggleTheme} className="cursor-pointer">
+									{theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+									<span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 				</div>
 			</div>
