@@ -3,7 +3,44 @@ import { clearGlobalIndex, MANIFEST_CACHE, WEIGHTS_CACHE } from "@/utils/metadat
 export const CACHE_NAME = "inflation-data-v2";
 const CACHE_VERSION_KEY = "inflation-cache-version";
 
+const VISIT_SID = "visit_sid";
+const VISIT_TABS = "visit_tabs";
+const VISIT_TRACKED = "visit_tracked";
+
 type CacheStrategy = "cache-first" | "network-first";
+
+export function shouldTrackVisit(): boolean {
+	const sessionId = sessionStorage.getItem(VISIT_SID);
+	const tabCount = parseInt(localStorage.getItem(VISIT_TABS) || "0");
+
+	if (!sessionId) {
+		if (tabCount > 0) {
+			// Another tab is open, join the existing session
+			sessionStorage.setItem(VISIT_SID, localStorage.getItem(VISIT_SID) ?? "");
+		} else {
+			// No tabs open, new browser session, reset tracking
+			const newId = crypto.randomUUID();
+			sessionStorage.setItem(VISIT_SID, newId);
+			localStorage.setItem(VISIT_SID, newId);
+			localStorage.removeItem(VISIT_TRACKED);
+		}
+	}
+
+	localStorage.setItem(VISIT_TABS, String(tabCount + 1));
+	window.addEventListener(
+		"pagehide",
+		() => {
+			const count = parseInt(localStorage.getItem(VISIT_TABS) || "1") - 1;
+			localStorage.setItem(VISIT_TABS, String(Math.max(0, count)));
+		},
+		{ once: true },
+	);
+
+	if (localStorage.getItem(VISIT_TRACKED)) return false;
+	localStorage.setItem(VISIT_TRACKED, "1");
+
+	return true;
+}
 
 /**
  * Checks if the upstream data has changed by comparing the `generated_at`

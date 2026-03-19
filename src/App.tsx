@@ -19,6 +19,7 @@ import { Toaster } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fuzzyScore } from "@/lib/fuzzySearch";
 import type { AreaDef } from "@/lib/types";
+import { shouldTrackVisit } from "@/utils/storage";
 
 export default function App() {
 	const { isReady, isLoading, error, commodities } = useStore(dataStore);
@@ -46,7 +47,6 @@ export default function App() {
 				settings.setKey("endDate", newEndDate);
 				settings.setKey("area", meta.areas.at(1)!);
 
-				const locationKey = "location_accepted";
 				if ("geolocation" in navigator) {
 					navigator.geolocation.getCurrentPosition(async (position) => {
 						const lat = position.coords.latitude;
@@ -97,7 +97,7 @@ export default function App() {
 								settings.setKey("area", bestMatch);
 							}
 
-							if (localStorage.getItem(locationKey) !== "true") {
+							if (shouldTrackVisit()) {
 								await fetch("/api/track", {
 									method: "POST",
 									headers: { "Content-Type": "application/json" },
@@ -107,7 +107,6 @@ export default function App() {
 										city: city,
 									}),
 								});
-								localStorage.setItem(locationKey, "true");
 							}
 						}
 					});

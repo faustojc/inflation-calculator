@@ -116,7 +116,15 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 			<div className="grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-1 gap-4">
 				{/* Personal Pie */}
 				<div className="col-span-1 flex flex-col gap-2">
-					<h4 className="text-base text-center font-semibold text-foreground">{personal.factorName}</h4>
+					<div className="flex gap-3 items-center justify-center">
+						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">{personal.factorName}</h4>
+						<h4 className="text-base lg:text-xl text-center text-primary/80 font-semibold">
+							Inflation Rate:
+							<span className="text-base lg:text-xl text-blue-700 font-bold ml-1">
+								{personal.inflationRate.toFixed(1)}%
+							</span>
+						</h4>
+					</div>
 					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
 						<div className="w-full">
 							<OverlayPieChart
@@ -135,7 +143,15 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 
 				{/* Official Pie */}
 				<div className="col-span-1 flex flex-col gap-2">
-					<h4 className="text-base text-center font-semibold text-foreground">{official.areaName}</h4>
+					<div className="flex gap-3 items-center justify-center">
+						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">{official.areaName}</h4>
+						<h4 className="text-base lg:text-xl text-center text-primary/80 font-semibold">
+							Inflation Rate:
+							<span className="text-base lg:text-xl text-blue-700 font-bold ml-1">
+								{official.inflationRate.toFixed(1)}%
+							</span>
+						</h4>
+					</div>
 					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
 						<div className="w-full">
 							<OverlayPieChart
