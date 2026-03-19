@@ -8,7 +8,7 @@ import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { fuzzyScore, type FuzzyMatch } from "@/lib/fuzzySearch";
 import type { SearchOption } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
-import { locateCategory, missingDataItems } from "@/stores/inflationStore";
+import { activeTab, locateCategory, missingDataItems } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
 import { LucideNavigation, Search, Tag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -21,12 +21,22 @@ interface ScoredOption {
 export function SmartSearch() {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
-	const { searchOptions, isReady } = useStore(dataStore);
+	const { searchOptions, isReady, commodities } = useStore(dataStore);
 	const missing = useStore(missingDataItems);
+	const currTab = useStore(activeTab);
 
 	const isMobile = useIsMobile();
 	const scrollDirection = useScrollDirection({ enabled: isMobile });
 	const headerHidden = isMobile && scrollDirection === "down";
+
+	// Map general code → name for tab-aware display
+	const generalNameMap = useMemo(() => {
+		const map = new Map<string, string>();
+		for (const c of commodities) {
+			if (!c.code.includes(".")) map.set(c.code, c.name);
+		}
+		return map;
+	}, [commodities]);
 
 	const filteredOptions = useMemo(() => {
 		if (!isReady || !query || query.length < 2) return [];
@@ -37,22 +47,25 @@ export function SmartSearch() {
 		const scored: ScoredOption[] = [];
 
 		for (const item of searchOptions) {
-			// Skip items whose commodity code has no CPI data
-			if (missing.has(item.code)) continue;
+			const currCode = currTab === "general" && item.code.includes(".") ? item.code.split(".")[0]! : item.code;
+
+			// Skip items whose effective code has no CPI data for this tab
+			if (missing.has(currCode)) continue;
+
+			const effectiveName =
+				currTab === "general" ? (generalNameMap.get(currCode) ?? item.commodityName) : item.commodityName;
+
+			const effectiveItem: SearchOption = { ...item, code: currCode, commodityName: effectiveName };
 
 			// Score against keyword text
 			const match = fuzzyScore(item.keywordLower, lowerQuery);
 			if (match.score > 0) {
-				scored.push({ item, match });
+				scored.push({ item: effectiveItem, match });
 				continue;
 			}
 
-			// allow searching by commodity code (exact prefix only)
-			if (item.code.startsWith(lowerQuery)) {
-				scored.push({
-					item,
-					match: { score: 300, ranges: [] },
-				});
+			if (item.code.startsWith(lowerQuery) || currCode.startsWith(lowerQuery)) {
+				scored.push({ item: effectiveItem, match: { score: 300, ranges: [] } });
 			}
 		}
 
@@ -62,8 +75,16 @@ export function SmartSearch() {
 			return a.item.keyword.localeCompare(b.item.keyword);
 		});
 
-		return scored.slice(0, 25);
-	}, [query, searchOptions, isReady, missing]);
+		const seen = new Set<string>();
+		const deduped = scored.filter(({ item }) => {
+			const key = `${item.code}|${item.keyword}`;
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+
+		return deduped.slice(0, 25);
+	}, [query, searchOptions, isReady, missing, currTab, generalNameMap]);
 
 	const handleSelect = (item: SearchOption) => {
 		locateCategory(item.code, item.keyword);
