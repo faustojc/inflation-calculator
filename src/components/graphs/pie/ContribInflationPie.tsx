@@ -128,7 +128,6 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
 						<div className="w-full">
 							<OverlayPieChart
-								title=""
 								basePie={personalParts.basePie}
 								overlayPie={personalParts.overlayPie}
 								negativeItems={personalParts.negativeItems}
@@ -155,7 +154,6 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
 						<div className="w-full">
 							<OverlayPieChart
-								title=""
 								basePie={officialParts.basePie}
 								overlayPie={officialParts.overlayPie}
 								negativeItems={officialParts.negativeItems}

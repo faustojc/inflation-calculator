@@ -9,13 +9,11 @@ import { NEG_STRIPE_COLOR } from "@/utils/metadata";
 import { Pie, PieChart, ResponsiveContainer, Tooltip, type PieLabelRenderProps } from "recharts";
 
 export function OverlayPieChart({
-	title,
 	basePie,
 	overlayPie,
 	negativeItems,
 	patternPrefix,
 }: {
-	title: string;
 	basePie: PieEntry[];
 	overlayPie: PieEntry[];
 	negativeItems: CommodityContribution[];
@@ -25,7 +23,6 @@ export function OverlayPieChart({
 
 	return (
 		<div className="flex flex-col items-center w-full">
-			<h4 className="text-sm font-semibold mb-2 text-foreground text-center">{title}</h4>
 			<div className="w-full aspect-square max-h-100 relative">
 				{hasNegatives && (
 					<svg width="0" height="0" className="absolute" aria-hidden="true">
@@ -39,7 +36,7 @@ export function OverlayPieChart({
 									height="6"
 									patternTransform="rotate(45)"
 								>
-									<line x1="0" y1="0" x2="0" y2="6" stroke={NEG_STRIPE_COLOR} strokeWidth="2.5" />
+									<line x1="0" y1="0" x2="0" y2="6" stroke={NEG_STRIPE_COLOR} strokeWidth="6.5" />
 								</pattern>
 							))}
 						</defs>
