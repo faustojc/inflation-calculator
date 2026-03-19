@@ -47,7 +47,7 @@ export const Header = () => {
 							className="h-10 sm:h-12 md:h-14 w-auto object-contain max-w-21.25 sm:max-w-35 md:max-w-none"
 						/>
 
-						<DropdownMenu open={openMenu} onOpenChange={setOpenMenu} modal={true}>
+						<DropdownMenu open={openMenu} onOpenChange={setOpenMenu} modal={false}>
 							<DropdownMenuTrigger asChild>
 								<Button
 									id="menu"
