@@ -261,8 +261,12 @@ export function setActiveTab(tab: "general" | "detailed") {
 	activeTab.set(tab);
 }
 
+let timeout: number | null = null;
 export function locateCategory(searchCode: string, searchName: string) {
 	highlightState.set({ code: "", label: "" });
+
+	if (timeout) clearTimeout(timeout);
+	timeout = null;
 
 	const currentTab = activeTab.get();
 	let targetCode = searchCode;
@@ -294,9 +298,9 @@ export function locateCategory(searchCode: string, searchName: string) {
 
 	highlightState.set({ code: targetCode, label: searchName });
 
-	setTimeout(() => {
+	timeout = setTimeout(() => {
 		highlightState.set({ code: "", label: "" });
-	}, 4500);
+	}, 5000);
 }
 
 export function setMissingItems(codes: string[]) {
