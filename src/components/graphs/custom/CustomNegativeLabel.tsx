@@ -1,13 +1,22 @@
-import type { CustomLabelProps } from "@/components/graphs/custom/CustomPositiveLabel";
 import type { PieEntry } from "@/lib/types";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getSmartLabelLayout } from "@/utils/labelLayoutUtility";
 import { getColor } from "@/utils/metadata";
 import { useStore } from "@nanostores/react";
 
-const CustomNegativeLabel = (props: CustomLabelProps) => {
-	const { cx, cy, outerRadius, payload, chartId, basePie, overlayPie, index } = props;
-	const entry = payload as PieEntry;
+interface Props {
+	cx: number;
+	cy: number;
+	outerRadius: number;
+	payload: PieEntry;
+	index: number;
+	chartId: string;
+	basePie: PieEntry[];
+	overlayPie: PieEntry[];
+}
+
+const CustomNegativeLabel = ({ cx, cy, outerRadius, payload, index, chartId, basePie, overlayPie }: Props) => {
+	const entry = payload;
 	const currSlice = useStore(activeSlice);
 
 	if (entry.originalShare === 0 || entry.type === "filler") return null;
@@ -18,7 +27,7 @@ const CustomNegativeLabel = (props: CustomLabelProps) => {
 	const isSelected = currSlice === fullId;
 	const isAnyInThisChartSelected = currSlice?.startsWith(chartPrefix);
 
-	const layout = getSmartLabelLayout(chartId, basePie, overlayPie, cx as number, cy as number, outerRadius as number);
+	const layout = getSmartLabelLayout(chartId, basePie, overlayPie, cx, cy, outerRadius);
 	const pos = layout.get("n_" + entry.code);
 	if (!pos) return null;
 

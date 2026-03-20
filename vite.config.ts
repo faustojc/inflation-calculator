@@ -4,21 +4,13 @@ import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-	plugins: [react(), tailwindcss()],
+	plugins: [react({ babel: { plugins: ["babel-plugin-react-compiler"] } }), tailwindcss()],
 	base: "/",
 	build: {
 		target: "esnext",
 		minify: true,
 		cssMinify: true,
 		outDir: "dist",
-		watch: process.env.CF_PAGES
-			? null
-			: {
-					buildDelay: 300,
-					clearScreen: true,
-					exclude: "node_modules/**",
-					include: ["src/**", "public/api/**"],
-				},
 		rolldownOptions: {
 			output: {
 				manualChunks: (id) => {
@@ -42,8 +34,12 @@ export default defineConfig({
 						return "vendor-utils";
 					}
 
-					if (id.includes("node_modules/recharts")) {
-						return "vendor-charts";
+					if (id.includes("node_modules/uplot")) {
+						return "vendor-uplot";
+					}
+
+					if (id.includes("node_modules/d3-shape") || id.includes("node_modules/d3-path")) {
+						return "vendor-d3";
 					}
 
 					if (id.includes("src/stores")) {

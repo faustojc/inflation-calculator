@@ -2,18 +2,18 @@ import type { PieEntry } from "@/lib/types";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getSmartLabelLayout } from "@/utils/labelLayoutUtility";
 import { useStore } from "@nanostores/react";
-import type { PieLabelRenderProps } from "recharts";
 
-export interface CustomLabelProps extends PieLabelRenderProps {
-	chartId?: string;
-	basePie?: PieEntry[];
-	overlayPie?: PieEntry[];
+export interface CustomLabelProps {
+	cx: number;
+	cy: number;
+	outerRadius: number;
+	payload: PieEntry;
+	chartId: string;
+	basePie: PieEntry[];
+	overlayPie: PieEntry[];
 }
 
-const CustomPositiveLabel = (props: CustomLabelProps) => {
-	const { cx, cy, outerRadius, payload, chartId, basePie, overlayPie } = props as CustomLabelProps & {
-		payload: PieEntry;
-	};
+const CustomPositiveLabel = ({ cx, cy, outerRadius, payload, chartId, basePie, overlayPie }: CustomLabelProps) => {
 	const currSlice = useStore(activeSlice);
 
 	if (payload.originalShare === 0) return null;
@@ -24,7 +24,7 @@ const CustomPositiveLabel = (props: CustomLabelProps) => {
 	const isSelected = currSlice === fullId;
 	const isAnyInThisChartSelected = currSlice?.startsWith(chartPrefix);
 
-	const layout = getSmartLabelLayout(chartId, basePie, overlayPie, cx as number, cy as number, outerRadius as number);
+	const layout = getSmartLabelLayout(chartId, basePie, overlayPie, cx, cy, outerRadius);
 	const pos = layout.get("p_" + payload.code);
 	if (!pos) return null;
 

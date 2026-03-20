@@ -11,7 +11,6 @@ import { Onboarding } from "@/components/Onboarding";
 import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
-import { ThemeProvider } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
 import { dataStore, initializeApp } from "@/stores/dataStore";
 import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
@@ -189,7 +188,7 @@ export default function App() {
 	}
 
 	return (
-		<ThemeProvider>
+		<>
 			<Toaster position="top-center" closeButton />
 
 			<div className="min-h-screen w-full font-sans bg-page-pattern">
@@ -249,6 +248,6 @@ export default function App() {
 
 			<ResultsDrawer />
 			<Onboarding />
-		</ThemeProvider>
+		</>
 	);
 }

@@ -5,11 +5,12 @@ import {
     OctagonXIcon,
     TriangleAlertIcon,
 } from "lucide-react"
-import { useTheme } from "next-themes"
+import { useStore } from "@nanostores/react"
+import { $theme } from "@/stores/themeStore"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const theme = useStore($theme)
 
   return (
     <Sonner
