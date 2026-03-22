@@ -506,7 +506,7 @@ svg.driver-overlay path {
 .glass-panel {
 	background-color: rgba(255, 255, 255, 0.9) !important;
 	transform: translateZ(0);
-	will-change: backdrop-filter;
+	will-change: transform;
 	border: none !important;
 	box-shadow: 0 -4px 24px -2px rgba(0, 0, 0, 0.05); /* Subtle lift shadow */
 }
@@ -560,6 +560,31 @@ svg.driver-overlay path {
 .dark .glass-card,
 .dark .glass-panel {
 	backdrop-filter: blur(4px) !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+	.glass-card,
+	.glass-panel,
+	.dark .glass-card,
+	.dark .glass-panel {
+		backdrop-filter: none !important;
+	}
+
+	.glass-panel {
+		background-color: rgba(255, 255, 255, 0.97) !important;
+	}
+
+	.dark .glass-panel {
+		background-color: rgba(15, 23, 42, 0.97) !important;
+	}
+
+	.glass-card {
+		background: rgba(255, 255, 255, 0.88) !important;
+	}
+
+	.dark .glass-card {
+		background: rgba(30, 41, 59, 0.88) !important;
+	}
 }
 
 /* Removes outline for general recharts components and SVG groups */
