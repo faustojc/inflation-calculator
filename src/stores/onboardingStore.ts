@@ -18,7 +18,7 @@ export const startTour = () => {
 		popoverOffset: 16,
 		nextBtnText: "Next",
 		prevBtnText: "Back",
-		doneBtnText: "Get Started ✓",
+		doneBtnText: "Get Started",
 		progressText: "{{current}} of {{total}}",
 		steps: [
 			{

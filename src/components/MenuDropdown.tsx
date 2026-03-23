@@ -3,22 +3,18 @@ import { X, HelpCircle, MessageSquare, Sun, Moon, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useStore } from "@nanostores/react";
-import { $theme, toggleTheme as doToggleTheme } from "@/stores/themeStore";
+import { $theme, toggleTheme } from "@/stores/themeStore";
 
 const MenuDropdown = () => {
 	const openMenu = useStore($openMenu);
 	const theme = useStore($theme);
-
-	const toggleTheme = () => {
-		doToggleTheme();
-	};
 
 	const setOpenMenu = (value: boolean) => {
 		$openMenu.set(value);
 	};
 
 	return (
-		<DropdownMenu open={openMenu} onOpenChange={setOpenMenu} modal={false}>
+		<DropdownMenu open={openMenu} onOpenChange={setOpenMenu} modal={true}>
 			<DropdownMenuTrigger asChild>
 				<Button
 					id="menu"

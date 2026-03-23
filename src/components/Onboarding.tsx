@@ -32,7 +32,7 @@ export const Onboarding = () => {
 				if (!isOpen) handleClose();
 			}}
 		>
-			<DialogContent className="sm:max-w-2xl h-[91vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
+			<DialogContent className="sm:max-w-2xl h-11/12 md:h-[91vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
 				{/* PSA-branded header — sticky top */}
 				<div className="shrink-0 bg-psa-gradient rounded-t-2xl px-6 pt-6 pb-5">
 					<DialogHeader>
