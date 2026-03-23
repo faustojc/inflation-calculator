@@ -7,6 +7,7 @@
  * 3. Word-boundary match (query matches the start of any word in the text)
  * 4. Contiguous substring match
  * 5. Fuzzy subsequence match (all query chars appear in order, with penalties for gaps)
+ * 6. Typo tolerance with Levenshtein distance (with early termination)
  *
  * Returns a score ≥ 0 for matches, or -1 for no match.
  * Higher score = better match.
@@ -58,8 +59,15 @@ export function fuzzyScore(textLower: string, queryLower: string): FuzzyMatch {
 		};
 	}
 
-	// 5. Fuzzy subsequence match
-	return fuzzySubsequence(textLower, queryLower);
+	// Fuzzy subsequence match
+	const subseqResult = fuzzySubsequence(textLower, queryLower);
+	if (subseqResult.score > 0) return subseqResult;
+
+	// Typo tolerance
+	const editResult = editDistanceMatch(textLower, queryLower);
+	if (editResult.score > 0) return editResult;
+
+	return NO_MATCH;
 }
 
 /**
@@ -81,15 +89,7 @@ function findWordBoundaryMatch(text: string, query: string): number {
 }
 
 function isWordBoundary(char: string): boolean {
-	return (
-		char === " " ||
-		char === "," ||
-		char === "-" ||
-		char === "/" ||
-		char === "(" ||
-		char === ")" ||
-		char === "."
-	);
+	return char === " " || char === "," || char === "-" || char === "/" || char === "(" || char === ")" || char === ".";
 }
 
 /**
@@ -171,17 +171,11 @@ function fuzzySubsequence(text: string, query: string): FuzzyMatch {
 }
 
 // find the text index of the last matched query character
-function findLastMatchedIndex(
-	text: string,
-	query: string,
-	lastQi: number,
-	existingRanges: [number, number][],
-): number {
+function findLastMatchedIndex(text: string, query: string, lastQi: number, existingRanges: [number, number][]): number {
 	// Walk backward from end to find where we left off
 	let qi = 0;
 	let lastTi = 0;
-	const skipBefore =
-		existingRanges.length > 0 ? existingRanges[existingRanges.length - 1]![1] : 0;
+	const skipBefore = existingRanges.length > 0 ? existingRanges[existingRanges.length - 1]![1] : 0;
 
 	for (let ti = 0; ti < text.length && qi <= lastQi; ti++) {
 		if (ti < skipBefore && existingRanges.length > 0) {
@@ -201,4 +195,83 @@ function findLastMatchedIndex(
 		}
 	}
 	return lastTi;
+}
+
+function editDistanceMatch(text: string, query: string): FuzzyMatch {
+	const maxDist = query.length <= 4 ? 1 : 2;
+	const words = text.split(/[\s,\-\/\(\)\.]+/);
+
+	let bestScore = -1;
+	let bestRange: [number, number][] = [];
+
+	let offset = 0;
+	for (const word of words) {
+		if (word.length === 0) {
+			offset++;
+			continue;
+		}
+
+		const wordStart = text.indexOf(word, offset);
+		offset = wordStart + word.length;
+
+		// Compare query against each word, and against word prefixes
+		// for partial word matching (e.g., query "gas" vs word "gasoline")
+		const compareLen = Math.min(word.length, query.length + maxDist);
+		const segment = word.slice(0, compareLen);
+
+		const dist = boundedLevenshtein(segment, query, maxDist);
+		if (dist < 0) continue;
+
+		// Score: lower distance = better, longer match = better
+		const score = 200 - dist * 80 + (query.length / text.length) * 50;
+		if (score > bestScore) {
+			bestScore = score;
+			bestRange = [[wordStart, wordStart + Math.min(word.length, query.length)]];
+		}
+	}
+
+	return bestScore > 0 ? { score: Math.round(bestScore), ranges: bestRange } : NO_MATCH;
+}
+
+/**
+ * Levenshtein distance with early termination.
+ * Returns -1 if distance exceeds maxDist (avoids full matrix computation).
+ */
+function boundedLevenshtein(a: string, b: string, maxDist: number): number {
+	const m = a.length;
+	const n = b.length;
+
+	if (Math.abs(m - n) > maxDist) return -1;
+
+	let prev = new Array(n + 1);
+	let curr = new Array(n + 1);
+
+	for (let j = 0; j <= n; j++) prev[j] = j;
+
+	for (let i = 1; i <= m; i++) {
+		curr[0] = i;
+		let rowMin = i;
+
+		// Only compute within the diagonal band of width 2*maxDist+1
+		const jMin = Math.max(1, i - maxDist);
+		const jMax = Math.min(n, i + maxDist);
+
+		// Fill out-of-band cells with maxDist+1 to prevent invalid paths
+		if (jMin > 1) curr[jMin - 1] = maxDist + 1;
+
+		for (let j = jMin; j <= jMax; j++) {
+			const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+			curr[j] = Math.min(
+				prev[j] + 1, // deletion
+				curr[j - 1] + 1, // insertion
+				prev[j - 1] + cost, // substitution
+			);
+			rowMin = Math.min(rowMin, curr[j]);
+		}
+
+		if (rowMin > maxDist) return -1;
+		[prev, curr] = [curr, prev];
+	}
+
+	return prev[n] <= maxDist ? prev[n] : -1;
 }
