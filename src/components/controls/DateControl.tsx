@@ -79,8 +79,8 @@ const DateControl = () => {
 		setOpenYear(false);
 	};
 
-	// Clamp selected date when manifest, tab, or available years change
-	// Only updates the external store (settings) month is derived, not local state
+	// Clamp selected date when manifest, tab, or available years change and
+	// batch year + month clamp into a single state update to avoid cascading re-renders
 	useEffect(() => {
 		if (!currentManifest?.dates) return;
 
@@ -88,29 +88,29 @@ const DateControl = () => {
 		const yearsArr = Array.from(areaAvailableYears);
 		const minYear = yearsArr.length > 0 ? yearsArr[yearsArr.length - 1]! : null;
 
+		let targetYear = year;
+		let needsUpdate = false;
+
 		// Clamp year if it's outside the available range or equals the disabled base year
 		const needsClamp = areaAvailableYears.size > 0 && (!areaAvailableYears.has(year) || year === minYear);
-		if (needsClamp) {
-			const closestYear = yearsArr[0]!;
-			const newDate = new Date(appSettings.startDate);
-			newDate.setFullYear(closestYear);
-
-			const maxMonthCount = currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[closestYear] ?? 12;
-			if (newDate.getMonth() + 1 > maxMonthCount) {
-				newDate.setMonth(maxMonthCount - 1);
-			}
-
-			settings.setKey("startDate", newDate);
-			return;
+		if (needsClamp && yearsArr.length > 0) {
+			targetYear = yearsArr[0]!;
+			needsUpdate = true;
 		}
 
-		const maxMonthCount = currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[year] ?? 12;
-		const currentMonthIndex = appSettings.startDate.getMonth();
+		// Clamp month for the (possibly adjusted) year
+		const maxMonthCount = currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[targetYear] ?? 12;
+		let targetMonth = appSettings.startDate.getMonth();
 
-		// If current setting is beyond available data (e.g. selected June but data only up to March)
-		if (currentMonthIndex + 1 > maxMonthCount) {
+		if (targetMonth + 1 > maxMonthCount) {
+			targetMonth = maxMonthCount - 1;
+			needsUpdate = true;
+		}
+
+		if (needsUpdate) {
 			const newDate = new Date(appSettings.startDate);
-			newDate.setMonth(maxMonthCount - 1);
+			newDate.setFullYear(targetYear);
+			newDate.setMonth(targetMonth);
 			settings.setKey("startDate", newDate);
 		}
 	}, [currentManifest, appSettings.startDate, appSettings.incomeClass, dataType, areaAvailableYears]);

@@ -21,6 +21,7 @@ interface ScoredOption {
 export function SmartSearch() {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
+	const [debouncedQuery, setDebouncedQuery] = useState("");
 	const { searchOptions, isReady, commodities } = useStore(dataStore);
 	const missing = useStore(missingDataItems);
 	const currTab = useStore(activeTab);
@@ -28,6 +29,11 @@ export function SmartSearch() {
 	const isMobile = useIsMobile();
 	const scrollDirection = useScrollDirection({ enabled: isMobile });
 	const headerHidden = isMobile && scrollDirection === "down";
+
+	useEffect(() => {
+		const timer = setTimeout(() => setDebouncedQuery(query), 50);
+		return () => clearTimeout(timer);
+	}, [query]);
 
 	// Map general code → name for tab-aware display
 	const generalNameMap = useMemo(() => {
@@ -39,9 +45,9 @@ export function SmartSearch() {
 	}, [commodities]);
 
 	const filteredOptions = useMemo(() => {
-		if (!isReady || !query || query.length < 2) return [];
+		if (!isReady || !debouncedQuery || debouncedQuery.length < 2) return [];
 
-		const lowerQuery = query.toLowerCase().trim();
+		const lowerQuery = debouncedQuery.toLowerCase().trim();
 		if (!lowerQuery) return [];
 
 		const scored: ScoredOption[] = [];
@@ -61,6 +67,8 @@ export function SmartSearch() {
 			const match = fuzzyScore(item.keywordLower, lowerQuery);
 			if (match.score > 0) {
 				scored.push({ item: effectiveItem, match });
+
+				if (scored.length >= 50) break;
 				continue;
 			}
 
@@ -84,7 +92,7 @@ export function SmartSearch() {
 		});
 
 		return deduped.slice(0, 25);
-	}, [query, searchOptions, isReady, missing, currTab, generalNameMap]);
+	}, [debouncedQuery, searchOptions, isReady, missing, currTab, generalNameMap]);
 
 	const handleSelect = (item: SearchOption) => {
 		locateCategory(item.code, item.keyword);

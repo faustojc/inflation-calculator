@@ -12,17 +12,25 @@ import { MAJOR_CATEGORY_DESCRIPTIONS, getLimitValue, preventNonNumeric } from "@
 import { useStore } from "@nanostores/react";
 import { AlertCircle } from "lucide-react";
 import { computed } from "nanostores";
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 
 const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 	const m = useStore(mode);
 
-	const value = useStore(computed(generalExpenses, (expenses) => getLimitValue(m, expenses[cat.code]?.value || 0)));
-	const isMatch = useStore(computed(highlightState, (h) => h?.code === cat.code));
-	const highlightLabel = useStore(computed(highlightState, (h) => (h?.code === cat.code ? h.label : "")));
-	const isMissing = useStore(computed(missingGeneralItems, (missing) => missing.has(cat.code)));
+	const valueStore = useMemo(
+		() => computed(generalExpenses, (expenses) => getLimitValue(m, expenses[cat.code]?.value || 0)),
+		[cat.code, m],
+	);
+	const isMatchStore = useMemo(() => computed(highlightState, (h) => h?.code === cat.code), [cat.code]);
+	const highlightLabelStore = useMemo(() => computed(highlightState, (h) => (h?.code === cat.code ? h.label : "")), [cat.code]);
+	const isMissingStore = useMemo(() => computed(missingGeneralItems, (missing) => missing.has(cat.code)), [cat.code]);
 
+	const value = useStore(valueStore);
+	const isMatch = useStore(isMatchStore);
+	const highlightLabel = useStore(highlightLabelStore);
+	const isMissing = useStore(isMissingStore);
 	const isReady = useStore(prefetchReady);
+
 	const missingStatus = isReady && isMissing;
 
 	const rowRef = useRef<HTMLDivElement>(null);
@@ -110,7 +118,7 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 							pl-8 font-mono text-right text-sm h-9
 							${
 								missingStatus
-									? "ring-2 ring-red-400 dark:ring-red-500/50 border-red-400 dark:border-red-500/50 text-red-600 dark:text-red-400 font-semibold opacity-70 cursor-not-allowed"
+									? "ring-2 ring-destructive border-destructive text-destructive font-semibold opacity-70 cursor-not-allowed"
 									: isMatch
 										? "ring-2 ring-yellow-400 dark:ring-amber-500/50 border-yellow-400 dark:border-amber-500/50"
 										: hasFilled

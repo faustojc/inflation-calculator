@@ -13,7 +13,7 @@ import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Button } from "@/components/ui/button";
 import { dataStore, initializeApp } from "@/stores/dataStore";
-import { activeTab, buildSearchIndex, initializeExpenses, settings } from "@/stores/inflationStore";
+import { activeTab, buildSearchIndex, initializeExpenses, markSettingsReady, settings } from "@/stores/inflationStore";
 import { Toaster } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fuzzyScore } from "@/lib/fuzzySearch";
@@ -114,6 +114,7 @@ export default function App() {
 
 			initializeExpenses();
 			buildSearchIndex();
+			markSettingsReady();
 
 			dataStore.setKey("isLoading", false);
 			dataStore.setKey("isReady", true);
@@ -122,35 +123,27 @@ export default function App() {
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Tab") {
-				const inputs = Array.from(document.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
-					(el) => !el.disabled && el.offsetParent !== null,
-				);
+			if (e.key !== "Tab") return;
 
-				if (inputs.length === 0) return;
+			const container = document.getElementById("commodity-inputs");
+			if (!container || !container.contains(document.activeElement)) return;
 
-				const firstInput = inputs[0]!;
-				const lastInput = inputs[inputs.length - 1]!;
-				const activeElement = document.activeElement as HTMLInputElement;
+			const inputs = Array.from(
+				container.querySelectorAll<HTMLInputElement>(".commodity-input"),
+			).filter((el) => !el.disabled && el.offsetParent !== null);
 
-				if (!inputs.includes(activeElement)) {
-					e.preventDefault();
-					const target = e.shiftKey ? lastInput : firstInput;
-					target.focus();
-					return;
-				}
+			if (inputs.length === 0) return;
 
-				if (e.shiftKey) {
-					if (activeElement === firstInput) {
-						e.preventDefault();
-						lastInput.focus();
-					}
-				} else {
-					if (activeElement === lastInput) {
-						e.preventDefault();
-						firstInput.focus();
-					}
-				}
+			const firstInput = inputs[0]!;
+			const lastInput = inputs[inputs.length - 1]!;
+			const activeElement = document.activeElement as HTMLInputElement;
+
+			if (!e.shiftKey && activeElement === lastInput) {
+				e.preventDefault();
+				firstInput.focus();
+			} else if (e.shiftKey && activeElement === firstInput) {
+				e.preventDefault();
+				lastInput.focus();
 			}
 		};
 

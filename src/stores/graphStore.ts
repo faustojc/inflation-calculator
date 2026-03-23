@@ -9,7 +9,10 @@ export const compareMode = atom<CompareModeType>("all");
 export const compareOfficial = atom<ContributionFactor | undefined>(undefined);
 export const activeSlice = atom<string | null>(null);
 
-export const sliceId = (code: string, value: number) => (value > 0 ? `p-${code}-${value}` : `n-${code}-${Math.abs(value)}`);
+export const sliceId = (code: string, value: number) => {
+	const rounded = Math.abs(value).toFixed(4);
+	return value > 0 ? `p-${code}-${rounded}` : `n-${code}-${rounded}`;
+};
 
 export function setCompareOfficial(official: ContributionFactor | undefined) {
 	compareOfficial.set(official);

@@ -17,7 +17,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 
 const LocationControl = () => {
-	const { areas } = dataStore.get();
+	const { areas } = useStore(dataStore);
 	const appSettings = useStore(settings);
 
 	const [openProvince, setOpenProvince] = useState(false);

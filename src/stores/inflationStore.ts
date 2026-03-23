@@ -237,8 +237,17 @@ function debouncedPrefetch() {
 	}, 300);
 }
 
+// Guard: skip prefetch during initial batch of settings.setKey() calls
+let settingsInitialized = false;
+
+export function markSettingsReady() {
+	settingsInitialized = true;
+	debouncedPrefetch();
+}
+
 // Automatically trigger predictive prefetch when dependent config changes
 settings.listen(() => {
+	if (!settingsInitialized) return;
 	debouncedPrefetch();
 });
 

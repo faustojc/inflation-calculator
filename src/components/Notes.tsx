@@ -70,7 +70,7 @@ export function Notes() {
 						entered will automatically be deleted once the application is closed.
 					</li>
 					<li>
-						The reference file used in the Seach option of the application is based on the list of commodities in the
+						The reference file used in the Search option of the application is based on the list of commodities in the
 						CPI market basket, and thus, may not include all the products and services consumed by the User.
 					</li>
 				</ul>
