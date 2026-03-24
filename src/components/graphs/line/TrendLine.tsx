@@ -34,7 +34,7 @@ export default function TrendLine({
 	const currTrend = useStore(trendType);
 	const isMobile = useIsMobile();
 
-	const hierarchy = meta.location.hierarchy;
+	const hierarchy = meta.location;
 	const hasProvince = !!hierarchy.province && hierarchy.province.key !== hierarchy.target.key;
 	const hasRegion = !!hierarchy.region && hierarchy.region.key !== hierarchy.target.key;
 

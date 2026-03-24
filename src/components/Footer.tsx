@@ -91,7 +91,7 @@ const Footer = () => {
 
 			const result = calculatePersonalInflation(
 				items,
-				{ hierarchy },
+				hierarchy,
 				dates,
 				{ mode: currentMode, totalInput: currentTotalAlloc },
 				batchMap,
