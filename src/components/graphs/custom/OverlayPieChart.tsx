@@ -70,7 +70,7 @@ export function OverlayPieChart({
 		el.setAttribute("d", revealSectorPath(0.001));
 		rafId = requestAnimationFrame(animate);
 		return () => cancelAnimationFrame(rafId);
-	}, []);
+	}, [basePie, overlayPie]);
 
 	const pieLayout = d3Pie<PieEntry>()
 		.value((d) => d.value)
@@ -131,10 +131,10 @@ export function OverlayPieChart({
 						</clipPath>
 
 						{hasNegatives &&
-							negativeItems.map((items) => (
+							negativeItems.map((_, i) => (
 								<pattern
-									key={`${patternPrefix}-hatch-${items.code}`}
-									id={`${patternPrefix}-hatch-${items.code}`}
+									key={`${patternPrefix}-hatch-${i}`}
+									id={`${patternPrefix}-hatch-${i}`}
 									patternUnits="userSpaceOnUse"
 									width="6"
 									height="6"
