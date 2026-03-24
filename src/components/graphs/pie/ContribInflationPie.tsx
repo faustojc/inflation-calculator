@@ -1,9 +1,9 @@
+import { useId, useMemo } from "react";
 import CustomPieLegend, { type LegendItem } from "@/components/graphs/custom/CustomPieLegend";
 import { OverlayPieChart } from "@/components/graphs/custom/OverlayPieChart";
 import type { PieEntry } from "@/lib/types";
 import type { CommodityContribution, ContributionFactor } from "@/utils/inflationCompute";
 import { getColor, NEG_STRIPE_COLOR, NEG_STROKE_COLOR } from "@/utils/metadata";
-import { useId, useMemo } from "react";
 
 interface Props {
 	personal: ContributionFactor;
@@ -117,7 +117,9 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 				{/* Personal Pie */}
 				<div className="col-span-1 flex flex-col gap-2">
 					<div className="flex gap-3 items-center justify-center">
-						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">{personal.factorName}</h4>
+						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">
+							{personal.factorName}
+						</h4>
 						<h4 className="text-base lg:text-xl text-center text-primary/80 font-semibold">
 							Inflation Rate:
 							<span className="text-base lg:text-xl text-blue-700 font-bold ml-1">
@@ -143,7 +145,9 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 				{/* Official Pie */}
 				<div className="col-span-1 flex flex-col gap-2">
 					<div className="flex gap-3 items-center justify-center">
-						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">{official.areaName}</h4>
+						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">
+							{official.areaName}
+						</h4>
 						<h4 className="text-base lg:text-xl text-center text-primary/80 font-semibold">
 							Inflation Rate:
 							<span className="text-base lg:text-xl text-blue-700 font-bold ml-1">
@@ -170,7 +174,9 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 			{/* Deflation Footnotes */}
 			{deflationFootnotes.length > 0 && (
 				<div className="px-4 pb-2 border-t border-border/50 pt-4">
-					<p className="text-base font-semibold text-muted-foreground mb-2 uppercase">Deflationary Contributors</p>
+					<p className="text-base font-semibold text-muted-foreground mb-2 uppercase">
+						Deflationary Contributors
+					</p>
 					<ul className="space-y-1.5">
 						{deflationFootnotes.map((note) => (
 							<li key={note.code} className="flex items-center gap-2 text-xs text-muted-foreground">

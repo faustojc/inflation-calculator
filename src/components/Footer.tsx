@@ -1,3 +1,7 @@
+import { useStore } from "@nanostores/react";
+import { Calculator, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
 import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/stores/dataStore";
@@ -12,10 +16,6 @@ import {
 	totalAllocation,
 } from "@/stores/inflationStore";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
-import { useStore } from "@nanostores/react";
-import { Calculator, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 const Footer = () => {
 	const [isCalculating, setIsCalculating] = useState(false);
@@ -30,7 +30,9 @@ const Footer = () => {
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
 			const currentTab = activeTab.get();
-			const items = Object.values(currentTab === "general" ? generalExpenses.get() : detailedExpenses.get());
+			const items = Object.values(
+				currentTab === "general" ? generalExpenses.get() : detailedExpenses.get(),
+			);
 
 			const targetYear = startDate.getFullYear();
 			const targetMonth = startDate.getMonth() + 1;
@@ -103,10 +105,13 @@ const Footer = () => {
 			} else {
 				toast.error("Calculation failed. Please check inputs.");
 			}
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		} catch (err: any) {
-			console.error(err);
-			toast.error(err.message || "Calculation failed.");
+		} catch (err) {
+			if (err instanceof Error) {
+				toast.error(err.message || "Calculation failed.");
+			} else {
+				console.error(err);
+				toast.error("Calculation failed.");
+			}
 		} finally {
 			setIsCalculating(false);
 		}

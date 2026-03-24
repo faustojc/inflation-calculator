@@ -1,13 +1,13 @@
-import { TrendLegend } from "@/components/graphs/line/TrendLegend";
-import { buildYAxisConfig } from "@/utils/trendChartUtils";
-import { useTrendChart } from "@/hooks/useTrendChart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { compareMode, trendType, type CompareModeType, type TrendType } from "@/stores/graphStore";
-import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 import { useStore } from "@nanostores/react";
 import { TrendingUp } from "lucide-react";
 import { useMemo } from "react";
+import { TrendLegend } from "@/components/graphs/line/TrendLegend";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useTrendChart } from "@/hooks/useTrendChart";
+import { type CompareModeType, compareMode, type TrendType, trendType } from "@/stores/graphStore";
+import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
+import { buildYAxisConfig } from "@/utils/trendChartUtils";
 import "uplot/dist/uPlot.min.css";
 
 interface Props {
@@ -23,7 +23,13 @@ interface Props {
 
 const SERIES_ORDER = ["personal", "area", "province", "region", "national"] as const;
 
-export default function TrendLine({ inflationTrend, cpiTrend, startDateStr, endDateStr, meta }: Readonly<Props>) {
+export default function TrendLine({
+	inflationTrend,
+	cpiTrend,
+	startDateStr,
+	endDateStr,
+	meta,
+}: Readonly<Props>) {
 	const mode = useStore(compareMode);
 	const currTrend = useStore(trendType);
 	const isMobile = useIsMobile();
@@ -53,8 +59,6 @@ export default function TrendLine({ inflationTrend, cpiTrend, startDateStr, endD
 
 	const { wrapperRef, chartRef, tooltipRef } = useTrendChart({
 		trend,
-		mode,
-		currTrend,
 		isMobile,
 		seriesOrder: SERIES_ORDER,
 		seriesLabels,

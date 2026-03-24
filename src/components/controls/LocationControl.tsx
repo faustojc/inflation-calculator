@@ -1,3 +1,6 @@
+import { useStore } from "@nanostores/react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -12,9 +15,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
-import { useStore } from "@nanostores/react";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
 
 interface GroupedArea {
 	key: string;
@@ -94,7 +94,9 @@ const LocationControl = () => {
 			}
 
 			// filter to matching children only
-			const matchingItems = items.filter((a) => !a.regionName && a.areaName.toLowerCase().includes(query));
+			const matchingItems = items.filter(
+				(a) => !a.regionName && a.areaName.toLowerCase().includes(query),
+			);
 
 			if (matchingItems.length > 0) {
 				result.push([region, matchingItems]);

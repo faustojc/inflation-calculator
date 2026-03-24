@@ -1,3 +1,7 @@
+import { useStore } from "@nanostores/react";
+import { AlertCircle } from "lucide-react";
+import { computed } from "nanostores";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import type { CommodityDef } from "@/lib/types";
 import {
@@ -8,11 +12,7 @@ import {
 	prefetchReady,
 	updateExpenseValue,
 } from "@/stores/inflationStore";
-import { MAJOR_CATEGORY_DESCRIPTIONS, getLimitValue, preventNonNumeric } from "@/utils/metadata";
-import { useStore } from "@nanostores/react";
-import { AlertCircle } from "lucide-react";
-import { computed } from "nanostores";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric } from "@/utils/metadata";
 
 const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 	const m = useStore(mode);
@@ -22,8 +22,14 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 		[cat.code, m],
 	);
 	const isMatchStore = useMemo(() => computed(highlightState, (h) => h?.code === cat.code), [cat.code]);
-	const highlightLabelStore = useMemo(() => computed(highlightState, (h) => (h?.code === cat.code ? h.label : "")), [cat.code]);
-	const isMissingStore = useMemo(() => computed(missingGeneralItems, (missing) => missing.has(cat.code)), [cat.code]);
+	const highlightLabelStore = useMemo(
+		() => computed(highlightState, (h) => (h?.code === cat.code ? h.label : "")),
+		[cat.code],
+	);
+	const isMissingStore = useMemo(
+		() => computed(missingGeneralItems, (missing) => missing.has(cat.code)),
+		[cat.code],
+	);
 
 	const value = useStore(valueStore);
 	const isMatch = useStore(isMatchStore);
@@ -90,7 +96,9 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 					>
 						{cat.code}
 					</span>
-					<h3 className={`font-semibold text-base text-wrap ${isMatch && "font-extrabold"}`}>{cat.name}</h3>
+					<h3 className={`font-semibold text-base text-wrap ${isMatch && "font-extrabold"}`}>
+						{cat.name}
+					</h3>
 					{isMatch && (
 						<p className="text-xs font-bold text-primary text-wrap animate-in fade-in">
 							← {highlightLabel || "It"} belongs here

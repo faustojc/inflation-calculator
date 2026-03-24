@@ -1,14 +1,11 @@
-import { SERIES_COLORS, buildUplotData, computeXSplits } from "@/utils/trendChartUtils";
-import type { CompareModeType, TrendType } from "@/stores/graphStore";
-import type { TrendPoint } from "@/utils/inflationCompute";
 import { curveMonotoneX, line as d3Line } from "d3-shape";
 import { useEffect, useRef } from "react";
 import uPlot from "uplot";
+import type { TrendPoint } from "@/utils/inflationCompute";
+import { buildUplotData, computeXSplits, SERIES_COLORS } from "@/utils/trendChartUtils";
 
 interface UseTrendChartOptions {
 	trend: TrendPoint[];
-	mode: CompareModeType;
-	currTrend: TrendType;
 	isMobile: boolean;
 	seriesOrder: readonly string[];
 	seriesLabels: Record<string, string>;
@@ -27,8 +24,6 @@ interface UseTrendChartOptions {
  */
 export function useTrendChart({
 	trend,
-	mode,
-	currTrend,
 	isMobile,
 	seriesOrder,
 	seriesLabels,
@@ -138,16 +133,16 @@ export function useTrendChart({
 		const series: uPlot.Series[] = [
 			{},
 			{
-				label: seriesLabels["personal"] ?? "",
-				stroke: resolvedColors["personal"],
+				label: seriesLabels.personal ?? "",
+				stroke: resolvedColors.personal,
 				width: 4,
 				spanGaps: true,
 				points: { show: false },
 				paths: monotonePaths(1),
 			},
 			{
-				label: seriesLabels["area"] ?? "",
-				stroke: resolvedColors["area"],
+				label: seriesLabels.area ?? "",
+				stroke: resolvedColors.area,
 				width: 2,
 				dash: lineDash,
 				show: showLine("area"),
@@ -156,8 +151,8 @@ export function useTrendChart({
 				paths: monotonePaths(2),
 			},
 			{
-				label: hasProvince ? (seriesLabels["province"] ?? "") : "",
-				stroke: resolvedColors["province"],
+				label: hasProvince ? (seriesLabels.province ?? "") : "",
+				stroke: resolvedColors.province,
 				width: 2,
 				dash: lineDash,
 				show: hasProvince ? showLine("province") : false,
@@ -166,8 +161,8 @@ export function useTrendChart({
 				paths: monotonePaths(3),
 			},
 			{
-				label: hasRegion ? (seriesLabels["region"] ?? "") : "",
-				stroke: resolvedColors["region"],
+				label: hasRegion ? (seriesLabels.region ?? "") : "",
+				stroke: resolvedColors.region,
 				width: 2,
 				dash: lineDash,
 				show: hasRegion ? showLine("region") : false,
@@ -176,8 +171,8 @@ export function useTrendChart({
 				paths: monotonePaths(4),
 			},
 			{
-				label: seriesLabels["national"] ?? "",
-				stroke: resolvedColors["national"],
+				label: seriesLabels.national ?? "",
+				stroke: resolvedColors.national,
 				width: 2,
 				dash: lineDash,
 				show: showLine("national"),
@@ -232,7 +227,9 @@ export function useTrendChart({
 			],
 			scales: {
 				x: { range: () => [-0.15, trend.length - 0.88] },
-				y: { range: () => [yAxisConfig.domain[0] - 0.1, yAxisConfig.domain[1] + 0.1] },
+				y: {
+					range: () => [yAxisConfig.domain[0] - 0.1, yAxisConfig.domain[1] + 0.1],
+				},
 			},
 			hooks: {
 				drawAxes: [
@@ -330,7 +327,7 @@ export function useTrendChart({
 		let rafId: number;
 		const animate = (now: number) => {
 			const t = Math.min((now - animStart) / ANIM_DURATION, 1);
-			animProgressRef.current = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+			animProgressRef.current = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 			chart.redraw(true, false);
 			if (t < 1) rafId = requestAnimationFrame(animate);
 		};
@@ -346,7 +343,10 @@ export function useTrendChart({
 			const entry = entries[0];
 			if (!entry) return;
 			const { width, height } = entry.contentRect;
-			chart.setSize({ width: Math.max(width, 100), height: Math.max(height, 320) });
+			chart.setSize({
+				width: Math.max(width, 100),
+				height: Math.max(height, 320),
+			});
 		});
 		ro.observe(wrapper);
 
@@ -356,8 +356,7 @@ export function useTrendChart({
 			ro.disconnect();
 			chart.destroy();
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [trend, mode, currTrend, isMobile, yAxisConfig]);
+	}, [trend, isMobile, yAxisConfig, hasRegion, hasProvince, seriesLabels, seriesOrder, showLine]);
 
 	return { wrapperRef, chartRef, tooltipRef };
 }

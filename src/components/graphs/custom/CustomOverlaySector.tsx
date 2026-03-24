@@ -1,6 +1,6 @@
+import { useStore } from "@nanostores/react";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { NEG_STROKE_COLOR } from "@/utils/metadata";
-import { useStore } from "@nanostores/react";
 
 interface Props {
 	path: string;
@@ -12,7 +12,14 @@ interface Props {
 	patternPrefix: string;
 }
 
-export default function CustomOverlaySector({ path, type, code, negIdx, originalShare, patternPrefix }: Props) {
+export default function CustomOverlaySector({
+	path,
+	type,
+	code,
+	negIdx,
+	originalShare,
+	patternPrefix,
+}: Props) {
 	const currSlice = useStore(activeSlice);
 	const chartPrefix = patternPrefix.charAt(0);
 

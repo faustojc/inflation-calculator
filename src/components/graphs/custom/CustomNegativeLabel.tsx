@@ -1,8 +1,8 @@
+import { useStore } from "@nanostores/react";
 import type { PieEntry } from "@/lib/types";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getSmartLabelLayout } from "@/utils/labelLayoutUtility";
 import { getColor } from "@/utils/metadata";
-import { useStore } from "@nanostores/react";
 
 interface Props {
 	cx: number;
@@ -15,7 +15,16 @@ interface Props {
 	overlayPie: PieEntry[];
 }
 
-const CustomNegativeLabel = ({ cx, cy, outerRadius, payload, index, chartId, basePie, overlayPie }: Props) => {
+const CustomNegativeLabel = ({
+	cx,
+	cy,
+	outerRadius,
+	payload,
+	index,
+	chartId,
+	basePie,
+	overlayPie,
+}: Props) => {
 	const entry = payload;
 	const currSlice = useStore(activeSlice);
 
@@ -28,7 +37,7 @@ const CustomNegativeLabel = ({ cx, cy, outerRadius, payload, index, chartId, bas
 	const isAnyInThisChartSelected = currSlice?.startsWith(chartPrefix);
 
 	const layout = getSmartLabelLayout(chartId, basePie, overlayPie, cx, cy, outerRadius);
-	const pos = layout.get("n_" + entry.code);
+	const pos = layout.get(`n_${entry.code}`);
 	if (!pos) return null;
 
 	const { sx, sy, ex, ey, cos, textAnchor } = pos;
@@ -40,9 +49,20 @@ const CustomNegativeLabel = ({ cx, cy, outerRadius, payload, index, chartId, bas
 				transition: "opacity 0.2s ease-in-out",
 			}}
 		>
-			<path d={`M${sx},${sy} L${ex},${ey}`} className="stroke-destructive text-destructive" stroke="#DC2626" fill="none" />
+			<path
+				d={`M${sx},${sy} L${ex},${ey}`}
+				className="stroke-destructive text-destructive"
+				stroke="#DC2626"
+				fill="none"
+			/>
 			{overlayPie[index] && (
-				<rect x={ex - 4} y={ey - 4} width={9} height={9} fill={getColor(overlayPie[index].code, index)} />
+				<rect
+					x={ex - 4}
+					y={ey - 4}
+					width={9}
+					height={9}
+					fill={getColor(overlayPie[index].code, index)}
+				/>
 			)}
 			<text
 				x={ex + (cos >= 0 ? 1 : -1) * 6}

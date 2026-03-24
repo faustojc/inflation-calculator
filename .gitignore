@@ -32,3 +32,7 @@ worker-configuration.d.ts
 .tscanner
 .trunk
 .wrangler
+
+coverage
+playwright-report
+test-results

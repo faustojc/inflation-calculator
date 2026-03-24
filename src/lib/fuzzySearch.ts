@@ -199,7 +199,7 @@ function findLastMatchedIndex(text: string, query: string, lastQi: number, exist
 
 function editDistanceMatch(text: string, query: string): FuzzyMatch {
 	const maxDist = query.length <= 4 ? 1 : 2;
-	const words = text.split(/[\s,\-\/\(\)\.]+/);
+	const words = text.split(/[\s,\-/().]+/);
 
 	let bestScore = -1;
 	let bestRange: [number, number][] = [];

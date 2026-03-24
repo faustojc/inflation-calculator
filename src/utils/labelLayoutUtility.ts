@@ -21,7 +21,13 @@ interface ProcessedLabel {
 	R: number;
 }
 
-function processPie(pie: PieEntry[], cy: number, outerRadius: number, totalValue: number, isNegative: boolean): ProcessedLabel[] {
+function processPie(
+	pie: PieEntry[],
+	cy: number,
+	outerRadius: number,
+	totalValue: number,
+	isNegative: boolean,
+): ProcessedLabel[] {
 	let currentAngle = 90;
 	const RADIAN = Math.PI / 180;
 	const processed: ProcessedLabel[] = [];
@@ -30,7 +36,10 @@ function processPie(pie: PieEntry[], cy: number, outerRadius: number, totalValue
 		const sliceAngle = (entry.value / totalValue) * 360;
 		const midAngle = currentAngle - sliceAngle / 2;
 
-		const skip = entry.type === "filler" || (entry.originalShare >= 0 && entry.originalShare <= 0.099) || entry.value === 0;
+		const skip =
+			entry.type === "filler" ||
+			(entry.originalShare >= 0 && entry.originalShare <= 0.099) ||
+			entry.value === 0;
 
 		if (!skip) {
 			const theta = -RADIAN * midAngle;
@@ -53,7 +62,12 @@ function processPie(pie: PieEntry[], cy: number, outerRadius: number, totalValue
 	return processed;
 }
 
-function relaxSide(labels: ProcessedLabel[], minH: number, minY: number, maxY: number): ProcessedLabel[] {
+function relaxSide(
+	labels: ProcessedLabel[],
+	minH: number,
+	minY: number,
+	maxY: number,
+): ProcessedLabel[] {
 	if (labels.length === 0) return labels;
 
 	const sides = labels.sort((a, b) => a.y - b.y);
@@ -110,7 +124,7 @@ export function getSmartLabelLayout(
 	cy: number,
 	outerRadius: number,
 ): Map<string, LayoutPosition> {
-	const dataHash = basePie.map((e) => e.code + e.value).join(",") + "|" + overlayPie.map((e) => e.code + e.value).join(",");
+	const dataHash = `${basePie.map((e) => e.code + e.value).join(",")}|${overlayPie.map((e) => e.code + e.value).join(",")}`;
 	const cacheKey = `${chartId}-${cx}-${cy}-${outerRadius}-${dataHash}`;
 	if (layoutCache.has(cacheKey)) {
 		return layoutCache.get(cacheKey)!;

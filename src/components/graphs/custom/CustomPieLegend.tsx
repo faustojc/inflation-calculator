@@ -1,6 +1,6 @@
-import { activeSlice, sliceId } from "@/stores/graphStore";
 import { useStore } from "@nanostores/react";
 import { useCallback } from "react";
+import { activeSlice, sliceId } from "@/stores/graphStore";
 
 export interface LegendItem {
 	code: string;
@@ -9,7 +9,13 @@ export interface LegendItem {
 	value: number;
 }
 
-const CustomPieLegend = ({ props, patternPrefix }: { props: readonly LegendItem[]; patternPrefix?: string }) => {
+const CustomPieLegend = ({
+	props,
+	patternPrefix,
+}: {
+	props: readonly LegendItem[];
+	patternPrefix?: string;
+}) => {
 	const currSlice = useStore(activeSlice);
 	const chartPrefix = patternPrefix?.charAt(0) || "";
 
@@ -37,16 +43,25 @@ const CustomPieLegend = ({ props, patternPrefix }: { props: readonly LegendItem[
 						className="flex items-center gap-2 py-1 transition-opacity duration-200 cursor-pointer"
 						style={{ opacity: isAnyInThisChartSelected && !isActive ? 0.3 : 1 }}
 						onClick={() => setActiveSlice(entry.code, entry.value)}
+						onKeyDown={() => setActiveSlice(entry.code, entry.value)}
 						onMouseOver={() => setActiveSlice(entry.code, entry.value)}
 						onMouseLeave={onMouseLeave}
+						onFocus={() => setActiveSlice(entry.code, entry.value)}
 					>
-						<span className={`text-xs text-muted-foreground w-5 shrink-0 ${isActive ? "font-bold" : ""}`}>
+						<span
+							className={`text-xs text-muted-foreground w-5 shrink-0 ${isActive ? "font-bold" : ""}`}
+						>
 							{entry.code}
 						</span>
-						<span className="inline-block w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
+						<span
+							className="inline-block w-3 h-3 rounded-full shrink-0"
+							style={{ backgroundColor: entry.color }}
+						/>
 						<span className={`text-wrap ${isActive ? "font-bold" : ""}`}>
 							{entry.name}
-							<strong className={`ml-1 text-nowrap ${entry.value < 0 ? "text-destructive" : "text-primary"}`}>
+							<strong
+								className={`ml-1 text-nowrap ${entry.value < 0 ? "text-destructive" : "text-primary"}`}
+							>
 								{entry.value.toFixed(1)}%
 							</strong>
 						</span>

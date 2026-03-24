@@ -1,8 +1,8 @@
+import { atom, computed, map } from "nanostores";
+import { toast } from "sonner";
 import type { AreaDef, CommodityDef } from "@/lib/types";
 import { dataStore, getAreaHierarchy, getCalculationData } from "@/stores/dataStore";
 import type { CalculationResult } from "@/utils/inflationCompute";
-import { atom, computed, map } from "nanostores";
-import { toast } from "sonner";
 
 export type IncomeClass = "ALL" | "B30";
 
@@ -60,17 +60,23 @@ export const calculationResult = map<{
 
 export const missingGeneralItems = atom<Set<string>>(new Set());
 export const missingDetailedItems = atom<Set<string>>(new Set());
-export const missingDataItems = computed([activeTab, missingGeneralItems, missingDetailedItems], (tab, general, detailed) => {
-	return tab === "general" ? general : detailed;
-});
+export const missingDataItems = computed(
+	[activeTab, missingGeneralItems, missingDetailedItems],
+	(tab, general, detailed) => {
+		return tab === "general" ? general : detailed;
+	},
+);
 export const prefetchLoading = atom<boolean>(false);
 export const prefetchReady = atom<boolean>(false);
 
 export const generalExpenses = map<Record<string, ExpenseItem>>({});
 export const detailedExpenses = map<Record<string, ExpenseItem>>({});
-export const expenses = computed([activeTab, generalExpenses, detailedExpenses], (tab, general, detailed) => {
-	return tab === "general" ? general : detailed;
-});
+export const expenses = computed(
+	[activeTab, generalExpenses, detailedExpenses],
+	(tab, general, detailed) => {
+		return tab === "general" ? general : detailed;
+	},
+);
 export const expandedNodes = map<Record<string, boolean>>({});
 
 // for fast lookup of parent nodes
@@ -94,7 +100,8 @@ export function buildSearchIndex() {
 export function initializeExpenses() {
 	const { commodities } = dataStore.get();
 
-	if (Object.keys(generalExpenses.get()).length > 0 || Object.keys(detailedExpenses.get()).length > 0) return;
+	if (Object.keys(generalExpenses.get()).length > 0 || Object.keys(detailedExpenses.get()).length > 0)
+		return;
 
 	const initialExpenses: Record<string, ExpenseItem> = {};
 
@@ -149,7 +156,12 @@ export async function prefetchConstraints() {
 
 				const officialCurrent = batchMap[key]?.[targetYear]?.["official"]?.[targetMonth]?.[code];
 				const officialBase = batchMap[key]?.[baseYear]?.["official"]?.[targetMonth]?.[code];
-				if (officialCurrent == null || officialCurrent === 0 || officialBase == null || officialBase === 0) {
+				if (
+					officialCurrent == null ||
+					officialCurrent === 0 ||
+					officialBase == null ||
+					officialBase === 0
+				) {
 					missingGeneral.add(code);
 				}
 
@@ -158,7 +170,12 @@ export async function prefetchConstraints() {
 
 				const personalCurrent = batchMap[key]?.[targetYear]?.["personal"]?.[targetMonth]?.[code];
 				const personalBase = batchMap[key]?.[baseYear]?.["personal"]?.[targetMonth]?.[code];
-				if (personalCurrent == null || personalCurrent === 0 || personalBase == null || personalBase === 0) {
+				if (
+					personalCurrent == null ||
+					personalCurrent === 0 ||
+					personalBase == null ||
+					personalBase === 0
+				) {
 					missingPersonal.add(code);
 				}
 			};
@@ -205,7 +222,11 @@ export async function prefetchConstraints() {
 			if (detChanged) detailedExpenses.set(newDetStore);
 			if (genChanged || detChanged) {
 				const whatInputsAreCleared =
-					genChanged && detChanged ? "both General and Detailed tabs" : genChanged ? "General tab" : "Detailed tab";
+					genChanged && detChanged
+						? "both General and Detailed tabs"
+						: genChanged
+							? "General tab"
+							: "Detailed tab";
 				const title = `Some inputs were cleared in ${whatInputsAreCleared}`;
 
 				toast.warning(title, {
@@ -213,9 +234,11 @@ export async function prefetchConstraints() {
 						"Certain items you entered have NO recorded CPI data for the selected location, income bracket, and period/date. Their values have been reset to prevent calculation errors.",
 					duration: 11000,
 					classNames: {
-						toast: "!border-amber-400 !dark:border-amber-500/60 !bg-amber-50 !dark:bg-amber-950/40 !shadow-lg !shadow-amber-200/30 !dark:shadow-amber-900/20 !px-3 !py-2 !gap-3.5",
+						toast:
+							"!border-amber-400 !dark:border-amber-500/60 !bg-amber-50 !dark:bg-amber-950/40 !shadow-lg !shadow-amber-200/30 !dark:shadow-amber-900/20 !px-3 !py-2 !gap-3.5",
 						title: "!text-amber-900 !dark:text-amber-200 !text-[0.95rem] !font-bold !tracking-tight",
-						description: "!text-amber-800/80 !dark:text-amber-300/80 !text-[0.85rem] !leading-relaxed !mt-1",
+						description:
+							"!text-amber-800/80 !dark:text-amber-300/80 !text-[0.85rem] !leading-relaxed !mt-1",
 						icon: "!text-amber-500 !dark:text-amber-400",
 					},
 				});
@@ -353,7 +376,12 @@ export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: n
 	}
 }
 
-export function updateExpenseValue(code: string, name: string, newValue: number, target?: "general" | "detailed") {
+export function updateExpenseValue(
+	code: string,
+	name: string,
+	newValue: number,
+	target?: "general" | "detailed",
+) {
 	const currentTab = target || activeTab.get();
 	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
 	const current = targetStore.get();
@@ -433,19 +461,24 @@ export const totalAllocation = computed(expenses, (items) => {
 	return Object.values(items).reduce((sum, item) => sum + item.value, 0);
 });
 
-export const isCalculationDisabled = computed([expenses, mode, totalAllocation], (items, mode, total) => {
-	if (mode === "percent" && total != 100) return true;
+export const isCalculationDisabled = computed(
+	[expenses, mode, totalAllocation],
+	(items, mode, total) => {
+		if (mode === "percent" && total !== 100) return true;
 
-	const hasExpense = Object.values(items).some((i) => i.value > 0);
-	return !hasExpense;
-});
+		const hasExpense = Object.values(items).some((i) => i.value > 0);
+		return !hasExpense;
+	},
+);
 
 export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) => {
 	if (m === "percent") {
 		const isOver = total > 100.01;
 		return {
 			text: `Used: ${total.toFixed(1)}%`,
-			colorClass: isOver ? "bg-red-100 text-red-600 border-red-200" : "bg-emerald-50 text-emerald-600 border-emerald-200",
+			colorClass: isOver
+				? "bg-red-100 text-red-600 border-red-200"
+				: "bg-emerald-50 text-emerald-600 border-emerald-200",
 			isOver,
 		};
 	} else {

@@ -1,6 +1,6 @@
+import type { KeyboardEvent } from "react";
 import type { AreaManifest, DataIndex, YearlyDataFile } from "@/lib/types";
 import type { Mode } from "@/stores/inflationStore";
-import type { KeyboardEvent } from "react";
 export const MONTHS = [
 	"January",
 	"February",
@@ -33,7 +33,8 @@ export const MAJOR_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 };
 
 export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
-	"01.1": "e.g. rice, pork, chicken, beef, fish, egg, noodles, fruits, flour, vegetables, sugar, condiments",
+	"01.1":
+		"e.g. rice, pork, chicken, beef, fish, egg, noodles, fruits, flour, vegetables, sugar, condiments",
 	"01.2": "e.g. coffee, tea, bottled water, fruit juices, sweetened beverages",
 	"02.1": "e.g. beer, rhum, gin, vodka",
 	"02.3": "e.g. cigarette, betel nut, e-cigarette refill",
@@ -45,7 +46,8 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"04.5": "e.g. payment for electricity consumption, kerosene, LPG, firewood",
 	"05.1": "e.g. sofa, wall clock, mattress, chair, bed frame",
 	"05.2": "e.g. blanket, bedsheet, curtain, pillowcase, mosquito net",
-	"05.3": "e.g. rice cooker, refrigerator, electric fan, TV, air conditioner, gas range, repair of household appliances",
+	"05.3":
+		"e.g. rice cooker, refrigerator, electric fan, TV, air conditioner, gas range, repair of household appliances",
 	"05.4": "e.g. drinking glass, plate, water bottle, spoon, fork",
 	"05.5": "e.g. hammer, screwdriver, shovel, garden hose, light bulb, fluorescent lamp",
 	"05.6": "e.g. dishwashing soap, laundry soap, sponge, broom, battery, domestic help services",
@@ -54,15 +56,21 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"06.3": "e.g. public hospital payward, private hospital payward",
 	"06.4": "e.g. laboratory services like CBC, X-ray, and consultation by OB-Gyne, pediatrician",
 	"07.1": "e.g. purchase of motor car, motorcycle, and bicycle",
-	"07.2": "e.g. vehicle tire, engine oil, lubricating oil, diesel, gasoline, maintenance of motor vehicles",
+	"07.2":
+		"e.g. vehicle tire, engine oil, lubricating oil, diesel, gasoline, maintenance of motor vehicles",
 	"07.3": "e.g. transportation fare for jeepney, bus, taxi, tricycle, airplane, ship",
-	"07.4": "e.g. payment for courier services, delivery of goods, delivery of food for immediate consumption",
-	"08.1": "e.g. mobile phone, television, personal computer, tablet computer, hard drive, microphone, rent of videoke machine",
-	"08.3": "e.g. internet access service, landline telephone service, prepaid and postpaid mobile phone service",
+	"07.4":
+		"e.g. payment for courier services, delivery of goods, delivery of food for immediate consumption",
+	"08.1":
+		"e.g. mobile phone, television, personal computer, tablet computer, hard drive, microphone, rent of videoke machine",
+	"08.3":
+		"e.g. internet access service, landline telephone service, prepaid and postpaid mobile phone service",
 	"09.1": "e.g. digital camera, video camera",
-	"09.2": "e.g. chess set, scrabble set, playing cards, toy doll, toy gun, ball for basketball and volleyball",
+	"09.2":
+		"e.g. chess set, scrabble set, playing cards, toy doll, toy gun, ball for basketball and volleyball",
 	"09.3": "e.g. fertilizer, flower pot, vegetable seeds, pet food, natural flower",
-	"09.4": "e.g. admission fee for cockfight arena, payment for lotto, payment for fitness gym, entrance fee for swimming pool",
+	"09.4":
+		"e.g. admission fee for cockfight arena, payment for lotto, payment for fitness gym, entrance fee for swimming pool",
 	"09.5": "e.g. guitar, piano, keyboards, drum set",
 	"09.6": "e.g. cable subscription, fee for cinema and theater",
 	"09.7": "e.g. textbook, dictionary, ballpen, notebook, newspaper, other school supplies",
@@ -73,7 +81,8 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"11.1": "e.g. meals eaten outside the home, take-away food",
 	"11.2": "e.g. payment for overnight stay in hotel, motel, and inn",
 	"12.2": "e.g. money transfer fee, ATM withdrawal fee",
-	"13.1": "e.g. hair clipper, hairbrush, feminine wash, toothbrush, toothpaste, mouthwash, shampoo, conditioner, bath soap, lipstick, baby powder",
+	"13.1":
+		"e.g. hair clipper, hairbrush, feminine wash, toothbrush, toothpaste, mouthwash, shampoo, conditioner, bath soap, lipstick, baby powder",
 	"13.2": "e.g. wallet, umbrella, fashion jewelry, wristwatch, bags",
 	"13.9": "e.g. photocopying services, fee for issuance of civil registry document, power of attorney",
 };
@@ -115,7 +124,7 @@ export const MANIFEST_CACHE = new Map<string, Promise<AreaManifest | null>>();
 
 export function formatLocationName(str: string, locale = "en") {
 	str = str.trim();
-	str = str.replaceAll(/\p{L}+('\p{L}+)?/gu, function (txt) {
+	str = str.replaceAll(/\p{L}+('\p{L}+)?/gu, (txt) => {
 		if (txt.toLowerCase() === "mimaropa") {
 			return "MIMAROPA";
 		}
@@ -124,33 +133,41 @@ export function formatLocationName(str: string, locale = "en") {
 	});
 
 	const exceptions = ["de", "del", "las", "los", "y", "and", "of", "in"];
-	str = str.replaceAll(new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"), function (match: string, offset: number) {
-		return offset === 0 ? match : match.toLowerCase();
-	});
+	str = str.replaceAll(
+		new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"),
+		(match: string, offset: number) => (offset === 0 ? match : match.toLowerCase()),
+	);
 
 	// Fix Roman numerals (Iii -> III, Iv -> IV)
-	str = str.replaceAll(/\b(i{1,3}|iv|v|vi{1,3}|vii{1,3}|viii|ix|x|xi{1,2}|xii|xiii)(-[a-z])?\b/gi, function (match: string) {
-		return match.toUpperCase();
-	});
+	str = str.replaceAll(
+		/\b(i{1,3}|iv|v|vi{1,3}|vii{1,3}|viii|ix|x|xi{1,2}|xii|xiii)(-[a-z])?\b/gi,
+		(match: string) => match.toUpperCase(),
+	);
 
 	// Handle parentheses: Uppercase if acronym of name, otherwise keep Title Case
-	str = str.replaceAll(/\(([^)]+)\)/g, function (match: string, inner: string, offset: number, fullString: string) {
-		const namePart = fullString.slice(0, offset);
-		const words = namePart.split(/[\s-]+/);
-		const acronymTarget = inner.toUpperCase();
+	str = str.replaceAll(
+		/\(([^)]+)\)/g,
+		(match: string, inner: string, offset: number, fullString: string) => {
+			const namePart = fullString.slice(0, offset);
+			const words = namePart.split(/[\s-]+/);
+			const acronymTarget = inner.toUpperCase();
 
-		const generatedAcronym = words
-			.filter((w: string) => w && !exceptions.includes(w.toLowerCase()))
-			.map((w: string) => w.charAt(0).toUpperCase())
-			.join("");
+			const generatedAcronym = words
+				.filter((w: string) => w && !exceptions.includes(w.toLowerCase()))
+				.map((w: string) => w.charAt(0).toUpperCase())
+				.join("");
 
-		// If the content is an acronym of the name (e.g. NCR == N(ational)C(apital)R(egion))
-		if ((generatedAcronym.length > 1 && acronymTarget === generatedAcronym) || acronymTarget === "CALABARZON") {
-			return "(" + acronymTarget + ")";
-		}
+			// If the content is an acronym of the name (e.g. NCR == N(ational)C(apital)R(egion))
+			if (
+				(generatedAcronym.length > 1 && acronymTarget === generatedAcronym) ||
+				acronymTarget === "CALABARZON"
+			) {
+				return `(${acronymTarget})`;
+			}
 
-		return match;
-	});
+			return match;
+		},
+	);
 
 	return str;
 }

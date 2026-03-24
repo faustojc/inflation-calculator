@@ -13,6 +13,7 @@ const ChartSelector = ({
 			className="flex items-center gap-2 p-[6.5px] border-2 border-primary bg-muted rounded-lg w-full md:w-auto transition-all"
 		>
 			<button
+				type="button"
 				onClick={() => setChartType("table")}
 				className={`flex-1 ml-1 px-4 py-1 rounded-md text-sm transition-all duration-200 ${
 					chartType === "table"
@@ -23,6 +24,7 @@ const ChartSelector = ({
 				Table
 			</button>
 			<button
+				type="button"
 				onClick={() => setChartType("pie")}
 				className={`flex-1 px-4 py-1 rounded-md text-sm transition-all duration-200 ${
 					chartType === "pie"

@@ -1,13 +1,12 @@
-import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
-import CustomPositiveLabel from "@/components/graphs/custom/CustomPositiveLabel";
+import { arc as d3Arc, pie as d3Pie } from "d3-shape";
+import { useEffect, useMemo, useRef } from "react";
 import CustomBaseSector from "@/components/graphs/custom/CustomBaseSector";
+import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
 import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector";
-
+import CustomPositiveLabel from "@/components/graphs/custom/CustomPositiveLabel";
 import type { PieEntry } from "@/lib/types";
 import type { CommodityContribution } from "@/utils/inflationCompute";
 import { NEG_STRIPE_COLOR } from "@/utils/metadata";
-import { arc as d3Arc, pie as d3Pie } from "d3-shape";
-import { useEffect, useMemo, useRef } from "react";
 
 const VIEW_SIZE = 400;
 const CX = VIEW_SIZE / 2; // 200
@@ -23,7 +22,7 @@ const LABEL_DURATION = 0.25; // s — faster labels
 const LABEL_BASE_DELAY = PIE_DURATION / 1000 - 0.05; // s — start just before pie ends
 const LABEL_STAGGER = 0.04; // s
 
-/** SVG path string for a clockwise sector from startAngle sweeping `sweep` radians, centered at (cx, cy). */
+// SVG path string for a clockwise sector from startAngle sweeping `sweep` radians, centered at (cx, cy)
 function revealSectorPath(sweep: number): string {
 	const startAngle = -Math.PI / 2; // top
 	if (sweep >= 2 * Math.PI - 0.001) {
@@ -58,7 +57,7 @@ export function OverlayPieChart({
 		const el = clipSectorRef.current;
 		if (!el) return;
 
-		const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+		const easeOut = (t: number) => 1 - (1 - t) ** 3;
 		const start = performance.now();
 		let rafId: number;
 
@@ -71,19 +70,28 @@ export function OverlayPieChart({
 		el.setAttribute("d", revealSectorPath(0.001));
 		rafId = requestAnimationFrame(animate);
 		return () => cancelAnimationFrame(rafId);
-	}, [basePie, overlayPie, patternPrefix]);
+	}, []);
 
 	const pieLayout = d3Pie<PieEntry>()
 		.value((d) => d.value)
 		.sort(null);
-	const baseArcGen = d3Arc<ReturnType<typeof pieLayout>[number]>().innerRadius(0).outerRadius(BASE_OUTER_R);
-	const overlayArcGen = d3Arc<ReturnType<typeof pieLayout>[number]>().innerRadius(0).outerRadius(OVERLAY_OUTER_R);
+	const baseArcGen = d3Arc<ReturnType<typeof pieLayout>[number]>()
+		.innerRadius(0)
+		.outerRadius(BASE_OUTER_R);
+	const overlayArcGen = d3Arc<ReturnType<typeof pieLayout>[number]>()
+		.innerRadius(0)
+		.outerRadius(OVERLAY_OUTER_R);
 
 	const baseArcs = pieLayout(basePie).map((a) => ({ data: a.data, path: baseArcGen(a) ?? "" }));
-	const overlayArcs = hasNegatives ? pieLayout(overlayPie).map((a) => ({ data: a.data, path: overlayArcGen(a) ?? "" })) : [];
+	const overlayArcs = hasNegatives
+		? pieLayout(overlayPie).map((a) => ({ data: a.data, path: overlayArcGen(a) ?? "" }))
+		: [];
 
 	// Changes whenever pie data changes → forces label wrapper remount → CSS animation restarts
-	const labelAnimKey = useMemo(() => basePie.map((p) => `${p.code}:${p.value.toFixed(4)}`).join("|"), [basePie]);
+	const labelAnimKey = useMemo(
+		() => basePie.map((p) => `${p.code}:${p.value.toFixed(4)}`).join("|"),
+		[basePie],
+	);
 
 	const labelStyle = (i: number): React.CSSProperties => ({
 		animation: `labelFocusIn ${LABEL_DURATION}s ${LABEL_SPRING} both`,
@@ -93,7 +101,12 @@ export function OverlayPieChart({
 	return (
 		<div className="flex flex-col items-center w-full">
 			<div className="w-full aspect-square max-h-100 relative">
-				<svg viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`} className="w-full h-full" style={{ overflow: "visible" }}>
+				<svg
+					viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`}
+					className="w-full h-full"
+					style={{ overflow: "visible" }}
+				>
+					<title>Pie Chart</title>
 					<style>{`
 						@keyframes labelFocusIn {
 							0%   { opacity: 0; filter: blur(6px); }
@@ -118,10 +131,10 @@ export function OverlayPieChart({
 						</clipPath>
 
 						{hasNegatives &&
-							negativeItems.map((_, i) => (
+							negativeItems.map((items) => (
 								<pattern
-									key={`${patternPrefix}-hatch-${i}`}
-									id={`${patternPrefix}-hatch-${i}`}
+									key={`${patternPrefix}-hatch-${items.code}`}
+									id={`${patternPrefix}-hatch-${items.code}`}
 									patternUnits="userSpaceOnUse"
 									width="6"
 									height="6"
@@ -187,7 +200,10 @@ export function OverlayPieChart({
 					{/* Negative labels — continue stagger after positives */}
 					{hasNegatives &&
 						overlayArcs.map(({ data }, i) => (
-							<g key={`nlabel-anim-${data.code || i}-${labelAnimKey}`} style={labelStyle(baseArcs.length + i)}>
+							<g
+								key={`nlabel-anim-${data.code || i}-${labelAnimKey}`}
+								style={labelStyle(baseArcs.length + i)}
+							>
 								<CustomNegativeLabel
 									payload={data}
 									index={i}

@@ -1,6 +1,12 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { settings, type IncomeClass } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { type IncomeClass, settings } from "@/stores/inflationStore";
 
 const IncomeClassControl = () => {
 	const appSettings = useStore(settings);
@@ -15,7 +21,9 @@ const IncomeClassControl = () => {
 		}).formatToParts(amount);
 
 		const filteredParts = currency.filter(
-			(part) => part.type !== "currency" && (part.type !== "literal" || part.value.trim().length !== 0),
+			(part) =>
+				part.type !== "currency" &&
+				(part.type !== "literal" || part.value.trim().length !== 0),
 		);
 
 		return filteredParts.map((part) => part.value).join("");
@@ -45,12 +53,16 @@ const IncomeClassControl = () => {
 						<div className="space-x-1">
 							<span>Annual per Capita:</span>
 							<span className="font-bold">PhP</span>
-							<span className="font-bold">{formatCurrency(appSettings.area.annualCapita)}</span>
+							<span className="font-bold">
+								{formatCurrency(appSettings.area.annualCapita)}
+							</span>
 						</div>
 						<div className="space-x-1">
 							<span>Monthly per Capita:</span>
 							<span className="font-bold">PhP</span>
-							<span className="font-bold">{formatCurrency(appSettings.area.monthlyCapita)}</span>
+							<span className="font-bold">
+								{formatCurrency(appSettings.area.monthlyCapita)}
+							</span>
 						</div>
 						<span className="text-xs text-muted-foreground">(as of 2018)</span>
 					</span>

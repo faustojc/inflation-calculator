@@ -1,8 +1,8 @@
+import { useStore } from "@nanostores/react";
+import { useMemo } from "react";
 import ExpenseNode from "@/components/ExpenseNode";
 import type { CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
-import { useStore } from "@nanostores/react";
-import { useMemo } from "react";
 
 export type DisplayNode = {
 	code: string;

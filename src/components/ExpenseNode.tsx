@@ -1,3 +1,7 @@
+import { useStore } from "@nanostores/react";
+import { AlertTriangle, ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
+import { computed } from "nanostores";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import type { DisplayNode } from "@/components/ExpenseTab";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -15,17 +19,16 @@ import {
 	updateExpenseValue,
 } from "@/stores/inflationStore";
 import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
-import { useStore } from "@nanostores/react";
-import { AlertTriangle, ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
-import { computed } from "nanostores";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 
 const ExpenseNode = memo(
 	({ node, level }: { node: DisplayNode; level: number }) => {
 		const currMode = useStore(mode);
 		const hasChildren = node.children && node.children.length > 0;
 
-		const isMatchStore = useMemo(() => computed(highlightState, (h) => h?.code === node.code), [node.code]);
+		const isMatchStore = useMemo(
+			() => computed(highlightState, (h) => h?.code === node.code),
+			[node.code],
+		);
 		const highlightLabelStore = useMemo(
 			() => computed(highlightState, (h) => (h?.code === node.code ? h.label : "")),
 			[node.code],
@@ -45,7 +48,10 @@ const ExpenseNode = memo(
 				}),
 			[node.code, level, hasChildren],
 		);
-		const isMissingStore = useMemo(() => computed(missingDetailedItems, (missing) => missing.has(node.code)), [node.code]);
+		const isMissingStore = useMemo(
+			() => computed(missingDetailedItems, (missing) => missing.has(node.code)),
+			[node.code],
+		);
 
 		const isMatch = useStore(isMatchStore);
 		const highlightLabel = useStore(highlightLabelStore);
@@ -117,6 +123,7 @@ const ExpenseNode = memo(
 					{hasChildren && (
 						<CollapsibleTrigger asChild>
 							<button
+								type="button"
 								disabled={!hasChildren}
 								tabIndex={-1}
 								className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary hover:text-primary hover:bg-primary/20 cursor-pointer" : "text-transparent w-5"}`}

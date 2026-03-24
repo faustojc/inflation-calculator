@@ -1,6 +1,6 @@
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { InfoIcon } from "lucide-react";
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const ControlInfo = ({ content }: Readonly<{ content: ReactNode }>) => {
 	return (

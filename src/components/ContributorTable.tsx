@@ -1,9 +1,9 @@
+import { ChevronDown, ChevronUp } from "lucide-react";
+import React, { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { type ContributionFactor } from "@/utils/inflationCompute";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import type { ContributionFactor } from "@/utils/inflationCompute";
 
 interface Props {
 	personal: ContributionFactor;
@@ -37,7 +37,9 @@ export function ContributorTable({ personal, official }: Props) {
 								{/* Factor header */}
 								<div className="bg-primary px-4 py-3 flex justify-between items-center">
 									<span className="font-bold text-base text-white tracking-wider">
-										{factor.factorName.toLowerCase() === "personal" ? factor.factorName : factor.areaName}
+										{factor.factorName.toLowerCase() === "personal"
+											? factor.factorName
+											: factor.areaName}
 									</span>
 								</div>
 
@@ -82,9 +84,7 @@ export function ContributorTable({ personal, official }: Props) {
 												>
 													<TableCell
 														className={`text-center py-2 h-auto text-xs ${
-															isAllItems
-																? "font-bold text-primary"
-																: "font-medium text-muted-foreground"
+															isAllItems ? "font-bold text-primary" : "font-medium text-muted-foreground"
 														}`}
 													>
 														{isAllItems ? "—" : i}

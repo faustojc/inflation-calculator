@@ -1,5 +1,5 @@
-import { activeTab, calculationResult } from "@/stores/inflationStore";
 import { useStore } from "@nanostores/react";
+import { activeTab, calculationResult } from "@/stores/inflationStore";
 
 const TabControl = () => {
 	const currTab = useStore(activeTab);
@@ -12,6 +12,7 @@ const TabControl = () => {
 	return (
 		<div className="flex items-center gap-2 bg-muted p-1 rounded-xl w-full md:w-auto border border-border">
 			<button
+				type="button"
 				name="General Commodity Tab"
 				aria-label="Select general commodity tab"
 				onClick={() => handleChangeTab("general")}
@@ -24,6 +25,7 @@ const TabControl = () => {
 				General
 			</button>
 			<button
+				type="button"
 				name="Detailed Commodity Tab"
 				aria-label="Select detailed commodity tab"
 				onClick={() => handleChangeTab("detailed")}

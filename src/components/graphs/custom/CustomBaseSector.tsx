@@ -1,6 +1,6 @@
+import { useStore } from "@nanostores/react";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getColor } from "@/utils/metadata";
-import { useStore } from "@nanostores/react";
 
 interface Props {
 	path: string;

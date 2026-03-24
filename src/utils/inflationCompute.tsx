@@ -1,7 +1,7 @@
+import type { ReactNode } from "react";
 import type { AreaDef, DataIndex, DataType } from "@/lib/types";
 import { setCompareOfficial } from "@/stores/graphStore";
-import { type ExpenseItem } from "@/stores/inflationStore";
-import type { ReactNode } from "react";
+import type { ExpenseItem } from "@/stores/inflationStore";
 
 export interface LocationContext {
 	hierarchy: {
@@ -107,7 +107,8 @@ function calculateOfficialContribution(
 	const contributions: CommodityContribution[] = [];
 	const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
 	let totalWeightedChange = 0;
-	const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] = [];
+	const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] =
+		[];
 
 	for (let i = 0; i < codes.length; i++) {
 		const code = codes[i]!;
@@ -169,7 +170,10 @@ function calculateContributors(
 	if (isPersonal) {
 		// Compute weighted CPI change per item: (CPI_start - CPI_end) * weight
 		// where CPI_start = selected date (cpiEnd in code), CPI_end = previous date (cpiStart in code)
-		const totalWeightedChange = breakdown.reduce((acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight, 0);
+		const totalWeightedChange = breakdown.reduce(
+			(acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight,
+			0,
+		);
 
 		for (const b of breakdown) {
 			const weightedChange = (b.cpiEnd - b.cpiStart) * b.weight;
@@ -266,7 +270,13 @@ function calcGrowth(current: number, previous: number): number {
  * @param code The code.
  * @returns The year-over-year growth rate.
  */
-function calculateYoY(dataIndex: DataIndex, key: string | undefined, year: number, month: number, code: string): number {
+function calculateYoY(
+	dataIndex: DataIndex,
+	key: string | undefined,
+	year: number,
+	month: number,
+	code: string,
+): number {
 	if (!key) return 0;
 	const curr = findCpi(dataIndex, key, year, month, code, "official");
 	const prev = findCpi(dataIndex, key, year - 1, month, code, "official");
@@ -397,7 +407,16 @@ function generateTrend(
 		const endM = year === dates.endYear ? dates.endMonth : 12;
 
 		for (let month = startM; month <= endM; month++) {
-			const point = processTrendMonth(year, month, dataIndex, hierarchy, itemsWithWeights, code, dataType, trendType);
+			const point = processTrendMonth(
+				year,
+				month,
+				dataIndex,
+				hierarchy,
+				itemsWithWeights,
+				code,
+				dataType,
+				trendType,
+			);
 			if (point) {
 				series.push(point);
 			}
@@ -411,12 +430,17 @@ function generateInterpretation(
 	personalCpi: number,
 	comps: Comparators,
 	meta: {
-		location: { hierarchy: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef } };
+		location: {
+			hierarchy: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef };
+		};
 		dates: DateRange;
 	},
 ): ReactNode[] {
 	const { location, dates } = meta;
-	const monthStr = new Date(dates.endYear, dates.endMonth - 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+	const monthStr = new Date(dates.endYear, dates.endMonth - 1).toLocaleDateString("en-US", {
+		month: "long",
+		year: "numeric",
+	});
 
 	const getDir = (val: number) => (val >= 0 ? "increased" : "decreased");
 	const getComp = (mine: number, theirs: number) => (mine > theirs ? "higher" : "lower");
@@ -431,13 +455,14 @@ function generateInterpretation(
 
 	const p1 = (
 		<>
-			Your computed consumer price index is <strong>{personalCpi.toFixed(1)}</strong>. It means that average price of your
-			commonly purchased goods and services have{" "}
+			Your computed consumer price index is <strong>{personalCpi.toFixed(1)}</strong>. It means that
+			average price of your commonly purchased goods and services have{" "}
 			<strong>
 				{getDir(personalCpi - 100)} by {percentChange}%
 			</strong>{" "}
 			compared with their average prices in 2018. Subsequently, in {monthStr}, you will need{" "}
-			<strong>PhP {purchasingPower}</strong> to buy the same set of goods and services worth PhP 100.00 in 2018.
+			<strong>PhP {purchasingPower}</strong> to buy the same set of goods and services worth PhP 100.00
+			in 2018.
 		</>
 	);
 
@@ -464,8 +489,8 @@ function generateInterpretation(
 			<strong>
 				{areaName} ({comps.areaRate.toFixed(1)}%)
 			</strong>
-			. This means that you are <strong>{getAff(personalRate, comps.areaRate)} affected</strong> by the price increases in{" "}
-			<strong>{areaName}</strong> compared with the average household in the area.
+			. This means that you are <strong>{getAff(personalRate, comps.areaRate)} affected</strong> by the
+			price increases in <strong>{areaName}</strong> compared with the average household in the area.
 		</>
 	);
 
@@ -482,8 +507,9 @@ function generateInterpretation(
 				<strong>
 					{regionName} ({comps.regionRate.toFixed(1)}%)
 				</strong>
-				. This means that you are <strong>{getAff(personalRate, comps.regionRate)} affected</strong> by the price
-				increases in <strong>{regionName}</strong> compared to the average household in the region.
+				. This means that you are <strong>{getAff(personalRate, comps.regionRate)} affected</strong> by
+				the price increases in <strong>{regionName}</strong> compared to the average household in the
+				region.
 			</>
 		);
 		interpretation.push(p4);
@@ -497,8 +523,8 @@ function generateInterpretation(
 			</strong>{" "}
 			than the inflation rate of the average households in the{" "}
 			<strong>Philippines ({comps.nationalRate.toFixed(1)}%)</strong>. This means that you are{" "}
-			<strong>{getAff(personalRate, comps.nationalRate)} affected</strong> by the price increases in the country compared
-			with the average household.
+			<strong>{getAff(personalRate, comps.nationalRate)} affected</strong> by the price increases in the
+			country compared with the average household.
 		</>
 	);
 	interpretation.push(p5);
@@ -539,7 +565,14 @@ export function calculatePersonalInflation(
 			item.code,
 			dataType,
 		)!;
-		const cpiEnd = findCpi(dataIndex, location.hierarchy.target.key, dates.endYear, dates.endMonth, item.code, dataType)!;
+		const cpiEnd = findCpi(
+			dataIndex,
+			location.hierarchy.target.key,
+			dates.endYear,
+			dates.endMonth,
+			item.code,
+			dataType,
+		)!;
 
 		// STEP 2: WEIGHTED CPI
 		// Formula: CPI * Weight
@@ -575,7 +608,9 @@ export function calculatePersonalInflation(
 
 	const comparators = {
 		areaRate: getOfficialRate(location.hierarchy.target.key, dataIndex, dates),
-		regionRate: location.hierarchy.region ? getOfficialRate(location.hierarchy.region.key, dataIndex, dates) : undefined,
+		regionRate: location.hierarchy.region
+			? getOfficialRate(location.hierarchy.region.key, dataIndex, dates)
+			: undefined,
 		nationalRate: getOfficialRate("philippines", dataIndex, dates),
 		provinceRate: location.hierarchy.province
 			? getOfficialRate(location.hierarchy.province.key, dataIndex, dates)
@@ -654,10 +689,31 @@ export function calculatePersonalInflation(
 		),
 	);
 
-	const inflationTrend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex, "0", dataType, "inflation");
-	const cpiTrend = generateTrend(expenses, location.hierarchy, dates, config, dataIndex, "0", dataType, "cpi");
+	const inflationTrend = generateTrend(
+		expenses,
+		location.hierarchy,
+		dates,
+		config,
+		dataIndex,
+		"0",
+		dataType,
+		"inflation",
+	);
+	const cpiTrend = generateTrend(
+		expenses,
+		location.hierarchy,
+		dates,
+		config,
+		dataIndex,
+		"0",
+		dataType,
+		"cpi",
+	);
 
-	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, { location, dates });
+	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, {
+		location,
+		dates,
+	});
 
 	setCompareOfficial(contributors[1]);
 
