@@ -44,9 +44,7 @@ function processPie(
 		if (!skip) {
 			const theta = -RADIAN * midAngle;
 			const cos = Math.cos(theta);
-
-			// Push negative slightly out to avoid crossing
-			const radius = outerRadius + (isNegative ? 20 : 20);
+			const radius = outerRadius + 20;
 
 			processed.push({
 				id: (isNegative ? "n_" : "p_") + entry.code,
