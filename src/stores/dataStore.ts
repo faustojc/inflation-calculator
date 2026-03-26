@@ -1,3 +1,4 @@
+import { computed, map } from "nanostores";
 import type {
 	AreaDef,
 	AreaHierarchy,
@@ -10,9 +11,14 @@ import type {
 	YearlyDataFile,
 } from "@/lib/types";
 import type { IncomeClass } from "@/stores/inflationStore";
-import { FETCH_CACHE, formatLocationName, GLOBAL_INDEX, INDEXED_KEYS, MANIFEST_CACHE } from "@/utils/metadata";
+import {
+	FETCH_CACHE,
+	formatLocationName,
+	GLOBAL_INDEX,
+	INDEXED_KEYS,
+	MANIFEST_CACHE,
+} from "@/utils/metadata";
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
-import { computed, map } from "nanostores";
 
 // TODO: Will change to separate static CDN url
 const API_URL = "/api/v2";
@@ -28,7 +34,10 @@ interface DataState {
 	searchOptions: SearchOption[];
 	flatCodes: string[]; // Sorted by length desc
 	parentIndex: Record<string, string>;
-	metaYearRange: { official: { min: number; max: number }; personal: { min: number; max: number } } | null;
+	metaYearRange: {
+		official: { min: number; max: number };
+		personal: { min: number; max: number };
+	} | null;
 }
 
 interface Metadata {
@@ -272,7 +281,10 @@ export async function getCalculationData(
 	return GLOBAL_INDEX;
 }
 
-export async function getWeights(areaKeys: string[], incomeClass: IncomeClass): Promise<Record<string, number[]>> {
+export async function getWeights(
+	areaKeys: string[],
+	incomeClass: IncomeClass,
+): Promise<Record<string, number[]>> {
 	const results: Record<string, number[]> = {};
 	const pending: Promise<void>[] = [];
 
@@ -316,7 +328,10 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 			province = selectedArea;
 		} else {
 			province = areas.find(
-				(a) => a.regionId === selectedArea.regionId && a.provinceId === selectedArea.provinceId && a.cityId === undefined,
+				(a) =>
+					a.regionId === selectedArea.regionId &&
+					a.provinceId === selectedArea.provinceId &&
+					a.cityId === undefined,
 			);
 		}
 	}
@@ -370,5 +385,7 @@ export const commodityTree = computed(dataStore, (state) => {
 });
 
 export const majorCategories = computed(dataStore, (state) => {
-	return state.commodities.filter((c) => !c.code.includes(".")).sort((a, b) => a.code.localeCompare(b.code));
+	return state.commodities
+		.filter((c) => !c.code.includes("."))
+		.sort((a, b) => a.code.localeCompare(b.code));
 });
