@@ -11,7 +11,7 @@ type CacheStrategy = "cache-first" | "network-first";
 
 export function shouldTrackVisit(): boolean {
 	const sessionId = sessionStorage.getItem(VISIT_SID);
-	const tabCount = parseInt(localStorage.getItem(VISIT_TABS) || "0");
+	const tabCount = parseInt(localStorage.getItem(VISIT_TABS) || "0", 10);
 
 	if (!sessionId) {
 		if (tabCount > 0) {
@@ -30,7 +30,7 @@ export function shouldTrackVisit(): boolean {
 	window.addEventListener(
 		"pagehide",
 		() => {
-			const count = parseInt(localStorage.getItem(VISIT_TABS) || "1") - 1;
+			const count = parseInt(localStorage.getItem(VISIT_TABS) || "1", 10) - 1;
 			localStorage.setItem(VISIT_TABS, String(Math.max(0, count)));
 		},
 		{ once: true },
@@ -57,7 +57,9 @@ export async function invalidateIfDataChanged(generatedAt: string): Promise<bool
 	const storedVersion = localStorage.getItem(CACHE_VERSION_KEY);
 
 	if (storedVersion && storedVersion !== generatedAt) {
-		console.info(`[Cache] Data version changed (${storedVersion} → ${generatedAt}). Purging stale CPI cache.`);
+		console.info(
+			`[Cache] Data version changed (${storedVersion} → ${generatedAt}). Purging stale CPI cache.`,
+		);
 
 		await clearDataCache();
 
@@ -80,7 +82,10 @@ export async function invalidateIfDataChanged(generatedAt: string): Promise<bool
  * @param strategy - 'cache-first' (optimal for immutable data) or 'network-first' (optimal for frequently changing data).
  * @returns The Response object (from cache or network).
  */
-export async function fetchWithCache(url: string, strategy: CacheStrategy = "cache-first"): Promise<Response> {
+export async function fetchWithCache(
+	url: string,
+	strategy: CacheStrategy = "cache-first",
+): Promise<Response> {
 	if (!("caches" in globalThis)) {
 		return fetch(url);
 	}
