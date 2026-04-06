@@ -10,3 +10,4 @@ database_id = "ed101e01-facc-4383-a1bf-17d388e11b5a"
 [[r2_buckets]]
 binding = "CPI_DATA"
 bucket_name = "cpi-data"
+remote = true

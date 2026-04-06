@@ -20,8 +20,10 @@ import {
 } from "@/utils/metadata";
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 
-// TODO: Will change to separate static CDN url
-const API_URL = "/api/v2";
+// the API_URL
+function cpiUrl(path: string): string {
+	return `/api/cpi?key=api/v2/${path}`;
+}
 
 interface DataState {
 	isLoading: boolean;
@@ -70,8 +72,8 @@ export async function initializeApp() {
 		dataStore.setKey("isLoading", true);
 
 		let [metaRes, commRes] = await Promise.all([
-			fetchWithCache(`${API_URL}/metadata.json`, "network-first"),
-			fetchWithCache(`${API_URL}/commodities.json`, "network-first"),
+			fetchWithCache(cpiUrl("metadata.json"), "network-first"),
+			fetchWithCache(cpiUrl("commodities.json"), "network-first"),
 		]);
 
 		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
@@ -81,8 +83,8 @@ export async function initializeApp() {
 
 		if (wasInvalidated) {
 			[metaRes, commRes] = await Promise.all([
-				fetchWithCache(`${API_URL}/metadata.json`, "network-first"),
-				fetchWithCache(`${API_URL}/commodities.json`, "network-first"),
+				fetchWithCache(cpiUrl("metadata.json"), "network-first"),
+				fetchWithCache(cpiUrl("commodities.json"), "network-first"),
 			]);
 
 			if (!metaRes.ok || !commRes.ok) throw new Error("Failed to reload data after cache invalidation");
@@ -179,7 +181,7 @@ export async function getAreaManifest(areaKey: string): Promise<AreaManifest | n
 		return MANIFEST_CACHE.get(areaKey)!;
 	}
 
-	const manifestPromise = fetchWithCache(`${API_URL}/data/${areaKey}/manifest.json`, "cache-first")
+	const manifestPromise = fetchWithCache(cpiUrl(`data/${areaKey}/manifest.json`), "cache-first")
 		.then(async (r) => {
 			if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 				return r.json();
@@ -207,7 +209,7 @@ function fetchYearlyData(area: string, year: number): Promise<YearlyDataFile | n
 	let promise = FETCH_CACHE.get(cacheKey);
 
 	if (!promise) {
-		promise = fetchWithCache(`${API_URL}/data/${area}/${year}.json`, "cache-first")
+		promise = fetchWithCache(cpiUrl(`data/${area}/${year}.json`), "cache-first")
 			.then((r) => {
 				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 					return r.json();
