@@ -1,11 +1,11 @@
-import { ContributorTable } from "@/components/ContributorTable";
-import type { ContributionFactor } from "@/utils/inflationCompute";
-import { useState } from "react";
-import CompareSelector from "@/components/CompareSelector";
 import { useStore } from "@nanostores/react";
-import { compareOfficial } from "@/stores/graphStore";
-import ContribInflationPie from "@/components/graphs/pie/ContribInflationPie";
+import { useState } from "react";
 import ChartSelector from "@/components/ChartSelector";
+import CompareSelector from "@/components/CompareSelector";
+import { ContributorTable } from "@/components/ContributorTable";
+import ContribInflationPie from "@/components/graphs/pie/ContribInflationPie";
+import { compareOfficial } from "@/stores/graphStore";
+import type { ContributionFactor } from "@/utils/inflationCompute";
 
 const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }) => {
 	const comparison = useStore(compareOfficial);
@@ -21,8 +21,8 @@ const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }
 					Major Contributors to Inflation
 				</h3>
 				<p className="text-sm text-foreground mb-3">
-					Top 3 commodity groups that had the biggest impact on your personal inflation rate and how they compare to
-					other areas.
+					Top 3 commodity groups that had the biggest impact on your personal inflation rate and how they
+					compare to other areas.
 				</p>
 			</div>
 
@@ -41,22 +41,24 @@ const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }
 				<div className="space-y-1">
 					<p className="text-base font-bold text-primary uppercase tracking-wider">% Weight</p>
 					<p className="text-sm text-muted-foreground leading-snug">
-						The percentage of the commodity group's weight relative to the total weight of all items. ALL ITEMS always
-						has a 100% weight.
+						The percentage of the commodity group's weight relative to the total weight of all items. ALL
+						ITEMS always has a 100% weight.
 					</p>
 				</div>
 				<div className="space-y-1">
 					<p className="text-base font-bold text-primary uppercase tracking-wider">Inflation Rate</p>
 					<p className="text-sm text-muted-foreground leading-snug">
-						The year-over-year price change for the commodity group. A positive rate means prices increased; a
-						negative rate means they decreased.
+						The year-on-year price change for the commodity group. A positive rate means prices
+						increased; a negative rate means they decreased.
 					</p>
 				</div>
 				<div className="space-y-1">
-					<p className="text-base font-bold text-primary uppercase tracking-wider">%Share to Inflation</p>
+					<p className="text-base font-bold text-primary uppercase tracking-wider">
+						%Share to Inflation
+					</p>
 					<p className="text-sm text-muted-foreground leading-snug">
-						The contribution of the commodity group to the total inflation rate. It shows how much of the overall
-						inflation is attributable to this category.
+						The contribution of the commodity group to the total inflation rate. It shows how much of the
+						overall inflation is attributable to this category.
 					</p>
 				</div>
 			</div>

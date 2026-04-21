@@ -262,13 +262,13 @@ function calcGrowth(current: number, previous: number): number {
 }
 
 /**
- * Calculates the year-over-year growth rate.
+ * Calculates the year-on-year growth rate.
  * @param dataIndex The data index.
  * @param key The key.
  * @param year The year.
  * @param month The month.
  * @param code The code.
- * @returns The year-over-year growth rate.
+ * @returns The year-on-year growth rate.
  */
 function calculateYoY(
 	dataIndex: DataIndex,

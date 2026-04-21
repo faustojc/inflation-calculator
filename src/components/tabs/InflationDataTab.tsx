@@ -1,7 +1,7 @@
+import { TrendingUp } from "lucide-react";
 import TrendLine from "@/components/graphs/line/TrendLine";
 import { Separator } from "@/components/ui/separator";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
-import { TrendingUp } from "lucide-react";
 
 const InflationDataTab = ({
 	personalRate,
@@ -44,7 +44,7 @@ const InflationDataTab = ({
 						</p>
 						<div className="flex items-center gap-1 text-sm text-foreground mt-1">
 							<TrendingUp className="h-4 w-5" />
-							<span>Year-over-year change</span>
+							<span>Year-on-year change</span>
 						</div>
 					</div>
 
@@ -54,8 +54,12 @@ const InflationDataTab = ({
 						<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
 							Consumer Price Index
 						</span>
-						<span className="text-sm sm:text-base font-normal text-muted-foreground ml-1">(2018=100)</span>
-						<p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">{yearlyCpiEnd.toFixed(1)}</p>
+						<span className="text-sm sm:text-base font-normal text-muted-foreground ml-1">
+							(2018=100)
+						</span>
+						<p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+							{yearlyCpiEnd.toFixed(1)}
+						</p>
 					</div>
 
 					<Separator className="bg-foreground" />
