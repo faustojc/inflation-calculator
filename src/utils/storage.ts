@@ -92,10 +92,14 @@ export async function fetchWithCache(
 
 	const cache = await caches.open(CACHE_NAME);
 
-	if (strategy === "cache-first") {
-		return fetchCacheFirst(url, cache);
-	} else {
-		return fetchNetworkFirst(url, cache);
+	try {
+		if (strategy === "cache-first") {
+			return fetchCacheFirst(url, cache);
+		} else {
+			return fetchNetworkFirst(url, cache);
+		}
+	} catch (error) {
+		throw new Error(`Unable to fetch ${url}: ${error}`);
 	}
 }
 
@@ -115,6 +119,13 @@ async function fetchCacheFirst(url: string, cache: Cache): Promise<Response> {
 async function fetchNetworkFirst(url: string, cache: Cache): Promise<Response> {
 	try {
 		const networkResponse = await fetch(url);
+		const isJson = networkResponse.headers.get("Content-Type")?.startsWith("application/json");
+
+		// returning not json is 404, must be json
+		if (!isJson) {
+			throw new Error(`Request ${url} not found`);
+		}
+
 		if (networkResponse.ok) {
 			cache.put(url, networkResponse.clone());
 		}

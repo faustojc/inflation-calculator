@@ -173,6 +173,7 @@ export async function initializeApp() {
 		console.error(err);
 		dataStore.setKey("error", "Could not load application data.");
 		dataStore.setKey("isLoading", false);
+		dataStore.setKey("isReady", false);
 	}
 }
 

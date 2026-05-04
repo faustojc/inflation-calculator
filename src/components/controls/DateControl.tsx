@@ -68,14 +68,13 @@ const DateControl = () => {
 	};
 
 	const handleYearChange = (yearStr: string) => {
-		const yearNum = Number.parseInt(yearStr);
+		const yearNum = Number.parseInt(yearStr, 10);
 		if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
 			const newDate = new Date(appSettings.startDate);
 			newDate.setFullYear(yearNum);
 
 			// Validate month for new year
-			const maxMonth =
-				currentManifest?.dates?.[dataType]?.[appSettings.incomeClass]?.[yearNum] ?? 12;
+			const maxMonth = currentManifest?.dates?.[dataType]?.[appSettings.incomeClass]?.[yearNum] ?? 12;
 			if (newDate.getMonth() + 1 > maxMonth) {
 				newDate.setMonth(maxMonth - 1);
 			}
@@ -108,8 +107,7 @@ const DateControl = () => {
 		}
 
 		// Clamp month for the (possibly adjusted) year
-		const maxMonthCount =
-			currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[targetYear] ?? 12;
+		const maxMonthCount = currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[targetYear] ?? 12;
 		let targetMonth = appSettings.startDate.getMonth();
 
 		if (targetMonth + 1 > maxMonthCount) {
@@ -185,9 +183,7 @@ const DateControl = () => {
 												<Check
 													className={cn(
 														"mr-2 h-4 w-4",
-														appSettings.startDate.getFullYear() === year
-															? "opacity-100"
-															: "opacity-0",
+														appSettings.startDate.getFullYear() === year ? "opacity-100" : "opacity-0",
 													)}
 												/>
 												{year}

@@ -1,7 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect } from "react";
-
+import { Toaster } from "sonner";
 import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
 import Footer from "@/components/Footer";
@@ -12,16 +12,21 @@ import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Button } from "@/components/ui/button";
-import { dataStore, initializeApp } from "@/stores/dataStore";
-import { activeTab, buildSearchIndex, initializeExpenses, markSettingsReady, settings } from "@/stores/inflationStore";
-import { Toaster } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { fuzzyScore } from "@/lib/fuzzySearch";
 import type { AreaDef } from "@/lib/types";
+import { dataStore, initializeApp } from "@/stores/dataStore";
+import {
+	activeTab,
+	buildSearchIndex,
+	initializeExpenses,
+	markSettingsReady,
+	settings,
+} from "@/stores/inflationStore";
 import { shouldTrackVisit } from "@/utils/storage";
 
 export default function App() {
-	const { isReady, isLoading, error, commodities } = useStore(dataStore);
+	const { isLoading, error, commodities } = useStore(dataStore);
 	const currTab = useStore(activeTab);
 	const isMobile = useIsMobile();
 
@@ -54,7 +59,9 @@ export default function App() {
 
 						const locData = await fetch(queryStr)
 							.then((res) =>
-								res.ok && res.headers.get("content-type")?.includes("application/json") ? res.json() : null,
+								res.ok && res.headers.get("content-type")?.includes("application/json")
+									? res.json()
+									: null,
 							)
 							.catch(() => null);
 
@@ -64,7 +71,7 @@ export default function App() {
 							const country = locData.countryName || "";
 
 							const areas = dataStore.get().areas;
-							let bestMatch: AreaDef | undefined = undefined;
+							let bestMatch: AreaDef | undefined;
 							let highestScore = -1;
 
 							if (city) {
@@ -128,9 +135,9 @@ export default function App() {
 			const container = document.getElementById("commodity-inputs");
 			if (!container || !container.contains(document.activeElement)) return;
 
-			const inputs = Array.from(
-				container.querySelectorAll<HTMLInputElement>(".commodity-input"),
-			).filter((el) => !el.disabled && el.offsetParent !== null);
+			const inputs = Array.from(container.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
+				(el) => !el.disabled && el.offsetParent !== null,
+			);
 
 			if (inputs.length === 0) return;
 
@@ -151,7 +158,22 @@ export default function App() {
 		return () => document.removeEventListener("keydown", handleKeyDown);
 	}, []);
 
-	if (isLoading || !isReady || commodities.length === 0) {
+	if (error) {
+		return (
+			<div className="min-h-screen flex flex-col items-center justify-center p-4 bg-page-pattern">
+				<div className="flex flex-col items-center gap-4 p-8 bg-card rounded-2xl shadow-lg border border-border">
+					<AlertTriangle className="h-12 w-12 text-destructive" />
+					<h2 className="text-xl font-bold">Service Unavailable</h2>
+					<p className="text-muted-foreground">{error}</p>
+					<Button onClick={() => initializeApp()} className="mt-2 w-full">
+						Retry
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
+	if (isLoading || commodities.length === 0) {
 		return (
 			<div className="min-h-screen flex flex-col items-center justify-center bg-page-pattern font-sans">
 				<div className="flex flex-col items-center gap-4 p-8">
@@ -160,21 +182,6 @@ export default function App() {
 						<h1 className="font-bold text-lg text-foreground">Initializing Calculator</h1>
 						<p className="text-sm text-muted-foreground mt-1">Loading and indexing PSA data...</p>
 					</div>
-				</div>
-			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className="min-h-screen flex flex-col items-center justify-center p-4 bg-page-pattern">
-				<div className="flex flex-col items-center gap-4 p-8 bg-card rounded-2xl shadow-lg border border-border">
-					<AlertTriangle className="h-12 w-12 text-destructive" />
-					<h2 className="text-xl font-bold">Service Unavailable</h2>
-					<p className="text-muted-foreground">{error}</p>
-					<Button onClick={() => initializeApp()} className="mt-2">
-						Retry
-					</Button>
 				</div>
 			</div>
 		);

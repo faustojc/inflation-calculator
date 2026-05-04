@@ -1,5 +1,5 @@
 import { useStore } from "@nanostores/react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2Icon } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,10 @@ const LocationControl = () => {
 
 	const [openProvince, setOpenProvince] = useState(false);
 	const [search, setSearch] = useState("");
+	const [loading, setLoading] = useState({
+		key: "",
+		isLoading: false,
+	});
 
 	const selectArea = useMemo(() => {
 		if (appSettings.area && areas.length > 0) {
@@ -108,6 +112,11 @@ const LocationControl = () => {
 
 	const handleAreaSelect = async (areaName: string) => {
 		const match = areas.find((a) => a.name === areaName);
+		setLoading({
+			key: match?.key ?? "",
+			isLoading: true,
+		});
+
 		if (match) {
 			await setCurrentArea(match.key);
 
@@ -140,6 +149,10 @@ const LocationControl = () => {
 		}
 		setOpenProvince(false);
 		setSearch("");
+		setLoading({
+			key: "",
+			isLoading: false,
+		});
 	};
 
 	return (
@@ -183,14 +196,21 @@ const LocationControl = () => {
 												key={a.key + j}
 												value={a.areaName}
 												onSelect={(key) => handleAreaSelect(key)}
+												className="justify-between"
 											>
-												<Check
-													className={cn(
-														"mr-2 h-4 w-4",
-														selectArea === a.areaName ? "opacity-100" : "opacity-0",
-													)}
-												/>
-												{a.areaName}
+												<div className="flex items-center gap-2">
+													<Check
+														className={cn(
+															"mr-2 h-4 w-4",
+															selectArea === a.areaName ? "opacity-100" : "opacity-0",
+														)}
+													/>
+													{a.areaName}
+												</div>
+
+												{loading.key === a.key && loading.isLoading && (
+													<Loader2Icon className="animate-spin" />
+												)}
 											</CommandItem>
 										))}
 								</CommandGroup>
