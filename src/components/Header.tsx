@@ -1,11 +1,15 @@
+import { useStore } from "@nanostores/react";
+import { WifiOff } from "lucide-react";
+import MenuDropdown from "@/components/MenuDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
-import MenuDropdown from "@/components/MenuDropdown";
+import { isOnline } from "@/stores/connectionStore";
 
 export const Header = () => {
 	const isMobile = useIsMobile();
 	const scrollDirection = useScrollDirection({ enabled: isMobile });
 	const isHidden = scrollDirection === "down";
+	const online = useStore(isOnline);
 
 	return (
 		<header
@@ -37,8 +41,15 @@ export const Header = () => {
 				</div>
 			</div>
 
-			{/* PSA Gold accent line */}
-			<div className="h-1 bg-psa-gold" />
+			{/* Internet status banner */}
+			{online ? (
+				<div className="h-1 bg-psa-gold" />
+			) : (
+				<div className="flex items-center justify-center gap-1.5 bg-amber-600 text-white text-xs font-medium py-0.5">
+					<WifiOff className="size-3" />
+					<span>No internet connection</span>
+				</div>
+			)}
 		</header>
 	);
 };

@@ -1,6 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { startTransition, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -12,9 +13,11 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { isOnline } from "@/stores/connectionStore";
 import { dataStore } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
+import { isCached } from "@/utils/storage";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const DateControl = () => {
@@ -61,14 +64,34 @@ const DateControl = () => {
 		return currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[year] ?? 12;
 	}, [currentManifest, appSettings.startDate, appSettings.incomeClass, dataType]);
 
+	const checkYearCached = async (year: number): Promise<boolean> => {
+		const areaKey = appSettings.area?.key;
+		if (!areaKey) return false;
+		const [current, prev] = await Promise.all([
+			isCached(`/api/cpi?key=api/v2/data/${areaKey}/${year}.json`),
+			isCached(`/api/cpi?key=api/v2/data/${areaKey}/${year - 1}.json`),
+		]);
+		return current && prev;
+	};
+
 	const handleMonthChange = (m: string) => {
 		const newDate = new Date(appSettings.startDate);
 		newDate.setMonth(MONTHS.indexOf(m));
 		settings.setKey("startDate", newDate);
 	};
 
-	const handleYearChange = (yearStr: string) => {
+	const handleYearChange = async (yearStr: string) => {
 		const yearNum = Number.parseInt(yearStr, 10);
+
+		if (!isOnline.get()) {
+			const cached = await checkYearCached(yearNum);
+			if (!cached) {
+				toast.warning("You're offline. Cannot fetch data for this year.");
+				setOpenYear(false);
+				return;
+			}
+		}
+
 		if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
 			const newDate = new Date(appSettings.startDate);
 			newDate.setFullYear(yearNum);

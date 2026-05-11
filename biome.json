@@ -4,7 +4,7 @@
 	"files": {
 		"includes": ["**", "!!**/dist", "!!**/coverage", "!!**/playwright-report", "!!**/test-results", "!!**/public/api"]
 	},
-	"formatter": { "enabled": true, "indentStyle": "tab", "lineWidth": 105, "formatWithErrors": true },
+	"formatter": { "enabled": true, "indentStyle": "tab", "lineWidth": 110, "formatWithErrors": true },
 	"linter": {
 		"enabled": true,
 		"rules": {

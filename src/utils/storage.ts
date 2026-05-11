@@ -139,6 +139,12 @@ async function fetchNetworkFirst(url: string, cache: Cache): Promise<Response> {
 	}
 }
 
+export async function isCached(url: string): Promise<boolean> {
+	if (!("caches" in globalThis)) return false;
+	const cache = await caches.open(CACHE_NAME);
+	return (await cache.match(url)) !== undefined;
+}
+
 /**
  * Clears the application data cache.
  */

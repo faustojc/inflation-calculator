@@ -1,6 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { Check, ChevronsUpDown, Loader2Icon } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -13,8 +14,10 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { isOnline } from "@/stores/connectionStore";
 import { dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
+import { isCached } from "@/utils/storage";
 
 interface GroupedArea {
 	key: string;
@@ -112,6 +115,21 @@ const LocationControl = () => {
 
 	const handleAreaSelect = async (areaName: string) => {
 		const match = areas.find((a) => a.name === areaName);
+
+		if (!isOnline.get() && match) {
+			const year = appSettings.startDate.getFullYear();
+			const base = `/api/cpi?key=api/v2/data/${match.key}`;
+			const [manifest, current, prev] = await Promise.all([
+				isCached(`${base}/manifest.json`),
+				isCached(`${base}/${year}.json`),
+				isCached(`${base}/${year - 1}.json`),
+			]);
+			if (!manifest || !current || !prev) {
+				toast.warning("You're offline. Cannot load data for this location.");
+				setOpenProvince(false);
+				return;
+			}
+		}
 		setLoading({
 			key: match?.key ?? "",
 			isLoading: true,

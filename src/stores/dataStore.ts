@@ -187,10 +187,12 @@ export async function getAreaManifest(areaKey: string): Promise<AreaManifest | n
 			if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 				return r.json();
 			}
+			MANIFEST_CACHE.delete(areaKey);
 			return null;
 		})
 		.catch((error) => {
 			console.warn(`Failed to load manifest for ${areaKey}`, error);
+			MANIFEST_CACHE.delete(areaKey);
 			return null;
 		});
 
@@ -215,10 +217,12 @@ function fetchYearlyData(area: string, year: number): Promise<YearlyDataFile | n
 				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 					return r.json();
 				}
+				FETCH_CACHE.delete(cacheKey);
 				return null;
 			})
 			.catch((error) => {
 				console.warn(`Failed to load ${cacheKey}`, error);
+				FETCH_CACHE.delete(cacheKey);
 				return null;
 			});
 

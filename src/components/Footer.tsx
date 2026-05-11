@@ -4,7 +4,15 @@ import { useState } from "react";
 import { toast } from "sonner";
 import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
-import { dataStore, getAreaHierarchy, getCalculationData, getWeights } from "@/stores/dataStore";
+import { isOnline } from "@/stores/connectionStore";
+import {
+	dataStore,
+	getAreaHierarchy,
+	getAreaManifest,
+	getCalculationData,
+	getWeights,
+	setCurrentArea,
+} from "@/stores/dataStore";
 import {
 	activeTab,
 	calculationResult,
@@ -16,6 +24,7 @@ import {
 	totalAllocation,
 } from "@/stores/inflationStore";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
+import { isCached } from "@/utils/storage";
 
 const Footer = () => {
 	const [isCalculating, setIsCalculating] = useState(false);
@@ -50,12 +59,29 @@ const Footer = () => {
 			if (activeCodes.length === 0) throw new Error("No expenses entered.");
 
 			const hierarchy = getAreaHierarchy(area.key);
-			const { currentManifest } = dataStore.get();
+			let { currentManifest } = dataStore.get();
 			const dataType = currentTab === "general" ? "official" : "personal";
 
-			const areaAvailableYears = currentManifest?.dates
-				? Object.keys(currentManifest.dates[dataType][incomeClass]).map(Number)
-				: [];
+			let datesForType = currentManifest?.dates?.[dataType]?.[incomeClass];
+
+			if (!datesForType && isOnline.get()) {
+				await setCurrentArea(area.key);
+				const refreshed = await getAreaManifest(area.key);
+				if (refreshed) {
+					currentManifest = refreshed;
+					datesForType = currentManifest?.dates?.[dataType]?.[incomeClass];
+				}
+			}
+
+			if (!datesForType) {
+				const reason = !isOnline.get()
+					? "You're offline and the CPI data for this area hasn't been cached."
+					: `No ${dataType} CPI data available for this area and income class.`;
+				toast.warning("Unable to calculate inflation", { description: reason });
+				return;
+			}
+
+			const areaAvailableYears = Object.keys(datesForType).map(Number);
 
 			if (areaAvailableYears.length > 0) {
 				const missingYears: number[] = [];
@@ -76,7 +102,39 @@ const Footer = () => {
 				hierarchy.region?.key,
 				hierarchy.national?.key,
 			]);
-			const keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
+			let keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
+
+			// When offline, only include areas whose yearly data is cached
+			if (!isOnline.get()) {
+				const cachedKeys = await Promise.all(
+					keysToFetch.map(async (key) => {
+						const [cur, prev] = await Promise.all([
+							isCached(`/api/cpi?key=api/v2/data/${key}/${dates.endYear}.json`),
+							isCached(`/api/cpi?key=api/v2/data/${key}/${dates.startYear}.json`),
+						]);
+						return cur && prev ? key : null;
+					}),
+				);
+				keysToFetch = cachedKeys.filter(Boolean) as string[];
+
+				if (!keysToFetch.includes(hierarchy.target.key)) {
+					toast.warning("You're offline. Cannot fetch CPI data for the selected area.");
+					return;
+				}
+
+				if (hierarchy.province && !keysToFetch.includes(hierarchy.province.key)) {
+					hierarchy.province = undefined;
+				}
+				if (hierarchy.region && !keysToFetch.includes(hierarchy.region.key)) {
+					hierarchy.region = undefined;
+				}
+				if (hierarchy.national && !keysToFetch.includes(hierarchy.national.key)) {
+					hierarchy.national = undefined;
+				}
+				if (hierarchy.ncr && !keysToFetch.includes(hierarchy.ncr.key)) {
+					hierarchy.ncr = undefined;
+				}
+			}
 
 			const [batchMap, weightsMap] = await Promise.all([
 				getCalculationData(keysToFetch, incomeClass, dates.startYear - 1, dates.endYear),
@@ -106,7 +164,12 @@ const Footer = () => {
 				toast.error("Calculation failed. Please check inputs.");
 			}
 		} catch (err) {
-			if (err instanceof Error) {
+			if (err instanceof TypeError && !isOnline.get()) {
+				toast.error("Unable to calculate inflation", {
+					description:
+						"You're offline and the required CPI data is not cached. Please connect to the internet and try again.",
+				});
+			} else if (err instanceof Error) {
 				toast.error(err.message || "Calculation failed.");
 			} else {
 				console.error(err);

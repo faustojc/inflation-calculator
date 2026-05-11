@@ -4,7 +4,7 @@ import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-	plugins: [react({ babel: { plugins: ["babel-plugin-react-compiler"] } }), tailwindcss()],
+	plugins: [react(), tailwindcss()],
 	base: "/",
 	build: {
 		target: "esnext",

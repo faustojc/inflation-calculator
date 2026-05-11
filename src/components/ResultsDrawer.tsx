@@ -1,16 +1,21 @@
+import { useStore } from "@nanostores/react";
 import { format } from "date-fns";
 import { FileText, Info, LineChart, Users } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-
 import AdditionalInfoTab from "@/components/tabs/AdditionalInfoTab";
 import AnalysisTab from "@/components/tabs/AnalysisTab";
 import ContributorTab from "@/components/tabs/ContributorTab";
 import InflationDataTab from "@/components/tabs/InflationDataTab";
+import { Button } from "@/components/ui/button";
+import {
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+} from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculationResult } from "@/stores/inflationStore";
-import { useStore } from "@nanostores/react";
 
 export function ResultsDrawer() {
 	const { show, data } = useStore(calculationResult);
@@ -23,9 +28,15 @@ export function ResultsDrawer() {
 	const endDateStr = format(new Date(meta.dates.endYear, meta.dates.endMonth - 1), "MMMM yyyy");
 
 	return (
-		<Drawer direction="bottom" modal={true} open={show} onOpenChange={(open) => calculationResult.set({ show: open, data })}>
+		<Drawer
+			direction="bottom"
+			modal={true}
+			open={show}
+			onOpenChange={(open) => calculationResult.set({ show: open, data })}
+		>
 			<DrawerContent
 				aria-describedby="inflation-report"
+				aria-description="Inflation report with analysis"
 				className="h-[95vh] rounded-t-4xl flex flex-col font-sans glass-panel border-none"
 			>
 				<div className="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0 p-0 m-0">
@@ -74,7 +85,10 @@ export function ResultsDrawer() {
 
 						{/* Scrollable Content */}
 						<div className="flex-1 overflow-y-auto w-full px-4 pt-4 pb-8">
-							<TabsContent value="inflation-data" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
+							<TabsContent
+								value="inflation-data"
+								className="mt-0 outline-none h-full data-[state=inactive]:hidden"
+							>
 								<InflationDataTab
 									personalRate={personalRate}
 									yearlyCpiEnd={yearlyCpiEnd}
@@ -86,7 +100,10 @@ export function ResultsDrawer() {
 								/>
 							</TabsContent>
 
-							<TabsContent value="contributor" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
+							<TabsContent
+								value="contributor"
+								className="mt-0 outline-none h-full data-[state=inactive]:hidden"
+							>
 								<ContributorTab contributors={contributors} />
 							</TabsContent>
 
