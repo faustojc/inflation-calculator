@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 import { TrendingUp } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { TrendLegend } from "@/components/graphs/line/TrendLegend";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -41,19 +41,33 @@ export default function TrendLine({
 	const trend = currTrend === "inflation" ? inflationTrend : cpiTrend;
 	const currName = currTrend === "inflation" ? "My Inflation" : "My CPI";
 
-	const showLine = (key: string): boolean => {
+	const showLine = useCallback((key: string): boolean => {
 		if (key === "personal") return true;
 		if (mode === "all") return true;
 		return mode === key;
-	};
+	}, [mode]);
 
-	const seriesLabels: Record<string, string> = {
-		personal: currName,
-		area: hierarchy.target.name,
-		province: hierarchy.province?.name ?? "",
-		region: hierarchy.region?.name ?? "",
-		national: "Philippines",
-	};
+	const seriesLabels = useMemo<Record<string, string>>(
+		() => ({
+			personal: currName,
+			area: hierarchy.target.name,
+			province: hierarchy.province?.name ?? "",
+			region: hierarchy.region?.name ?? "",
+			national: "Philippines",
+		}),
+		[currName, hierarchy.target.name, hierarchy.province?.name, hierarchy.region?.name],
+	);
+
+	const seriesVisibility = useMemo<Record<string, boolean>>(
+		() => ({
+			personal: true,
+			area: showLine("area"),
+			province: hasProvince && showLine("province"),
+			region: hasRegion && showLine("region"),
+			national: showLine("national"),
+		}),
+		[hasProvince, hasRegion, showLine],
+	);
 
 	const yAxisConfig = useMemo(() => buildYAxisConfig(trend, currTrend), [trend, currTrend]);
 
@@ -62,9 +76,9 @@ export default function TrendLine({
 		isMobile,
 		seriesOrder: SERIES_ORDER,
 		seriesLabels,
+		seriesVisibility,
 		hasProvince,
 		hasRegion,
-		showLine,
 		yAxisConfig,
 	});
 

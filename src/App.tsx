@@ -1,34 +1,53 @@
 import { useStore } from "@nanostores/react";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster } from "sonner";
 import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
 import Footer from "@/components/Footer";
 import { GeneralTab } from "@/components/GeneralTab";
 import { Header } from "@/components/Header";
-import { Onboarding } from "@/components/Onboarding";
-import { ResultsDrawer } from "@/components/ResultsDrawer";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { fuzzyScore } from "@/lib/fuzzySearch";
-import type { AreaDef } from "@/lib/types";
 import { dataStore, initializeApp } from "@/stores/dataStore";
 import {
 	activeTab,
 	buildSearchIndex,
+	calculationResult,
 	initializeExpenses,
 	markSettingsReady,
 	settings,
 } from "@/stores/inflationStore";
-import { shouldTrackVisit } from "@/utils/storage";
+import { openOnboarding } from "@/stores/onboardingStore";
+
+const LazyOnboarding = lazy(() =>
+	import("@/components/Onboarding").then((module) => ({ default: module.Onboarding })),
+);
+const LazyResultsDrawer = lazy(() =>
+	import("@/components/ResultsDrawer").then((module) => ({ default: module.ResultsDrawer })),
+);
 
 export default function App() {
 	const { isLoading, error, commodities } = useStore(dataStore);
 	const currTab = useStore(activeTab);
+	const resultState = useStore(calculationResult);
+	const isOnboardingOpen = useStore(openOnboarding);
 	const isMobile = useIsMobile();
+	const [canLoadOnboarding, setCanLoadOnboarding] = useState(false);
+
+	useEffect(() => {
+		const loadOnboarding = () => setCanLoadOnboarding(true);
+
+		if ("requestIdleCallback" in window) {
+			const idleId = window.requestIdleCallback(loadOnboarding, { timeout: 2500 });
+			return () => window.cancelIdleCallback(idleId);
+		}
+
+		const timeoutId = setTimeout(loadOnboarding, 1200);
+		return () => clearTimeout(timeoutId);
+	}, []);
 
 	useEffect(() => {
 		initializeApp().then(async (meta) => {
@@ -50,73 +69,6 @@ export default function App() {
 				settings.setKey("startDate", newStartDate);
 				settings.setKey("endDate", newEndDate);
 				settings.setKey("area", meta.areas.at(1)!);
-
-				if ("geolocation" in navigator) {
-					navigator.geolocation.getCurrentPosition(async (position) => {
-						const lat = position.coords.latitude;
-						const lon = position.coords.longitude;
-						const queryStr = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
-
-						const locData = await fetch(queryStr)
-							.then((res) =>
-								res.ok && res.headers.get("content-type")?.includes("application/json")
-									? res.json()
-									: null,
-							)
-							.catch(() => null);
-
-						if (locData) {
-							const city = locData.locality || locData.city || "";
-							const region = locData.principalSubdivision || "";
-							const country = locData.countryName || "";
-
-							const areas = dataStore.get().areas;
-							let bestMatch: AreaDef | undefined;
-							let highestScore = -1;
-
-							if (city) {
-								const cityQuery = city.toLowerCase();
-
-								for (const a of areas) {
-									const areaName = a.name.toLowerCase();
-									const score = fuzzyScore(areaName, cityQuery).score;
-
-									if (score > highestScore) {
-										highestScore = score;
-										bestMatch = a;
-									}
-								}
-							}
-
-							if ((!bestMatch || highestScore < 100) && region) {
-								const regionQuery = region.toLowerCase();
-								for (const a of areas) {
-									const score = fuzzyScore(a.name.toLowerCase(), regionQuery).score;
-									if (score > highestScore) {
-										highestScore = score;
-										bestMatch = a;
-									}
-								}
-							}
-
-							if (bestMatch && highestScore >= 0) {
-								settings.setKey("area", bestMatch);
-							}
-
-							if (shouldTrackVisit()) {
-								await fetch("/api/track", {
-									method: "POST",
-									headers: { "Content-Type": "application/json" },
-									body: JSON.stringify({
-										country: country,
-										region: region,
-										city: city,
-									}),
-								});
-							}
-						}
-					});
-				}
 			}
 
 			initializeExpenses();
@@ -232,22 +184,22 @@ export default function App() {
 						</div>
 					)}
 
-					<div id="commodity-inputs">
-						<div style={{ display: currTab === "general" ? "block" : "none" }}>
-							<GeneralTab />
-						</div>
-
-						<div style={{ display: currTab === "detailed" ? "block" : "none" }}>
-							<ExpenseTab />
-						</div>
-					</div>
+					<div id="commodity-inputs">{currTab === "general" ? <GeneralTab /> : <ExpenseTab />}</div>
 				</main>
 
 				<Footer />
 			</div>
 
-			<ResultsDrawer />
-			<Onboarding />
+			{resultState.data && (
+				<Suspense fallback={null}>
+					<LazyResultsDrawer />
+				</Suspense>
+			)}
+			{(canLoadOnboarding || isOnboardingOpen) && (
+				<Suspense fallback={null}>
+					<LazyOnboarding />
+				</Suspense>
+			)}
 		</>
 	);
 }

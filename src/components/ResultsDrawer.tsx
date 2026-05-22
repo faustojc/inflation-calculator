@@ -1,10 +1,7 @@
 import { useStore } from "@nanostores/react";
 import { format } from "date-fns";
 import { FileText, Info, LineChart, Users } from "lucide-react";
-import AdditionalInfoTab from "@/components/tabs/AdditionalInfoTab";
-import AnalysisTab from "@/components/tabs/AnalysisTab";
-import ContributorTab from "@/components/tabs/ContributorTab";
-import InflationDataTab from "@/components/tabs/InflationDataTab";
+import { lazy, Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
@@ -17,8 +14,16 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculationResult } from "@/stores/inflationStore";
 
+const AdditionalInfoTab = lazy(() => import("@/components/tabs/AdditionalInfoTab"));
+const AnalysisTab = lazy(() => import("@/components/tabs/AnalysisTab"));
+const ContributorTab = lazy(() => import("@/components/tabs/ContributorTab"));
+const InflationDataTab = lazy(() => import("@/components/tabs/InflationDataTab"));
+
+type ResultTab = "inflation-data" | "contributor" | "analysis" | "additional-info";
+
 export function ResultsDrawer() {
 	const { show, data } = useStore(calculationResult);
+	const [activeTab, setActiveTab] = useState<ResultTab>("inflation-data");
 
 	if (!data) return null;
 
@@ -48,7 +53,11 @@ export function ResultsDrawer() {
 					</DrawerHeader>
 
 					{/* Body */}
-					<Tabs defaultValue="inflation-data" className="flex flex-col flex-1 w-full min-h-0 overflow-hidden">
+					<Tabs
+						value={activeTab}
+						onValueChange={(value) => setActiveTab(value as ResultTab)}
+						className="flex flex-col flex-1 w-full min-h-0 overflow-hidden"
+					>
 						{/* Tabs Row */}
 						<div className="w-full px-2 py-1 shrink-0 z-10 border-b border-primary/10">
 							<TabsList className="w-full grid grid-cols-4 h-auto p-1.5 bg-muted/60 rounded-xl gap-1">
@@ -85,38 +94,39 @@ export function ResultsDrawer() {
 
 						{/* Scrollable Content */}
 						<div className="flex-1 overflow-y-auto w-full px-4 pt-4 pb-8">
-							<TabsContent
-								value="inflation-data"
-								className="mt-0 outline-none h-full data-[state=inactive]:hidden"
-							>
-								<InflationDataTab
-									personalRate={personalRate}
-									yearlyCpiEnd={yearlyCpiEnd}
-									inflationTrend={inflationTrend}
-									cpiTrend={cpiTrend}
-									meta={meta}
-									startDateStr={startDateStr}
-									endDateStr={endDateStr}
-								/>
-							</TabsContent>
+							<Suspense fallback={<div className="h-40 rounded-lg bg-accent animate-pulse" />}>
+								{activeTab === "inflation-data" && (
+									<TabsContent value="inflation-data" className="mt-0 outline-none h-full">
+										<InflationDataTab
+											personalRate={personalRate}
+											yearlyCpiEnd={yearlyCpiEnd}
+											inflationTrend={inflationTrend}
+											cpiTrend={cpiTrend}
+											meta={meta}
+											startDateStr={startDateStr}
+											endDateStr={endDateStr}
+										/>
+									</TabsContent>
+								)}
 
-							<TabsContent
-								value="contributor"
-								className="mt-0 outline-none h-full data-[state=inactive]:hidden"
-							>
-								<ContributorTab contributors={contributors} />
-							</TabsContent>
+								{activeTab === "contributor" && (
+									<TabsContent value="contributor" className="mt-0 outline-none h-full">
+										<ContributorTab contributors={contributors} />
+									</TabsContent>
+								)}
 
-							<TabsContent value="analysis" className="mt-0 outline-none h-full data-[state=inactive]:hidden">
-								<AnalysisTab interpretation={interpretation} />
-							</TabsContent>
+								{activeTab === "analysis" && (
+									<TabsContent value="analysis" className="mt-0 outline-none h-full">
+										<AnalysisTab interpretation={interpretation} />
+									</TabsContent>
+								)}
 
-							<TabsContent
-								value="additional-info"
-								className="mt-0 outline-none h-full data-[state=inactive]:hidden"
-							>
-								<AdditionalInfoTab />
-							</TabsContent>
+								{activeTab === "additional-info" && (
+									<TabsContent value="additional-info" className="mt-0 outline-none h-full">
+										<AdditionalInfoTab />
+									</TabsContent>
+								)}
+							</Suspense>
 						</div>
 					</Tabs>
 

@@ -14,7 +14,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { isOnline } from "@/stores/connectionStore";
-import { dataStore } from "@/stores/dataStore";
+import { cpiUrl, dataStore } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { isCached } from "@/utils/storage";
@@ -68,8 +68,8 @@ const DateControl = () => {
 		const areaKey = appSettings.area?.key;
 		if (!areaKey) return false;
 		const [current, prev] = await Promise.all([
-			isCached(`/api/cpi?key=api/v2/data/${areaKey}/${year}.json`),
-			isCached(`/api/cpi?key=api/v2/data/${areaKey}/${year - 1}.json`),
+			isCached(cpiUrl(`data/${areaKey}/${year}.json`)),
+			isCached(cpiUrl(`data/${areaKey}/${year - 1}.json`)),
 		]);
 		return current && prev;
 	};

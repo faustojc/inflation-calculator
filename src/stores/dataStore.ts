@@ -20,9 +20,11 @@ import {
 } from "@/utils/metadata";
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 
-// the API_URL
-function cpiUrl(path: string): string {
-	return `/api/cpi?key=api/v2/${path}`;
+// Static CPI data path under public/api/v2. Returned relative (no leading
+// slash) so it resolves against the app base — works whether the build is
+// served from the document root or a subfolder.
+export function cpiUrl(path: string): string {
+	return `api/v2/${path}`;
 }
 
 interface DataState {

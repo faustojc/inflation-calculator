@@ -1,11 +1,10 @@
+import { useStore } from "@nanostores/react";
+import { BarChart3, BookOpen, Calculator, HelpCircle, TrendingUp } from "lucide-react";
+import { useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { openOnboarding, startTour } from "@/stores/onboardingStore";
-import { useStore } from "@nanostores/react";
-import "driver.js/dist/driver.css";
-import { BarChart3, BookOpen, Calculator, HelpCircle, TrendingUp } from "lucide-react";
-import { useCallback, useEffect } from "react";
 
 export const Onboarding = () => {
 	const open = useStore(openOnboarding);
@@ -22,7 +21,7 @@ export const Onboarding = () => {
 		openOnboarding.set(false);
 		localStorage.setItem("first_time_visit", "true");
 
-		setTimeout(() => startTour(), 180);
+		setTimeout(() => void startTour(), 180);
 	}, []);
 
 	return (
@@ -57,10 +56,10 @@ export const Onboarding = () => {
 						<div>
 							<h3 className="font-bold text-foreground mb-1">Consumer Price Index (CPI)</h3>
 							<p className="text-base text-justify text-foreground leading-relaxed">
-								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the average
-								change in retail prices of a fixed basket of goods and services commonly purchased by Filipino
-								households. It shows how much, on average, prices have changed from a particular base year (2018 =
-								100).
+								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the
+								average change in retail prices of a fixed basket of goods and services commonly purchased by
+								Filipino households. It shows how much, on average, prices have changed from a particular base
+								year (2018 = 100).
 							</p>
 						</div>
 					</section>
@@ -79,9 +78,9 @@ export const Onboarding = () => {
 							<p className="text-base text-justify text-foreground leading-relaxed">
 								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
 								prices have increased or decreased compared to the previous year. Because the CPI reflects the
-								&quot;typical&quot; household, it may not match your personal spending pattern, especially if you
-								spend more on a particular set of goods or services such as food, rent, transport, tuition, or
-								utilities.
+								&quot;typical&quot; household, it may not match your personal spending pattern, especially if
+								you spend more on a particular set of goods or services such as food, rent, transport,
+								tuition, or utilities.
 							</p>
 						</div>
 					</section>
@@ -119,8 +118,8 @@ export const Onboarding = () => {
 							<h3 className="font-bold text-foreground mb-1">What You'll Get</h3>
 							<p className="text-base text-justify text-foreground leading-relaxed">
 								The results will show your computed personal inflation rate for the past 13 months alongside
-								official inflation rates, and identify the commodity groups that contribute most to your personal
-								inflation.
+								official inflation rates, and identify the commodity groups that contribute most to your
+								personal inflation.
 							</p>
 						</div>
 					</section>

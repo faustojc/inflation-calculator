@@ -19,7 +19,6 @@ const CLIP_R = VIEW_SIZE * 0.52;
 const PIE_DURATION = 700; // ms — rAF sweep
 const LABEL_SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
 const LABEL_DURATION = 0.25; // s — faster labels
-const LABEL_BASE_DELAY = PIE_DURATION / 1000 - 0.05; // s — start just before pie ends
 const LABEL_STAGGER = 0.04; // s
 
 // SVG path string for a clockwise sector from startAngle sweeping `sweep` radians, centered at (cx, cy)
@@ -51,18 +50,33 @@ export function OverlayPieChart({
 	const hasNegatives = negativeItems.length > 0;
 	const clipSectorRef = useRef<SVGPathElement>(null);
 	const clipPathId = `${patternPrefix}-reveal-clip`;
+	const animationMs = useMemo(() => {
+		const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+		if (prefersReducedMotion) return 0;
 
-	// Animate the clipPath sector from 0 → 2π (clockwise from top) over PIE_DURATION ms
+		const nav = navigator as Navigator & { deviceMemory?: number };
+		const lowEndDevice = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
+		const mobile = window.matchMedia?.("(max-width: 768px)").matches ?? false;
+
+		return mobile || lowEndDevice ? 250 : PIE_DURATION;
+	}, []);
+
+	// Animate the clipPath sector from 0 -> 2pi, shortened or skipped on constrained devices.
 	useEffect(() => {
 		const el = clipSectorRef.current;
 		if (!el) return;
+
+		if (animationMs === 0) {
+			el.setAttribute("d", revealSectorPath(2 * Math.PI));
+			return;
+		}
 
 		const easeOut = (t: number) => 1 - (1 - t) ** 3;
 		const start = performance.now();
 		let rafId: number;
 
 		const animate = (now: number) => {
-			const t = Math.min((now - start) / PIE_DURATION, 1);
+			const t = Math.min((now - start) / animationMs, 1);
 			el.setAttribute("d", revealSectorPath(easeOut(t) * 2 * Math.PI));
 			if (t < 1) rafId = requestAnimationFrame(animate);
 		};
@@ -70,7 +84,7 @@ export function OverlayPieChart({
 		el.setAttribute("d", revealSectorPath(0.001));
 		rafId = requestAnimationFrame(animate);
 		return () => cancelAnimationFrame(rafId);
-	}, [basePie, overlayPie]);
+	}, [animationMs, basePie, overlayPie]);
 
 	const pieLayout = d3Pie<PieEntry>()
 		.value((d) => d.value)
@@ -93,10 +107,13 @@ export function OverlayPieChart({
 		[basePie],
 	);
 
-	const labelStyle = (i: number): React.CSSProperties => ({
-		animation: `labelFocusIn ${LABEL_DURATION}s ${LABEL_SPRING} both`,
-		animationDelay: `${LABEL_BASE_DELAY + i * LABEL_STAGGER}s`,
-	});
+	const labelStyle = (i: number): React.CSSProperties =>
+		animationMs === 0
+			? { opacity: 1 }
+			: {
+					animation: `labelFocusIn ${LABEL_DURATION}s ${LABEL_SPRING} both`,
+					animationDelay: `${Math.max(animationMs / 1000 - 0.05, 0) + i * LABEL_STAGGER}s`,
+				};
 
 	return (
 		<div className="flex flex-col items-center w-full">

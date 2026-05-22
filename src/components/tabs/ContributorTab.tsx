@@ -1,11 +1,12 @@
 import { useStore } from "@nanostores/react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import ChartSelector from "@/components/ChartSelector";
 import CompareSelector from "@/components/CompareSelector";
 import { ContributorTable } from "@/components/ContributorTable";
-import ContribInflationPie from "@/components/graphs/pie/ContribInflationPie";
 import { compareOfficial } from "@/stores/graphStore";
 import type { ContributionFactor } from "@/utils/inflationCompute";
+
+const ContribInflationPie = lazy(() => import("@/components/graphs/pie/ContribInflationPie"));
 
 const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }) => {
 	const comparison = useStore(compareOfficial);
@@ -34,7 +35,9 @@ const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }
 			{chartType === "table" ? (
 				<ContributorTable personal={personal} official={comparison!} />
 			) : (
-				<ContribInflationPie personal={personal} official={comparison!} />
+				<Suspense fallback={<div className="h-80 rounded-lg bg-muted/40 animate-pulse" />}>
+					<ContribInflationPie personal={personal} official={comparison!} />
+				</Suspense>
 			)}
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-1 border-t border-border pt-3">

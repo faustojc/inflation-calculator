@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useBufferedNumericInput } from "@/hooks/useBufferedNumericInput";
 import {
 	categoryTotals,
 	detailedExpenses,
@@ -25,10 +26,7 @@ const ExpenseNode = memo(
 		const currMode = useStore(mode);
 		const hasChildren = node.children && node.children.length > 0;
 
-		const isMatchStore = useMemo(
-			() => computed(highlightState, (h) => h?.code === node.code),
-			[node.code],
-		);
+		const isMatchStore = useMemo(() => computed(highlightState, (h) => h?.code === node.code), [node.code]);
 		const highlightLabelStore = useMemo(
 			() => computed(highlightState, (h) => (h?.code === node.code ? h.label : "")),
 			[node.code],
@@ -76,16 +74,30 @@ const ExpenseNode = memo(
 			}
 		}, [isMatch, hasChildren]);
 
-		const handleChange = useCallback(
-			(e: React.ChangeEvent<HTMLInputElement>) => {
-				let v = Number.parseFloat(e.target.value);
-				if (v < 0 || (currMode === "percent" && v > 100)) return;
-
-				v = Number.isNaN(v) ? 0 : getLimitValue(currMode, v);
-				updateExpenseValue(node.code, node.name, Number.isNaN(v) ? 0 : v, "detailed");
-			},
-			[node.code, node.name, currMode],
+		const commitValue = useCallback(
+			(nextValue: number) => updateExpenseValue(node.code, node.name, nextValue, "detailed"),
+			[node.code, node.name],
 		);
+
+		const normalizeValue = useCallback(
+			(nextValue: number) => {
+				if (nextValue < 0 || (currMode === "percent" && nextValue > 100)) return null;
+				return getLimitValue(currMode, nextValue);
+			},
+			[currMode],
+		);
+
+		const {
+			draftValue,
+			handleBlur,
+			handleChange,
+			handleEnterKey,
+			handleFocus: handleDraftFocus,
+		} = useBufferedNumericInput({
+			value: displayValue,
+			normalize: normalizeValue,
+			commit: commitValue,
+		});
 
 		const handleToggle = useCallback(
 			(open: boolean) => {
@@ -95,6 +107,7 @@ const ExpenseNode = memo(
 		);
 
 		const handleFocus = useCallback(() => {
+			handleDraftFocus();
 			if (isPointerDown.current) {
 				isPointerDown.current = false;
 				return;
@@ -102,7 +115,15 @@ const ExpenseNode = memo(
 			setTimeout(() => {
 				rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 			}, 50);
-		}, []);
+		}, [handleDraftFocus]);
+
+		const handleKeyDown = useCallback(
+			(e: React.KeyboardEvent<HTMLInputElement>) => {
+				preventNonNumeric(e);
+				handleEnterKey(e);
+			},
+			[handleEnterKey],
+		);
 
 		return (
 			<Collapsible open={isOpen} onOpenChange={handleToggle} className="w-full">
@@ -204,12 +225,13 @@ const ExpenseNode = memo(
 													: "bg-transparent border-transparent hover:border-border hover:bg-card"
 									}`.replace(/\s+/g, " ")}
 									placeholder="0"
-									value={displayValue || ""}
+									value={draftValue}
 									min={0}
 									max={500000}
 									disabled={missingStatus}
-									onKeyDown={preventNonNumeric}
+									onKeyDown={handleKeyDown}
 									onChange={handleChange}
+									onBlur={handleBlur}
 									onFocus={handleFocus}
 									onPointerDown={() => {
 										isPointerDown.current = true;

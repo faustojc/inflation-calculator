@@ -1,4 +1,3 @@
-import { driver } from "driver.js";
 import { atom } from "nanostores";
 
 export const $openMenu = atom(false);
@@ -8,7 +7,10 @@ export const showOnboarding = () => {
 	openOnboarding.set(true);
 };
 
-export const startTour = () => {
+export const startTour = async () => {
+	await import("driver.js/dist/driver.css");
+	const { driver } = await import("driver.js");
+
 	const driverObj = driver({
 		showProgress: true,
 		animate: true,

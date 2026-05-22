@@ -6,6 +6,7 @@ import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
 import { isOnline } from "@/stores/connectionStore";
 import {
+	cpiUrl,
 	dataStore,
 	getAreaHierarchy,
 	getAreaManifest,
@@ -109,8 +110,8 @@ const Footer = () => {
 				const cachedKeys = await Promise.all(
 					keysToFetch.map(async (key) => {
 						const [cur, prev] = await Promise.all([
-							isCached(`/api/cpi?key=api/v2/data/${key}/${dates.endYear}.json`),
-							isCached(`/api/cpi?key=api/v2/data/${key}/${dates.startYear}.json`),
+							isCached(cpiUrl(`data/${key}/${dates.endYear}.json`)),
+							isCached(cpiUrl(`data/${key}/${dates.startYear}.json`)),
 						]);
 						return cur && prev ? key : null;
 					}),

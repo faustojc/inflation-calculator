@@ -15,7 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { isOnline } from "@/stores/connectionStore";
-import { dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
+import { cpiUrl, dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
 import { isCached } from "@/utils/storage";
 
@@ -118,7 +118,7 @@ const LocationControl = () => {
 
 		if (!isOnline.get() && match) {
 			const year = appSettings.startDate.getFullYear();
-			const base = `/api/cpi?key=api/v2/data/${match.key}`;
+			const base = cpiUrl(`data/${match.key}`);
 			const [manifest, current, prev] = await Promise.all([
 				isCached(`${base}/manifest.json`),
 				isCached(`${base}/${year}.json`),

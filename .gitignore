@@ -36,3 +36,5 @@ worker-configuration.d.ts
 coverage
 playwright-report
 test-results
+
+public/api/v2

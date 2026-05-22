@@ -1,7 +1,9 @@
 import { TrendingUp } from "lucide-react";
-import TrendLine from "@/components/graphs/line/TrendLine";
+import { lazy, Suspense } from "react";
 import { Separator } from "@/components/ui/separator";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
+
+const TrendLine = lazy(() => import("@/components/graphs/line/TrendLine"));
 
 const InflationDataTab = ({
 	personalRate,
@@ -54,9 +56,7 @@ const InflationDataTab = ({
 						<span className="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
 							Consumer Price Index
 						</span>
-						<span className="text-sm sm:text-base font-normal text-muted-foreground ml-1">
-							(2018=100)
-						</span>
+						<span className="text-sm sm:text-base font-normal text-muted-foreground ml-1">(2018=100)</span>
 						<p className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
 							{yearlyCpiEnd.toFixed(1)}
 						</p>
@@ -78,13 +78,15 @@ const InflationDataTab = ({
 
 			{/* Trend graph */}
 			<div className="col-span-8 lg:col-span-6 lg:min-h-0">
-				<TrendLine
-					inflationTrend={inflationTrend}
-					cpiTrend={cpiTrend}
-					startDateStr={startDateStr}
-					endDateStr={endDateStr}
-					meta={meta}
-				/>
+				<Suspense fallback={<div className="h-100 rounded-xl bg-muted/40 animate-pulse" />}>
+					<TrendLine
+						inflationTrend={inflationTrend}
+						cpiTrend={cpiTrend}
+						startDateStr={startDateStr}
+						endDateStr={endDateStr}
+						meta={meta}
+					/>
+				</Suspense>
 			</div>
 		</div>
 	);

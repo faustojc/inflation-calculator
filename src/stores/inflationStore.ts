@@ -356,11 +356,40 @@ export function setMissingItems(codes: string[]) {
 	}
 }
 
+function applyDetailedCategoryTotalDeltas(changes: { code: string; delta: number }[]) {
+	const meaningfulChanges = changes.filter(({ delta }) => delta !== 0);
+	if (meaningfulChanges.length === 0) return;
+
+	const { parentIndex } = dataStore.get();
+	const nextTotals = { ...categoryTotals.get() };
+
+	for (const { code, delta } of meaningfulChanges) {
+		let currentCode: string | undefined = code;
+		const seen = new Set<string>();
+
+		while (currentCode && !seen.has(currentCode)) {
+			seen.add(currentCode);
+			const nextValue = (nextTotals[currentCode] || 0) + delta;
+
+			if (Math.abs(nextValue) < 0.000001) {
+				delete nextTotals[currentCode];
+			} else {
+				nextTotals[currentCode] = nextValue;
+			}
+
+			currentCode = parentIndex[currentCode];
+		}
+	}
+
+	categoryTotals.set(nextTotals);
+}
+
 export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: number }) {
 	const currentTab = activeTab.get();
 	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
 	const current = targetStore.get();
 	const existingId = Object.keys(current).find((key) => current[key]?.code === item.code);
+	const previousValue = existingId ? (current[existingId]?.value ?? 0) : 0;
 
 	if (existingId) {
 		const existing = current[existingId]!;
@@ -374,6 +403,10 @@ export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: n
 			value: item.amount,
 		});
 	}
+
+	if (currentTab === "detailed") {
+		applyDetailedCategoryTotalDeltas([{ code: item.code, delta: item.amount - previousValue }]);
+	}
 }
 
 export function updateExpenseValue(
@@ -385,6 +418,7 @@ export function updateExpenseValue(
 	const currentTab = target || activeTab.get();
 	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
 	const current = targetStore.get();
+	const previousValue = current[code]?.value ?? 0;
 
 	if (current[code]) {
 		targetStore.setKey(code, { ...current[code], value: newValue });
@@ -392,9 +426,12 @@ export function updateExpenseValue(
 		targetStore.setKey(code, { id: code, code, name, value: newValue });
 	}
 
+	if (currentTab === "detailed") {
+		applyDetailedCategoryTotalDeltas([{ code, delta: newValue - previousValue }]);
+	}
+
 	if (newValue === 0) {
-		const tab = activeTab.get();
-		const targetAtom = tab === "general" ? missingGeneralItems : missingDetailedItems;
+		const targetAtom = currentTab === "general" ? missingGeneralItems : missingDetailedItems;
 		const missing = targetAtom.get();
 		if (missing.has(code)) {
 			const next = new Set(missing);
@@ -417,6 +454,7 @@ export function clearMissingExpenses() {
 
 	let genChanged = false;
 	let detChanged = false;
+	const totalDeltas: { code: string; delta: number }[] = [];
 
 	genMissing.forEach((code) => {
 		if (newGenStore[code]) {
@@ -427,13 +465,17 @@ export function clearMissingExpenses() {
 
 	detMissing.forEach((code) => {
 		if (newDetStore[code]) {
+			totalDeltas.push({ code, delta: -newDetStore[code].value });
 			newDetStore[code] = { ...newDetStore[code], value: 0 };
 			detChanged = true;
 		}
 	});
 
 	if (genChanged) generalExpenses.set(newGenStore);
-	if (detChanged) detailedExpenses.set(newDetStore);
+	if (detChanged) {
+		detailedExpenses.set(newDetStore);
+		applyDetailedCategoryTotalDeltas(totalDeltas);
+	}
 
 	missingGeneralItems.set(new Set());
 	missingDetailedItems.set(new Set());
@@ -443,9 +485,14 @@ export function removeExpense(id: string) {
 	const currentTab = activeTab.get();
 	const targetStore = currentTab === "general" ? generalExpenses : detailedExpenses;
 	const current = targetStore.get();
+	const removedItem = current[id];
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { [id]: _, ...rest } = current;
 	targetStore.set(rest);
+
+	if (currentTab === "detailed" && removedItem) {
+		applyDetailedCategoryTotalDeltas([{ code: removedItem.code, delta: -removedItem.value }]);
+	}
 }
 
 export function clearExpenses() {
@@ -454,6 +501,7 @@ export function clearExpenses() {
 		generalExpenses.set({});
 	} else {
 		detailedExpenses.set({});
+		categoryTotals.set({});
 	}
 }
 
@@ -490,24 +538,4 @@ export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) =>
 	}
 });
 
-export const categoryTotals = computed([expenses, dataStore], (items, data) => {
-	const totals: Record<string, number> = {};
-	const { flatCodes, parentIndex } = data;
-
-	if (!flatCodes || flatCodes.length === 0) return totals;
-
-	for (const code of flatCodes) {
-		if (!items[code] || items[code].value <= 0) continue;
-
-		const ownValue = items[code]?.value || 0;
-		const currentTotal = (totals[code] || 0) + ownValue;
-		totals[code] = currentTotal;
-
-		const parentCode = parentIndex[code];
-		if (parentCode) {
-			totals[parentCode] = (totals[parentCode] || 0) + currentTotal;
-		}
-	}
-
-	return totals;
-});
+export const categoryTotals = map<Record<string, number>>({});

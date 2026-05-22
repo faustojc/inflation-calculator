@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
-	base: "/",
+	base: "/inflation-calculator/",
 	build: {
 		target: "esnext",
 		minify: true,

@@ -1,6 +1,5 @@
-import { curveMonotoneX, line as d3Line } from "d3-shape";
 import { useEffect, useRef } from "react";
-import uPlot from "uplot";
+import type uPlot from "uplot";
 import type { TrendPoint } from "@/utils/inflationCompute";
 import { buildUplotData, computeXSplits, SERIES_COLORS } from "@/utils/trendChartUtils";
 
@@ -9,9 +8,9 @@ interface UseTrendChartOptions {
 	isMobile: boolean;
 	seriesOrder: readonly string[];
 	seriesLabels: Record<string, string>;
+	seriesVisibility: Record<string, boolean>;
 	hasProvince: boolean;
 	hasRegion: boolean;
-	showLine: (key: string) => boolean;
 	yAxisConfig: { domain: [number, number]; ticks: number[] };
 }
 
@@ -27,9 +26,9 @@ export function useTrendChart({
 	isMobile,
 	seriesOrder,
 	seriesLabels,
+	seriesVisibility,
 	hasProvince,
 	hasRegion,
-	showLine,
 	yAxisConfig,
 }: UseTrendChartOptions) {
 	const wrapperRef = useRef<HTMLDivElement>(null);
@@ -37,18 +36,34 @@ export function useTrendChart({
 	const uplotRef = useRef<uPlot | null>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const animProgressRef = useRef(1);
+	const visibilityRef = useRef(seriesVisibility);
+	visibilityRef.current = seriesVisibility;
 
 	useEffect(() => {
-		if (!wrapperRef.current || !chartRef.current || trend.length === 0) return;
+		let disposed = false;
+		let cleanupChart: (() => void) | null = null;
 
-		const wrapper = wrapperRef.current;
-		const container = chartRef.current;
-		const tooltip = tooltipRef.current;
-		const data = buildUplotData(trend);
+		async function mountChart() {
+			if (!wrapperRef.current || !chartRef.current || trend.length === 0) return;
 
-		uplotRef.current?.destroy();
-		uplotRef.current = null;
-		animProgressRef.current = 0;
+			const [uPlotModule, d3Shape] = await Promise.all([import("uplot"), import("d3-shape")]);
+			if (disposed || !wrapperRef.current || !chartRef.current || trend.length === 0) return;
+
+			const UPlot = uPlotModule.default;
+			const { curveMonotoneX, line: d3Line } = d3Shape;
+			const wrapper = wrapperRef.current;
+			const container = chartRef.current;
+			const tooltip = tooltipRef.current;
+			const data = buildUplotData(trend);
+
+			uplotRef.current?.destroy();
+			uplotRef.current = null;
+
+			const nav = navigator as Navigator & { deviceMemory?: number };
+			const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+			const lowEndDevice = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
+			const animDuration = prefersReducedMotion ? 0 : isMobile || lowEndDevice ? 220 : 700;
+			animProgressRef.current = animDuration > 0 ? 0 : 1;
 
 		const style = getComputedStyle(document.documentElement);
 		const fg = `hsl(${style.getPropertyValue("--foreground").trim()})`;
@@ -63,6 +78,7 @@ export function useTrendChart({
 			region: SERIES_COLORS.region,
 			national: SERIES_COLORS.national,
 		};
+		const isSeriesVisible = (key: string) => visibilityRef.current[key] ?? key === "personal";
 
 		// Pre-build tooltip DOM once
 		let tooltipDateEl: HTMLElement | null = null;
@@ -81,7 +97,7 @@ export function useTrendChart({
 			const visibleKeys = seriesOrder.filter((key) => {
 				if (key === "province" && !hasProvince) return false;
 				if (key === "region" && !hasRegion) return false;
-				return showLine(key);
+				return true;
 			});
 			for (const key of visibleKeys) {
 				const color = resolvedColors[key] ?? "#888";
@@ -145,7 +161,7 @@ export function useTrendChart({
 				stroke: resolvedColors.area,
 				width: 2,
 				dash: lineDash,
-				show: showLine("area"),
+				show: isSeriesVisible("area"),
 				spanGaps: true,
 				points: { show: false },
 				paths: monotonePaths(2),
@@ -155,7 +171,7 @@ export function useTrendChart({
 				stroke: resolvedColors.province,
 				width: 2,
 				dash: lineDash,
-				show: hasProvince ? showLine("province") : false,
+				show: hasProvince ? isSeriesVisible("province") : false,
 				spanGaps: true,
 				points: { show: false },
 				paths: monotonePaths(3),
@@ -165,7 +181,7 @@ export function useTrendChart({
 				stroke: resolvedColors.region,
 				width: 2,
 				dash: lineDash,
-				show: hasRegion ? showLine("region") : false,
+				show: hasRegion ? isSeriesVisible("region") : false,
 				spanGaps: true,
 				points: { show: false },
 				paths: monotonePaths(4),
@@ -175,7 +191,7 @@ export function useTrendChart({
 				stroke: resolvedColors.national,
 				width: 2,
 				dash: lineDash,
-				show: showLine("national"),
+				show: isSeriesVisible("national"),
 				spanGaps: true,
 				points: { show: false },
 				paths: monotonePaths(5),
@@ -290,7 +306,7 @@ export function useTrendChart({
 							tooltipDateEl.textContent = point.date;
 							for (const [key, { rowEl, valEl }] of tooltipRowMap) {
 								const val = point[key as keyof TrendPoint];
-								if (typeof val === "number") {
+								if (isSeriesVisible(key) && typeof val === "number") {
 									valEl.textContent = val.toFixed(1);
 									rowEl.style.display = "flex";
 								} else {
@@ -318,20 +334,21 @@ export function useTrendChart({
 			},
 		};
 
-		const chart = new uPlot(opts, data, container);
+		const chart = new UPlot(opts, data, container);
 		uplotRef.current = chart;
 
-		// Cubic ease-in-out draw-on animation: reveal lines left→right over 700ms
-		const ANIM_DURATION = 700;
-		const animStart = performance.now();
-		let rafId: number;
-		const animate = (now: number) => {
-			const t = Math.min((now - animStart) / ANIM_DURATION, 1);
-			animProgressRef.current = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-			chart.redraw(true, false);
-			if (t < 1) rafId = requestAnimationFrame(animate);
-		};
-		rafId = requestAnimationFrame(animate);
+		// Draw-on animation is shortened on mobile/low-end devices and skipped for reduced motion.
+		let rafId: number | undefined;
+		if (animDuration > 0) {
+			const animStart = performance.now();
+			const animate = (now: number) => {
+				const t = Math.min((now - animStart) / animDuration, 1);
+				animProgressRef.current = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+				chart.redraw(true, false);
+				if (t < 1) rafId = requestAnimationFrame(animate);
+			};
+			rafId = requestAnimationFrame(animate);
+		}
 
 		const onLeave = () => {
 			if (tooltip) tooltip.style.display = "none";
@@ -350,13 +367,34 @@ export function useTrendChart({
 		});
 		ro.observe(wrapper);
 
-		return () => {
-			cancelAnimationFrame(rafId);
+		cleanupChart = () => {
+			if (rafId !== undefined) cancelAnimationFrame(rafId);
 			container.removeEventListener("mouseleave", onLeave);
 			ro.disconnect();
 			chart.destroy();
+			if (uplotRef.current === chart) uplotRef.current = null;
 		};
-	}, [trend, isMobile, yAxisConfig, hasRegion, hasProvince, seriesLabels, seriesOrder, showLine]);
+		}
+
+		void mountChart();
+
+		return () => {
+			disposed = true;
+			cleanupChart?.();
+			cleanupChart = null;
+		};
+	}, [trend, isMobile, yAxisConfig, hasRegion, hasProvince, seriesLabels, seriesOrder]);
+
+	useEffect(() => {
+		const chart = uplotRef.current;
+		if (!chart) return;
+
+		chart.setSeries(1, { show: seriesVisibility.personal ?? true });
+		chart.setSeries(2, { show: seriesVisibility.area ?? false });
+		chart.setSeries(3, { show: hasProvince ? (seriesVisibility.province ?? false) : false });
+		chart.setSeries(4, { show: hasRegion ? (seriesVisibility.region ?? false) : false });
+		chart.setSeries(5, { show: seriesVisibility.national ?? false });
+	}, [hasProvince, hasRegion, seriesVisibility]);
 
 	return { wrapperRef, chartRef, tooltipRef };
 }

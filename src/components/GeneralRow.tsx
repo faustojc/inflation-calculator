@@ -3,6 +3,7 @@ import { AlertCircle } from "lucide-react";
 import { computed } from "nanostores";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
+import { useBufferedNumericInput } from "@/hooks/useBufferedNumericInput";
 import type { CommodityDef } from "@/lib/types";
 import {
 	generalExpenses,
@@ -52,18 +53,33 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 		}
 	}, [isMatch]);
 
-	const handleChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			let v = Number.parseFloat(e.target.value);
-			if (v < 0 || (m === "percent" && v > 100)) return;
-
-			v = Number.isNaN(v) ? 0 : getLimitValue(m, v);
-			updateExpenseValue(cat.code, cat.name, Number.isNaN(v) ? 0 : v, "general");
-		},
-		[cat.code, cat.name, m],
+	const commitValue = useCallback(
+		(nextValue: number) => updateExpenseValue(cat.code, cat.name, nextValue, "general"),
+		[cat.code, cat.name],
 	);
 
+	const normalizeValue = useCallback(
+		(nextValue: number) => {
+			if (nextValue < 0 || (m === "percent" && nextValue > 100)) return null;
+			return getLimitValue(m, nextValue);
+		},
+		[m],
+	);
+
+	const {
+		draftValue,
+		handleBlur,
+		handleChange,
+		handleEnterKey,
+		handleFocus: handleDraftFocus,
+	} = useBufferedNumericInput({
+		value,
+		normalize: normalizeValue,
+		commit: commitValue,
+	});
+
 	const handleFocus = useCallback(() => {
+		handleDraftFocus();
 		if (isPointerDown.current) {
 			isPointerDown.current = false;
 			return;
@@ -71,7 +87,15 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 		setTimeout(() => {
 			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 		}, 50);
-	}, []);
+	}, [handleDraftFocus]);
+
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLInputElement>) => {
+			preventNonNumeric(e);
+			handleEnterKey(e);
+		},
+		[handleEnterKey],
+	);
 
 	return (
 		<div
@@ -134,10 +158,11 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 											: ""
 							}
 						`.replace(/\s+/g, " ")}
-						value={value || ""}
+						value={draftValue}
 						disabled={missingStatus}
-						onKeyDown={preventNonNumeric}
+						onKeyDown={handleKeyDown}
 						onChange={handleChange}
+						onBlur={handleBlur}
 						onFocus={handleFocus}
 						onPointerDown={() => {
 							isPointerDown.current = true;
