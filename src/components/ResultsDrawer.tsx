@@ -2,6 +2,8 @@ import { useStore } from "@nanostores/react";
 import { format } from "date-fns";
 import { FileText, Info, LineChart, Users } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
+import AdditionalInfoTab from "@/components/tabs/AdditionalInfoTab";
+import AnalysisTab from "@/components/tabs/AnalysisTab";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
@@ -14,8 +16,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { calculationResult } from "@/stores/inflationStore";
 
-const AdditionalInfoTab = lazy(() => import("@/components/tabs/AdditionalInfoTab"));
-const AnalysisTab = lazy(() => import("@/components/tabs/AnalysisTab"));
 const ContributorTab = lazy(() => import("@/components/tabs/ContributorTab"));
 const InflationDataTab = lazy(() => import("@/components/tabs/InflationDataTab"));
 

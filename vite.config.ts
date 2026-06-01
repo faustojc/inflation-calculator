@@ -13,6 +13,8 @@ export default defineConfig({
 		outDir: "dist",
 		rolldownOptions: {
 			output: {
+				chunkFileNames: (chunkInfo) =>
+					chunkInfo.isDynamicEntry ? "assets/[hash].js" : "assets/[name]-[hash].js",
 				manualChunks: (id) => {
 					if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
 						return "vendor-react";
