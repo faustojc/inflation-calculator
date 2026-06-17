@@ -1,4 +1,4 @@
-import { atom, computed, map } from "nanostores";
+import { observable } from "@legendapp/state";
 import { toast } from "sonner";
 import type { AreaDef, CommodityDef } from "@/lib/types";
 import { dataStore, getAreaHierarchy, getCalculationData } from "@/stores/dataStore";
@@ -32,7 +32,7 @@ const today = new Date();
 const lastYear = new Date();
 lastYear.setFullYear(today.getFullYear() - 1);
 
-export const settings = map<AppSettings>({
+export const settings = observable<AppSettings>({
 	area: {
 		key: "abra",
 		name: "Abra",
@@ -43,14 +43,14 @@ export const settings = map<AppSettings>({
 	endDate: today,
 });
 
-export const mode = atom<Mode>("amount");
-export const activeTab = atom<"general" | "detailed">("general");
-export const highlightState = map<HighlightState>({
+export const mode = observable<Mode>("amount");
+export const activeTab = observable<"general" | "detailed">("general");
+export const highlightState = observable<HighlightState>({
 	code: "",
 	label: "",
 });
 
-export const calculationResult = map<{
+export const calculationResult = observable<{
 	show: boolean;
 	data: CalculationResult | null;
 }>({
@@ -58,26 +58,20 @@ export const calculationResult = map<{
 	data: null,
 });
 
-export const missingGeneralItems = atom<Set<string>>(new Set());
-export const missingDetailedItems = atom<Set<string>>(new Set());
-export const missingDataItems = computed(
-	[activeTab, missingGeneralItems, missingDetailedItems],
-	(tab, general, detailed) => {
-		return tab === "general" ? general : detailed;
-	},
-);
-export const prefetchLoading = atom<boolean>(false);
-export const prefetchReady = atom<boolean>(false);
+export const missingGeneralItems = observable<Set<string>>(new Set());
+export const missingDetailedItems = observable<Set<string>>(new Set());
+export const missingDataItems = observable<Set<string>>(() => {
+	return activeTab.get() === "general" ? missingGeneralItems.get() : missingDetailedItems.get();
+});
+export const prefetchLoading = observable<boolean>(false);
+export const prefetchReady = observable<boolean>(false);
 
-export const generalExpenses = map<Record<string, ExpenseItem>>({});
-export const detailedExpenses = map<Record<string, ExpenseItem>>({});
-export const expenses = computed(
-	[activeTab, generalExpenses, detailedExpenses],
-	(tab, general, detailed) => {
-		return tab === "general" ? general : detailed;
-	},
-);
-export const expandedNodes = map<Record<string, boolean>>({});
+export const generalExpenses = observable<Record<string, ExpenseItem>>({});
+export const detailedExpenses = observable<Record<string, ExpenseItem>>({});
+export const expenses = observable<Record<string, ExpenseItem>>(() => {
+	return activeTab.get() === "general" ? generalExpenses.get() : detailedExpenses.get();
+});
+export const expandedNodes = observable<Record<string, boolean>>({});
 
 // for fast lookup of parent nodes
 const uiParentIndex = new Map<string, string | null>();
@@ -269,14 +263,15 @@ export function markSettingsReady() {
 }
 
 // Automatically trigger predictive prefetch when dependent config changes
-settings.listen(() => {
+settings.onChange(() => {
 	if (!settingsInitialized) return;
 	debouncedPrefetch();
 });
 
 let initialPrefetchDone = false;
-dataStore.listen((state) => {
-	if (!initialPrefetchDone && state.commodities.length > 0 && state.areas.length > 0) {
+dataStore.onChange(() => {
+	const { commodities, areas } = dataStore.peek();
+	if (!initialPrefetchDone && commodities.length > 0 && areas.length > 0) {
 		initialPrefetchDone = true;
 		debouncedPrefetch();
 	}
@@ -286,7 +281,7 @@ export function toggleExpansion(code: string, forceState?: boolean) {
 	const current = expandedNodes.get();
 	const newState = forceState ?? !current[code];
 
-	expandedNodes.setKey(code, newState);
+	expandedNodes[code]?.set(newState);
 }
 
 export function setActiveTab(tab: "general" | "detailed") {
@@ -393,10 +388,10 @@ export function addExpense(item: Omit<ExpenseItem, "id" | "value"> & { amount: n
 
 	if (existingId) {
 		const existing = current[existingId]!;
-		targetStore.setKey(existingId, { ...existing, value: item.amount });
+		targetStore[existingId]?.set({ ...existing, value: item.amount });
 	} else {
 		const id = crypto.randomUUID();
-		targetStore.setKey(id, {
+		targetStore[id]?.set({
 			id,
 			code: item.code,
 			name: item.name,
@@ -421,9 +416,9 @@ export function updateExpenseValue(
 	const previousValue = current[code]?.value ?? 0;
 
 	if (current[code]) {
-		targetStore.setKey(code, { ...current[code], value: newValue });
+		targetStore[code]?.set({ ...current[code], value: newValue });
 	} else {
-		targetStore.setKey(code, { id: code, code, name, value: newValue });
+		targetStore[code]?.set({ id: code, code, name, value: newValue });
 	}
 
 	if (currentTab === "detailed") {
@@ -477,8 +472,8 @@ export function clearMissingExpenses() {
 		applyDetailedCategoryTotalDeltas(totalDeltas);
 	}
 
-	missingGeneralItems.set(new Set());
-	missingDetailedItems.set(new Set());
+	missingGeneralItems.set(new Set<string>());
+	missingDetailedItems.set(new Set<string>());
 }
 
 export function removeExpense(id: string) {
@@ -505,21 +500,25 @@ export function clearExpenses() {
 	}
 }
 
-export const totalAllocation = computed(expenses, (items) => {
+export const totalAllocation = observable<number>(() => {
+	const items = expenses.get();
 	return Object.values(items).reduce((sum, item) => sum + item.value, 0);
 });
 
-export const isCalculationDisabled = computed(
-	[expenses, mode, totalAllocation],
-	(items, mode, total) => {
-		if (mode === "percent" && total !== 100) return true;
+export const isCalculationDisabled = observable<boolean>(() => {
+	const items = expenses.get();
+	const m = mode.get();
+	const total = totalAllocation.get();
 
-		const hasExpense = Object.values(items).some((i) => i.value > 0);
-		return !hasExpense;
-	},
-);
+	if (m === "percent" && total !== 100) return true;
 
-export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) => {
+	const hasExpense = Object.values(items).some((i) => i.value > 0);
+	return !hasExpense;
+});
+
+export const totalDisplayLabel = observable(() => {
+	const m = mode.get();
+	const total = totalAllocation.get();
 	if (m === "percent") {
 		const isOver = total > 100.01;
 		return {
@@ -538,4 +537,4 @@ export const totalDisplayLabel = computed([mode, totalAllocation], (m, total) =>
 	}
 });
 
-export const categoryTotals = map<Record<string, number>>({});
+export const categoryTotals = observable<Record<string, number>>({});

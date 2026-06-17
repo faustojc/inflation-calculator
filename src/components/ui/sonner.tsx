@@ -5,12 +5,12 @@ import {
     OctagonXIcon,
     TriangleAlertIcon,
 } from "lucide-react"
-import { useStore } from "@nanostores/react"
+import { use$ } from "@legendapp/state/react"
 import { $theme } from "@/stores/themeStore"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = useStore($theme)
+  const theme = use$($theme)
 
   return (
     <Sonner

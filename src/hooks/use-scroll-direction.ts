@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type ScrollDirection = "up" | "down";
 
@@ -21,41 +21,41 @@ export function useScrollDirection({ threshold = 10, enabled = true }: UseScroll
 	const lastScrollY = useRef(0);
 	const ticking = useRef(false);
 
-	const handleScroll = useCallback(() => {
-		if (ticking.current) return;
-
-		ticking.current = true;
-
-		requestAnimationFrame(() => {
-			const currentY = window.scrollY;
-			const delta = currentY - lastScrollY.current;
-
-			// At the very top of the page, always show the header
-			if (currentY <= 0) {
-				setDirection("up");
-				lastScrollY.current = currentY;
-			} else if (delta > threshold) {
-				setDirection("down");
-				lastScrollY.current = currentY;
-			} else if (delta < -threshold) {
-				setDirection("up");
-				lastScrollY.current = currentY;
-			}
-			// If |delta| < threshold, don't update lastScrollY —
-			// let small deltas accumulate until they cross the threshold.
-
-			ticking.current = false;
-		});
-	}, [threshold]);
-
 	useEffect(() => {
 		if (!enabled) return;
 
 		lastScrollY.current = window.scrollY;
 
+		const handleScroll = () => {
+			if (ticking.current) return;
+
+			ticking.current = true;
+
+			requestAnimationFrame(() => {
+				const currentY = window.scrollY;
+				const delta = currentY - lastScrollY.current;
+
+				// At the very top of the page, always show the header
+				if (currentY <= 0) {
+					setDirection("up");
+					lastScrollY.current = currentY;
+				} else if (delta > threshold) {
+					setDirection("down");
+					lastScrollY.current = currentY;
+				} else if (delta < -threshold) {
+					setDirection("up");
+					lastScrollY.current = currentY;
+				}
+				// If |delta| < threshold, don't update lastScrollY —
+				// let small deltas accumulate until they cross the threshold.
+
+				ticking.current = false;
+			});
+		};
+
 		window.addEventListener("scroll", handleScroll, { passive: true });
 		return () => window.removeEventListener("scroll", handleScroll);
-	}, [enabled, handleScroll]);
+	}, [enabled, threshold]);
 
 	return enabled ? direction : "up";
 }

@@ -1,6 +1,6 @@
-import { useStore } from "@nanostores/react";
+import { useValue } from "@legendapp/state/react";
 import { Check, ChevronsUpDown, Loader2Icon } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,9 +25,42 @@ interface GroupedArea {
 	regionName?: string;
 }
 
+function groupAreas(areas: ReturnType<typeof dataStore.areas.get>) {
+	const grouped: Record<number, GroupedArea[]> = {};
+	const filteredArea = areas.filter((a) => a.key !== "aoncr" && a.key !== "philippines");
+
+	for (const area of filteredArea) {
+		grouped[area.regionId] ??= [];
+
+		if (area.key === "ncr" && !area.provinceId && !area.cityId) {
+			grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
+			grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
+			continue;
+		}
+
+		if (area.cityId === undefined && area.provinceId === undefined) {
+			grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
+		} else {
+			grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
+		}
+	}
+
+	return grouped;
+}
+
+function getRegionHeadings(groupedAreas: Record<number, GroupedArea[]>) {
+	const headings: Record<string, string> = {};
+	for (const [region, items] of Object.entries(groupedAreas)) {
+		const heading = items.find((a) => a.regionName);
+		if (heading) headings[region] = heading.regionName!;
+	}
+	return headings;
+}
+
 const LocationControl = () => {
-	const { areas } = dataStore.get();
-	const appSettings = useStore(settings);
+	const areas = useValue(dataStore.areas);
+	const startDate = useValue(settings.startDate);
+	const incomeClass = useValue(settings.incomeClass);
 
 	const [openProvince, setOpenProvince] = useState(false);
 	const [search, setSearch] = useState("");
@@ -36,88 +69,53 @@ const LocationControl = () => {
 		isLoading: false,
 	});
 
-	const selectArea = useMemo(() => {
-		if (appSettings.area && areas.length > 0) {
-			const match = areas.find(
+	const selectArea = useValue(() => {
+		const currentArea = settings.area.get();
+		const currentAreas = dataStore.areas.get();
+		if (currentArea && currentAreas.length > 0) {
+			const match = currentAreas.find(
 				(p) =>
-					p.key === appSettings.area.key &&
-					p.regionId === appSettings.area.regionId &&
-					p.provinceId === appSettings.area.provinceId &&
-					p.cityId === appSettings.area.cityId,
+					p.key === currentArea.key &&
+					p.regionId === currentArea.regionId &&
+					p.provinceId === currentArea.provinceId &&
+					p.cityId === currentArea.cityId,
 			);
 			if (match) return match.name;
 		}
 		return "National Capital Region (NCR)";
-	}, [appSettings.area, areas]);
+	});
 
-	const groupedAreas = useMemo(() => {
-		const grouped: Record<number, GroupedArea[]> = {};
-		const filteredArea = areas.filter((a) => a.key !== "aoncr" && a.key !== "philippines");
-
-		for (const area of filteredArea) {
-			grouped[area.regionId] ??= [];
-
-			if (area.key === "ncr" && !area.provinceId && !area.cityId) {
-				grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
-				grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
-				continue;
-			}
-
-			if (area.cityId === undefined && area.provinceId === undefined) {
-				grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
-			} else {
-				grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
-			}
-		}
-
-		return grouped;
-	}, [areas]);
-
-	const regionHeadings = useMemo(() => {
-		const headings: Record<string, string> = {};
-		for (const [region, items] of Object.entries(groupedAreas)) {
-			const heading = items.find((a) => a.regionName);
-			if (heading) headings[region] = heading.regionName!;
-		}
-		return headings;
-	}, [groupedAreas]);
-
-	const filteredGroups = useMemo(() => {
-		const query = search.toLowerCase().trim();
-		const entries = Object.entries(groupedAreas);
-
-		if (!query) return entries;
-
-		const result: [string, GroupedArea[]][] = [];
-
-		for (const [region, items] of entries) {
-			const regionName = regionHeadings[region]?.toLowerCase() ?? "";
-			const regionMatches = regionName.includes(query);
-
-			// If the region name matches, include all its children
-			if (regionMatches) {
+	const groupedAreas = useValue(() => groupAreas(dataStore.areas.get()));
+	const regionHeadings = getRegionHeadings(groupedAreas);
+	const query = search.toLowerCase().trim();
+	const filteredGroups = Object.entries(groupedAreas).reduce<[string, GroupedArea[]][]>(
+		(result, [region, items]) => {
+			if (!query) {
 				result.push([region, items]);
-				continue;
+				return result;
 			}
 
-			// filter to matching children only
+			const regionName = regionHeadings[region]?.toLowerCase() ?? "";
+			if (regionName.includes(query)) {
+				result.push([region, items]);
+				return result;
+			}
+
 			const matchingItems = items.filter(
 				(a) => !a.regionName && a.areaName.toLowerCase().includes(query),
 			);
+			if (matchingItems.length > 0) result.push([region, matchingItems]);
 
-			if (matchingItems.length > 0) {
-				result.push([region, matchingItems]);
-			}
-		}
-
-		return result;
-	}, [search, groupedAreas, regionHeadings]);
+			return result;
+		},
+		[],
+	);
 
 	const handleAreaSelect = async (areaName: string) => {
 		const match = areas.find((a) => a.name === areaName);
 
-		if (!isOnline.get() && match) {
-			const year = appSettings.startDate.getFullYear();
+		if (!isOnline.peek() && match) {
+			const year = startDate.getFullYear();
 			const base = cpiUrl(`data/${match.key}`);
 			const [manifest, current, prev] = await Promise.all([
 				isCached(`${base}/manifest.json`),
@@ -139,19 +137,19 @@ const LocationControl = () => {
 			await setCurrentArea(match.key);
 
 			const manifest = await getAreaManifest(match.key);
-			settings.setKey("area", match);
+			settings.area.set(match);
 
 			if (manifest?.dates) {
 				const dataType = activeTab.get() === "general" ? "official" : "personal";
-				const datesForType = manifest.dates[dataType]?.[appSettings.incomeClass];
+				const datesForType = manifest.dates[dataType]?.[incomeClass];
 
 				if (datesForType) {
 					const availableYears = Object.keys(datesForType).map(Number);
-					const currentYear = appSettings.startDate.getFullYear();
+					const currentYear = startDate.getFullYear();
 
 					if (availableYears.length > 0 && !availableYears.includes(currentYear)) {
 						const latestYear = Math.max(...availableYears);
-						const newDate = new Date(appSettings.startDate);
+						const newDate = new Date(startDate);
 						newDate.setFullYear(latestYear);
 
 						// Also validate month for the new year
@@ -160,7 +158,7 @@ const LocationControl = () => {
 							newDate.setMonth(maxMonth - 1);
 						}
 
-						settings.setKey("startDate", newDate);
+						settings.startDate.set(newDate);
 					}
 				}
 			}

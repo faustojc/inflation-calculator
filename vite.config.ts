@@ -32,7 +32,7 @@ export default defineConfig({
 						return "vendor-ui";
 					}
 
-					if (id.includes("node_modules/nanostores") || id.includes("node_modules/date-fns")) {
+					if (id.includes("node_modules/@legendapp/state") || id.includes("node_modules/date-fns")) {
 						return "vendor-utils";
 					}
 

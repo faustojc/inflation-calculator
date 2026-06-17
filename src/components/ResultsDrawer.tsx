@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { format } from "date-fns";
 import { FileText, Info, LineChart, Users } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
@@ -22,7 +22,7 @@ const InflationDataTab = lazy(() => import("@/components/tabs/InflationDataTab")
 type ResultTab = "inflation-data" | "contributor" | "analysis" | "additional-info";
 
 export function ResultsDrawer() {
-	const { show, data } = useStore(calculationResult);
+	const { show, data } = use$(calculationResult);
 	const [activeTab, setActiveTab] = useState<ResultTab>("inflation-data");
 
 	if (!data) return null;

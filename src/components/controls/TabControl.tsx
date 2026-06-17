@@ -1,8 +1,8 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { activeTab, calculationResult } from "@/stores/inflationStore";
 
 const TabControl = () => {
-	const currTab = useStore(activeTab);
+	const currTab = use$(activeTab);
 
 	const handleChangeTab = (tab: "general" | "detailed") => {
 		activeTab.set(tab);

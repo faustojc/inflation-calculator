@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { lazy, Suspense, useState } from "react";
 import ChartSelector from "@/components/ChartSelector";
 import CompareSelector from "@/components/CompareSelector";
@@ -9,7 +9,7 @@ import type { ContributionFactor } from "@/utils/inflationCompute";
 const ContribInflationPie = lazy(() => import("@/components/graphs/pie/ContribInflationPie"));
 
 const ContributorTab = ({ contributors }: { contributors: ContributionFactor[] }) => {
-	const comparison = useStore(compareOfficial);
+	const comparison = use$(compareOfficial);
 	const [chartType, setChartType] = useState<"table" | "pie">("table");
 
 	const personal = contributors[0]!;

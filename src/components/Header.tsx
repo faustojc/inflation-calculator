@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { WifiOff } from "lucide-react";
 import MenuDropdown from "@/components/MenuDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,7 +9,7 @@ export const Header = () => {
 	const isMobile = useIsMobile();
 	const scrollDirection = useScrollDirection({ enabled: isMobile });
 	const isHidden = scrollDirection === "down";
-	const online = useStore(isOnline);
+	const online = use$(isOnline);
 
 	return (
 		<header
@@ -24,11 +24,13 @@ export const Header = () => {
 						src="/inflation-calculator/psa_header.png"
 						alt="PSA Logo"
 						fetchPriority="high"
+						width={362.587}
+						height={63}
 						className="h-9 sm:h-12 md:h-14 object-contain w-45 sm:max-w-none md:w-auto"
 					/>
 					<div className="flex items-center gap-1 sm:gap-2 shrink-0">
 						<img
-							width={67.5}
+							width={67.55}
 							height={63}
 							src="/inflation-calculator/bagong_pilipinas_logo.svg"
 							alt="Bagong Pilipinas"

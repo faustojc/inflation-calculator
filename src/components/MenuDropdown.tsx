@@ -2,12 +2,12 @@ import { $openMenu, showOnboarding } from "@/stores/onboardingStore";
 import { X, HelpCircle, MessageSquare, Sun, Moon, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { $theme, toggleTheme } from "@/stores/themeStore";
 
 const MenuDropdown = () => {
-	const openMenu = useStore($openMenu);
-	const theme = useStore($theme);
+	const openMenu = use$($openMenu);
+	const theme = use$($theme);
 
 	const setOpenMenu = (value: boolean) => {
 		$openMenu.set(value);

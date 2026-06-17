@@ -1,5 +1,5 @@
 import { arc as d3Arc, pie as d3Pie } from "d3-shape";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import CustomBaseSector from "@/components/graphs/custom/CustomBaseSector";
 import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
 import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector";
@@ -50,16 +50,15 @@ export function OverlayPieChart({
 	const hasNegatives = negativeItems.length > 0;
 	const clipSectorRef = useRef<SVGPathElement>(null);
 	const clipPathId = `${patternPrefix}-reveal-clip`;
-	const animationMs = useMemo(() => {
-		const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+	const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+	const nav = navigator as Navigator & { deviceMemory?: number };
+	const lowEndDevice = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
+	const mobile = window.matchMedia?.("(max-width: 768px)").matches ?? false;
+	const animationMs = (() => {
 		if (prefersReducedMotion) return 0;
 
-		const nav = navigator as Navigator & { deviceMemory?: number };
-		const lowEndDevice = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
-		const mobile = window.matchMedia?.("(max-width: 768px)").matches ?? false;
-
 		return mobile || lowEndDevice ? 250 : PIE_DURATION;
-	}, []);
+	})();
 
 	// Animate the clipPath sector from 0 -> 2pi, shortened or skipped on constrained devices.
 	useEffect(() => {
@@ -102,10 +101,7 @@ export function OverlayPieChart({
 		: [];
 
 	// Changes whenever pie data changes → forces label wrapper remount → CSS animation restarts
-	const labelAnimKey = useMemo(
-		() => basePie.map((p) => `${p.code}:${p.value.toFixed(4)}`).join("|"),
-		[basePie],
-	);
+	const labelAnimKey = basePie.map((p) => `${p.code}:${p.value.toFixed(4)}`).join("|");
 
 	const labelStyle = (i: number): React.CSSProperties =>
 		animationMs === 0

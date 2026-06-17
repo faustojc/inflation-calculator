@@ -1,5 +1,4 @@
-import { useStore } from "@nanostores/react";
-import { useCallback } from "react";
+import { useValue } from "@legendapp/state/react";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 
 export interface LegendItem {
@@ -16,18 +15,15 @@ const CustomPieLegend = ({
 	props: readonly LegendItem[];
 	patternPrefix?: string;
 }) => {
-	const currSlice = useStore(activeSlice);
+	const currSlice = useValue(activeSlice);
 	const chartPrefix = patternPrefix?.charAt(0) || "";
 
-	const setActiveSlice = useCallback(
-		(code: string, value: number) => {
-			if (value >= 0 && value <= 0.099) return;
-			const id = sliceId(code, value);
-			activeSlice.set(chartPrefix + id);
-		},
-		[chartPrefix],
-	);
-	const onMouseLeave = useCallback(() => activeSlice.set(null), []);
+	const setActiveSlice = (code: string, value: number) => {
+		if (value >= 0 && value <= 0.099) return;
+		const id = sliceId(code, value);
+		activeSlice.set(chartPrefix + id);
+	};
+	const onMouseLeave = () => activeSlice.set(null);
 
 	return (
 		<ul className="flex flex-col text-sm text-muted-foreground">

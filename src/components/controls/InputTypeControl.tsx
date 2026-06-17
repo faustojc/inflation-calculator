@@ -1,8 +1,8 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { mode } from "@/stores/inflationStore";
 
 const InputTypeControl = () => {
-	const m = useStore(mode);
+	const m = use$(mode);
 
 	return (
 		<div

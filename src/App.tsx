@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster } from "sonner";
@@ -30,10 +30,10 @@ const LazyResultsDrawer = lazy(() =>
 );
 
 export default function App() {
-	const { isLoading, error, commodities } = useStore(dataStore);
-	const currTab = useStore(activeTab);
-	const resultState = useStore(calculationResult);
-	const isOnboardingOpen = useStore(openOnboarding);
+	const { isLoading, error, commodities } = use$(dataStore);
+	const currTab = use$(activeTab);
+	const resultState = use$(calculationResult);
+	const isOnboardingOpen = use$(openOnboarding);
 	const isMobile = useIsMobile();
 	const [canLoadOnboarding, setCanLoadOnboarding] = useState(false);
 
@@ -66,17 +66,17 @@ export default function App() {
 					newStartDate.setFullYear(minYear);
 				}
 
-				settings.setKey("startDate", newStartDate);
-				settings.setKey("endDate", newEndDate);
-				settings.setKey("area", meta.areas.at(1)!);
+				settings.startDate.set(newStartDate);
+				settings.endDate.set(newEndDate);
+				settings.area.set(meta.areas.at(1)!);
 			}
 
 			initializeExpenses();
 			buildSearchIndex();
 			markSettingsReady();
 
-			dataStore.setKey("isLoading", false);
-			dataStore.setKey("isReady", true);
+			dataStore.isLoading.set(false);
+			dataStore.isReady.set(true);
 		});
 	}, []);
 

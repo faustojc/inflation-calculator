@@ -1,10 +1,10 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { Progress } from "@/components/ui/progress";
 import { mode, totalAllocation } from "@/stores/inflationStore";
 
 const CalculationFooter = () => {
-	const currentTotal = useStore(totalAllocation);
-	const m = useStore(mode);
+	const currentTotal = use$(totalAllocation);
+	const m = use$(mode);
 
 	const remainingPercent = m === "percent" ? 100 - currentTotal : 0;
 	const isOverLimit = m === "percent" && currentTotal > 100;

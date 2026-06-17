@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import type { PieEntry } from "@/lib/types";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getSmartLabelLayout } from "@/utils/labelLayoutUtility";
@@ -26,7 +26,7 @@ const CustomNegativeLabel = ({
 	overlayPie,
 }: Props) => {
 	const entry = payload;
-	const currSlice = useStore(activeSlice);
+	const currSlice = use$(activeSlice);
 
 	if (entry.originalShare === 0 || entry.type === "filler") return null;
 	if (!chartId || !basePie || !overlayPie) return null;

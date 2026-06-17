@@ -9,9 +9,9 @@ import { fuzzyScore, type FuzzyMatch } from "@/lib/fuzzySearch";
 import type { SearchOption } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
 import { activeTab, locateCategory, missingDataItems } from "@/stores/inflationStore";
-import { useStore } from "@nanostores/react";
+import { useValue } from "@legendapp/state/react";
 import { LucideNavigation, Search, Tag } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ScoredOption {
 	item: SearchOption;
@@ -22,9 +22,6 @@ export function SmartSearch() {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 	const [debouncedQuery, setDebouncedQuery] = useState("");
-	const { searchOptions, isReady, commodities } = useStore(dataStore);
-	const missing = useStore(missingDataItems);
-	const currTab = useStore(activeTab);
 
 	const isMobile = useIsMobile();
 	const scrollDirection = useScrollDirection({ enabled: isMobile });
@@ -36,21 +33,25 @@ export function SmartSearch() {
 	}, [query]);
 
 	// Map general code → name for tab-aware display
-	const generalNameMap = useMemo(() => {
+	const generalNameMap = useValue(() => {
 		const map = new Map<string, string>();
-		for (const c of commodities) {
+		for (const c of dataStore.commodities.get()) {
 			if (!c.code.includes(".")) map.set(c.code, c.name);
 		}
 		return map;
-	}, [commodities]);
+	});
 
-	const filteredOptions = useMemo(() => {
+	const filteredOptions = useValue(() => {
+		const isReady = dataStore.isReady.get();
 		if (!isReady || !debouncedQuery || debouncedQuery.length < 2) return [];
 
 		const lowerQuery = debouncedQuery.toLowerCase().trim();
 		if (!lowerQuery) return [];
 
 		const scored: ScoredOption[] = [];
+		const searchOptions = dataStore.searchOptions.get();
+		const missing = missingDataItems.get();
+		const currTab = activeTab.get();
 
 		for (const item of searchOptions) {
 			const currCode = currTab === "general" && item.code.includes(".") ? item.code.split(".")[0]! : item.code;
@@ -92,7 +93,7 @@ export function SmartSearch() {
 		});
 
 		return deduped.slice(0, 25);
-	}, [debouncedQuery, searchOptions, isReady, missing, currTab, generalNameMap]);
+	});
 
 	const handleSelect = (item: SearchOption) => {
 		locateCategory(item.code, item.keyword);

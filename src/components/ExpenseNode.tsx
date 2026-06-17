@@ -1,7 +1,6 @@
-import { useStore } from "@nanostores/react";
+import { observer, useValue } from "@legendapp/state/react";
 import { AlertTriangle, ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
-import { computed } from "nanostores";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { DisplayNode } from "@/components/ExpenseTab";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -21,42 +20,27 @@ import {
 } from "@/stores/inflationStore";
 import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
 
-const ExpenseNode = memo(
-	({ node, level }: { node: DisplayNode; level: number }) => {
-		const currMode = useStore(mode);
+const ExpenseNode = observer(({ node, level }: { node: DisplayNode; level: number }) => {
+		const currMode = useValue(mode);
 		const hasChildren = node.children && node.children.length > 0;
 
-		const isMatchStore = useMemo(() => computed(highlightState, (h) => h?.code === node.code), [node.code]);
-		const highlightLabelStore = useMemo(
-			() => computed(highlightState, (h) => (h?.code === node.code ? h.label : "")),
-			[node.code],
+		const isMatch = useValue(() => highlightState.code.get() === node.code);
+		const highlightLabel = useValue(() =>
+			highlightState.code.get() === node.code ? highlightState.label.get() : "",
 		);
-		const displayValueStore = useMemo(
-			() =>
-				computed([categoryTotals, detailedExpenses], (totals, expenses) => {
-					return hasChildren ? totals[node.code] || 0 : expenses[node.code]?.value || 0;
-				}),
-			[node.code, hasChildren],
+		const displayValue = useValue(() =>
+			hasChildren
+				? categoryTotals[node.code]?.get() || 0
+				: detailedExpenses[node.code]?.get()?.value || 0,
 		);
-		const isOpenStore = useMemo(
-			() =>
-				computed([expandedNodes, categoryTotals, detailedExpenses], (map, totals, expenses) => {
-					const val = hasChildren ? totals[node.code] || 0 : expenses[node.code]?.value || 0;
-					return map[node.code] ?? (level < 1 || val > 0);
-				}),
-			[node.code, level, hasChildren],
-		);
-		const isMissingStore = useMemo(
-			() => computed(missingDetailedItems, (missing) => missing.has(node.code)),
-			[node.code],
-		);
-
-		const isMatch = useStore(isMatchStore);
-		const highlightLabel = useStore(highlightLabelStore);
-		const displayValue = useStore(displayValueStore);
-		const isOpen = useStore(isOpenStore);
-		const isMissing = useStore(isMissingStore);
-		const isReady = useStore(prefetchReady);
+		const isOpen = useValue(() => {
+			const val = hasChildren
+				? categoryTotals[node.code]?.get() || 0
+				: detailedExpenses[node.code]?.get()?.value || 0;
+			return expandedNodes[node.code]?.get() ?? (level < 1 || val > 0);
+		});
+		const isMissing = useValue(() => missingDetailedItems.get().has(node.code));
+		const isReady = useValue(prefetchReady);
 
 		const missingStatus = isReady && isMissing;
 
@@ -74,18 +58,13 @@ const ExpenseNode = memo(
 			}
 		}, [isMatch, hasChildren]);
 
-		const commitValue = useCallback(
-			(nextValue: number) => updateExpenseValue(node.code, node.name, nextValue, "detailed"),
-			[node.code, node.name],
-		);
+		const commitValue = (nextValue: number) =>
+			updateExpenseValue(node.code, node.name, nextValue, "detailed");
 
-		const normalizeValue = useCallback(
-			(nextValue: number) => {
-				if (nextValue < 0 || (currMode === "percent" && nextValue > 100)) return null;
-				return getLimitValue(currMode, nextValue);
-			},
-			[currMode],
-		);
+		const normalizeValue = (nextValue: number) => {
+			if (nextValue < 0 || (currMode === "percent" && nextValue > 100)) return null;
+			return getLimitValue(currMode, nextValue);
+		};
 
 		const {
 			draftValue,
@@ -99,14 +78,11 @@ const ExpenseNode = memo(
 			commit: commitValue,
 		});
 
-		const handleToggle = useCallback(
-			(open: boolean) => {
-				toggleExpansion(node.code, open);
-			},
-			[node.code],
-		);
+		const handleToggle = (open: boolean) => {
+			toggleExpansion(node.code, open);
+		};
 
-		const handleFocus = useCallback(() => {
+		const handleFocus = () => {
 			handleDraftFocus();
 			if (isPointerDown.current) {
 				isPointerDown.current = false;
@@ -115,15 +91,12 @@ const ExpenseNode = memo(
 			setTimeout(() => {
 				rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 			}, 50);
-		}, [handleDraftFocus]);
+		};
 
-		const handleKeyDown = useCallback(
-			(e: React.KeyboardEvent<HTMLInputElement>) => {
-				preventNonNumeric(e);
-				handleEnterKey(e);
-			},
-			[handleEnterKey],
-		);
+		const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+			preventNonNumeric(e);
+			handleEnterKey(e);
+		};
 
 		return (
 			<Collapsible open={isOpen} onOpenChange={handleToggle} className="w-full">
@@ -259,10 +232,6 @@ const ExpenseNode = memo(
 				)}
 			</Collapsible>
 		);
-	},
-	(prevProps, nextProps) => {
-		return prevProps.node.code === nextProps.node.code && prevProps.level === nextProps.level;
-	},
-);
+});
 
 export default ExpenseNode;

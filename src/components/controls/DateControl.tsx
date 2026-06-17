@@ -1,6 +1,6 @@
-import { useStore } from "@nanostores/react";
+import { useValue } from "@legendapp/state/react";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,28 +21,34 @@ import { isCached } from "@/utils/storage";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const DateControl = () => {
-	const appSettings = useStore(settings);
-	const { currentManifest } = useStore(dataStore);
-	const currentTab = useStore(activeTab);
+	const startDate = useValue(settings.startDate);
+	const incomeClass = useValue(settings.incomeClass);
+	const area = useValue(settings.area);
+	const currentManifest = useValue(dataStore.currentManifest);
+	const currentTab = useValue(activeTab);
 
 	const dataType = currentTab === "general" ? "official" : "personal";
-	const month = MONTHS[appSettings.startDate.getMonth()];
+	const month = MONTHS[startDate.getMonth()];
 
 	const [openYear, setOpenYear] = useState(false);
 
-	const areaAvailableYears = useMemo(() => {
-		if (!currentManifest?.dates) return new Set<number>();
+	const areaAvailableYears = useValue(() => {
+		const manifest = dataStore.currentManifest.get();
+		const tab = activeTab.get();
+		const type = tab === "general" ? "official" : "personal";
+		const selectedIncomeClass = settings.incomeClass.get();
+		if (!manifest?.dates) return new Set<number>();
 
-		const datesForType = currentManifest.dates[dataType]?.[appSettings.incomeClass];
+		const datesForType = manifest.dates[type]?.[selectedIncomeClass];
 		if (!datesForType) return new Set<number>();
 
 		const years = Object.keys(datesForType).map(Number);
 		if (years.length === 0) return new Set<number>();
 
 		// Exclude rangeMin because inflation needs year-1 data which doesn't exist for the first year
-		const metaYearRange = dataStore.get().metaYearRange;
-		const rangeMin = metaYearRange?.[dataType]?.min ?? Math.min(...years);
-		const rangeMax = metaYearRange?.[dataType]?.max ?? Math.max(...years);
+		const metaYearRange = dataStore.metaYearRange.get();
+		const rangeMin = metaYearRange?.[type]?.min ?? Math.min(...years);
+		const rangeMax = metaYearRange?.[type]?.max ?? Math.max(...years);
 
 		const filtered = years.filter((y) => y >= rangeMin && y <= rangeMax);
 		if (filtered.length === 0) return new Set<number>();
@@ -56,16 +62,21 @@ const DateControl = () => {
 		}
 
 		return set;
-	}, [currentManifest, appSettings.incomeClass, dataType]);
+	});
 
-	const maxMonthForYear = useMemo(() => {
-		const year = appSettings.startDate.getFullYear();
-		if (!currentManifest?.dates) return 12;
-		return currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[year] ?? 12;
-	}, [currentManifest, appSettings.startDate, appSettings.incomeClass, dataType]);
+	const maxMonthForYear = useValue(() => {
+		const date = settings.startDate.get();
+		const manifest = dataStore.currentManifest.get();
+		const tab = activeTab.get();
+		const type = tab === "general" ? "official" : "personal";
+		const selectedIncomeClass = settings.incomeClass.get();
+		const year = date.getFullYear();
+		if (!manifest?.dates) return 12;
+		return manifest.dates[type]?.[selectedIncomeClass]?.[year] ?? 12;
+	});
 
 	const checkYearCached = async (year: number): Promise<boolean> => {
-		const areaKey = appSettings.area?.key;
+		const areaKey = area?.key;
 		if (!areaKey) return false;
 		const [current, prev] = await Promise.all([
 			isCached(cpiUrl(`data/${areaKey}/${year}.json`)),
@@ -75,35 +86,35 @@ const DateControl = () => {
 	};
 
 	const handleMonthChange = (m: string) => {
-		const newDate = new Date(appSettings.startDate);
+		const newDate = new Date(startDate);
 		newDate.setMonth(MONTHS.indexOf(m));
-		settings.setKey("startDate", newDate);
+		settings.startDate.set(newDate);
 	};
 
 	const handleYearChange = async (yearStr: string) => {
 		const yearNum = Number.parseInt(yearStr, 10);
 
-		if (!isOnline.get()) {
+		if (!isOnline.peek()) {
 			const cached = await checkYearCached(yearNum);
 			if (!cached) {
 				toast.warning("You're offline. Cannot fetch data for this year.");
 				setOpenYear(false);
 				return;
 			}
-		}
+	}
 
-		if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
-			const newDate = new Date(appSettings.startDate);
-			newDate.setFullYear(yearNum);
+	if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
+		const newDate = new Date(startDate);
+		newDate.setFullYear(yearNum);
 
-			// Validate month for new year
-			const maxMonth = currentManifest?.dates?.[dataType]?.[appSettings.incomeClass]?.[yearNum] ?? 12;
+		// Validate month for new year
+		const maxMonth = currentManifest?.dates?.[dataType]?.[incomeClass]?.[yearNum] ?? 12;
 			if (newDate.getMonth() + 1 > maxMonth) {
 				newDate.setMonth(maxMonth - 1);
 			}
 
 			startTransition(() => {
-				settings.setKey("startDate", newDate);
+				settings.startDate.set(newDate);
 			});
 		}
 		setOpenYear(false);
@@ -114,7 +125,7 @@ const DateControl = () => {
 	useEffect(() => {
 		if (!currentManifest?.dates) return;
 
-		const year = appSettings.startDate.getFullYear();
+		const year = startDate.getFullYear();
 		const yearsArr = Array.from(areaAvailableYears);
 		const minYear = yearsArr.length > 0 ? yearsArr[yearsArr.length - 1]! : null;
 
@@ -122,16 +133,15 @@ const DateControl = () => {
 		let needsUpdate = false;
 
 		// Clamp year if it's outside the available range or equals the disabled base year
-		const needsClamp =
-			areaAvailableYears.size > 0 && (!areaAvailableYears.has(year) || year === minYear);
+		const needsClamp = areaAvailableYears.size > 0 && (!areaAvailableYears.has(year) || year === minYear);
 		if (needsClamp && yearsArr.length > 0) {
 			targetYear = yearsArr[0]!;
 			needsUpdate = true;
 		}
 
 		// Clamp month for the (possibly adjusted) year
-		const maxMonthCount = currentManifest.dates[dataType]?.[appSettings.incomeClass]?.[targetYear] ?? 12;
-		let targetMonth = appSettings.startDate.getMonth();
+		const maxMonthCount = currentManifest.dates[dataType]?.[incomeClass]?.[targetYear] ?? 12;
+		let targetMonth = startDate.getMonth();
 
 		if (targetMonth + 1 > maxMonthCount) {
 			targetMonth = maxMonthCount - 1;
@@ -139,18 +149,12 @@ const DateControl = () => {
 		}
 
 		if (needsUpdate) {
-			const newDate = new Date(appSettings.startDate);
+			const newDate = new Date(startDate);
 			newDate.setFullYear(targetYear);
 			newDate.setMonth(targetMonth);
-			settings.setKey("startDate", newDate);
+			settings.startDate.set(newDate);
 		}
-	}, [
-		currentManifest,
-		appSettings.startDate,
-		appSettings.incomeClass,
-		dataType,
-		areaAvailableYears,
-	]);
+	}, [currentManifest, startDate, incomeClass, dataType, areaAvailableYears]);
 
 	return (
 		<div className="flex gap-4">
@@ -184,7 +188,7 @@ const DateControl = () => {
 							aria-expanded={openYear}
 							className="w-full justify-between font-normal"
 						>
-							{appSettings.startDate.getFullYear()}
+							{startDate.getFullYear()}
 							<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 						</Button>
 					</PopoverTrigger>
@@ -194,7 +198,7 @@ const DateControl = () => {
 							<CommandList>
 								<CommandEmpty>No year found.</CommandEmpty>
 								<CommandGroup className="max-h-62.5 overflow-y-auto">
-									{Array.from(areaAvailableYears).map((year, i) => {
+								{Array.from(areaAvailableYears).map((year, i) => {
 										const isBaseYear = i === areaAvailableYears.size - 1;
 										return (
 											<CommandItem
@@ -204,10 +208,10 @@ const DateControl = () => {
 												onSelect={handleYearChange}
 											>
 												<Check
-													className={cn(
-														"mr-2 h-4 w-4",
-														appSettings.startDate.getFullYear() === year ? "opacity-100" : "opacity-0",
-													)}
+											className={cn(
+												"mr-2 h-4 w-4",
+												startDate.getFullYear() === year ? "opacity-100" : "opacity-0",
+											)}
 												/>
 												{year}
 											</CommandItem>

@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,9 +14,7 @@ export function ContributorTable({ personal, official }: Props) {
 	const isMobile = useIsMobile();
 	const [isExpanded, setIsExpanded] = useState(false);
 
-	const visibleContributors = useMemo(() => {
-		return [personal, official];
-	}, [personal, official]);
+	const visibleContributors = [personal, official];
 
 	const maxRows = Math.max(...visibleContributors.map((f) => f.contributors.length));
 	const displayRows = isExpanded ? maxRows : Math.min(maxRows, 4);

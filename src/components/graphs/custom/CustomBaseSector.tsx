@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getColor } from "@/utils/metadata";
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function CustomBaseSector({ path, code, index, originalShare, patternPrefix }: Props) {
-	const currSlice = useStore(activeSlice);
+	const currSlice = use$(activeSlice);
 	const chartPrefix = patternPrefix.charAt(0);
 
 	const id = sliceId(code, originalShare);

@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { Calculator, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -30,7 +30,7 @@ import { isCached } from "@/utils/storage";
 const Footer = () => {
 	const [isCalculating, setIsCalculating] = useState(false);
 
-	const isDisabled = useStore(isCalculationDisabled);
+	const isDisabled = use$(isCalculationDisabled);
 
 	const handleCalculate = async () => {
 		setIsCalculating(true);
@@ -65,7 +65,7 @@ const Footer = () => {
 
 			let datesForType = currentManifest?.dates?.[dataType]?.[incomeClass];
 
-			if (!datesForType && isOnline.get()) {
+			if (!datesForType && isOnline.peek()) {
 				await setCurrentArea(area.key);
 				const refreshed = await getAreaManifest(area.key);
 				if (refreshed) {
@@ -75,7 +75,7 @@ const Footer = () => {
 			}
 
 			if (!datesForType) {
-				const reason = !isOnline.get()
+				const reason = !isOnline.peek()
 					? "You're offline and the CPI data for this area hasn't been cached."
 					: `No ${dataType} CPI data available for this area and income class.`;
 				toast.warning("Unable to calculate inflation", { description: reason });
@@ -106,7 +106,7 @@ const Footer = () => {
 			let keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
 			// When offline, only include areas whose yearly data is cached
-			if (!isOnline.get()) {
+			if (!isOnline.peek()) {
 				const cachedKeys = await Promise.all(
 					keysToFetch.map(async (key) => {
 						const [cur, prev] = await Promise.all([
@@ -165,7 +165,7 @@ const Footer = () => {
 				toast.error("Calculation failed. Please check inputs.");
 			}
 		} catch (err) {
-			if (err instanceof TypeError && !isOnline.get()) {
+			if (err instanceof TypeError && !isOnline.peek()) {
 				toast.error("Unable to calculate inflation", {
 					description:
 						"You're offline and the required CPI data is not cached. Please connect to the internet and try again.",

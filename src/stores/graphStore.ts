@@ -1,13 +1,13 @@
+import { observable } from "@legendapp/state";
 import type { ContributionFactor } from "@/utils/inflationCompute";
-import { atom } from "nanostores";
 
 export type CompareModeType = "all" | "area" | "province" | "region" | "national";
 export type TrendType = "inflation" | "cpi";
 
-export const trendType = atom<TrendType>("inflation");
-export const compareMode = atom<CompareModeType>("all");
-export const compareOfficial = atom<ContributionFactor | undefined>(undefined);
-export const activeSlice = atom<string | null>(null);
+export const trendType = observable<TrendType>("inflation");
+export const compareMode = observable<CompareModeType>("all");
+export const compareOfficial = observable<ContributionFactor | undefined>(undefined);
+export const activeSlice = observable<string | null>(null);
 
 export const sliceId = (code: string, value: number) => {
 	const rounded = Math.abs(value).toFixed(4);

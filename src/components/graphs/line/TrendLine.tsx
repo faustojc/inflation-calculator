@@ -1,6 +1,5 @@
-import { useStore } from "@nanostores/react";
+import { useValue } from "@legendapp/state/react";
 import { TrendingUp } from "lucide-react";
-import { useCallback, useMemo } from "react";
 import { TrendLegend } from "@/components/graphs/line/TrendLegend";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -30,8 +29,8 @@ export default function TrendLine({
 	endDateStr,
 	meta,
 }: Readonly<Props>) {
-	const mode = useStore(compareMode);
-	const currTrend = useStore(trendType);
+	const mode = useValue(compareMode);
+	const currTrend = useValue(trendType);
 	const isMobile = useIsMobile();
 
 	const hierarchy = meta.location;
@@ -41,35 +40,29 @@ export default function TrendLine({
 	const trend = currTrend === "inflation" ? inflationTrend : cpiTrend;
 	const currName = currTrend === "inflation" ? "My Inflation" : "My CPI";
 
-	const showLine = useCallback((key: string): boolean => {
+	const showLine = (key: string): boolean => {
 		if (key === "personal") return true;
 		if (mode === "all") return true;
 		return mode === key;
-	}, [mode]);
+	};
 
-	const seriesLabels = useMemo<Record<string, string>>(
-		() => ({
-			personal: currName,
-			area: hierarchy.target.name,
-			province: hierarchy.province?.name ?? "",
-			region: hierarchy.region?.name ?? "",
-			national: "Philippines",
-		}),
-		[currName, hierarchy.target.name, hierarchy.province?.name, hierarchy.region?.name],
-	);
+	const seriesLabels: Record<string, string> = {
+		personal: currName,
+		area: hierarchy.target.name,
+		province: hierarchy.province?.name ?? "",
+		region: hierarchy.region?.name ?? "",
+		national: "Philippines",
+	};
 
-	const seriesVisibility = useMemo<Record<string, boolean>>(
-		() => ({
-			personal: true,
-			area: showLine("area"),
-			province: hasProvince && showLine("province"),
-			region: hasRegion && showLine("region"),
-			national: showLine("national"),
-		}),
-		[hasProvince, hasRegion, showLine],
-	);
+	const seriesVisibility: Record<string, boolean> = {
+		personal: true,
+		area: showLine("area"),
+		province: hasProvince && showLine("province"),
+		region: hasRegion && showLine("region"),
+		national: showLine("national"),
+	};
 
-	const yAxisConfig = useMemo(() => buildYAxisConfig(trend, currTrend), [trend, currTrend]);
+	const yAxisConfig = buildYAxisConfig(trend, currTrend);
 
 	const { wrapperRef, chartRef, tooltipRef } = useTrendChart({
 		trend,

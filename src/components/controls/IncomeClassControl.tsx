@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import {
 	Select,
 	SelectContent,
@@ -9,7 +9,7 @@ import {
 import { type IncomeClass, settings } from "@/stores/inflationStore";
 
 const IncomeClassControl = () => {
-	const appSettings = useStore(settings);
+	const appSettings = use$(settings);
 
 	// Format the number into currency without currency symbol
 	const formatCurrency = (amount: number) => {
@@ -34,7 +34,7 @@ const IncomeClassControl = () => {
 			<Select
 				name="Income class selection"
 				value={appSettings.incomeClass}
-				onValueChange={(val) => settings.setKey("incomeClass", val as IncomeClass)}
+				onValueChange={(val) => settings.incomeClass.set(val as IncomeClass)}
 			>
 				<SelectTrigger className="w-full">
 					<SelectValue />

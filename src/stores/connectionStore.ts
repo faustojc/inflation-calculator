@@ -1,16 +1,8 @@
-import { atom, onMount } from "nanostores";
+import { observable } from "@legendapp/state";
 
-export const isOnline = atom(navigator.onLine);
+export const isOnline = observable(navigator.onLine);
 
-onMount(isOnline, () => {
-	const goOnline = () => isOnline.set(true);
-	const goOffline = () => isOnline.set(false);
-
-	window.addEventListener("online", goOnline);
-	window.addEventListener("offline", goOffline);
-
-	return () => {
-		window.removeEventListener("online", goOnline);
-		window.removeEventListener("offline", goOffline);
-	};
-});
+if (typeof window !== "undefined") {
+	window.addEventListener("online", () => isOnline.set(true));
+	window.addEventListener("offline", () => isOnline.set(false));
+}

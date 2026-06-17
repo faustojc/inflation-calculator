@@ -1,4 +1,4 @@
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { NEG_STROKE_COLOR } from "@/utils/metadata";
 
@@ -20,7 +20,7 @@ export default function CustomOverlaySector({
 	originalShare,
 	patternPrefix,
 }: Props) {
-	const currSlice = useStore(activeSlice);
+	const currSlice = use$(activeSlice);
 	const chartPrefix = patternPrefix.charAt(0);
 
 	if (type === "filler") {

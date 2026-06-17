@@ -1,8 +1,8 @@
-import { atom } from "nanostores";
+import { observable } from "@legendapp/state";
 
-export const $openMenu = atom(false);
+export const $openMenu = observable(false);
 
-export const openOnboarding = atom(false);
+export const openOnboarding = observable(false);
 export const showOnboarding = () => {
 	openOnboarding.set(true);
 };

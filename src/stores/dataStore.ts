@@ -1,4 +1,4 @@
-import { computed, map } from "nanostores";
+import { observable } from "@legendapp/state";
 import type {
 	AreaDef,
 	AreaHierarchy,
@@ -53,7 +53,7 @@ interface Metadata {
 	areas: AreaDef[];
 }
 
-export const dataStore = map<DataState>({
+export const dataStore = observable<DataState>({
 	isLoading: true,
 	isReady: false,
 	error: null,
@@ -71,7 +71,7 @@ export async function initializeApp() {
 	if (dataStore.get().commodities.length > 0) return;
 
 	try {
-		dataStore.setKey("isLoading", true);
+		dataStore.isLoading.set(true);
 
 		let [metaRes, commRes] = await Promise.all([
 			fetchWithCache(cpiUrl("metadata.json"), "network-first"),
@@ -156,8 +156,7 @@ export async function initializeApp() {
 
 		await setCurrentArea(meta.areas.at(1)!.key);
 
-		dataStore.set({
-			...dataStore.get(),
+		dataStore.assign({
 			areas: meta.areas,
 			availableYears: years,
 			commodities,
@@ -173,9 +172,9 @@ export async function initializeApp() {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (err: any) {
 		console.error(err);
-		dataStore.setKey("error", "Could not load application data.");
-		dataStore.setKey("isLoading", false);
-		dataStore.setKey("isReady", false);
+		dataStore.error.set("Could not load application data.");
+		dataStore.isLoading.set(false);
+		dataStore.isReady.set(false);
 	}
 }
 
@@ -205,7 +204,7 @@ export async function getAreaManifest(areaKey: string): Promise<AreaManifest | n
 export async function setCurrentArea(areaKey: string) {
 	const manifest = await getAreaManifest(areaKey);
 	if (manifest) {
-		dataStore.setKey("currentManifest", manifest);
+		dataStore.currentManifest.set(manifest);
 	}
 }
 
@@ -354,8 +353,8 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 	};
 }
 
-export const commodityTree = computed(dataStore, (state) => {
-	const { commodities } = state;
+export const commodityTree = observable<TreeNode[]>(() => {
+	const commodities = dataStore.commodities.get();
 	if (commodities.length === 0) return [];
 
 	const nodeMap = new Map<string, TreeNode>();
@@ -393,8 +392,9 @@ export const commodityTree = computed(dataStore, (state) => {
 	return roots;
 });
 
-export const majorCategories = computed(dataStore, (state) => {
-	return state.commodities
+export const majorCategories = observable<CommodityDef[]>(() => {
+	return dataStore.commodities
+		.get()
 		.filter((c) => !c.code.includes("."))
 		.sort((a, b) => a.code.localeCompare(b.code));
 });

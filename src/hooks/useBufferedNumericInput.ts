@@ -1,4 +1,4 @@
-import { type ChangeEvent, type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 
 type NormalizeValue = (value: number) => number | null;
 
@@ -30,34 +30,31 @@ export function useBufferedNumericInput({
 		commitRef.current = commit;
 	}, [commit]);
 
-	const clearTimer = useCallback(() => {
+	const clearTimer = () => {
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
 			timerRef.current = null;
 		}
-	}, []);
+	};
 
-	const commitValue = useCallback((nextValue: number) => {
+	const commitValue = (nextValue: number) => {
 		if (nextValue === latestValueRef.current) return;
 
 		latestValueRef.current = nextValue;
 		commitRef.current(nextValue);
-	}, []);
+	};
 
-	const scheduleCommit = useCallback(
-		(nextValue: number) => {
-			pendingValueRef.current = nextValue;
-			clearTimer();
-			timerRef.current = setTimeout(() => {
-				const pendingValue = pendingValueRef.current;
-				pendingValueRef.current = null;
-				if (pendingValue !== null) commitValue(pendingValue);
-			}, debounceMs);
-		},
-		[clearTimer, commitValue, debounceMs],
-	);
+	const scheduleCommit = (nextValue: number) => {
+		pendingValueRef.current = nextValue;
+		clearTimer();
+		timerRef.current = setTimeout(() => {
+			const pendingValue = pendingValueRef.current;
+			pendingValueRef.current = null;
+			if (pendingValue !== null) commitValue(pendingValue);
+		}, debounceMs);
+	};
 
-	const flushPending = useCallback(() => {
+	const flushPending = () => {
 		clearTimer();
 
 		const pendingValue = pendingValueRef.current;
@@ -68,7 +65,7 @@ export function useBufferedNumericInput({
 		}
 
 		return latestValueRef.current;
-	}, [clearTimer, commitValue]);
+	};
 
 	useEffect(() => {
 		latestValueRef.current = value;
@@ -76,59 +73,56 @@ export function useBufferedNumericInput({
 
 	useEffect(() => {
 		return () => {
-			clearTimer();
+			if (timerRef.current) {
+				clearTimeout(timerRef.current);
+				timerRef.current = null;
+			}
 			const pendingValue = pendingValueRef.current;
 			pendingValueRef.current = null;
 			if (pendingValue !== null && pendingValue !== latestValueRef.current) {
 				commitRef.current(pendingValue);
 			}
 		};
-	}, [clearTimer]);
+	}, []);
 
-	const handleChange = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			const rawValue = e.target.value;
-			if (rawValue === "") {
-				setDraftValue("");
-				scheduleCommit(0);
-				return;
-			}
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+		const rawValue = e.target.value;
+		if (rawValue === "") {
+			setDraftValue("");
+			scheduleCommit(0);
+			return;
+		}
 
-			const parsedValue = Number.parseFloat(rawValue);
-			if (!Number.isFinite(parsedValue)) {
-				setDraftValue(rawValue);
-				return;
-			}
+		const parsedValue = Number.parseFloat(rawValue);
+		if (!Number.isFinite(parsedValue)) {
+			setDraftValue(rawValue);
+			return;
+		}
 
-			const normalizedValue = normalize(parsedValue);
-			if (normalizedValue === null) return;
+		const normalizedValue = normalize(parsedValue);
+		if (normalizedValue === null) return;
 
-			setDraftValue(normalizedValue === parsedValue ? rawValue : formatDraftValue(normalizedValue));
-			scheduleCommit(normalizedValue);
-		},
-		[normalize, scheduleCommit],
-	);
+		setDraftValue(normalizedValue === parsedValue ? rawValue : formatDraftValue(normalizedValue));
+		scheduleCommit(normalizedValue);
+	};
 
-	const handleBlur = useCallback(() => {
+	const handleBlur = () => {
 		isFocusedRef.current = false;
 		flushPending();
 		setDraftValue(null);
-	}, [flushPending]);
+	};
 
-	const handleFocus = useCallback(() => {
+	const handleFocus = () => {
 		isFocusedRef.current = true;
-	}, []);
+	};
 
-	const handleEnterKey = useCallback(
-		(e: KeyboardEvent<HTMLInputElement>) => {
-			if (e.key !== "Enter") return;
+	const handleEnterKey = (e: KeyboardEvent<HTMLInputElement>) => {
+		if (e.key !== "Enter") return;
 
-			flushPending();
-			setDraftValue(null);
-			e.currentTarget.blur();
-		},
-		[flushPending],
-	);
+		flushPending();
+		setDraftValue(null);
+		e.currentTarget.blur();
+	};
 
 	return {
 		draftValue: draftValue ?? formatDraftValue(value),

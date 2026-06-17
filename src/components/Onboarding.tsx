@@ -1,13 +1,13 @@
-import { useStore } from "@nanostores/react";
+import { useValue } from "@legendapp/state/react";
 import { BarChart3, BookOpen, Calculator, HelpCircle, TrendingUp } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { openOnboarding, startTour } from "@/stores/onboardingStore";
 
 export const Onboarding = () => {
-	const open = useStore(openOnboarding);
+	const open = useValue(openOnboarding);
 
 	// First-time visitors: auto-open the welcome modal
 	useEffect(() => {
@@ -17,12 +17,12 @@ export const Onboarding = () => {
 		}
 	}, []);
 
-	const handleClose = useCallback(() => {
+	const handleClose = () => {
 		openOnboarding.set(false);
 		localStorage.setItem("first_time_visit", "true");
 
 		setTimeout(() => void startTour(), 180);
-	}, []);
+	};
 
 	return (
 		<Dialog

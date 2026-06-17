@@ -1,9 +1,9 @@
 import GeneralRow from "@/components/GeneralRow";
 import { majorCategories } from "@/stores/dataStore";
-import { useStore } from "@nanostores/react";
+import { use$ } from "@legendapp/state/react";
 
 export function GeneralTab() {
-	const categories = useStore(majorCategories);
+	const categories = use$(majorCategories);
 
 	return (
 		<div id="general-tab" className="space-y-3">

@@ -33,8 +33,7 @@ export const MAJOR_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 };
 
 export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
-	"01.1":
-		"e.g. rice, pork, chicken, beef, fish, egg, noodles, fruits, flour, vegetables, sugar, condiments",
+	"01.1": "e.g. rice, pork, chicken, beef, fish, egg, noodles, fruits, flour, vegetables, sugar, condiments",
 	"01.2": "e.g. coffee, tea, bottled water, fruit juices, sweetened beverages",
 	"02.1": "e.g. beer, rhum, gin, vodka",
 	"02.3": "e.g. cigarette, betel nut, e-cigarette refill",
@@ -56,11 +55,9 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"06.3": "e.g. public hospital payward, private hospital payward",
 	"06.4": "e.g. laboratory services like CBC, X-ray, and consultation by OB-Gyne, pediatrician",
 	"07.1": "e.g. purchase of motor car, motorcycle, and bicycle",
-	"07.2":
-		"e.g. vehicle tire, engine oil, lubricating oil, diesel, gasoline, maintenance of motor vehicles",
+	"07.2": "e.g. vehicle tire, engine oil, lubricating oil, diesel, gasoline, maintenance of motor vehicles",
 	"07.3": "e.g. transportation fare for jeepney, bus, taxi, tricycle, airplane, ship",
-	"07.4":
-		"e.g. payment for courier services, delivery of goods, delivery of food for immediate consumption",
+	"07.4": "e.g. payment for courier services, delivery of goods, delivery of food for immediate consumption",
 	"08.1":
 		"e.g. mobile phone, television, personal computer, tablet computer, hard drive, microphone, rent of videoke machine",
 	"08.3":
@@ -145,29 +142,26 @@ export function formatLocationName(str: string, locale = "en") {
 	);
 
 	// Handle parentheses: Uppercase if acronym of name, otherwise keep Title Case
-	str = str.replaceAll(
-		/\(([^)]+)\)/g,
-		(match: string, inner: string, offset: number, fullString: string) => {
-			const namePart = fullString.slice(0, offset);
-			const words = namePart.split(/[\s-]+/);
-			const acronymTarget = inner.toUpperCase();
+	str = str.replaceAll(/\(([^)]+)\)/g, (match: string, inner: string, offset: number, fullString: string) => {
+		const namePart = fullString.slice(0, offset);
+		const words = namePart.split(/[\s-]+/);
+		const acronymTarget = inner.toUpperCase();
 
-			const generatedAcronym = words
-				.filter((w: string) => w && !exceptions.includes(w.toLowerCase()))
-				.map((w: string) => w.charAt(0).toUpperCase())
-				.join("");
+		const generatedAcronym = words
+			.filter((w: string) => w && !exceptions.includes(w.toLowerCase()))
+			.map((w: string) => w.charAt(0).toUpperCase())
+			.join("");
 
-			// If the content is an acronym of the name (e.g. NCR == N(ational)C(apital)R(egion))
-			if (
-				(generatedAcronym.length > 1 && acronymTarget === generatedAcronym) ||
-				acronymTarget === "CALABARZON"
-			) {
-				return `(${acronymTarget})`;
-			}
+		// If the content is an acronym of the name (e.g. NCR == N(ational)C(apital)R(egion))
+		if (
+			(generatedAcronym.length > 1 && acronymTarget === generatedAcronym) ||
+			acronymTarget === "CALABARZON"
+		) {
+			return `(${acronymTarget})`;
+		}
 
-			return match;
-		},
-	);
+		return match;
+	});
 
 	return str;
 }
@@ -180,10 +174,12 @@ export function preventNonNumeric(e: KeyboardEvent<HTMLInputElement>) {
 
 export const getLimitValue = (m: Mode, v: number) => {
 	if (m === "percent") {
-		return (v = v > 100 ? 100 : v);
+		const val = v > 100 ? 100 : v;
+		return val;
 	}
 
-	return (v = v > 500000 ? 500000 : v);
+	const val = v > 500000 ? 500000 : v;
+	return val;
 };
 
 export const getColor = (code: string | undefined, index: number) => {

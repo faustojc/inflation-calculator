@@ -1,7 +1,6 @@
-import { useStore } from "@nanostores/react";
+import { observer, useValue } from "@legendapp/state/react";
 import { AlertCircle } from "lucide-react";
-import { computed } from "nanostores";
-import { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { useBufferedNumericInput } from "@/hooks/useBufferedNumericInput";
 import type { CommodityDef } from "@/lib/types";
@@ -15,28 +14,16 @@ import {
 } from "@/stores/inflationStore";
 import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric } from "@/utils/metadata";
 
-const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
-	const m = useStore(mode);
+const GeneralRow = observer(({ cat }: Readonly<{ cat: CommodityDef }>) => {
+	const m = useValue(mode);
 
-	const valueStore = useMemo(
-		() => computed(generalExpenses, (expenses) => getLimitValue(m, expenses[cat.code]?.value || 0)),
-		[cat.code, m],
+	const value = useValue(() => getLimitValue(m, generalExpenses[cat.code]?.get()?.value || 0));
+	const isMatch = useValue(() => highlightState.code.get() === cat.code);
+	const highlightLabel = useValue(() =>
+		highlightState.code.get() === cat.code ? highlightState.label.get() : "",
 	);
-	const isMatchStore = useMemo(() => computed(highlightState, (h) => h?.code === cat.code), [cat.code]);
-	const highlightLabelStore = useMemo(
-		() => computed(highlightState, (h) => (h?.code === cat.code ? h.label : "")),
-		[cat.code],
-	);
-	const isMissingStore = useMemo(
-		() => computed(missingGeneralItems, (missing) => missing.has(cat.code)),
-		[cat.code],
-	);
-
-	const value = useStore(valueStore);
-	const isMatch = useStore(isMatchStore);
-	const highlightLabel = useStore(highlightLabelStore);
-	const isMissing = useStore(isMissingStore);
-	const isReady = useStore(prefetchReady);
+	const isMissing = useValue(() => missingGeneralItems.get().has(cat.code));
+	const isReady = useValue(prefetchReady);
 
 	const missingStatus = isReady && isMissing;
 
@@ -53,18 +40,12 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 		}
 	}, [isMatch]);
 
-	const commitValue = useCallback(
-		(nextValue: number) => updateExpenseValue(cat.code, cat.name, nextValue, "general"),
-		[cat.code, cat.name],
-	);
+	const commitValue = (nextValue: number) => updateExpenseValue(cat.code, cat.name, nextValue, "general");
 
-	const normalizeValue = useCallback(
-		(nextValue: number) => {
-			if (nextValue < 0 || (m === "percent" && nextValue > 100)) return null;
-			return getLimitValue(m, nextValue);
-		},
-		[m],
-	);
+	const normalizeValue = (nextValue: number) => {
+		if (nextValue < 0 || (m === "percent" && nextValue > 100)) return null;
+		return getLimitValue(m, nextValue);
+	};
 
 	const {
 		draftValue,
@@ -78,7 +59,7 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 		commit: commitValue,
 	});
 
-	const handleFocus = useCallback(() => {
+	const handleFocus = () => {
 		handleDraftFocus();
 		if (isPointerDown.current) {
 			isPointerDown.current = false;
@@ -87,15 +68,12 @@ const GeneralRow = memo(({ cat }: Readonly<{ cat: CommodityDef }>) => {
 		setTimeout(() => {
 			rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
 		}, 50);
-	}, [handleDraftFocus]);
+	};
 
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLInputElement>) => {
-			preventNonNumeric(e);
-			handleEnterKey(e);
-		},
-		[handleEnterKey],
-	);
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		preventNonNumeric(e);
+		handleEnterKey(e);
+	};
 
 	return (
 		<div

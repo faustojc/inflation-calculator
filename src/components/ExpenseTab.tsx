@@ -1,5 +1,4 @@
-import { useStore } from "@nanostores/react";
-import { useMemo } from "react";
+import { useValue } from "@legendapp/state/react";
 import ExpenseNode from "@/components/ExpenseNode";
 import type { CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
@@ -31,12 +30,11 @@ function mapDataToNode(def: CommodityDef, currentDepth: number, maxDepth: number
 }
 
 export function ExpenseTab() {
-	const { commodities } = useStore(dataStore);
-
-	const tree = useMemo(() => {
+	const tree = useValue(() => {
+		const commodities = dataStore.commodities.get();
 		if (!commodities || commodities.length === 0) return [];
 		return commodities.map((c) => mapDataToNode(c, 0, 1));
-	}, [commodities]);
+	});
 
 	return (
 		<div id="detailed-tab" className="space-y-3">

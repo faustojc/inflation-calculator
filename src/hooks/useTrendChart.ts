@@ -37,7 +37,10 @@ export function useTrendChart({
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const animProgressRef = useRef(1);
 	const visibilityRef = useRef(seriesVisibility);
-	visibilityRef.current = seriesVisibility;
+
+	useEffect(() => {
+		visibilityRef.current = seriesVisibility;
+	}, [seriesVisibility]);
 
 	useEffect(() => {
 		let disposed = false;

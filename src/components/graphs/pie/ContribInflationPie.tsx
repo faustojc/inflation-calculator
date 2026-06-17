@@ -1,4 +1,4 @@
-import { useId, useMemo } from "react";
+import { useId } from "react";
 import CustomPieLegend, { type LegendItem } from "@/components/graphs/custom/CustomPieLegend";
 import { OverlayPieChart } from "@/components/graphs/custom/OverlayPieChart";
 import type { PieEntry } from "@/lib/types";
@@ -80,13 +80,13 @@ function buildLegend(contributors: readonly CommodityContribution[]): LegendItem
 export default function ContribInflationPie({ personal, official }: Readonly<Props>) {
 	const instanceId = useId().replace(/:/g, "");
 
-	const personalParts = useMemo(() => buildPieData(personal.contributors), [personal.contributors]);
-	const officialParts = useMemo(() => buildPieData(official.contributors), [official.contributors]);
+	const personalParts = buildPieData(personal.contributors);
+	const officialParts = buildPieData(official.contributors);
 
-	const personalLegend = useMemo(() => buildLegend(personal.contributors), [personal.contributors]);
-	const officialLegend = useMemo(() => buildLegend(official.contributors), [official.contributors]);
+	const personalLegend = buildLegend(personal.contributors);
+	const officialLegend = buildLegend(official.contributors);
 
-	const deflationFootnotes = useMemo(() => {
+	const deflationFootnotes = (() => {
 		const notes: { name: string; code: string; personalShare?: number; officialShare?: number }[] = [];
 
 		const personalNegs = personal.contributors.filter((c) => c.code !== "0" && c.percentShare < 0);
@@ -106,7 +106,7 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 		}
 
 		return notes;
-	}, [personal.contributors, official.contributors]);
+	})();
 
 	return (
 		<div className="flex flex-col gap-6">
