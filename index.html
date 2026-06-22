@@ -5,23 +5,10 @@
 		<link rel="icon" type="image/webp" href="/psa_logo.webp" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Philippines Statistics Authority | Personal Inflation Calculator</title>
+		<script src="/theme-init.js"></script>
 	</head>
 	<body>
 		<div id="root"></div>
 		<script type="module" src="/src/main.tsx"></script>
 	</body>
-
-	<script lang="ts" defer>
-		const root = window.document.documentElement;
-		const theme = localStorage.getItem("theme");
-
-		if (theme === "system") {
-			const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-			root.className = systemTheme;
-		} else {
-			root.className = theme ?? "light";
-		}
-
-		localStorage.setItem("theme", theme ?? root.className);
-	</script>
 </html>

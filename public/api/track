@@ -1,2 +1,2 @@
-Requests to this path (with the location in the query string) return 200 and are recorded in the Apache access log.
+Requests to this path (with the location in the query string) return 200.
 For example, `/api/track?region=Philippines&province=NCR&city=Quezon`
