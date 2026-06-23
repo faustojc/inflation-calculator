@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Toaster } from "sonner";
 import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
+import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import { GeneralTab } from "@/components/GeneralTab";
 import { Header } from "@/components/Header";
@@ -21,6 +22,7 @@ import {
 	settings,
 } from "@/stores/inflationStore";
 import { openOnboarding } from "@/stores/onboardingStore";
+import { $openFaq } from "./stores/faqStore";
 
 const LazyOnboarding = lazy(() =>
 	import("@/components/Onboarding").then((module) => ({ default: module.Onboarding })),
@@ -35,6 +37,8 @@ export default function App() {
 	const resultState = use$(calculationResult);
 	const isOnboardingOpen = use$(openOnboarding);
 	const isMobile = useIsMobile();
+	const isFaqOpen = use$($openFaq);
+
 	const [canLoadOnboarding, setCanLoadOnboarding] = useState(false);
 
 	useEffect(() => {
@@ -200,6 +204,7 @@ export default function App() {
 					<LazyOnboarding />
 				</Suspense>
 			)}
+			{isFaqOpen && <Faq />}
 		</>
 	);
 }

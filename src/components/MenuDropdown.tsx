@@ -1,8 +1,14 @@
-import { $openMenu, showOnboarding } from "@/stores/onboardingStore";
-import { X, HelpCircle, MessageSquare, Sun, Moon, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { use$ } from "@legendapp/state/react";
+import { HelpCircle, Menu, MessageSquare, Moon, Sun, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { $openFaq } from "@/stores/faqStore";
+import { $openMenu, showOnboarding } from "@/stores/onboardingStore";
 import { $theme, toggleTheme } from "@/stores/themeStore";
 
 const MenuDropdown = () => {
@@ -31,9 +37,9 @@ const MenuDropdown = () => {
 					<HelpCircle className="mr-2 h-4 w-4" />
 					<span>Guide</span>
 				</DropdownMenuItem>
-				<DropdownMenuItem id="faq" className="cursor-pointer" disabled>
+				<DropdownMenuItem id="faq" onClick={() => $openFaq.set(true)} className="cursor-pointer">
 					<MessageSquare className="mr-2 h-4 w-4" />
-					<span>FAQ (Coming Soon)</span>
+					<span>FAQ</span>
 				</DropdownMenuItem>
 				<DropdownMenuItem id="theme-toggle" onClick={toggleTheme} className="cursor-pointer">
 					{theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
