@@ -1,52 +1,109 @@
-import {
-    CircleCheckIcon,
-    InfoIcon,
-    Loader2Icon,
-    OctagonXIcon,
-    TriangleAlertIcon,
-} from "lucide-react"
-import { use$ } from "@legendapp/state/react"
-import { $theme } from "@/stores/themeStore"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
+import { AlertTriangleIcon, CircleXIcon, XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = use$($theme)
+const TOAST_DURATION_MS = 5000;
 
-  return (
-    <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      toastOptions={{
-        classNames: {
-          toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:p-4 group-[.toaster]:gap-3",
-          description: "group-[.toast]:text-sm group-[.toast]:text-muted-foreground group-[.toast]:leading-relaxed",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:font-semibold group-[.toast]:px-3 group-[.toast]:py-1.5",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground group-[.toast]:px-3 group-[.toast]:py-1.5",
-          title: "group-[.toast]:text-base group-[.toast]:font-semibold group-[.toast]:tracking-tight",
-          icon: "group-data-[type=error]:text-destructive group-data-[type=success]:text-primary group-data-[type=warning]:text-amber-500 group-data-[type=info]:text-blue-500",
-        },
-      }}
-      icons={{
-        success: <CircleCheckIcon className="size-5" />,
-        info: <InfoIcon className="size-5" />,
-        warning: <TriangleAlertIcon className="size-5" />,
-        error: <OctagonXIcon className="size-5" />,
-        loading: <Loader2Icon className="size-5 animate-spin" />,
-      }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
-      {...props}
-    />
-  )
+type ToastType = "error" | "warning";
+
+type ToastOptions = {
+	classNames?: unknown;
+	description?: string;
+	duration?: number;
+};
+
+type ToastItem = ToastOptions & {
+	id: number;
+	title: string;
+	type: ToastType;
+};
+
+type ToasterProps = {
+	closeButton?: boolean;
+	position?: "top-center";
+};
+
+let nextToastId = 0;
+let toasts: ToastItem[] = [];
+const listeners = new Set<(items: ToastItem[]) => void>();
+
+function notify() {
+	for (const listener of listeners) listener(toasts);
 }
 
-export { Toaster }
+function dismiss(id: number) {
+	toasts = toasts.filter((toast) => toast.id !== id);
+	notify();
+}
+
+function pushToast(type: ToastType, title: string, options: ToastOptions = {}) {
+	const id = ++nextToastId;
+	toasts = [...toasts, { id, type, title, description: options.description }].slice(-4);
+	notify();
+	window.setTimeout(() => dismiss(id), options.duration ?? TOAST_DURATION_MS);
+}
+
+const toast = {
+	error: (title: string, options?: ToastOptions) => pushToast("error", title, options),
+	warning: (title: string, options?: ToastOptions) => pushToast("warning", title, options),
+};
+
+const toastStyles: Record<ToastType, string> = {
+	error: "border-destructive/40 bg-destructive/10 text-destructive",
+	warning: "border-secondary/60 bg-secondary/15 text-foreground",
+};
+
+const toastIcons: Record<ToastType, typeof AlertTriangleIcon> = {
+	error: CircleXIcon,
+	warning: AlertTriangleIcon,
+};
+
+function Toaster({ closeButton = false }: ToasterProps) {
+	const [items, setItems] = useState(toasts);
+
+	useEffect(() => {
+		listeners.add(setItems);
+		return () => {
+			listeners.delete(setItems);
+		};
+	}, []);
+
+	if (items.length === 0) return null;
+
+	return (
+		<div className="pointer-events-none fixed left-1/2 top-4 z-50 flex w-[min(92vw,28rem)] -translate-x-1/2 flex-col gap-2">
+			{items.map((item) => {
+				const Icon = toastIcons[item.type];
+
+				return (
+					<div
+						key={item.id}
+						className={`pointer-events-auto flex items-start gap-3 rounded-lg border p-4 shadow-lg backdrop-blur ${toastStyles[item.type]}`}
+						role="status"
+					>
+						<Icon className="mt-0.5 size-5 shrink-0" />
+						<div className="min-w-0 flex-1">
+							<div className="text-sm font-semibold leading-5">{item.title}</div>
+							{item.description && (
+								<div className="mt-1 text-sm leading-5 opacity-80">{item.description}</div>
+							)}
+						</div>
+						{closeButton && (
+							<Button
+								aria-label="Dismiss notification"
+								className="size-7 shrink-0"
+								onClick={() => dismiss(item.id)}
+								size="icon"
+								variant="ghost"
+							>
+								<XIcon className="size-4" />
+							</Button>
+						)}
+					</div>
+				);
+			})}
+		</div>
+	);
+}
+
+export { Toaster, toast };

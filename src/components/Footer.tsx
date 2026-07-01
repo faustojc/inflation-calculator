@@ -1,9 +1,9 @@
 import { use$ } from "@legendapp/state/react";
 import { Calculator, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/sonner";
 import { isOnline } from "@/stores/connectionStore";
 import {
 	cpiUrl,
@@ -40,9 +40,7 @@ const Footer = () => {
 			const currentMode = mode.get();
 			const currentTotalAlloc = totalAllocation.get();
 			const currentTab = activeTab.get();
-			const items = Object.values(
-				currentTab === "general" ? generalExpenses.get() : detailedExpenses.get(),
-			);
+			const items = Object.values(currentTab === "general" ? generalExpenses.get() : detailedExpenses.get());
 
 			const targetYear = startDate.getFullYear();
 			const targetMonth = startDate.getMonth() + 1;

@@ -120,22 +120,6 @@ export function OverlayPieChart({
 					style={{ overflow: "visible" }}
 				>
 					<title>Pie Chart</title>
-					<style>{`
-						@keyframes labelFocusIn {
-							0%   { opacity: 0; filter: blur(6px); }
-							60%  { opacity: 1; filter: blur(1px); }
-							100% { opacity: 1; filter: blur(0px); }
-						}
-						@keyframes overlayFlareIn {
-							0%   { opacity: 0; filter: drop-shadow(0 0 10px rgba(220,50,50,0.95)); }
-							45%  { opacity: 1; filter: drop-shadow(0 0 5px rgba(220,50,50,0.5)); }
-							100% { opacity: 1; filter: drop-shadow(0 0 0px rgba(220,50,50,0)); }
-						}
-						@keyframes marchDashes {
-							from { stroke-dashoffset: 0; }
-							to   { stroke-dashoffset: -9; }
-						}
-					`}</style>
 
 					<defs>
 						{/* Reveal clip — animated by rAF */}

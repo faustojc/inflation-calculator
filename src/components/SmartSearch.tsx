@@ -1,17 +1,24 @@
-import HighlightedText from "@/components/HighlightedText";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useScrollDirection } from "@/hooks/use-scroll-direction";
-import { fuzzyScore, type FuzzyMatch } from "@/lib/fuzzySearch";
-import type { SearchOption } from "@/lib/types";
-import { dataStore } from "@/stores/dataStore";
-import { activeTab, locateCategory, missingDataItems } from "@/stores/inflationStore";
 import { useValue } from "@legendapp/state/react";
 import { LucideNavigation, Search, Tag } from "lucide-react";
 import { useEffect, useState } from "react";
+import HighlightedText from "@/components/HighlightedText";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useScrollDirection } from "@/hooks/use-scroll-direction";
+import { type FuzzyMatch, fuzzyScore } from "@/lib/fuzzySearch";
+import type { SearchOption } from "@/lib/types";
+import { dataStore } from "@/stores/dataStore";
+import { activeTab, locateCategory, missingDataItems } from "@/stores/inflationStore";
 
 interface ScoredOption {
 	item: SearchOption;
@@ -54,7 +61,8 @@ export function SmartSearch() {
 		const currTab = activeTab.get();
 
 		for (const item of searchOptions) {
-			const currCode = currTab === "general" && item.code.includes(".") ? item.code.split(".")[0]! : item.code;
+			const currCode =
+				currTab === "general" && item.code.includes(".") ? item.code.split(".")[0]! : item.code;
 
 			// Skip items whose effective code has no CPI data for this tab
 			if (missing.has(currCode)) continue;
@@ -116,8 +124,7 @@ export function SmartSearch() {
 
 	return (
 		<div
-			className="sticky top-18 sm:top-25 z-30 transition-[top] duration-300 ease-in-out motion-reduce:transition-none"
-			style={isMobile ? { top: headerHidden ? 0 : undefined } : undefined}
+			className={`sticky z-30 transition-[top] duration-300 ease-in-out motion-reduce:transition-none ${isMobile && headerHidden ? "top-0" : "top-18 sm:top-25"}`}
 			id="smart-search-container"
 		>
 			<Popover open={open} onOpenChange={setOpen}>

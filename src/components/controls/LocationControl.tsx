@@ -1,7 +1,7 @@
 import { useValue } from "@legendapp/state/react";
 import { Check, ChevronsUpDown, Loader2Icon } from "lucide-react";
 import { Fragment, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -101,9 +101,7 @@ const LocationControl = () => {
 				return result;
 			}
 
-			const matchingItems = items.filter(
-				(a) => !a.regionName && a.areaName.toLowerCase().includes(query),
-			);
+			const matchingItems = items.filter((a) => !a.regionName && a.areaName.toLowerCase().includes(query));
 			if (matchingItems.length > 0) result.push([region, matchingItems]);
 
 			return result;

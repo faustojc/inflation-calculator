@@ -13,13 +13,10 @@ export const Header = () => {
 
 	return (
 		<header
-			className="w-full bg-psa-gradient sticky top-0 z-40 shadow-lg shadow-primary/10 overflow-hidden transition-transform duration-300 ease-in-out motion-reduce:transition-none"
-			style={{
-				transform: isHidden ? "translateY(-100%)" : "translateY(0)",
-			}}
+			className={`w-full bg-psa-gradient sticky top-0 z-40 shadow-lg shadow-primary/10 transition-transform duration-300 ease-in-out motion-reduce:transition-none ${isHidden ? "-translate-y-full" : "translate-y-0"}`}
 		>
 			<div className="max-w-5xl mx-auto px-2 sm:px-4 py-3">
-				<div className="flex items-center justify-between gap-1 sm:gap-2 overflow-hidden">
+				<div className="flex items-center justify-between gap-1 sm:gap-2">
 					<img
 						src="/inflation-calculator/psa_header.png"
 						alt="PSA Logo"

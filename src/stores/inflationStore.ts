@@ -1,5 +1,5 @@
 import { observable } from "@legendapp/state";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import type { AreaDef, CommodityDef } from "@/lib/types";
 import { dataStore, getAreaHierarchy, getCalculationData } from "@/stores/dataStore";
 import type { CalculationResult } from "@/utils/inflationCompute";
@@ -94,8 +94,7 @@ export function buildSearchIndex() {
 export function initializeExpenses() {
 	const { commodities } = dataStore.get();
 
-	if (Object.keys(generalExpenses.get()).length > 0 || Object.keys(detailedExpenses.get()).length > 0)
-		return;
+	if (Object.keys(generalExpenses.get()).length > 0 || Object.keys(detailedExpenses.get()).length > 0) return;
 
 	const initialExpenses: Record<string, ExpenseItem> = {};
 
@@ -150,12 +149,7 @@ export async function prefetchConstraints() {
 
 				const officialCurrent = batchMap[key]?.[targetYear]?.["official"]?.[targetMonth]?.[code];
 				const officialBase = batchMap[key]?.[baseYear]?.["official"]?.[targetMonth]?.[code];
-				if (
-					officialCurrent == null ||
-					officialCurrent === 0 ||
-					officialBase == null ||
-					officialBase === 0
-				) {
+				if (officialCurrent == null || officialCurrent === 0 || officialBase == null || officialBase === 0) {
 					missingGeneral.add(code);
 				}
 
@@ -164,12 +158,7 @@ export async function prefetchConstraints() {
 
 				const personalCurrent = batchMap[key]?.[targetYear]?.["personal"]?.[targetMonth]?.[code];
 				const personalBase = batchMap[key]?.[baseYear]?.["personal"]?.[targetMonth]?.[code];
-				if (
-					personalCurrent == null ||
-					personalCurrent === 0 ||
-					personalBase == null ||
-					personalBase === 0
-				) {
+				if (personalCurrent == null || personalCurrent === 0 || personalBase == null || personalBase === 0) {
 					missingPersonal.add(code);
 				}
 			};
@@ -231,8 +220,7 @@ export async function prefetchConstraints() {
 						toast:
 							"!border-amber-400 !dark:border-amber-500/60 !bg-amber-50 !dark:bg-amber-950/40 !shadow-lg !shadow-amber-200/30 !dark:shadow-amber-900/20 !px-3 !py-2 !gap-3.5",
 						title: "!text-amber-900 !dark:text-amber-200 !text-[0.95rem] !font-bold !tracking-tight",
-						description:
-							"!text-amber-800/80 !dark:text-amber-300/80 !text-[0.85rem] !leading-relaxed !mt-1",
+						description: "!text-amber-800/80 !dark:text-amber-300/80 !text-[0.85rem] !leading-relaxed !mt-1",
 						icon: "!text-amber-500 !dark:text-amber-400",
 					},
 				});

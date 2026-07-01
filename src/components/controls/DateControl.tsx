@@ -1,7 +1,7 @@
 import { useValue } from "@legendapp/state/react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { startTransition, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -101,14 +101,14 @@ const DateControl = () => {
 				setOpenYear(false);
 				return;
 			}
-	}
+		}
 
-	if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
-		const newDate = new Date(startDate);
-		newDate.setFullYear(yearNum);
+		if (areaAvailableYears.size === 0 || areaAvailableYears.has(yearNum)) {
+			const newDate = new Date(startDate);
+			newDate.setFullYear(yearNum);
 
-		// Validate month for new year
-		const maxMonth = currentManifest?.dates?.[dataType]?.[incomeClass]?.[yearNum] ?? 12;
+			// Validate month for new year
+			const maxMonth = currentManifest?.dates?.[dataType]?.[incomeClass]?.[yearNum] ?? 12;
 			if (newDate.getMonth() + 1 > maxMonth) {
 				newDate.setMonth(maxMonth - 1);
 			}
@@ -198,7 +198,7 @@ const DateControl = () => {
 							<CommandList>
 								<CommandEmpty>No year found.</CommandEmpty>
 								<CommandGroup className="max-h-62.5 overflow-y-auto">
-								{Array.from(areaAvailableYears).map((year, i) => {
+									{Array.from(areaAvailableYears).map((year, i) => {
 										const isBaseYear = i === areaAvailableYears.size - 1;
 										return (
 											<CommandItem
@@ -208,10 +208,10 @@ const DateControl = () => {
 												onSelect={handleYearChange}
 											>
 												<Check
-											className={cn(
-												"mr-2 h-4 w-4",
-												startDate.getFullYear() === year ? "opacity-100" : "opacity-0",
-											)}
+													className={cn(
+														"mr-2 h-4 w-4",
+														startDate.getFullYear() === year ? "opacity-100" : "opacity-0",
+													)}
 												/>
 												{year}
 											</CommandItem>
