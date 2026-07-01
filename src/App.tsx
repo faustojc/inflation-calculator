@@ -54,6 +54,34 @@ export default function App() {
 	}, []);
 
 	useEffect(() => {
+		const root = window.document.documentElement;
+		let theme = "light";
+
+		try {
+			theme = localStorage.getItem("theme") ?? "light";
+		} catch (e) {
+			console.log(
+				"Unable to get theme in localStorage in your browser. Some private browsers block localStorage access.",
+			);
+			console.error(`ERROR getting theme from localStorage: ${e}`);
+		}
+
+		const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+		root.setAttribute(
+			"className",
+			`${root.className} ${theme === "system" ? systemTheme : theme || "light"}`,
+		);
+
+		try {
+			localStorage.setItem("theme", root.className);
+		} catch (e) {
+			console.log(
+				"Unable to save theme in localStorage in your browser. Some private browsers block localStorage access.",
+			);
+			console.error(`ERROR saving theme to localStorage: ${e}`);
+		}
+
 		initializeApp().then(async (meta) => {
 			if (meta) {
 				const now = new Date();

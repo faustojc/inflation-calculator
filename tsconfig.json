@@ -2,15 +2,13 @@
 	"files": [],
 	"references": [
 		{ "path": "./tsconfig.app.json" },
-		{ "path": "./tsconfig.node.json" },
-		{ "path": "./tsconfig.functions.json" }
+		{ "path": "./tsconfig.node.json" }
 	],
 	"compilerOptions": {
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
 		"paths": {
 			"@/*": ["./src/*"]
-		},
-		"types": ["./worker-configuration.d.ts"]
+		}
 	}
 }
