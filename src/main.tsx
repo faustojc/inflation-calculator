@@ -1,10 +1,6 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "@/App.tsx";
+import "@/stores/themeStore"; // FIRST import — module-level theme apply prevents dark FOUC
+import { render } from "solid-js/web";
 import "./index.css";
+import App from "./App";
 
-createRoot(document.getElementById("root")!).render(
-	<StrictMode>
-		<App />
-	</StrictMode>,
-);
+render(() => <App />, document.getElementById("root")!);

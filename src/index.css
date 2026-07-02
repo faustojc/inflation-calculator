@@ -1,7 +1,128 @@
 @import "tailwindcss";
-@import "tw-animate-css";
+
+@plugin "daisyui" {
+	themes: false;
+}
+
+/* PSA brand light theme — derived from the :root PSA HSL vars below. */
+@plugin "daisyui/theme" {
+	name: "psa-light";
+	default: true;
+	prefersdark: false;
+	color-scheme: light;
+
+	--color-base-100: hsl(210 20% 98%);
+	--color-base-200: hsl(210 40% 96.1%);
+	--color-base-300: hsl(215.3 31.8% 91.4%);
+	--color-base-content: hsl(222.2 84% 4.9%);
+
+	--color-primary: hsl(220 100% 33%);
+	--color-primary-content: hsl(210 40% 98%);
+
+	--color-secondary: hsl(48 97% 54%);
+	--color-secondary-content: hsl(222.2 47.4% 11.2%);
+
+	--color-accent: hsl(210 40% 96.1%);
+	--color-accent-content: hsl(222.2 47.4% 11.2%);
+
+	--color-neutral: hsl(215 25% 27%);
+	--color-neutral-content: hsl(210 40% 98%);
+
+	--color-info: hsl(220 90% 56%);
+	--color-info-content: hsl(210 40% 98%);
+
+	--color-success: hsl(142 71% 45%);
+	--color-success-content: hsl(210 40% 98%);
+
+	--color-warning: hsl(38 92% 50%);
+	--color-warning-content: hsl(222.2 47.4% 11.2%);
+
+	--color-error: hsl(353 85% 44%);
+	--color-error-content: hsl(210 40% 98%);
+
+	--radius-selector: 0.5rem;
+	--radius-field: 0.5rem;
+	--radius-box: 0.5rem;
+}
+
+/* PSA brand dark theme — derived from the .dark PSA HSL vars below. */
+@plugin "daisyui/theme" {
+	name: "psa-dark";
+	default: false;
+	prefersdark: true;
+	color-scheme: dark;
+
+	--color-base-100: hsl(220 30% 8%);
+	--color-base-200: hsl(220 25% 11%);
+	--color-base-300: hsl(220 20% 16%);
+	--color-base-content: hsl(210 40% 96%);
+
+	--color-primary: hsl(220 90% 60%);
+	--color-primary-content: hsl(220 30% 8%);
+
+	--color-secondary: hsl(48 90% 50%);
+	--color-secondary-content: hsl(220 30% 8%);
+
+	--color-accent: hsl(220 20% 16%);
+	--color-accent-content: hsl(210 40% 96%);
+
+	--color-neutral: hsl(220 20% 16%);
+	--color-neutral-content: hsl(210 40% 96%);
+
+	--color-info: hsl(220 90% 60%);
+	--color-info-content: hsl(220 30% 8%);
+
+	--color-success: hsl(142 65% 50%);
+	--color-success-content: hsl(220 30% 8%);
+
+	--color-warning: hsl(48 90% 50%);
+	--color-warning-content: hsl(220 30% 8%);
+
+	--color-error: hsl(353 80% 55%);
+	--color-error-content: hsl(210 40% 98%);
+
+	--radius-selector: 0.5rem;
+	--radius-field: 0.5rem;
+	--radius-box: 0.5rem;
+}
 
 @custom-variant dark (&:is(.dark *));
+
+/*
+ * Minimal tw-animate-css replacement — only the enter animations actually used
+ * by surviving app components (animate-in / fade-in / slide-in-from-*).
+ */
+@keyframes enter {
+	from {
+		opacity: var(--tw-enter-opacity, 1);
+		transform: translate3d(
+			var(--tw-enter-translate-x, 0),
+			var(--tw-enter-translate-y, 0),
+			0
+		);
+	}
+}
+
+.animate-in {
+	animation: enter 0.2s ease-out;
+}
+
+.fade-in,
+.fade-in-0 {
+	--tw-enter-opacity: 0;
+}
+
+.slide-in-from-left-2 {
+	--tw-enter-translate-x: -0.5rem;
+}
+
+.slide-in-from-bottom-2 {
+	--tw-enter-translate-y: 0.5rem;
+}
+
+.slide-in-from-bottom-4 {
+	--tw-enter-translate-y: 1rem;
+}
 
 @theme {
 	--color-border: hsl(var(--border));
@@ -10,10 +131,10 @@
 	--color-background: hsl(var(--background));
 	--color-foreground: hsl(var(--foreground));
 
-	--color-primary: hsl(var(--primary));
+	/* --color-primary / --color-secondary / --color-accent are now owned by the
+	   DaisyUI psa-light / psa-dark themes. Keep the *-foreground aliases so existing
+	   `text-primary-foreground` etc. utilities still resolve until components migrate. */
 	--color-primary-foreground: hsl(var(--primary-foreground));
-
-	--color-secondary: hsl(var(--secondary));
 	--color-secondary-foreground: hsl(var(--secondary-foreground));
 
 	--color-destructive: hsl(var(--destructive));
@@ -22,7 +143,6 @@
 	--color-muted: hsl(var(--muted));
 	--color-muted-foreground: hsl(var(--muted-foreground));
 
-	--color-accent: hsl(var(--accent));
 	--color-accent-foreground: hsl(var(--accent-foreground));
 
 	--color-popover: hsl(var(--popover));
@@ -60,23 +180,26 @@
 		}
 	}
 
+	/* Radix-free: animate a grid-rows 0fr -> 1fr wrapper instead of an
+	   unknown content height. Consumers wrap content in a `display: grid`
+	   container whose single row transitions between these keyframes. */
 	@keyframes collapsible-down {
 		from {
-			height: 0;
+			grid-template-rows: 0fr;
 		}
 
 		to {
-			height: var(--radix-collapsible-content-height);
+			grid-template-rows: 1fr;
 		}
 	}
 
 	@keyframes collapsible-up {
 		from {
-			height: var(--radix-collapsible-content-height);
+			grid-template-rows: 1fr;
 		}
 
 		to {
-			height: 0;
+			grid-template-rows: 0fr;
 		}
 	}
 }

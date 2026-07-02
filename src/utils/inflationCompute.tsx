@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { JSX } from "solid-js";
 import type { AreaDef, DataIndex, DataType } from "@/lib/types";
 import { setCompareOfficial } from "@/stores/graphStore";
 import type { ExpenseItem } from "@/stores/inflationStore";
@@ -80,7 +80,7 @@ export interface CalculationResult {
 	inflationTrend: TrendPoint[];
 	cpiTrend: TrendPoint[];
 	comparators: Comparators;
-	interpretation: ReactNode[];
+	interpretation: JSX.Element[];
 	meta: {
 		location: LocationContext;
 		dates: DateRange;
@@ -433,7 +433,7 @@ function generateInterpretation(
 		location: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef };
 		dates: DateRange;
 	},
-): ReactNode[] {
+): JSX.Element[] {
 	const { location, dates } = meta;
 	const monthStr = new Date(dates.endYear, dates.endMonth - 1).toLocaleDateString("en-US", {
 		month: "long",
@@ -492,7 +492,7 @@ function generateInterpretation(
 		</>
 	);
 
-	const interpretation: ReactNode[] = [p2, p1, p3];
+	const interpretation: JSX.Element[] = [p2, p1, p3];
 
 	if (regionName && comps.regionRate !== undefined) {
 		const p4 = (
