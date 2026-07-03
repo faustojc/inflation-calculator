@@ -1,6 +1,5 @@
-import { TrendingUp } from "lucide-solid";
+﻿import { TrendingUp } from "lucide-solid";
 import { lazy, Suspense } from "solid-js";
-import { Separator } from "@/components/primitives/separator";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 
 const TrendLine = lazy(() => import("@/components/graphs/line/TrendLine"));
@@ -18,7 +17,7 @@ const InflationDataTab = (props: {
 	endDateStr: string;
 }) => {
 	return (
-		<div class="grid grid-cols-1 sm:grid-cols-8 gap-4 overflow-y-auto min-h-112.5 w-full py-3">
+		<div class="grid grid-cols-1 sm:grid-cols-8 gap-4 overflow-y-auto h-full w-full py-3">
 			{/* Personal inflation rate card */}
 			<div class="col-span-8 lg:col-span-2 glass-card p-6 md:p-7 flex flex-col gap-4 sm:gap-8 items-center justify-around text-center border-primary! border-2! shadow-primary! shadow-md!">
 				<div class="flex flex-col items-center gap-1">
@@ -42,7 +41,7 @@ const InflationDataTab = (props: {
 						</div>
 					</div>
 
-					<Separator class="bg-foreground" />
+					<div class="h-px w-full bg-foreground" />
 
 					<div class="flex flex-col items-center gap-1">
 						<span class="text-base lg:text-lg font-semibold uppercase tracking-widest text-foreground">
@@ -54,7 +53,7 @@ const InflationDataTab = (props: {
 						</p>
 					</div>
 
-					<Separator class="bg-foreground" />
+					<div class="h-px w-full bg-foreground" />
 
 					{/* Purchasing Power = (1/cpi) */}
 					<div class="flex flex-col items-center gap-1">

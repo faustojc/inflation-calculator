@@ -1,6 +1,6 @@
-import { Check, ChevronsUpDown, Loader2Icon } from "lucide-solid";
+﻿import { Check, ChevronsUpDown, Loader2Icon } from "lucide-solid";
 import { createMemo, createSignal, For, Show } from "solid-js";
-import { Button } from "@/components/primitives/button";
+import { Button } from "@/components/Button";
 import {
 	Command,
 	CommandEmpty,
@@ -9,9 +9,9 @@ import {
 	CommandItem,
 	CommandList,
 	CommandSeparator,
-} from "@/components/primitives/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/primitives/popover";
-import { toast } from "@/components/primitives/sonner";
+} from "@/components/Command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
+import { toast } from "@/components/Toast";
 import { cn } from "@/lib/utils";
 import { isOnline } from "@/stores/connectionStore";
 import { cpiUrl, dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";

@@ -1,10 +1,4 @@
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/primitives/select";
+﻿import { Select } from "@/components/Select";
 import { type IncomeClass, settings } from "@/stores/inflationStore";
 
 const IncomeClassControl = () => {
@@ -32,15 +26,12 @@ const IncomeClassControl = () => {
 				name="Income class selection"
 				value={appSettings.incomeClass}
 				onValueChange={(val) => settings.incomeClass.set(val as IncomeClass)}
-			>
-				<SelectTrigger class="w-full">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem value="ALL">All Income Households</SelectItem>
-					<SelectItem value="B30">Bottom 30% Income</SelectItem>
-				</SelectContent>
-			</Select>
+				class="text-sm cursor-pointer"
+				options={[
+					{ value: "ALL", label: "All Income Households" },
+					{ value: "B30", label: "Bottom 30% Income" },
+				]}
+			/>
 			{appSettings.area.annualCapita !== undefined &&
 				appSettings.area.annualCapita > 0 &&
 				appSettings.area.monthlyCapita !== undefined &&

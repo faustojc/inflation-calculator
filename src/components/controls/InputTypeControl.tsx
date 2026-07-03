@@ -6,7 +6,7 @@ const InputTypeControl = () => {
 	return (
 		<div
 			id="input-type-control"
-			class="flex items-center gap-2 p-[6.5px] bg-muted rounded-lg w-full md:w-auto transition-all"
+			class="flex items-center gap-2 p-[6.5px] bg-primary/10 rounded-lg w-full md:w-auto transition-all"
 		>
 			<button
 				type="button"

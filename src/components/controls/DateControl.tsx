@@ -1,6 +1,6 @@
-import { Check, ChevronsUpDown } from "lucide-solid";
-import { createEffect, createMemo, createSignal, For, Index } from "solid-js";
-import { Button } from "@/components/primitives/button";
+﻿import { Check, ChevronsUpDown } from "lucide-solid";
+import { createEffect, createMemo, createSignal, Index } from "solid-js";
+import { Button } from "@/components/Button";
 import {
 	Command,
 	CommandEmpty,
@@ -8,16 +8,16 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from "@/components/primitives/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/primitives/popover";
-import { toast } from "@/components/primitives/sonner";
+} from "@/components/Command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
+import { Select } from "@/components/Select";
+import { toast } from "@/components/Toast";
 import { cn } from "@/lib/utils";
 import { isOnline } from "@/stores/connectionStore";
 import { cpiUrl, dataStore } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
 import { MONTHS } from "@/utils/metadata";
 import { isCached } from "@/utils/storage";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../primitives/select";
 
 const DateControl = () => {
 	const startDate = () => settings.startDate.get();
@@ -155,20 +155,14 @@ const DateControl = () => {
 	return (
 		<div class="flex gap-4">
 			<div class="w-full">
-				<Select value={month()} onValueChange={handleMonthChange} name="Month selection">
-					<SelectTrigger class="w-full">
-						<SelectValue placeholder="Month" />
-					</SelectTrigger>
-					<SelectContent>
-						<For each={MONTHS.filter((_, i) => i < maxMonthForYear())}>
-							{(m, i) => (
-								<SelectItem value={m} disabled={i() >= maxMonthForYear()}>
-									{m}
-								</SelectItem>
-							)}
-						</For>
-					</SelectContent>
-				</Select>
+				<Select
+					value={month()}
+					onValueChange={handleMonthChange}
+					name="Month selection"
+					placeholder="Month"
+					class="text-sm cursor-pointer"
+					options={MONTHS.filter((_, i) => i < maxMonthForYear()).map((m) => ({ value: m, label: m }))}
+				/>
 				<span class="text-xs text-center text-muted-foreground">Month</span>
 			</div>
 

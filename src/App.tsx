@@ -1,4 +1,4 @@
-import { Loader } from "lucide-solid";
+﻿import { Loader } from "lucide-solid";
 import { createSignal, lazy, Match, onCleanup, onMount, Show, Suspense, Switch } from "solid-js";
 import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
@@ -6,7 +6,7 @@ import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import { GeneralTab } from "@/components/GeneralTab";
 import { Header } from "@/components/Header";
-import { Toaster } from "@/components/primitives/sonner";
+import { Toaster } from "@/components/Toast";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -217,3 +217,5 @@ export default function App() {
 		</Show>
 	);
 }
+
+

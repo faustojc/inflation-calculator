@@ -9,32 +9,32 @@
 	default: true;
 	prefersdark: false;
 	color-scheme: "light";
-	--color-base-100: oklch(98% 0 0);
-	--color-base-200: oklch(96% 0.001 286.375);
-	--color-base-300: oklch(92% 0.004 286.32);
-	--color-base-content: oklch(21% 0.006 285.885);
-	--color-primary: oklch(48% 0.243 264.376);
-	--color-primary-content: oklch(98% 0.003 247.858);
-	--color-secondary: oklch(0% 0 0);
-	--color-secondary-content: oklch(100% 0 0);
-	--color-accent: oklch(37% 0.146 265.522);
-	--color-accent-content: oklch(98% 0.003 247.858);
-	--color-neutral: oklch(44% 0.017 285.786);
-	--color-neutral-content: oklch(98% 0 0);
-	--color-info: oklch(70% 0.165 254.624);
-	--color-info-content: oklch(28% 0.091 267.935);
+	--color-base-100: oklch(98% 0.003 247.858);
+	--color-base-200: oklch(97% 0.001 106.424);
+	--color-base-300: oklch(92% 0.003 48.717);
+	--color-base-content: oklch(21% 0.006 56.043);
+	--color-primary: oklch(42% 0.199 265.638);
+	--color-primary-content: oklch(97% 0.014 308.299);
+	--color-secondary: oklch(71% 0.194 13.428);
+	--color-secondary-content: oklch(20% 0.042 265.755);
+	--color-accent: oklch(54% 0.245 262.881);
+	--color-accent-content: oklch(97% 0.014 343.198);
+	--color-neutral: oklch(14% 0.004 49.25);
+	--color-neutral-content: oklch(98% 0.001 106.423);
+	--color-info: oklch(58% 0.158 241.966);
+	--color-info-content: oklch(97% 0.014 254.604);
 	--color-success: oklch(62% 0.194 149.214);
-	--color-success-content: oklch(98% 0.003 247.858);
-	--color-warning: oklch(82% 0.189 84.429);
-	--color-warning-content: oklch(20% 0.042 265.755);
-	--color-error: oklch(50% 0.213 27.518);
-	--color-error-content: oklch(98% 0.002 247.839);
-	--radius-selector: 2rem;
-	--radius-field: 1rem;
+	--color-success-content: oklch(98% 0.018 155.826);
+	--color-warning: oklch(68% 0.162 75.834);
+	--color-warning-content: oklch(98% 0.026 102.212);
+	--color-error: oklch(57% 0.245 27.325);
+	--color-error-content: oklch(97% 0.014 343.198);
+	--radius-selector: 1rem;
+	--radius-field: 0.5rem;
 	--radius-box: 1rem;
-	--size-selector: 0.3125rem;
-	--size-field: 0.3125rem;
-	--border: 1.5px;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 2px;
 	--depth: 1;
 	--noise: 1;
 }
@@ -69,17 +69,13 @@
 	--radius-box: 1rem;
 	--size-selector: 0.3125rem;
 	--size-field: 0.3125rem;
-	--border: 1.5px;
+	--border: 1px;
 	--depth: 1;
 	--noise: 1;
 }
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Minimal tw-animate-css replacement — only the enter animations actually used
- * by surviving app components (animate-in / fade-in / slide-in-from-*).
- */
 @keyframes enter {
 	from {
 		opacity: var(--tw-enter-opacity, 1);
@@ -158,12 +154,16 @@
 	}
 }
 @layer base {
+	:root {
+		--font-scale: 1.125;
+	}
+
 	* {
 		@apply border-border;
 	}
 
 	body {
-		@apply bg-base-100 text-base-content font-sans antialiased;
+		@apply bg-base-200 text-base-content font-sans antialiased;
 	}
 }
 
@@ -261,7 +261,8 @@ svg.driver-overlay path {
 }
 
 .driver-popover {
-	max-width: var(--container-md);
+	width: max-content;
+	max-width: min(94vw, 32rem);
 }
 
 /* Title */
@@ -310,12 +311,15 @@ svg.driver-overlay path {
 }
 
 /* Footer */
-.driver-popover-footer button {
+.driver-popover-footer {
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid #f1f5f9;
-	text-shadow: none;
 	gap: 12px;
+}
+
+.driver-popover-footer button {
+	text-shadow: none;
 }
 
 /* Progress text */
@@ -333,62 +337,55 @@ svg.driver-overlay path {
 	color: #1e293b;
 }
 
-/* Primary / Next button — last button in navigation */
-.driver-popover-navigation-btns button:last-child {
+/* Primary / Next / Done button */
+.driver-popover-navigation-btns .driver-popover-next-btn {
 	background: linear-gradient(135deg, #054288 0%, #0038a8 100%);
-	color: hsl(var(--primary-foreground));
-	border-color: transparent;
+	color: #ffffff;
+	font-weight: 600;
+	font-size: 0.95rem;
+	letter-spacing: 0.01em;
+	text-shadow: none;
+	padding: 10px 26px;
+	min-height: 40px;
+	border: 1.5px solid transparent;
 	border-radius: 30px;
 	box-shadow: 0 2px 8px rgba(0, 56, 168, 0.25);
-}
-
-/* Previous button */
-.driver-popover-navigation-btns button:first-child {
-	color: hsl(var(--foreground));
-	border-color: hsl(var(--border));
-	background-color: transparent;
-	border-radius: 30px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	padding: 10px 24px;
-	min-height: 35px;
-	font-size: 0.95rem;
-	line-height: 1.4;
-	letter-spacing: 0.02em;
 	transition: all 0.15s ease;
 }
 
-.driver-popover-navigation-btns button:first-child:hover {
-	background-color: hsl(var(--muted));
-	border-color: hsl(var(--border));
-	color: hsl(var(--foreground));
+/* Previous button */
+.driver-popover-navigation-btns .driver-popover-prev-btn {
+	color: #334155;
+	background-color: #ffffff;
+	border: 1.5px solid #cbd5e1;
+	border-radius: 30px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+	padding: 10px 24px;
+	min-height: 40px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.4;
+	letter-spacing: 0.01em;
+	transition: all 0.15s ease;
 }
 
-.driver-popover-navigation-btns button:last-child:hover,
-.driver-popover-navigation-btns button:last-child:focus {
+.driver-popover-navigation-btns .driver-popover-prev-btn:hover,
+.driver-popover-navigation-btns .driver-popover-prev-btn:focus {
+	background-color: #f1f5f9;
+	border-color: #94a3b8;
+	color: #1e293b;
+}
+
+.driver-popover-navigation-btns .driver-popover-next-btn:hover,
+.driver-popover-navigation-btns .driver-popover-next-btn:focus {
 	background: linear-gradient(135deg, #0038a8 0%, #0d48bd 100%);
 	color: #ffffff;
-	box-shadow: 0 4px 12px rgba(0, 56, 168, 0.35);
+	box-shadow: 0 4px 14px rgba(0, 56, 168, 0.38);
 	transform: translateY(-1px);
 }
 
 .driver-popover-navigation-btns {
-	gap: 8px;
-}
-
-.driver-popover-navigation-btns button + button {
-	font-size: 0.95rem;
-	font-weight: 600;
-	padding: 10px 24px;
-	min-height: 35px;
-	border-radius: 30px;
-	border: 1.5px solid #e2e8f0;
-	color: #475569;
-	background-color: #ffffff;
-	transition: all 0.15s ease;
-	cursor: pointer;
-	line-height: 1.4;
-	letter-spacing: 0.01em;
-	margin-left: 0;
+	gap: 10px;
 }
 
 /* Arrow */
@@ -478,110 +475,56 @@ svg.driver-overlay path {
 	color: hsl(210 40% 96%);
 }
 
-.dark .driver-popover-navigation-btns button:first-child {
+.dark .driver-popover-navigation-btns .driver-popover-prev-btn {
 	border-color: hsl(220 15% 25%);
 	color: hsl(210 40% 96%);
 	background-color: transparent;
 }
 
-.dark .driver-popover-navigation-btns button:first-child:hover {
+.dark .driver-popover-navigation-btns .driver-popover-prev-btn:hover,
+.dark .driver-popover-navigation-btns .driver-popover-prev-btn:focus {
 	background-color: hsl(220 20% 16%);
+	border-color: hsl(220 15% 30%);
 	color: #ffffff;
 }
 
-.dark .driver-popover-navigation-btns button:last-child {
+.dark .driver-popover-navigation-btns .driver-popover-next-btn {
 	color: hsl(220 30% 8%);
 	background: hsl(220 90% 60%);
 	border-color: hsl(220 90% 60%);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.dark .driver-popover-navigation-btns button:last-child:hover {
+.dark .driver-popover-navigation-btns .driver-popover-next-btn:hover,
+.dark .driver-popover-navigation-btns .driver-popover-next-btn:focus {
 	background: hsl(220 100% 65%);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
-/* Glass Panel - Layout Container */
+/* Panel - Layout Container (solid, no glass/blur) */
 .glass-panel {
-	background-color: rgba(255, 255, 255, 0.9);
+	background-color: rgb(255, 255, 255);
 	border: none;
 	box-shadow: 0 -4px 24px -2px rgba(0, 0, 0, 0.05); /* Subtle lift shadow */
 }
 
 .dark .glass-panel {
-	background-color: rgba(15, 23, 42, 0.75);
+	background-color: rgb(15, 23, 42);
 }
 
-/* Glass Card */
+/* Card (solid, no glass/blur) */
 .glass-card {
-	background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
+	background: rgb(255, 255, 255);
 	border-radius: 20px;
-	border: 1px solid rgba(255, 255, 255, 0.4);
+	border: 1px solid rgba(0, 0, 0, 0.08);
 	box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05);
 }
 
-/* Base rim light effect */
-.glass-card::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	border-radius: 20px;
-	padding: 1px;
-	background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
-
-	/* Explicit mask definition for better compatibility */
-	mask-image: linear-gradient(#fff, #fff), linear-gradient(#fff, #fff);
-	-webkit-mask-image: linear-gradient(#fff, #fff), linear-gradient(#fff, #fff);
-
-	mask-clip: content-box, border-box;
-	-webkit-mask-clip: content-box, border-box;
-
-	mask-composite: exclude;
-	-webkit-mask-composite: xor;
-
-	pointer-events: none;
-}
-
-/* Glass Card - Dark Mode */
+/* Card - Dark Mode */
 .dark .glass-card {
-	background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(30, 41, 59, 0.3));
+	background: rgb(30, 41, 59);
+	border-color: rgba(255, 255, 255, 0.08);
 	box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.25);
-}
-
-.dark .glass-card::before {
-	background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
-}
-
-.glass-card,
-.glass-panel,
-.dark .glass-card,
-.dark .glass-panel {
-	backdrop-filter: blur(4px);
-}
-
-@media (hover: none) and (pointer: coarse) {
-	.glass-card,
-	.glass-panel,
-	.dark .glass-card,
-	.dark .glass-panel {
-		backdrop-filter: none;
-	}
-
-	.glass-panel {
-		background-color: rgba(255, 255, 255, 0.97);
-	}
-
-	.dark .glass-panel {
-		background-color: rgba(15, 23, 42, 0.97);
-	}
-
-	.glass-card {
-		background: rgba(255, 255, 255, 0.88);
-	}
-
-	.dark .glass-card {
-		background: rgba(30, 41, 59, 0.88);
-	}
 }
 
 /* Removes outline for general recharts components and SVG groups */

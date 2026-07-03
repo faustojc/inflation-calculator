@@ -1,7 +1,5 @@
-import { LucideNavigation, Search, Tag } from "lucide-solid";
+﻿import { LucideNavigation, Search, Tag } from "lucide-solid";
 import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import HighlightedText from "@/components/HighlightedText";
-import { Badge } from "@/components/primitives/badge";
 import {
 	Command,
 	CommandEmpty,
@@ -9,8 +7,9 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from "@/components/primitives/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/primitives/popover";
+} from "@/components/Command";
+import HighlightedText from "@/components/HighlightedText";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { type FuzzyMatch, fuzzyScore } from "@/lib/fuzzySearch";
@@ -141,7 +140,7 @@ export function SmartSearch() {
 							</span>
 						</span>
 						<Show when={!isMobile()}>
-							<div class="bg-muted px-2 py-0.5 rounded text-xs font-mono text-foreground group-hover:text-primary">
+							<div class="bg-primary px-2 py-0.5 rounded text-xs font-mono text-primary-foreground">
 								Ctrl K
 							</div>
 						</Show>
@@ -171,9 +170,9 @@ export function SmartSearch() {
 													</span>
 												</div>
 												<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
-													<Badge variant="outline" class="px-1.5 gap-1 text-xs font-mono h-5 shrink-0">
+													<span class="badge badge-outline px-1.5 gap-1 text-xs font-mono h-5 shrink-0">
 														{item.code}
-													</Badge>
+													</span>
 													<span class="truncate flex items-center gap-1">
 														<Tag class="h-3 w-3 shrink-0 opacity-50" />
 														{item.commodityName}

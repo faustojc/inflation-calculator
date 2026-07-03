@@ -1,6 +1,6 @@
-import { CircleXIcon, TriangleAlertIcon, XIcon } from "lucide-solid";
+﻿import { CircleXIcon, TriangleAlertIcon, XIcon } from "lucide-solid";
 import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import { Button } from "@/components/primitives/button";
+import { Button } from "@/components/Button";
 import { cn } from "@/lib/utils";
 import { dismissToast, type ToastType, toast, toastItems } from "@/stores/toastStore";
 
@@ -10,8 +10,8 @@ type ToasterProps = {
 };
 
 const toastStyles: Record<ToastType, string> = {
-	error: "border-destructive/40 bg-destructive/10 text-destructive",
-	warning: "border-secondary/60 bg-secondary/15 text-foreground",
+	error: "alert-error border-error bg-error text-error-content",
+	warning: "alert-warning border-warning bg-warning text-warning-content",
 };
 
 const toastIcons: Record<ToastType, typeof TriangleAlertIcon> = {
@@ -19,21 +19,21 @@ const toastIcons: Record<ToastType, typeof TriangleAlertIcon> = {
 	warning: TriangleAlertIcon,
 };
 
-function Toaster(props: ToasterProps) {
+export function Toaster(props: ToasterProps) {
 	const [mounted, setMounted] = createSignal(false);
 	onMount(() => setMounted(true));
 	onCleanup(() => setMounted(false));
 
 	return (
 		<Show when={mounted() && toastItems.get().length > 0}>
-			<div class="pointer-events-none fixed left-1/2 top-4 z-50 flex w-[min(92vw,28rem)] -translate-x-1/2 flex-col gap-2">
+			<div class="toast toast-top toast-center z-50 w-[min(92vw,28rem)]">
 				<For each={toastItems.get()}>
 					{(item) => {
 						const Icon = toastIcons[item.type];
 						return (
 							<div
 								class={cn(
-									"pointer-events-auto flex items-start gap-3 rounded-lg border p-4 shadow-lg backdrop-blur",
+									"alert pointer-events-auto flex items-start gap-3 border p-4 shadow-lg",
 									toastStyles[item.type],
 									item.classNames?.toast,
 								)}
@@ -70,4 +70,4 @@ function Toaster(props: ToasterProps) {
 	);
 }
 
-export { Toaster, toast };
+export { toast };

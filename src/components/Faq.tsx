@@ -1,13 +1,5 @@
-import { ChevronDown } from "lucide-solid";
-import { createSignal, For, type JSX } from "solid-js";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/primitives/collapsible";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/primitives/dialog";
+﻿import { ChevronDown } from "lucide-solid";
+import { createSignal, For, type JSX, Show } from "solid-js";
 import { cn } from "@/lib/utils";
 import { $openFaq } from "@/stores/faqStore";
 
@@ -37,9 +29,9 @@ const faqs: FaqItem[] = [
 					The inflation rate released by the PSA is based on the{" "}
 					<strong>average consumption pattern and commodity preferences of all Filipino households</strong> in
 					a given reference period, which is <strong>2018 in the current CPI data</strong>. Since the data
-					refers to the average of all households, this may not reflect the specific individual’s expenditure
-					and pattern. The average Filipino households is composed of a father, a mother, and three kids,
-					meaning the majority of families followed this composition.
+					refers to the average of all households, this may not reflect the specific individual’s
+					expenditure and pattern. The average Filipino households is composed of a father, a mother, and
+					three kids, meaning the majority of families followed this composition.
 				</p>
 				<p>
 					The expenditure pattern used by the CPI mostly reflects this household composition. However, the CPI
@@ -166,18 +158,31 @@ const Faq = () => {
 	};
 
 	return (
-		<Dialog open={$openFaq.get()} onOpenChange={$openFaq.set}>
-			<DialogContent class="max-h-[85vh] gap-0 overflow-auto p-0 sm:max-w-2xl">
-				<DialogHeader class="border-b px-6 pt-6 pb-4">
+		<dialog
+			open
+			class="modal"
+			onCancel={(event) => {
+				event.preventDefault();
+				$openFaq.set(false);
+			}}
+		>
+			<div class="modal-box max-h-[85vh] gap-0 overflow-auto p-0 sm:max-w-2xl relative">
+				<button
+					type="button"
+					class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 z-10"
+					aria-label="Close FAQ"
+					onClick={() => $openFaq.set(false)}
+				>
+					x
+				</button>
+				<div class="border-b px-6 pt-6 pb-4">
 					<div class="flex items-center gap-2">
-						<DialogTitle class="text-lg font-bold tracking-tight md:text-2xl">
-							Frequently Asked Questions
-						</DialogTitle>
+						<h2 class="text-lg font-bold tracking-tight md:text-2xl">Frequently Asked Questions</h2>
 					</div>
-					<DialogDescription class="text-justify">
+					<p class="text-justify text-muted-foreground">
 						Talking points for the Personal Inflation Calculator Application. Tap a question to expand it.
-					</DialogDescription>
-				</DialogHeader>
+					</p>
+				</div>
 
 				<div class="overflow-y-auto px-3 py-3 sm:px-4">
 					<ul class="flex flex-col gap-2">
@@ -187,12 +192,12 @@ const Faq = () => {
 
 								return (
 									<li>
-										<Collapsible
-											open={isOpen()}
-											onOpenChange={(next) => toggleIndex(index(), next)}
-											class="bg-card rounded-lg border"
-										>
-											<CollapsibleTrigger class="hover:bg-primary/5 focus-visible:ring-ring flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none">
+										<div class="bg-card rounded-lg border">
+											<button
+												type="button"
+												onClick={() => toggleIndex(index(), !isOpen())}
+												class="hover:bg-primary/5 focus-visible:ring-ring flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none"
+											>
 												<span class="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
 													{index() + 1}
 												</span>
@@ -204,21 +209,28 @@ const Faq = () => {
 													)}
 													aria-hidden="true"
 												/>
-											</CollapsibleTrigger>
-											<CollapsibleContent class="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-												<div class="text-muted-foreground space-y-3 px-4 pt-1 pb-4 text-sm leading-relaxed md:text-[0.95rem] [&_strong]:text-foreground text-justify">
-													{faq.answer}
+											</button>
+											<Show when={isOpen()}>
+												<div class="overflow-hidden">
+													<div class="text-muted-foreground space-y-3 px-4 pt-1 pb-4 text-sm leading-relaxed md:text-[0.95rem] [&_strong]:text-foreground text-justify">
+														{faq.answer}
+													</div>
 												</div>
-											</CollapsibleContent>
-										</Collapsible>
+											</Show>
+										</div>
 									</li>
 								);
 							}}
 						</For>
 					</ul>
 				</div>
-			</DialogContent>
-		</Dialog>
+			</div>
+			<form method="dialog" class="modal-backdrop">
+				<button type="button" onClick={() => $openFaq.set(false)}>
+					close
+				</button>
+			</form>
+		</dialog>
 	);
 };
 

@@ -1,7 +1,6 @@
-import { ChevronDown, ChevronUp } from "lucide-solid";
+﻿import { ChevronDown, ChevronUp } from "lucide-solid";
 import { createSignal, For, Index, Show } from "solid-js";
-import { Button } from "@/components/primitives/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/primitives/table";
+import { Button } from "@/components/Button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { ContributionFactor } from "@/utils/inflationCompute";
 
@@ -55,43 +54,43 @@ export function ContributorTable(props: Props) {
 										</div>
 
 										{/* Column table */}
-										<Table>
-											<TableHeader>
-												<TableRow class="bg-primary/90">
-													<TableHead class="w-8 h-9 text-xs text-white font-bold uppercase tracking-wide">
+										<table class="table w-full">
+											<thead>
+												<tr class="bg-primary/90">
+													<th class="w-8 h-9 text-xs text-white font-bold uppercase tracking-wide">
 														#
-													</TableHead>
-													<TableHead class="h-9 text-xs text-white font-bold uppercase tracking-wide">
+													</th>
+													<th class="h-9 text-xs text-white font-bold uppercase tracking-wide">
 														Commodity
-													</TableHead>
-													<TableHead
+													</th>
+													<th
 														class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
 														title="Percentage Weight"
 													>
 														Weight (in percent)
-													</TableHead>
-													<TableHead
+													</th>
+													<th
 														class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
 														title="Inflation Rate"
 													>
 														Inflation Rate
-													</TableHead>
-													<TableHead
+													</th>
+													<th
 														class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
 														title="Percentage Share to Inflation"
 													>
 														%Share Inflation
-													</TableHead>
-												</TableRow>
-											</TableHeader>
-											<TableBody>
+													</th>
+												</tr>
+											</thead>
+											<tbody>
 												<For each={factor.contributors.slice(0, displayRows())}>
 													{(c, i) => {
 														const isAllItems = c.code === "0";
 														const pctWeight = isAllItems ? 100 : (c.weight / totalWeight()) * 100;
 														return (
-															<TableRow class={isAllItems ? "bg-primary/8 border-b-2 border-primary/20" : ""}>
-																<TableCell
+															<tr class={isAllItems ? "bg-primary/8 border-b-2 border-primary/20" : ""}>
+																<td
 																	class={`text-center py-2 h-auto text-xs ${
 																		isAllItems
 																			? "font-bold text-primary"
@@ -99,29 +98,29 @@ export function ContributorTable(props: Props) {
 																	}`}
 																>
 																	{isAllItems ? "—" : i()}
-																</TableCell>
-																<TableCell
+																</td>
+																<td
 																	class={`py-2 h-auto text-xs max-w-95 ${isAllItems ? "font-bold" : "font-medium"}`}
 																>
 																	<div class="line-clamp-2" title={c.name}>
 																		{c.name}
 																	</div>
-																</TableCell>
-																<TableCell class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+																</td>
+																<td class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
 																	{pctWeight.toFixed(1)}
-																</TableCell>
-																<TableCell class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+																</td>
+																<td class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
 																	{c.inflationRate.toFixed(1)}
-																</TableCell>
-																<TableCell class="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
+																</td>
+																<td class="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
 																	{c.percentShare.toFixed(1)}
-																</TableCell>
-															</TableRow>
+																</td>
+															</tr>
 														);
 													}}
 												</For>
-											</TableBody>
-										</Table>
+											</tbody>
+										</table>
 									</div>
 								);
 							}}
@@ -283,3 +282,5 @@ export function ContributorTable(props: Props) {
 		</Show>
 	);
 }
+
+

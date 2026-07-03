@@ -1,8 +1,8 @@
-import { Calculator, Loader2 } from "lucide-solid";
+﻿import { Calculator, Loader2 } from "lucide-solid";
 import { createSignal, Show } from "solid-js";
 import CalculationFooter from "@/components/CalculationFooter";
-import { Button } from "@/components/primitives/button";
-import { toast } from "@/components/primitives/sonner";
+import { Button } from "@/components/Button";
+import { toast } from "@/components/Toast";
 import { isOnline } from "@/stores/connectionStore";
 import {
 	cpiUrl,
@@ -208,3 +208,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

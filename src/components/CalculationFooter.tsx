@@ -1,5 +1,4 @@
-import { Show } from "solid-js";
-import { Progress } from "@/components/primitives/progress";
+﻿import { Show } from "solid-js";
 import { mode, totalAllocation } from "@/stores/inflationStore";
 
 const CalculationFooter = () => {
@@ -34,9 +33,10 @@ const CalculationFooter = () => {
 						{currentTotal().toFixed(1)}% / 100%
 					</span>
 				</div>
-				<Progress
+				<progress
 					value={Math.min(currentTotal(), 100)}
-					class={`h-1.5 ${isOverLimit() ? "[&>div]:bg-destructive" : "[&>div]:bg-primary"}`}
+					max="100"
+					class={`progress h-1.5 w-full ${isOverLimit() ? "progress-error" : "progress-primary"}`}
 				/>
 				<Show when={isOverLimit()}>
 					<p class="text-destructive text-xs font-medium">Total exceeds 100%. Please reduce some values.</p>
@@ -50,3 +50,4 @@ const CalculationFooter = () => {
 };
 
 export default CalculationFooter;
+

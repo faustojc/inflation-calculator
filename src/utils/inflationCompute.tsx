@@ -1,4 +1,4 @@
-import type { JSX } from "solid-js";
+import { createRoot, type JSX } from "solid-js";
 import type { AreaDef, DataIndex, DataType } from "@/lib/types";
 import { setCompareOfficial } from "@/stores/graphStore";
 import type { ExpenseItem } from "@/stores/inflationStore";
@@ -527,6 +527,12 @@ function generateInterpretation(
 	return interpretation;
 }
 
+// The interpretation is JSX, so its `{expr}` interpolations compile to Solid
+// render computations. calculatePersonalInflation runs inside an event handler
+// (no reactive owner), so those must live in an explicit root or Solid warns and
+// never disposes them. Keep the current one alive; dispose the previous run's.
+let disposeInterpretation: (() => void) | null = null;
+
 export function calculatePersonalInflation(
 	expenses: ExpenseItem[],
 	location: LocationContext,
@@ -692,9 +698,13 @@ export function calculatePersonalInflation(
 	);
 	const cpiTrend = generateTrend(expenses, location, dates, config, dataIndex, "0", dataType, "cpi");
 
-	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, {
-		location,
-		dates,
+	disposeInterpretation?.();
+	const interpretation = createRoot((dispose) => {
+		disposeInterpretation = dispose;
+		return generateInterpretation(personalRate, yearlyCpiEnd, comparators, {
+			location,
+			dates,
+		});
 	});
 
 	setCompareOfficial(contributors[1]);

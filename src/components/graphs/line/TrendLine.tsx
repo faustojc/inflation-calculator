@@ -1,13 +1,7 @@
-import { TrendingUp } from "lucide-solid";
-import { createMemo, Show } from "solid-js";
+﻿import { TrendingUp } from "lucide-solid";
+import { createMemo } from "solid-js";
 import { TrendLegend } from "@/components/graphs/line/TrendLegend";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/primitives/select";
+import { Select } from "@/components/Select";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { createTrendChart } from "@/hooks/useTrendChart";
 import { type CompareModeType, compareMode, type TrendType, trendType } from "@/stores/graphStore";
@@ -94,35 +88,33 @@ export default function TrendLine(props: Readonly<Props>) {
 			<div class="flex flex-col md:flex-row gap-4 items-center shrink-0 px-5">
 				<div class="flex items-center justify-evenly lg:justify-start gap-2 w-full lg:w-fit">
 					<p class="text-foreground text-sm sm:text-base">Select Trend:</p>
-					<Select value={currTrend()} onValueChange={(v) => trendType.set(v as TrendType)}>
-						<SelectTrigger class="w-40 h-8 text-foreground border-foreground">
-							<SelectValue placeholder="Select..." class="text-ellipsis" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="inflation">Inflation</SelectItem>
-							<SelectItem value="cpi">CPI</SelectItem>
-						</SelectContent>
-					</Select>
+					<Select
+						value={currTrend()}
+						onValueChange={(v) => trendType.set(v as TrendType)}
+						placeholder="Select..."
+						class="w-40 h-8 text-foreground border-foreground"
+						options={[
+							{ value: "inflation", label: "Inflation" },
+							{ value: "cpi", label: "CPI" },
+						]}
+					/>
 				</div>
 
 				<div class="flex items-center justify-evenly lg:justify-start gap-2 w-full lg:w-fit">
 					<p class="text-foreground text-sm sm:text-base">Compare to:</p>
-					<Select value={mode()} onValueChange={(v) => compareMode.set(v as CompareModeType)}>
-						<SelectTrigger class="w-40 h-8 text-foreground border-foreground">
-							<SelectValue placeholder="Select..." class="text-ellipsis" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All</SelectItem>
-							<SelectItem value="area">{hierarchy().target.name}</SelectItem>
-							<Show when={hasProvince()}>
-								<SelectItem value="province">{hierarchy().province?.name}</SelectItem>
-							</Show>
-							<Show when={hasRegion()}>
-								<SelectItem value="region">{hierarchy().region?.name}</SelectItem>
-							</Show>
-							<SelectItem value="national">Philippines</SelectItem>
-						</SelectContent>
-					</Select>
+					<Select
+						value={mode()}
+						onValueChange={(v) => compareMode.set(v as CompareModeType)}
+						placeholder="Select..."
+						class="w-40 h-8 text-foreground border-foreground"
+						options={[
+							{ value: "all", label: "All" },
+							{ value: "area", label: hierarchy().target.name },
+							...(hasProvince() ? [{ value: "province", label: hierarchy().province?.name ?? "Province" }] : []),
+							...(hasRegion() ? [{ value: "region", label: hierarchy().region?.name ?? "Region" }] : []),
+							{ value: "national", label: "Philippines" },
+						]}
+					/>
 				</div>
 			</div>
 
@@ -152,3 +144,5 @@ export default function TrendLine(props: Readonly<Props>) {
 		</div>
 	);
 }
+
+

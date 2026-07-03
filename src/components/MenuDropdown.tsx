@@ -34,7 +34,7 @@ const MenuDropdown = () => {
 	};
 
 	return (
-		<div class="relative" ref={menuRef}>
+		<div id="menu" class="relative" ref={menuRef}>
 			<button
 				type="button"
 				aria-label="Menu"

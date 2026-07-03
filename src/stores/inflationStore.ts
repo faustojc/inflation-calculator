@@ -113,9 +113,16 @@ export function initializeExpenses() {
 	};
 
 	traverse(commodities);
+	// Each store MUST get its own deep copy. Solid's createStore/reconcile mutates
+	// the backing objects in place, so sharing the same nested item references
+	// between the two stores leaks writes across tabs (editing General also mutates
+	// Detailed), which later throws "Missing CPI value" when the leaked
+	// major-category codes are calculated against the personal (detailed) dataset.
+	const cloneExpenses = () =>
+		Object.fromEntries(Object.entries(initialExpenses).map(([code, item]) => [code, { ...item }]));
 	batch(() => {
-		generalExpenses.set({ ...initialExpenses });
-		detailedExpenses.set({ ...initialExpenses });
+		generalExpenses.set(cloneExpenses());
+		detailedExpenses.set(cloneExpenses());
 	});
 }
 
