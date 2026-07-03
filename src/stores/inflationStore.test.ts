@@ -5,6 +5,7 @@ import {
 	detailedExpenses,
 	expenses,
 	generalExpenses,
+	initializeExpenses,
 	isCalculationDisabled,
 	missingDetailedItems,
 	missingGeneralItems,
@@ -36,6 +37,32 @@ function resetStores() {
 }
 
 beforeEach(resetStores);
+
+describe("tab isolation (initializeExpenses)", () => {
+	it("editing the General tab does not leak into the Detailed tab", () => {
+		// initializeExpenses bails if either store is already populated
+		generalExpenses.set({});
+		detailedExpenses.set({});
+		dataStore.commodities.set([
+			{ code: "01", name: "Food", children: [{ code: "01.1", name: "Bread" }] },
+		] as never);
+
+		initializeExpenses();
+
+		setActiveTab("general");
+		updateExpenseValue("01", "Food", 5000, "general");
+
+		// General reflects the edit; Detailed must stay untouched
+		expect(generalExpenses.get()["01"]?.value).toBe(5000);
+		expect(detailedExpenses.get()["01"]?.value).toBe(0);
+
+		setActiveTab("detailed");
+		expect(totalAllocation.get()).toBe(0);
+		expect(isCalculationDisabled.get()).toBe(true);
+
+		dataStore.commodities.set([]);
+	});
+});
 
 describe("expenses (active-tab selector)", () => {
 	it("returns the store matching the active tab", () => {

@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { createUniqueId, For, Show } from "solid-js";
 import CustomPieLegend, { type LegendItem } from "@/components/graphs/custom/CustomPieLegend";
 import { OverlayPieChart } from "@/components/graphs/custom/OverlayPieChart";
 import type { PieEntry } from "@/lib/types";
@@ -77,9 +77,19 @@ function buildLegend(contributors: readonly CommodityContribution[]): LegendItem
 	return Array.from(uniqueCommodities.values());
 }
 
-export default function ContribInflationPie({ personal, official }: Readonly<Props>) {
-	const instanceId = useId().replace(/:/g, "");
+export default function ContribInflationPie(props: Readonly<Props>) {
+	const instanceId = createUniqueId().replace(/:/g, "");
 
+	// `official` changes when the user picks a different comparison — the keyed
+	// <Show> below recreates the whole subtree so setup-time pie math reruns.
+	return (
+		<Show when={props.official} keyed>
+			{(official) => <PieContent personal={props.personal} official={official} instanceId={instanceId} />}
+		</Show>
+	);
+}
+
+function PieContent({ personal, official, instanceId }: Readonly<Props & { instanceId: string }>) {
 	const personalParts = buildPieData(personal.contributors);
 	const officialParts = buildPieData(official.contributors);
 
@@ -109,26 +119,26 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 	})();
 
 	return (
-		<div className="flex flex-col gap-6">
-			<h1 className="text-base text-center italic text-muted-foreground">
+		<div class="flex flex-col gap-6">
+			<h1 class="text-base text-center italic text-muted-foreground">
 				"Click/Hover on pie slice or commodity to highlight"
 			</h1>
-			<div className="grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-1 gap-4">
+			<div class="grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-1 gap-4">
 				{/* Personal Pie */}
-				<div className="col-span-1 flex flex-col gap-2">
-					<div className="flex gap-3 items-center justify-center">
-						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">
+				<div class="col-span-1 flex flex-col gap-2">
+					<div class="flex gap-3 items-center justify-center">
+						<h4 class="text-base lg:text-xl text-center font-semibold text-primary/80">
 							{personal.factorName}
 						</h4>
-						<h4 className="text-base lg:text-xl text-center text-primary/80 font-semibold">
+						<h4 class="text-base lg:text-xl text-center text-primary/80 font-semibold">
 							Inflation Rate:
-							<span className="text-base lg:text-xl text-blue-700 font-bold ml-1">
+							<span class="text-base lg:text-xl text-blue-700 font-bold ml-1">
 								{personal.inflationRate.toFixed(1)}%
 							</span>
 						</h4>
 					</div>
-					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-						<div className="w-full">
+					<div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+						<div class="w-full">
 							<OverlayPieChart
 								basePie={personalParts.basePie}
 								overlayPie={personalParts.overlayPie}
@@ -136,27 +146,27 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 								patternPrefix={`p-${instanceId}`}
 							/>
 						</div>
-						<div className="w-full flex items-center sm:py-4">
+						<div class="w-full flex items-center sm:py-4">
 							<CustomPieLegend props={personalLegend} patternPrefix={`p-${instanceId}`} />
 						</div>
 					</div>
 				</div>
 
 				{/* Official Pie */}
-				<div className="col-span-1 flex flex-col gap-2">
-					<div className="flex gap-3 items-center justify-center">
-						<h4 className="text-base lg:text-xl text-center font-semibold text-primary/80">
+				<div class="col-span-1 flex flex-col gap-2">
+					<div class="flex gap-3 items-center justify-center">
+						<h4 class="text-base lg:text-xl text-center font-semibold text-primary/80">
 							{official.areaName}
 						</h4>
-						<h4 className="text-base lg:text-xl text-center text-primary/80 font-semibold">
+						<h4 class="text-base lg:text-xl text-center text-primary/80 font-semibold">
 							Inflation Rate:
-							<span className="text-base lg:text-xl text-blue-700 font-bold ml-1">
+							<span class="text-base lg:text-xl text-blue-700 font-bold ml-1">
 								{official.inflationRate.toFixed(1)}%
 							</span>
 						</h4>
 					</div>
-					<div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-						<div className="w-full">
+					<div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+						<div class="w-full">
 							<OverlayPieChart
 								basePie={officialParts.basePie}
 								overlayPie={officialParts.overlayPie}
@@ -164,7 +174,7 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 								patternPrefix={`o-${instanceId}`}
 							/>
 						</div>
-						<div className="w-full flex items-center sm:py-4">
+						<div class="w-full flex items-center sm:py-4">
 							<CustomPieLegend props={officialLegend} patternPrefix={`o-${instanceId}`} />
 						</div>
 					</div>
@@ -173,43 +183,45 @@ export default function ContribInflationPie({ personal, official }: Readonly<Pro
 
 			{/* Deflation Footnotes */}
 			{deflationFootnotes.length > 0 && (
-				<div className="px-4 pb-2 border-t border-border/50 pt-4">
-					<p className="text-base font-semibold text-muted-foreground mb-2 uppercase">
+				<div class="px-4 pb-2 border-t border-border/50 pt-4">
+					<p class="text-base font-semibold text-muted-foreground mb-2 uppercase">
 						Deflationary Contributors
 					</p>
-					<ul className="space-y-1.5">
-						{deflationFootnotes.map((note) => (
-							<li key={note.code} className="flex items-center gap-2 text-xs text-muted-foreground">
-								<span
-									className="inline-block w-5 h-5 rounded-sm shrink-0 mt-0.5"
-									style={{
-										border: `2px dashed ${NEG_STROKE_COLOR}`,
-										background: `repeating-linear-gradient(
+					<ul class="space-y-1.5">
+						<For each={deflationFootnotes}>
+							{(note) => (
+								<li class="flex items-center gap-2 text-xs text-muted-foreground">
+									<span
+										class="inline-block w-5 h-5 rounded-sm shrink-0 mt-0.5"
+										style={{
+											border: `2px dashed ${NEG_STROKE_COLOR}`,
+											background: `repeating-linear-gradient(
 											45deg,
 											transparent,
 											transparent 2px,
 											${NEG_STRIPE_COLOR} 2px,
 											${NEG_STRIPE_COLOR} 4px
 										)`,
-									}}
-								/>
-								<span>
-									<strong className="text-foreground text-sm">{note.name}</strong>
-									{" — "}
-									{note.personalShare !== undefined && (
-										<span className="text-sm text-destructive font-semibold">
-											Personal: {note.personalShare.toFixed(1)}%
-										</span>
-									)}
-									{note.personalShare !== undefined && note.officialShare !== undefined && " | "}
-									{note.officialShare !== undefined && (
-										<span className="text-sm text-destructive font-semibold">
-											Official: {note.officialShare.toFixed(1)}%
-										</span>
-									)}
-								</span>
-							</li>
-						))}
+										}}
+									/>
+									<span>
+										<strong class="text-foreground text-sm">{note.name}</strong>
+										{" — "}
+										{note.personalShare !== undefined && (
+											<span class="text-sm text-destructive font-semibold">
+												Personal: {note.personalShare.toFixed(1)}%
+											</span>
+										)}
+										{note.personalShare !== undefined && note.officialShare !== undefined && " | "}
+										{note.officialShare !== undefined && (
+											<span class="text-sm text-destructive font-semibold">
+												Official: {note.officialShare.toFixed(1)}%
+											</span>
+										)}
+									</span>
+								</li>
+							)}
+						</For>
 					</ul>
 				</div>
 			)}

@@ -1,3 +1,3 @@
-import { observable } from "@legendapp/state";
+import { createSignalAtom } from "@/stores/solidAtoms";
 
-export const $openFaq = observable(false);
+export const $openFaq = createSignalAtom(false);

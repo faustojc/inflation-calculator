@@ -1,9 +1,8 @@
-import { use$ } from "@legendapp/state/react";
-import { Calculator, Loader2 } from "lucide-react";
-import { useState } from "react";
+﻿import { Calculator, Loader2 } from "lucide-solid";
+import { createSignal, Show } from "solid-js";
 import CalculationFooter from "@/components/CalculationFooter";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/sonner";
+import { Button } from "@/components/Button";
+import { toast } from "@/components/Toast";
 import { isOnline } from "@/stores/connectionStore";
 import {
 	cpiUrl,
@@ -28,9 +27,9 @@ import { calculatePersonalInflation } from "@/utils/inflationCompute";
 import { isCached } from "@/utils/storage";
 
 const Footer = () => {
-	const [isCalculating, setIsCalculating] = useState(false);
+	const [isCalculating, setIsCalculating] = createSignal(false);
 
-	const isDisabled = use$(isCalculationDisabled);
+	const isDisabled = () => isCalculationDisabled.get();
 
 	const handleCalculate = async () => {
 		setIsCalculating(true);
@@ -63,7 +62,7 @@ const Footer = () => {
 
 			let datesForType = currentManifest?.dates?.[dataType]?.[incomeClass];
 
-			if (!datesForType && isOnline.peek()) {
+			if (!datesForType && isOnline.get()) {
 				await setCurrentArea(area.key);
 				const refreshed = await getAreaManifest(area.key);
 				if (refreshed) {
@@ -73,7 +72,7 @@ const Footer = () => {
 			}
 
 			if (!datesForType) {
-				const reason = !isOnline.peek()
+				const reason = !isOnline.get()
 					? "You're offline and the CPI data for this area hasn't been cached."
 					: `No ${dataType} CPI data available for this area and income class.`;
 				toast.warning("Unable to calculate inflation", { description: reason });
@@ -104,7 +103,7 @@ const Footer = () => {
 			let keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
 			// When offline, only include areas whose yearly data is cached
-			if (!isOnline.peek()) {
+			if (!isOnline.get()) {
 				const cachedKeys = await Promise.all(
 					keysToFetch.map(async (key) => {
 						const [cur, prev] = await Promise.all([
@@ -163,7 +162,7 @@ const Footer = () => {
 				toast.error("Calculation failed. Please check inputs.");
 			}
 		} catch (err) {
-			if (err instanceof TypeError && !isOnline.peek()) {
+			if (err instanceof TypeError && !isOnline.get()) {
 				toast.error("Unable to calculate inflation", {
 					description:
 						"You're offline and the required CPI data is not cached. Please connect to the internet and try again.",
@@ -180,27 +179,28 @@ const Footer = () => {
 	};
 
 	return (
-		<footer className="sticky bottom-0 left-0 right-0 z-50 bg-card/95 border-t border-border">
-			<div className="max-w-5xl mx-auto px-4 py-3">
+		<footer class="sticky bottom-0 left-0 right-0 z-50 bg-card/95 border-t border-border">
+			<div class="max-w-5xl mx-auto px-4 py-3">
 				<CalculationFooter />
 				<Button
 					size="lg"
 					id="calculate-btn"
 					onClick={handleCalculate}
-					disabled={isCalculating || isDisabled}
-					className="text-white w-full text-sm uppercase font-bold h-11 bg-psa-gradient hover:opacity-90 shadow-lg shadow-primary/25 transition-all active:scale-[0.98] cursor-pointer gap-2"
+					disabled={isCalculating() || isDisabled()}
+					class="text-white w-full text-sm uppercase font-bold h-11 bg-psa-gradient hover:opacity-90 shadow-lg shadow-primary/25 transition-all active:scale-[0.98] cursor-pointer gap-2"
 				>
-					{isCalculating ? (
-						<>
-							<Loader2 className="h-4 w-4 animate-spin" />
-							Calculating...
-						</>
-					) : (
-						<>
-							<Calculator className="h-4 w-4" />
-							Calculate Personal Inflation
-						</>
-					)}
+					<Show
+						when={isCalculating()}
+						fallback={
+							<>
+								<Calculator class="h-4 w-4" />
+								Calculate Personal Inflation
+							</>
+						}
+					>
+						<Loader2 class="h-4 w-4 animate-spin" />
+						Calculating...
+					</Show>
 				</Button>
 			</div>
 		</footer>
@@ -208,3 +208,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

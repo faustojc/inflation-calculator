@@ -1,4 +1,3 @@
-import { observable } from "@legendapp/state";
 import type {
 	AreaDef,
 	AreaHierarchy,
@@ -11,6 +10,7 @@ import type {
 	YearlyDataFile,
 } from "@/lib/types";
 import type { IncomeClass } from "@/stores/inflationStore";
+import { createMemoAtom, createStoreAtom } from "@/stores/solidAtoms";
 import {
 	FETCH_CACHE,
 	formatLocationName,
@@ -53,7 +53,7 @@ interface Metadata {
 	areas: AreaDef[];
 }
 
-export const dataStore = observable<DataState>({
+export const dataStore = createStoreAtom<DataState>({
 	isLoading: true,
 	isReady: false,
 	error: null,
@@ -353,7 +353,7 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 	};
 }
 
-export const commodityTree = observable<TreeNode[]>(() => {
+export const commodityTree = createMemoAtom<TreeNode[]>(() => {
 	const commodities = dataStore.commodities.get();
 	if (commodities.length === 0) return [];
 
@@ -383,7 +383,7 @@ export const commodityTree = observable<TreeNode[]>(() => {
 		}
 
 		if (parentCode && nodeMap.has(parentCode)) {
-			nodeMap.get(parentCode)!.children.push(node);
+			nodeMap.get(parentCode)?.children.push(node);
 		} else {
 			roots.push(node);
 		}
@@ -392,7 +392,7 @@ export const commodityTree = observable<TreeNode[]>(() => {
 	return roots;
 });
 
-export const majorCategories = observable<CommodityDef[]>(() => {
+export const majorCategories = createMemoAtom<CommodityDef[]>(() => {
 	return dataStore.commodities
 		.get()
 		.filter((c) => !c.code.includes("."))

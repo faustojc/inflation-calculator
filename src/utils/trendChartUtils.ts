@@ -1,9 +1,9 @@
+import type uPlot from "uplot";
 import type { TrendType } from "@/stores/graphStore";
 import type { TrendPoint } from "@/utils/inflationCompute";
-import type uPlot from "uplot";
 
 export const SERIES_COLORS = {
-	personal: "hsl(var(--primary))",
+	personal: "var(--color-primary)",
 	area: "#ff9800",
 	province: "#fc0377",
 	region: "#169c49",

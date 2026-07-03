@@ -1,7 +1,10 @@
 import type { IncomeClass } from "@/stores/inflationStore";
 
 // index[area][year][dataType][month][code] = cpi-value
-export type DataIndex = Record<string, Record<number, Partial<Record<DataType, Record<number, Record<string, number | null>>>>>>;
+export type DataIndex = Record<
+	string,
+	Record<number, Partial<Record<DataType, Record<number, Record<string, number | null>>>>>
+>;
 export type DataType = "official" | "personal";
 
 export type TreeNode = {

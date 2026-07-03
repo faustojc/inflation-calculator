@@ -60,12 +60,7 @@ function processPie(
 	return processed;
 }
 
-function relaxSide(
-	labels: ProcessedLabel[],
-	minH: number,
-	minY: number,
-	maxY: number,
-): ProcessedLabel[] {
+function relaxSide(labels: ProcessedLabel[], minH: number, minY: number, maxY: number): ProcessedLabel[] {
 	if (labels.length === 0) return labels;
 
 	const sides = labels.sort((a, b) => a.y - b.y);

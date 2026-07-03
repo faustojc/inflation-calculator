@@ -1,4 +1,3 @@
-import { use$ } from "@legendapp/state/react";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { NEG_STROKE_COLOR } from "@/utils/metadata";
 
@@ -20,30 +19,29 @@ export default function CustomOverlaySector({
 	originalShare,
 	patternPrefix,
 }: Props) {
-	const currSlice = use$(activeSlice);
 	const chartPrefix = patternPrefix.charAt(0);
 
 	if (type === "filler") {
-		return <path d={path} fill="transparent" stroke="none" style={{ pointerEvents: "none" }} />;
+		return <path d={path} fill="transparent" stroke="none" style={{ "pointer-events": "none" }} />;
 	}
 
 	const id = sliceId(code, originalShare);
 	const fullId = chartPrefix + id;
-	const isSelected = currSlice === fullId;
-	const isAnyInThisChartSelected = currSlice?.startsWith(chartPrefix);
+	const isSelected = () => activeSlice.get() === fullId;
+	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix);
 
 	return (
 		<path
 			d={path}
 			fill={`url(#${patternPrefix}-hatch-${negIdx})`}
 			stroke={NEG_STROKE_COLOR}
-			strokeWidth={2}
-			strokeDasharray="6 3"
+			stroke-width={2}
+			stroke-dasharray="6 3"
 			onClick={() => activeSlice.set(fullId)}
 			onMouseEnter={() => activeSlice.set(fullId)}
 			onMouseLeave={() => activeSlice.set(null)}
 			style={{
-				opacity: isAnyInThisChartSelected && !isSelected ? 0.1 : 1,
+				opacity: isAnyInThisChartSelected() && !isSelected() ? 0.1 : 1,
 				transition: "opacity 0.2s ease-in-out",
 				cursor: "pointer",
 				// overlayFlareIn: red glow that fades out on entry (backwards = revert to inline opacity after done)

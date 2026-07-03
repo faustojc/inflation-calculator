@@ -1,12 +1,8 @@
-import { observer, useValue } from "@legendapp/state/react";
-import { AlertTriangle, ChevronDown, ChevronRight, InfoIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
+﻿import { ArrowLeft, ChevronDown, ChevronRight, Equal, InfoIcon, TriangleAlert } from "lucide-solid";
+import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
 import type { DisplayNode } from "@/components/ExpenseTab";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useBufferedNumericInput } from "@/hooks/useBufferedNumericInput";
 import {
 	categoryTotals,
 	detailedExpenses,
@@ -20,218 +16,251 @@ import {
 } from "@/stores/inflationStore";
 import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
 
-const ExpenseNode = observer(({ node, level }: { node: DisplayNode; level: number }) => {
-		const currMode = useValue(mode);
-		const hasChildren = node.children && node.children.length > 0;
+const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
+	const currMode = () => mode.get();
+	const hasChildren = props.node.children && props.node.children.length > 0;
 
-		const isMatch = useValue(() => highlightState.code.get() === node.code);
-		const highlightLabel = useValue(() =>
-			highlightState.code.get() === node.code ? highlightState.label.get() : "",
-		);
-		const displayValue = useValue(() =>
-			hasChildren
-				? categoryTotals[node.code]?.get() || 0
-				: detailedExpenses[node.code]?.get()?.value || 0,
-		);
-		const isOpen = useValue(() => {
-			const val = hasChildren
-				? categoryTotals[node.code]?.get() || 0
-				: detailedExpenses[node.code]?.get()?.value || 0;
-			return expandedNodes[node.code]?.get() ?? (level < 1 || val > 0);
-		});
-		const isMissing = useValue(() => missingDetailedItems.get().has(node.code));
-		const isReady = useValue(prefetchReady);
+	const isMatch = () => highlightState.code.get() === props.node.code;
+	const highlightLabel = () => (isMatch() ? highlightState.label.get() : "");
+	const displayValue = () =>
+		hasChildren
+			? categoryTotals[props.node.code]?.get() || 0
+			: detailedExpenses[props.node.code]?.get()?.value || 0;
+	const isOpen = () => expandedNodes[props.node.code]?.get() ?? (props.level < 1 || displayValue() > 0);
+	const isMissing = () => missingDetailedItems.get().has(props.node.code);
+	const isReady = () => prefetchReady.get();
 
-		const missingStatus = isReady && isMissing;
+	const missingStatus = () => isReady() && isMissing();
 
-		const inputRef = useRef<HTMLInputElement>(null);
-		const rowRef = useRef<HTMLDivElement>(null);
-		const isPointerDown = useRef(false);
-		const isMobile = useIsMobile();
+	let inputRef!: HTMLInputElement;
+	let rowRef!: HTMLDivElement;
+	let isPointerDown = false;
+	const isMobile = useIsMobile();
 
-		useEffect(() => {
-			if (isMatch) {
-				rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-				if (!hasChildren) {
-					setTimeout(() => inputRef.current?.focus(), 500);
-				}
+	createEffect(() => {
+		if (isMatch()) {
+			rowRef?.scrollIntoView({ behavior: "smooth", block: "center" });
+			if (!hasChildren) {
+				setTimeout(() => inputRef?.focus(), 500);
 			}
-		}, [isMatch, hasChildren]);
+		}
+	});
 
-		const commitValue = (nextValue: number) =>
-			updateExpenseValue(node.code, node.name, nextValue, "detailed");
+	// Keep children mounted briefly after collapse so the collapsible-up keyframe
+	// can play before <Show> unmounts them (Solid has no built-in exit transition).
+	const [rendering, setRendering] = createSignal(isOpen());
+	createEffect(() => {
+		if (isOpen()) {
+			setRendering(true);
+			return;
+		}
+		const timer = setTimeout(() => setRendering(false), 200);
+		onCleanup(() => clearTimeout(timer));
+	});
 
-		const normalizeValue = (nextValue: number) => {
-			if (nextValue < 0 || (currMode === "percent" && nextValue > 100)) return null;
-			return getLimitValue(currMode, nextValue);
-		};
+	const commitValue = (nextValue: number) =>
+		updateExpenseValue(props.node.code, props.node.name, nextValue, "detailed");
 
-		const {
-			draftValue,
-			handleBlur,
-			handleChange,
-			handleEnterKey,
-			handleFocus: handleDraftFocus,
-		} = useBufferedNumericInput({
-			value: displayValue,
-			normalize: normalizeValue,
-			commit: commitValue,
-		});
+	const inputLimit = () => (currMode() === "percent" ? 100 : 500000);
+	const inputText = () => {
+		const limited = getLimitValue(currMode(), displayValue());
+		return limited > 0 ? String(limited) : "";
+	};
 
-		const handleToggle = (open: boolean) => {
-			toggleExpansion(node.code, open);
-		};
+	const handleInput = (e: InputEvent & { currentTarget: HTMLInputElement }) => {
+		const el = e.currentTarget;
+		if (el.value === "") {
+			commitValue(0);
+			return;
+		}
 
-		const handleFocus = () => {
-			handleDraftFocus();
-			if (isPointerDown.current) {
-				isPointerDown.current = false;
-				return;
-			}
-			setTimeout(() => {
-				rowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-			}, 50);
-		};
+		const parsed = Number.parseFloat(el.value);
+		if (!Number.isFinite(parsed) || parsed < 0) {
+			el.value = inputText();
+			return;
+		}
 
-		const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-			preventNonNumeric(e);
-			handleEnterKey(e);
-		};
+		if (parsed > inputLimit()) {
+			el.value = String(inputLimit());
+			commitValue(inputLimit());
+			return;
+		}
+		commitValue(parsed);
+	};
 
-		return (
-			<Collapsible open={isOpen} onOpenChange={handleToggle} className="w-full">
-				<div
-					ref={rowRef}
-					style={{ paddingLeft: `${level * 20 + 12}px` }}
-					className={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
+	const handleBlur = (e: FocusEvent & { currentTarget: HTMLInputElement }) => {
+		e.currentTarget.value = inputText();
+	};
+
+	const handleToggle = (open: boolean) => {
+		toggleExpansion(props.node.code, open);
+	};
+
+	const handleFocus = () => {
+		if (isPointerDown) {
+			isPointerDown = false;
+			return;
+		}
+		setTimeout(() => {
+			rowRef?.scrollIntoView({ behavior: "smooth", block: "center" });
+		}, 50);
+	};
+
+	const handleKeyDown = (e: KeyboardEvent & { currentTarget: HTMLInputElement }) => {
+		preventNonNumeric(e);
+		if (e.key === "Enter") e.currentTarget.blur();
+	};
+
+	return (
+		<div class="w-full">
+			<div
+				ref={rowRef}
+				style={{ "padding-left": `${props.level * 20 + 12}px` }}
+				class={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
 					${
-						missingStatus
-							? "bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-600/50 ring-1 ring-inset ring-red-400/50 dark:ring-red-500/30"
-							: isMatch
-								? "bg-yellow-50 dark:bg-amber-950/30 border-yellow-300 dark:border-amber-600/50 ring-1 ring-inset ring-yellow-400/50 dark:ring-amber-500/30"
-								: "border-border hover:bg-muted/50"
+						missingStatus()
+							? "bg-error/10 border-error/40 ring-inset ring-1 ring-error"
+							: isMatch()
+								? "bg-warning/10 border-warning/40 ring-inset ring-1 ring-warning"
+								: hasChildren
+									? props.level === 0
+										? "bg-primary/15 border-primary/30 hover:bg-primary/20"
+										: "bg-primary/8 border-primary/20 hover:bg-primary/12"
+									: "bg-base-100 border-border hover:bg-base-200"
 					}
-					${level === 0 ? "bg-muted/50" : ""}
 				`.replace(/\s+/g, " ")}
-				>
-					{hasChildren && (
-						<CollapsibleTrigger asChild>
-							<button
-								type="button"
-								disabled={!hasChildren}
-								tabIndex={-1}
-								className={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary hover:text-primary hover:bg-primary/20 cursor-pointer" : "text-transparent w-5"}`}
-								aria-label={isOpen ? `Collapse ${node.name}` : `Expand ${node.name}`}
-								aria-expanded={isOpen}
+			>
+				<Show when={hasChildren}>
+					<button
+						type="button"
+						disabled={!hasChildren}
+						tabIndex={-1}
+						onClick={() => handleToggle(!isOpen())}
+						class={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary hover:text-primary hover:bg-primary/20 cursor-pointer" : "w-5"}`}
+						aria-label={isOpen() ? `Collapse ${props.node.name}` : `Expand ${props.node.name}`}
+						aria-expanded={isOpen()}
+					>
+						<Show when={isOpen()} fallback={<ChevronRight class="h-4 w-4" />}>
+							<ChevronDown class="h-4 w-4" />
+						</Show>
+					</button>
+				</Show>
+
+				<div class="grid grid-cols-5 items-center w-full gap-2">
+					<div class="col-span-3">
+						<div class="flex items-center gap-2">
+							<Show when={SUB_CATEGORY_DESCRIPTIONS[props.node.code]}>
+								<Popover>
+									<PopoverTrigger
+										tabIndex={-1}
+										class="outline-none focus:ring-0 flex items-center justify-center bg-transparent border-0 p-0"
+										aria-label={`View description for ${props.node.name}`}
+									>
+										<InfoIcon class="h-3.5 w-3.5 shrink-0 text-primary/60 hover:text-primary cursor-pointer transition-colors" />
+									</PopoverTrigger>
+									<PopoverContent class="w-72 p-3 text-sm">
+										{SUB_CATEGORY_DESCRIPTIONS[props.node.code]}
+									</PopoverContent>
+								</Popover>
+							</Show>
+							<p
+								class={`text-sm text-wrap text-left
+								${props.level === 0 ? "font-bold" : "text-foreground"}
+								${isMatch() ? "font-extrabold" : ""}`}
 							>
-								{isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-							</button>
-						</CollapsibleTrigger>
-					)}
+								{props.node.name}
+							</p>
 
-					<div className="grid grid-cols-5 items-center w-full gap-2">
-						<div className="col-span-3">
-							<div className="flex items-center gap-2">
-								{SUB_CATEGORY_DESCRIPTIONS[node.code] && (
-									<Popover>
-										<PopoverTrigger
-											tabIndex={-1}
-											className="outline-none focus:ring-0 flex items-center justify-center bg-transparent border-0 p-0"
-											aria-label={`View description for ${node.name}`}
-										>
-											<InfoIcon className="h-3.5 w-3.5 shrink-0 text-primary/60 hover:text-primary cursor-pointer transition-colors" />
-										</PopoverTrigger>
-										<PopoverContent className="w-72 p-3 text-sm">
-											{SUB_CATEGORY_DESCRIPTIONS[node.code]}
-										</PopoverContent>
-									</Popover>
-								)}
-								<p
-									className={`text-sm text-wrap text-left ${level === 0 ? "font-bold" : "text-foreground"} ${isMatch && "font-extrabold"}`}
-								>
-									{node.name}
-								</p>
-
-								{isMatch && (
-									<span className="text-xs font-bold text-primary text-wrap animate-in fade-in slide-in-from-left-2">
-										← {highlightLabel} belongs here
-									</span>
-								)}
-								{!isMobile && missingStatus && (
-									<div className="flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
-										<AlertTriangle className="w-3.5 h-3.5" />
-										<span>No official CPI data</span>
-									</div>
-								)}
-							</div>
-						</div>
-
-						<div
-							className={`col-span-2 relative rounded-xl ${!hasChildren ? "border-2 border-zinc-100 dark:border-border/50" : ""}`}
-						>
-							<span
-								className={`absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold ${hasChildren ? "text-muted-foreground" : "text-muted-foreground"}`}
-							>
-								{hasChildren ? "=" : currMode === "percent" ? "%" : "PhP"}
-							</span>
-
-							{hasChildren ? (
-								<div className="h-8 pl-6 pr-3 flex items-center justify-end text-sm font-semibold text-foreground/80 bg-muted/60 rounded-md tabular-nums">
-									{displayValue.toLocaleString(undefined, {
-										maximumFractionDigits: 2,
-									})}
+							<Show when={isMatch()}>
+								<span class="text-xs font-bold text-primary text-wrap animate-in fade-in slide-in-from-left-2">
+									<ArrowLeft class="w-3.5 h-3.5 inline-block" /> {highlightLabel()} belongs here
+								</span>
+							</Show>
+							<Show when={!isMobile() && missingStatus()}>
+								<div class="flex items-center gap-2 text-xs font-bold text-error animate-in fade-in">
+									<TriangleAlert class="w-3.5 h-3.5" />
+									<span>No official CPI data</span>
 								</div>
+							</Show>
+						</div>
+					</div>
+
+					<div class="col-span-2 relative rounded-xl">
+						<span class="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-xs font-semibold text-base-content/70 pointer-events-none">
+							{hasChildren ? (
+								<Equal class="w-3.5 h-3.5 inline-block text-primary" />
+							) : currMode() === "percent" ? (
+								"%"
 							) : (
-								<Input
+								"PhP"
+							)}
+						</span>
+
+						<Show
+							when={hasChildren}
+							fallback={
+								<input
 									ref={inputRef}
-									id={node.code}
-									name={node.name}
+									id={props.node.code}
+									name={props.node.name}
 									type="number"
-									aria-label={`Expense amount for ${node.name}`}
-									className={`commodity-input h-8 pl-6 text-right font-mono text-sm transition-all ${
-										missingStatus
-											? "ring-2 ring-destructive border-destructive text-destructive font-semibold opacity-70 cursor-not-allowed"
-											: isMatch
-												? "ring-2 ring-yellow-400 dark:ring-amber-500/50 border-yellow-400 dark:border-amber-500/50 bg-card scale-105"
-												: displayValue > 0
-													? "bg-primary/5 border-primary/20 font-semibold"
-													: "bg-transparent border-transparent hover:border-border hover:bg-card"
+									aria-label={`Expense amount for ${props.node.name}`}
+									class={`input input-bordered commodity-input w-full h-8 pl-6 text-right font-mono text-sm transition-all ${
+										missingStatus()
+											? "ring-2 ring-error border-error text-error font-semibold opacity-70 cursor-not-allowed"
+											: isMatch()
+												? "ring-2 ring-warning border-warning bg-base-100 scale-105"
+												: displayValue() > 0
+													? "bg-primary/10 border-primary/50 text-foreground font-semibold"
+													: "bg-base-200 border-base-300 text-foreground hover:border-primary/50 hover:bg-base-100"
 									}`.replace(/\s+/g, " ")}
 									placeholder="0"
-									value={draftValue}
+									value={inputText()}
 									min={0}
 									max={500000}
-									disabled={missingStatus}
+									disabled={missingStatus()}
 									onKeyDown={handleKeyDown}
-									onChange={handleChange}
+									onInput={handleInput}
 									onBlur={handleBlur}
 									onFocus={handleFocus}
 									onPointerDown={() => {
-										isPointerDown.current = true;
+										isPointerDown = true;
 									}}
 								/>
-							)}
-						</div>
-						{isMobile && missingStatus && !hasChildren && (
-							<div className="col-span-5 flex items-center justify-center gap-2 text-xs font-bold text-red-600 dark:text-red-400 animate-in fade-in">
-								<AlertTriangle className="w-3.5 h-3.5" />
-								<span>No official CPI data</span>
+							}
+						>
+							<div class="h-8 pl-6 pr-3 flex items-center justify-end text-sm font-semibold text-foreground bg-base-100 border border-primary/25 rounded-md tabular-nums">
+								{displayValue().toLocaleString(undefined, {
+									maximumFractionDigits: 2,
+								})}
 							</div>
-						)}
+						</Show>
+					</div>
+					<Show when={isMobile() && missingStatus() && !hasChildren}>
+						<div class="col-span-5 flex items-center justify-center gap-2 text-xs font-bold text-error animate-in fade-in">
+							<TriangleAlert class="w-3.5 h-3.5" />
+							<span>No official CPI data</span>
+						</div>
+					</Show>
+				</div>
+			</div>
+
+			<Show when={hasChildren && rendering()}>
+				<div
+					class={`grid ${isOpen() ? "animate-collapsible-down" : "animate-collapsible-up"}`}
+					style={{ "grid-template-rows": isOpen() ? "1fr" : "0fr" }}
+				>
+					<div class="overflow-hidden min-h-0">
+						<div class="w-full">
+							<For each={props.node.children}>
+								{(child) => <ExpenseNode node={child} level={props.level + 1} />}
+							</For>
+						</div>
 					</div>
 				</div>
-
-				{hasChildren && (
-					<CollapsibleContent className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-						<div className="w-full">
-							{node.children.map((child) => (
-								<ExpenseNode key={child.code} node={child} level={level + 1} />
-							))}
-						</div>
-					</CollapsibleContent>
-				)}
-			</Collapsible>
-		);
-});
+			</Show>
+		</div>
+	);
+};
 
 export default ExpenseNode;

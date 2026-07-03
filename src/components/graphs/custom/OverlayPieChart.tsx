@@ -1,5 +1,5 @@
 import { arc as d3Arc, pie as d3Pie } from "d3-shape";
-import { useEffect, useRef } from "react";
+import { type JSX, onCleanup, onMount } from "solid-js";
 import CustomBaseSector from "@/components/graphs/custom/CustomBaseSector";
 import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
 import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector";
@@ -48,7 +48,7 @@ export function OverlayPieChart({
 	patternPrefix: string;
 }) {
 	const hasNegatives = negativeItems.length > 0;
-	const clipSectorRef = useRef<SVGPathElement>(null);
+	let clipSectorRef!: SVGPathElement;
 	const clipPathId = `${patternPrefix}-reveal-clip`;
 	const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 	const nav = navigator as Navigator & { deviceMemory?: number };
@@ -61,8 +61,8 @@ export function OverlayPieChart({
 	})();
 
 	// Animate the clipPath sector from 0 -> 2pi, shortened or skipped on constrained devices.
-	useEffect(() => {
-		const el = clipSectorRef.current;
+	onMount(() => {
+		const el = clipSectorRef;
 		if (!el) return;
 
 		if (animationMs === 0) {
@@ -82,15 +82,13 @@ export function OverlayPieChart({
 
 		el.setAttribute("d", revealSectorPath(0.001));
 		rafId = requestAnimationFrame(animate);
-		return () => cancelAnimationFrame(rafId);
-	}, [animationMs, basePie, overlayPie]);
+		onCleanup(() => cancelAnimationFrame(rafId));
+	});
 
 	const pieLayout = d3Pie<PieEntry>()
 		.value((d) => d.value)
 		.sort(null);
-	const baseArcGen = d3Arc<ReturnType<typeof pieLayout>[number]>()
-		.innerRadius(0)
-		.outerRadius(BASE_OUTER_R);
+	const baseArcGen = d3Arc<ReturnType<typeof pieLayout>[number]>().innerRadius(0).outerRadius(BASE_OUTER_R);
 	const overlayArcGen = d3Arc<ReturnType<typeof pieLayout>[number]>()
 		.innerRadius(0)
 		.outerRadius(OVERLAY_OUTER_R);
@@ -100,25 +98,18 @@ export function OverlayPieChart({
 		? pieLayout(overlayPie).map((a) => ({ data: a.data, path: overlayArcGen(a) ?? "" }))
 		: [];
 
-	// Changes whenever pie data changes → forces label wrapper remount → CSS animation restarts
-	const labelAnimKey = basePie.map((p) => `${p.code}:${p.value.toFixed(4)}`).join("|");
-
-	const labelStyle = (i: number): React.CSSProperties =>
+	const labelStyle = (i: number): JSX.CSSProperties =>
 		animationMs === 0
 			? { opacity: 1 }
 			: {
 					animation: `labelFocusIn ${LABEL_DURATION}s ${LABEL_SPRING} both`,
-					animationDelay: `${Math.max(animationMs / 1000 - 0.05, 0) + i * LABEL_STAGGER}s`,
+					"animation-delay": `${Math.max(animationMs / 1000 - 0.05, 0) + i * LABEL_STAGGER}s`,
 				};
 
 	return (
-		<div className="flex flex-col items-center w-full">
-			<div className="w-full aspect-square max-h-100 relative">
-				<svg
-					viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`}
-					className="w-full h-full"
-					style={{ overflow: "visible" }}
-				>
+		<div class="flex flex-col items-center w-full">
+			<div class="w-full aspect-square max-h-100 relative">
+				<svg viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`} class="w-full h-full" style={{ overflow: "visible" }}>
 					<title>Pie Chart</title>
 
 					<defs>
@@ -130,24 +121,22 @@ export function OverlayPieChart({
 						{hasNegatives &&
 							negativeItems.map((_, i) => (
 								<pattern
-									key={`${patternPrefix}-hatch-${i}`}
 									id={`${patternPrefix}-hatch-${i}`}
 									patternUnits="userSpaceOnUse"
 									width="6"
 									height="6"
 									patternTransform="rotate(45)"
 								>
-									<line x1="0" y1="0" x2="0" y2="6" stroke={NEG_STRIPE_COLOR} strokeWidth="6.5" />
+									<line x1="0" y1="0" x2="0" y2="6" stroke={NEG_STRIPE_COLOR} stroke-width="6.5" />
 								</pattern>
 							))}
 					</defs>
 
 					{/* LAYER 1 — Base pie clipped to the growing sector */}
-					<g clipPath={`url(#${clipPathId})`}>
-						<g transform={`translate(${CX},${CY})`} stroke="#fff" strokeWidth={2}>
+					<g clip-path={`url(#${clipPathId})`}>
+						<g transform={`translate(${CX},${CY})`} stroke="#fff" stroke-width={2}>
 							{baseArcs.map(({ data, path }, i) => (
 								<CustomBaseSector
-									key={data.code || i}
 									path={path}
 									code={data.code}
 									index={i}
@@ -161,11 +150,10 @@ export function OverlayPieChart({
 
 					{/* LAYER 2 — Overlay pie clipped to the same growing sector */}
 					{hasNegatives && (
-						<g clipPath={`url(#${clipPathId})`}>
+						<g clip-path={`url(#${clipPathId})`}>
 							<g transform={`translate(${CX},${CY})`}>
 								{overlayArcs.map(({ data, path }, i) => (
 									<CustomOverlaySector
-										key={data.code || `filler-${i}`}
 										path={path}
 										type={data.type}
 										code={data.code}
@@ -181,7 +169,7 @@ export function OverlayPieChart({
 
 					{/* Positive labels — blur focus-in, staggered */}
 					{baseArcs.map(({ data }, i) => (
-						<g key={`plabel-anim-${data.code || i}-${labelAnimKey}`} style={labelStyle(i)}>
+						<g style={labelStyle(i)}>
 							<CustomPositiveLabel
 								payload={data}
 								chartId={patternPrefix}
@@ -197,10 +185,7 @@ export function OverlayPieChart({
 					{/* Negative labels — continue stagger after positives */}
 					{hasNegatives &&
 						overlayArcs.map(({ data }, i) => (
-							<g
-								key={`nlabel-anim-${data.code || i}-${labelAnimKey}`}
-								style={labelStyle(baseArcs.length + i)}
-							>
+							<g style={labelStyle(baseArcs.length + i)}>
 								<CustomNegativeLabel
 									payload={data}
 									index={i}

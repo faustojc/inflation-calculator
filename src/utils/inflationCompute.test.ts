@@ -107,10 +107,10 @@ describe("calculatePersonalInflation", () => {
 	it("computes a 10% personal rate from uniform 10% YoY CPI growth", () => {
 		const result = run();
 		expect(result).not.toBeNull();
-		expect(result!.personalRate).toBeCloseTo(10, 5);
-		expect(result!.yearlyCpiStart).toBeCloseTo(110, 5);
-		expect(result!.yearlyCpiEnd).toBeCloseTo(121, 5);
-		expect(result!.totalSpend).toBe(100);
+		expect(result?.personalRate).toBeCloseTo(10, 5);
+		expect(result?.yearlyCpiStart).toBeCloseTo(110, 5);
+		expect(result?.yearlyCpiEnd).toBeCloseTo(121, 5);
+		expect(result?.totalSpend).toBe(100);
 	});
 
 	it("builds a weighted breakdown per expense item", () => {
@@ -138,7 +138,7 @@ describe("calculatePersonalInflation", () => {
 		const result = run()!;
 		expect(result.contributors.map((c) => c.factorName)).toEqual(["Personal", "City/Mun", "National"]);
 		for (const factor of result.contributors) {
-			expect(factor.contributors[0]!.name).toBe("ALL ITEMS");
+			expect(factor.contributors[0]?.name).toBe("ALL ITEMS");
 		}
 	});
 

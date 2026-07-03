@@ -1,8 +1,8 @@
-import { observable } from "@legendapp/state";
+import { createSignalAtom } from "@/stores/solidAtoms";
 
-export const $openMenu = observable(false);
+export const $openMenu = createSignalAtom(false);
 
-export const openOnboarding = observable(false);
+export const openOnboarding = createSignalAtom(false);
 export const showOnboarding = () => {
 	openOnboarding.set(true);
 };
@@ -35,7 +35,7 @@ export const startTour = async () => {
 			{
 				element: "#location-control",
 				popover: {
-					title: "📍 Choose your Province/City",
+					title: "\uD83D\uDCCD Choose your Province/City",
 					description: "This must be the area where you usually buy or consume household goods and services.",
 					side: "bottom",
 				},
@@ -43,7 +43,7 @@ export const startTour = async () => {
 			{
 				element: "#income-class-control",
 				popover: {
-					title: "💰 Select Income Bracket",
+					title: "\uD83D\uDCB0 Select Income Bracket",
 					description: "This is the consumer group to which you want your personal inflation to be compared.",
 					side: "bottom",
 				},
@@ -51,7 +51,7 @@ export const startTour = async () => {
 			{
 				element: "#date-control",
 				popover: {
-					title: "📅 Select Month and Year",
+					title: "\uD83D\uDCC5 Select Month and Year",
 					description:
 						"Pick the specific month and year you want to calculate for. It automatically shows the most recent date with available official data.",
 					side: "bottom",
@@ -60,7 +60,7 @@ export const startTour = async () => {
 			{
 				element: "#input-type-section",
 				popover: {
-					title: "📝 Select the Input Type",
+					title: "\uD83D\uDCDD Select the Input Type",
 					description:
 						"Choose <strong>Amount (PhP)</strong> if you want to input your monthly or annual expenditure for each commodity group. Choose <strong>Percent (%)</strong> if you want to input the only percentage of your monthly expenditure allotted for each commodity group.",
 					side: "bottom",
@@ -69,7 +69,7 @@ export const startTour = async () => {
 			{
 				element: "#tab-control",
 				popover: {
-					title: "📊 Select the Commodity Group",
+					title: "\uD83D\uDCCA Select the Commodity Group",
 					description:
 						"If <strong>General</strong> is selected, inputs will be asked for the 13 major commodity groups only. If <strong>Detailed</strong> is selected, inputs will be asked for specific commodity groups. Commodity Grouping is based on the 2020 Philippine Classification of Individual Consumption According to Purpose (PCOICOP).",
 					side: "top",
@@ -78,7 +78,7 @@ export const startTour = async () => {
 			{
 				element: "#smart-search",
 				popover: {
-					title: "🔍 Find Any Item Quickly",
+					title: "\uD83D\uDD0D Find Any Item Quickly",
 					description:
 						"Search for specific good or service (e.g., <strong>Rice</strong>, <strong>Electricity</strong>) to find commodities that you regularly purchase. The commodity group where the commodity belongs will be highlighted.",
 					side: "bottom",

@@ -1,10 +1,10 @@
+import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
-import path from "path";
 import { defineConfig } from "vite";
+import solid from "vite-plugin-solid";
 
 export default defineConfig({
-	plugins: [react(), tailwindcss()],
+	plugins: [solid(), tailwindcss()],
 	base: "/inflation-calculator/",
 	build: {
 		target: "esnext",
@@ -16,23 +16,14 @@ export default defineConfig({
 				chunkFileNames: (chunkInfo) =>
 					chunkInfo.isDynamicEntry ? "assets/[hash].js" : "assets/[name]-[hash].js",
 				manualChunks: (id) => {
-					if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
-						return "vendor-react";
+					if (id.includes("node_modules/solid-js")) {
+						return "vendor-solid";
 					}
-
-					if (id.includes("node_modules/tailwind-merge")) {
-						return "vendor-tailwind";
-					}
-
-					if (id.includes("node_modules/lucide-react")) {
+					if (id.includes("node_modules/lucide-solid")) {
 						return "vendor-icons";
 					}
 
-					if (id.includes("node_modules/@radix-ui") || id.includes("node_modules/clsx")) {
-						return "vendor-ui";
-					}
-
-					if (id.includes("node_modules/@legendapp/state") || id.includes("node_modules/date-fns")) {
+					if (id.includes("node_modules/date-fns")) {
 						return "vendor-utils";
 					}
 

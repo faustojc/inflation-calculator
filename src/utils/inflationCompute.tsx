@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { createRoot, type JSX } from "solid-js";
 import type { AreaDef, DataIndex, DataType } from "@/lib/types";
 import { setCompareOfficial } from "@/stores/graphStore";
 import type { ExpenseItem } from "@/stores/inflationStore";
@@ -80,7 +80,7 @@ export interface CalculationResult {
 	inflationTrend: TrendPoint[];
 	cpiTrend: TrendPoint[];
 	comparators: Comparators;
-	interpretation: ReactNode[];
+	interpretation: JSX.Element[];
 	meta: {
 		location: LocationContext;
 		dates: DateRange;
@@ -105,8 +105,7 @@ function calculateOfficialContribution(
 	const contributions: CommodityContribution[] = [];
 	const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
 	let totalWeightedChange = 0;
-	const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] =
-		[];
+	const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] = [];
 
 	for (let i = 0; i < codes.length; i++) {
 		const code = codes[i]!;
@@ -168,10 +167,7 @@ function calculateContributors(
 	if (isPersonal) {
 		// Compute weighted CPI change per item: (CPI_start - CPI_end) * weight
 		// where CPI_start = selected date (cpiEnd in code), CPI_end = previous date (cpiStart in code)
-		const totalWeightedChange = breakdown.reduce(
-			(acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight,
-			0,
-		);
+		const totalWeightedChange = breakdown.reduce((acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight, 0);
 
 		for (const b of breakdown) {
 			const weightedChange = (b.cpiEnd - b.cpiStart) * b.weight;
@@ -247,7 +243,9 @@ function findCpi(
 	code: string,
 	dataType: "official" | "personal",
 ): number {
-	return index[areaKey]![year]![dataType]![month]![code]!;
+	const value = index[areaKey]?.[year]?.[dataType]?.[month]?.[code];
+	if (value == null) throw new Error(`Missing CPI value for ${areaKey}/${year}/${dataType}/${month}/${code}`);
+	return value;
 }
 
 /**
@@ -433,7 +431,7 @@ function generateInterpretation(
 		location: { target: AreaDef; province?: AreaDef; region?: AreaDef; national?: AreaDef };
 		dates: DateRange;
 	},
-): ReactNode[] {
+): JSX.Element[] {
 	const { location, dates } = meta;
 	const monthStr = new Date(dates.endYear, dates.endMonth - 1).toLocaleDateString("en-US", {
 		month: "long",
@@ -453,14 +451,14 @@ function generateInterpretation(
 
 	const p1 = (
 		<>
-			Your computed consumer price index is <strong>{personalCpi.toFixed(1)}</strong>. It means that
-			average price of your commonly purchased goods and services have{" "}
+			Your computed consumer price index is <strong>{personalCpi.toFixed(1)}</strong>. It means that average
+			price of your commonly purchased goods and services have{" "}
 			<strong>
 				{getDir(personalCpi - 100)} by {percentChange}%
 			</strong>{" "}
 			compared with their average prices in 2018. Subsequently, in {monthStr}, you will need{" "}
-			<strong>PhP {purchasingPower}</strong> to buy the same set of goods and services worth PhP 100.00
-			in 2018.
+			<strong>PhP {purchasingPower}</strong> to buy the same set of goods and services worth PhP 100.00 in
+			2018.
 		</>
 	);
 
@@ -487,12 +485,12 @@ function generateInterpretation(
 			<strong>
 				{areaName} ({comps.areaRate.toFixed(1)}%)
 			</strong>
-			. This means that you are <strong>{getAff(personalRate, comps.areaRate)} affected</strong> by the
-			price increases in <strong>{areaName}</strong> compared with the average household in the area.
+			. This means that you are <strong>{getAff(personalRate, comps.areaRate)} affected</strong> by the price
+			increases in <strong>{areaName}</strong> compared with the average household in the area.
 		</>
 	);
 
-	const interpretation: ReactNode[] = [p2, p1, p3];
+	const interpretation: JSX.Element[] = [p2, p1, p3];
 
 	if (regionName && comps.regionRate !== undefined) {
 		const p4 = (
@@ -505,9 +503,8 @@ function generateInterpretation(
 				<strong>
 					{regionName} ({comps.regionRate.toFixed(1)}%)
 				</strong>
-				. This means that you are <strong>{getAff(personalRate, comps.regionRate)} affected</strong> by
-				the price increases in <strong>{regionName}</strong> compared to the average household in the
-				region.
+				. This means that you are <strong>{getAff(personalRate, comps.regionRate)} affected</strong> by the
+				price increases in <strong>{regionName}</strong> compared to the average household in the region.
 			</>
 		);
 		interpretation.push(p4);
@@ -529,6 +526,12 @@ function generateInterpretation(
 
 	return interpretation;
 }
+
+// The interpretation is JSX, so its `{expr}` interpolations compile to Solid
+// render computations. calculatePersonalInflation runs inside an event handler
+// (no reactive owner), so those must live in an explicit root or Solid warns and
+// never disposes them. Keep the current one alive; dispose the previous run's.
+let disposeInterpretation: (() => void) | null = null;
 
 export function calculatePersonalInflation(
 	expenses: ExpenseItem[],
@@ -608,9 +611,7 @@ export function calculatePersonalInflation(
 		areaRate: getOfficialRate(location.target.key, dataIndex, dates),
 		regionRate: location.region ? getOfficialRate(location.region.key, dataIndex, dates) : undefined,
 		nationalRate: getOfficialRate("philippines", dataIndex, dates),
-		provinceRate: location.province
-			? getOfficialRate(location.province.key, dataIndex, dates)
-			: undefined,
+		provinceRate: location.province ? getOfficialRate(location.province.key, dataIndex, dates) : undefined,
 	};
 
 	const contributors: ContributionFactor[] = [
@@ -697,9 +698,13 @@ export function calculatePersonalInflation(
 	);
 	const cpiTrend = generateTrend(expenses, location, dates, config, dataIndex, "0", dataType, "cpi");
 
-	const interpretation = generateInterpretation(personalRate, yearlyCpiEnd, comparators, {
-		location,
-		dates,
+	disposeInterpretation?.();
+	const interpretation = createRoot((dispose) => {
+		disposeInterpretation = dispose;
+		return generateInterpretation(personalRate, yearlyCpiEnd, comparators, {
+			location,
+			dates,
+		});
 	});
 
 	setCompareOfficial(contributors[1]);
