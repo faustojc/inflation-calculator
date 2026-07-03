@@ -1,18 +1,16 @@
-import { Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-solid";
 import { clearExpenses } from "@/stores/inflationStore";
 
 const ClearButton = () => {
 	return (
-		<Button
-			variant="outline"
-			size="sm"
-			className="cursor-pointer text-destructive border-destructive/50 hover:text-white hover:bg-destructive gap-1.5"
+		<button
+			type="button"
+			class="btn btn-error btn-outline btn-sm hover:text-white hover:bg-destructive gap-1.5"
 			onClick={clearExpenses}
 		>
-			<Trash2 className="h-3.5 w-3.5" />
+			<Trash2 class="h-3.5 w-3.5" />
 			Clear All
-		</Button>
+		</button>
 	);
 };
 

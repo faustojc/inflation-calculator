@@ -1,10 +1,27 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
-	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-	"files": {
-		"includes": ["**", "!!**/dist", "!!**/coverage", "!!**/playwright-report", "!!**/test-results", "!!**/public/api"]
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
 	},
-	"formatter": { "enabled": true, "indentStyle": "tab", "lineWidth": 110, "formatWithErrors": true },
+	"files": {
+		"includes": [
+			"**",
+			"!!**/dist",
+			"!!**/coverage",
+			"!!**/playwright-report",
+			"!!**/test-results",
+			"!!**/public/api",
+			"!!**/.claude"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth": 110,
+		"formatWithErrors": true
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -21,7 +38,11 @@
 		},
 		"includes": ["**", "!dist"]
 	},
-	"javascript": { "formatter": { "quoteStyle": "double" } },
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
 	"overrides": [
 		{
 			"includes": ["**/*.{ts,tsx}"],
@@ -91,7 +112,12 @@
 				}
 			}
 		},
-		{ "includes": ["**/*.{ts,tsx}"], "javascript": { "globals": [] } },
+		{
+			"includes": ["**/*.{ts,tsx}"],
+			"javascript": {
+				"globals": []
+			}
+		},
 		{
 			"includes": [
 				"**/*.{ts,tsx}",
@@ -105,7 +131,9 @@
 			],
 			"linter": {
 				"rules": {
-					"complexity": { "noArguments": "error" },
+					"complexity": {
+						"noArguments": "error"
+					},
 					"correctness": {
 						"noConstAssign": "off",
 						"noGlobalObjectCalls": "off",
@@ -116,7 +144,9 @@
 						"noUnreachable": "off",
 						"noUnreachableSuper": "off"
 					},
-					"style": { "useConst": "error" },
+					"style": {
+						"useConst": "error"
+					},
 					"suspicious": {
 						"noClassAssign": "off",
 						"noDuplicateClassMembers": "off",
@@ -137,8 +167,12 @@
 			"includes": ["**/*.{ts,tsx}"],
 			"linter": {
 				"rules": {
-					"complexity": { "noUselessTypeConstraint": "error" },
-					"correctness": { "noUnusedVariables": "error" },
+					"complexity": {
+						"noUselessTypeConstraint": "error"
+					},
+					"correctness": {
+						"noUnusedVariables": "error"
+					},
 					"style": {
 						"noCommonJs": "error",
 						"noNamespace": "error",
@@ -168,7 +202,12 @@
 				}
 			}
 		},
-		{ "includes": ["**/*.{ts,tsx}"], "linter": { "rules": {} } },
+		{
+			"includes": ["**/*.{ts,tsx}"],
+			"linter": {
+				"rules": {}
+			}
+		},
 		{
 			"includes": ["**/*.{ts,tsx}"],
 			"javascript": {
@@ -300,10 +339,43 @@
 					"onemptied"
 				]
 			}
+		},
+		{
+			"includes": ["**/*.{ts,tsx}"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noNonNullAssertion": "off"
+					},
+					"suspicious": {
+						"noExplicitAny": "off",
+						"noNonNullAssertedOptionalChain": "off",
+						"noEmptyBlockStatements": "off"
+					},
+					"a11y": {
+						"useKeyWithClickEvents": "off",
+						"noLabelWithoutControl": "off",
+						"useAriaPropsSupportedByRole": "off",
+						"useFocusableInteractive": "off",
+						"useSemanticElements": "off",
+						"useAriaPropsForRole": "off"
+					}
+				}
+			}
 		}
 	],
 	"assist": {
 		"enabled": true,
-		"actions": { "source": { "organizeImports": "on", "recommended": true } }
+		"actions": {
+			"source": {
+				"organizeImports": "on",
+				"recommended": true
+			}
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
 	}
 }

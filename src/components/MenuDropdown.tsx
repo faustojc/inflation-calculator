@@ -1,26 +1,22 @@
-import { use$ } from "@legendapp/state/react";
-import { HelpCircle, Menu, MessageSquare, Moon, Sun, X } from "lucide-react";
-import { useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { CircleQuestionMark, Menu, MessageSquare, Moon, Sun, X } from "lucide-solid";
+import { onCleanup, onMount, Show } from "solid-js";
 import { $openFaq } from "@/stores/faqStore";
 import { $openMenu, showOnboarding } from "@/stores/onboardingStore";
-import { $theme, toggleTheme } from "@/stores/themeStore";
+import { theme, toggleTheme } from "@/stores/themeStore";
 
 const MenuDropdown = () => {
-	const openMenu = use$($openMenu);
-	const theme = use$($theme);
-	const menuRef = useRef<HTMLDivElement>(null);
+	let menuRef!: HTMLDivElement;
+	const openMenu = () => $openMenu.get();
 
-	useEffect(() => {
-		if (!openMenu) return;
-
+	onMount(() => {
 		const handlePointerDown = (event: PointerEvent) => {
-			if (!menuRef.current?.contains(event.target as Node)) $openMenu.set(false);
+			if (!$openMenu.peek()) return;
+			if (!menuRef.contains(event.target as Node)) $openMenu.set(false);
 		};
 
 		document.addEventListener("pointerdown", handlePointerDown);
-		return () => document.removeEventListener("pointerdown", handlePointerDown);
-	}, [openMenu]);
+		onCleanup(() => document.removeEventListener("pointerdown", handlePointerDown));
+	});
 
 	const handleOnboarding = () => {
 		showOnboarding();
@@ -38,60 +34,58 @@ const MenuDropdown = () => {
 	};
 
 	return (
-		<div className="relative" ref={menuRef}>
-			<Button
-				id="menu"
-				size="icon"
-				variant="ghost"
-				className="text-white/90 hover:bg-white/10 hover:text-white h-9 w-9 sm:h-10 sm:w-10 rounded-full transition-colors focus-visible:ring-0 focus-visible:ring-offset-0"
+		<div class="relative" ref={menuRef}>
+			<button
+				type="button"
 				aria-label="Menu"
-				aria-expanded={openMenu}
+				aria-expanded={openMenu()}
 				aria-haspopup="menu"
-				onClick={() => $openMenu.set(!openMenu)}
+				class="btn btn-ghost btn-accent rounded-full text-accent-foreground"
+				onClick={() => $openMenu.set(!$openMenu.peek())}
 			>
-				{openMenu ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
-			</Button>
-			{openMenu && (
+				<Show when={openMenu()} fallback={<Menu class="h-5 w-5 sm:h-6 sm:w-6" />}>
+					<X class="h-5 w-5 sm:h-6 sm:w-6" />
+				</Show>
+			</button>
+			<Show when={openMenu()}>
 				<div
-					className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+					class="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
 					role="menu"
 				>
 					<button
 						type="button"
 						id="onboarding"
 						onClick={handleOnboarding}
-						className="relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-hidden hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+						class="relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-hidden hover:bg-primary/10 hover:text-foreground focus:bg-primary/10 focus:text-foreground"
 						role="menuitem"
 					>
-						<HelpCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+						<CircleQuestionMark class="mr-2 h-4 w-4 text-muted-foreground" />
 						<span>Guide</span>
 					</button>
 					<button
 						type="button"
 						id="faq"
 						onClick={handleFaq}
-						className="relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-hidden hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+						class="relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-hidden hover:bg-primary/10 hover:text-foreground focus:bg-primary/10 focus:text-foreground"
 						role="menuitem"
 					>
-						<MessageSquare className="mr-2 h-4 w-4 text-muted-foreground" />
+						<MessageSquare class="mr-2 h-4 w-4 text-muted-foreground" />
 						<span>FAQ</span>
 					</button>
 					<button
 						type="button"
 						id="theme-toggle"
 						onClick={handleTheme}
-						className="relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-hidden hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+						class="relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-hidden hover:bg-primary/10 hover:text-foreground focus:bg-primary/10 focus:text-foreground"
 						role="menuitem"
 					>
-						{theme === "dark" ? (
-							<Sun className="mr-2 h-4 w-4 text-muted-foreground" />
-						) : (
-							<Moon className="mr-2 h-4 w-4 text-muted-foreground" />
-						)}
-						<span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+						<Show when={theme() === "dark"} fallback={<Moon class="mr-2 h-4 w-4 text-muted-foreground" />}>
+							<Sun class="mr-2 h-4 w-4 text-muted-foreground" />
+						</Show>
+						<span>{theme() === "dark" ? "Light Mode" : "Dark Mode"}</span>
 					</button>
 				</div>
-			)}
+			</Show>
 		</div>
 	);
 };

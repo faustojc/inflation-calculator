@@ -1,8 +1,6 @@
-import { useValue } from "@legendapp/state/react";
-import { Check, ChevronsUpDown, Loader2Icon } from "lucide-react";
-import { Fragment, useState } from "react";
-import { toast } from "@/components/ui/sonner";
-import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown, Loader2Icon } from "lucide-solid";
+import { createMemo, createSignal, For, Show } from "solid-js";
+import { Button } from "@/components/primitives/button";
 import {
 	Command,
 	CommandEmpty,
@@ -11,8 +9,9 @@ import {
 	CommandItem,
 	CommandList,
 	CommandSeparator,
-} from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+} from "@/components/primitives/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/primitives/popover";
+import { toast } from "@/components/primitives/sonner";
 import { cn } from "@/lib/utils";
 import { isOnline } from "@/stores/connectionStore";
 import { cpiUrl, dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
@@ -33,15 +32,15 @@ function groupAreas(areas: ReturnType<typeof dataStore.areas.get>) {
 		grouped[area.regionId] ??= [];
 
 		if (area.key === "ncr" && !area.provinceId && !area.cityId) {
-			grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
-			grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
+			grouped[area.regionId]?.push({ key: area.key, regionName: area.name, areaName: area.name });
+			grouped[area.regionId]?.push({ key: area.key, areaName: area.name });
 			continue;
 		}
 
 		if (area.cityId === undefined && area.provinceId === undefined) {
-			grouped[area.regionId]!.push({ key: area.key, regionName: area.name, areaName: area.name });
+			grouped[area.regionId]?.push({ key: area.key, regionName: area.name, areaName: area.name });
 		} else {
-			grouped[area.regionId]!.push({ key: area.key, areaName: area.name });
+			grouped[area.regionId]?.push({ key: area.key, areaName: area.name });
 		}
 	}
 
@@ -58,18 +57,14 @@ function getRegionHeadings(groupedAreas: Record<number, GroupedArea[]>) {
 }
 
 const LocationControl = () => {
-	const areas = useValue(dataStore.areas);
-	const startDate = useValue(settings.startDate);
-	const incomeClass = useValue(settings.incomeClass);
-
-	const [openProvince, setOpenProvince] = useState(false);
-	const [search, setSearch] = useState("");
-	const [loading, setLoading] = useState({
+	const [openProvince, setOpenProvince] = createSignal(false);
+	const [search, setSearch] = createSignal("");
+	const [loading, setLoading] = createSignal({
 		key: "",
 		isLoading: false,
 	});
 
-	const selectArea = useValue(() => {
+	const selectArea = createMemo(() => {
 		const currentArea = settings.area.get();
 		const currentAreas = dataStore.areas.get();
 		if (currentArea && currentAreas.length > 0) {
@@ -85,17 +80,17 @@ const LocationControl = () => {
 		return "National Capital Region (NCR)";
 	});
 
-	const groupedAreas = useValue(() => groupAreas(dataStore.areas.get()));
-	const regionHeadings = getRegionHeadings(groupedAreas);
-	const query = search.toLowerCase().trim();
-	const filteredGroups = Object.entries(groupedAreas).reduce<[string, GroupedArea[]][]>(
-		(result, [region, items]) => {
+	const groupedAreas = createMemo(() => groupAreas(dataStore.areas.get()));
+	const regionHeadings = createMemo(() => getRegionHeadings(groupedAreas()));
+	const filteredGroups = createMemo(() => {
+		const query = search().toLowerCase().trim();
+		return Object.entries(groupedAreas()).reduce<[string, GroupedArea[]][]>((result, [region, items]) => {
 			if (!query) {
 				result.push([region, items]);
 				return result;
 			}
 
-			const regionName = regionHeadings[region]?.toLowerCase() ?? "";
+			const regionName = regionHeadings()[region]?.toLowerCase() ?? "";
 			if (regionName.includes(query)) {
 				result.push([region, items]);
 				return result;
@@ -105,14 +100,14 @@ const LocationControl = () => {
 			if (matchingItems.length > 0) result.push([region, matchingItems]);
 
 			return result;
-		},
-		[],
-	);
+		}, []);
+	});
 
 	const handleAreaSelect = async (areaName: string) => {
-		const match = areas.find((a) => a.name === areaName);
+		const startDate = settings.startDate.peek();
+		const match = dataStore.areas.peek().find((a) => a.name === areaName);
 
-		if (!isOnline.peek() && match) {
+		if (!isOnline.get() && match) {
 			const year = startDate.getFullYear();
 			const base = cpiUrl(`data/${match.key}`);
 			const [manifest, current, prev] = await Promise.all([
@@ -139,7 +134,7 @@ const LocationControl = () => {
 
 			if (manifest?.dates) {
 				const dataType = activeTab.get() === "general" ? "official" : "personal";
-				const datesForType = manifest.dates[dataType]?.[incomeClass];
+				const datesForType = manifest.dates[dataType]?.[settings.incomeClass.peek()];
 
 				if (datesForType) {
 					const availableYears = Object.keys(datesForType).map(Number);
@@ -171,7 +166,7 @@ const LocationControl = () => {
 
 	return (
 		<Popover
-			open={openProvince}
+			open={openProvince()}
 			onOpenChange={(open) => {
 				setOpenProvince(open);
 				if (!open) setSearch("");
@@ -182,55 +177,60 @@ const LocationControl = () => {
 				<Button
 					variant="outline"
 					role="combobox"
-					aria-expanded={openProvince}
-					className="w-full justify-between font-medium truncate"
+					aria-expanded={openProvince()}
+					class="w-full justify-between font-medium truncate"
 				>
-					{selectArea || "Select Location..."}
-					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					{selectArea() || "Select Location..."}
+					<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-75 p-0" align="start">
+			<PopoverContent class="w-75 p-0" align="start">
 				<Command shouldFilter={false}>
 					<CommandInput
 						placeholder="Search province or city..."
 						name="Location selection"
-						value={search}
+						value={search()}
 						onValueChange={setSearch}
 					/>
-					<CommandList className="overflow-y-auto">
-						{filteredGroups.length === 0 && <CommandEmpty>No location found.</CommandEmpty>}
+					<CommandList class="overflow-y-auto">
+						<Show when={filteredGroups().length === 0}>
+							<CommandEmpty>No location found.</CommandEmpty>
+						</Show>
 						<CommandSeparator />
-						{filteredGroups.map(([region, areas], i) => (
-							<Fragment key={region}>
-								<CommandGroup heading={regionHeadings[region]}>
-									{areas
-										.filter((a) => a.regionName === undefined)
-										.map((a, j) => (
-											<CommandItem
-												key={a.key + j}
-												value={a.areaName}
-												onSelect={(key) => handleAreaSelect(key)}
-												className="justify-between"
-											>
-												<div className="flex items-center gap-2">
-													<Check
-														className={cn(
-															"mr-2 h-4 w-4",
-															selectArea === a.areaName ? "opacity-100" : "opacity-0",
-														)}
-													/>
-													{a.areaName}
-												</div>
+						<For each={filteredGroups()}>
+							{([region, areas], i) => (
+								<>
+									<CommandGroup heading={regionHeadings()[region]}>
+										<For each={areas.filter((a) => a.regionName === undefined)}>
+											{(a) => (
+												<CommandItem
+													value={a.areaName}
+													onSelect={(key) => handleAreaSelect(key)}
+													class="justify-between"
+												>
+													<div class="flex items-center gap-2">
+														<Check
+															class={cn(
+																"mr-2 h-4 w-4",
+																selectArea() === a.areaName ? "opacity-100" : "opacity-0",
+															)}
+														/>
+														{a.areaName}
+													</div>
 
-												{loading.key === a.key && loading.isLoading && (
-													<Loader2Icon className="animate-spin" />
-												)}
-											</CommandItem>
-										))}
-								</CommandGroup>
-								{i < filteredGroups.length - 1 && <CommandSeparator key={region + i + 2} />}
-							</Fragment>
-						))}
+													<Show when={loading().key === a.key && loading().isLoading}>
+														<Loader2Icon class="animate-spin" />
+													</Show>
+												</CommandItem>
+											)}
+										</For>
+									</CommandGroup>
+									<Show when={i() < filteredGroups().length - 1}>
+										<CommandSeparator />
+									</Show>
+								</>
+							)}
+						</For>
 					</CommandList>
 				</Command>
 			</PopoverContent>

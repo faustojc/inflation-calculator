@@ -105,8 +105,7 @@ function calculateOfficialContribution(
 	const contributions: CommodityContribution[] = [];
 	const codes = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13"];
 	let totalWeightedChange = 0;
-	const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] =
-		[];
+	const tempContribs: { code: string; weightedChange: number; weight: number; itemInflation: number }[] = [];
 
 	for (let i = 0; i < codes.length; i++) {
 		const code = codes[i]!;
@@ -168,10 +167,7 @@ function calculateContributors(
 	if (isPersonal) {
 		// Compute weighted CPI change per item: (CPI_start - CPI_end) * weight
 		// where CPI_start = selected date (cpiEnd in code), CPI_end = previous date (cpiStart in code)
-		const totalWeightedChange = breakdown.reduce(
-			(acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight,
-			0,
-		);
+		const totalWeightedChange = breakdown.reduce((acc, b) => acc + (b.cpiEnd - b.cpiStart) * b.weight, 0);
 
 		for (const b of breakdown) {
 			const weightedChange = (b.cpiEnd - b.cpiStart) * b.weight;
@@ -247,7 +243,9 @@ function findCpi(
 	code: string,
 	dataType: "official" | "personal",
 ): number {
-	return index[areaKey]![year]![dataType]![month]![code]!;
+	const value = index[areaKey]?.[year]?.[dataType]?.[month]?.[code];
+	if (value == null) throw new Error(`Missing CPI value for ${areaKey}/${year}/${dataType}/${month}/${code}`);
+	return value;
 }
 
 /**
@@ -453,14 +451,14 @@ function generateInterpretation(
 
 	const p1 = (
 		<>
-			Your computed consumer price index is <strong>{personalCpi.toFixed(1)}</strong>. It means that
-			average price of your commonly purchased goods and services have{" "}
+			Your computed consumer price index is <strong>{personalCpi.toFixed(1)}</strong>. It means that average
+			price of your commonly purchased goods and services have{" "}
 			<strong>
 				{getDir(personalCpi - 100)} by {percentChange}%
 			</strong>{" "}
 			compared with their average prices in 2018. Subsequently, in {monthStr}, you will need{" "}
-			<strong>PhP {purchasingPower}</strong> to buy the same set of goods and services worth PhP 100.00
-			in 2018.
+			<strong>PhP {purchasingPower}</strong> to buy the same set of goods and services worth PhP 100.00 in
+			2018.
 		</>
 	);
 
@@ -487,8 +485,8 @@ function generateInterpretation(
 			<strong>
 				{areaName} ({comps.areaRate.toFixed(1)}%)
 			</strong>
-			. This means that you are <strong>{getAff(personalRate, comps.areaRate)} affected</strong> by the
-			price increases in <strong>{areaName}</strong> compared with the average household in the area.
+			. This means that you are <strong>{getAff(personalRate, comps.areaRate)} affected</strong> by the price
+			increases in <strong>{areaName}</strong> compared with the average household in the area.
 		</>
 	);
 
@@ -505,9 +503,8 @@ function generateInterpretation(
 				<strong>
 					{regionName} ({comps.regionRate.toFixed(1)}%)
 				</strong>
-				. This means that you are <strong>{getAff(personalRate, comps.regionRate)} affected</strong> by
-				the price increases in <strong>{regionName}</strong> compared to the average household in the
-				region.
+				. This means that you are <strong>{getAff(personalRate, comps.regionRate)} affected</strong> by the
+				price increases in <strong>{regionName}</strong> compared to the average household in the region.
 			</>
 		);
 		interpretation.push(p4);
@@ -608,9 +605,7 @@ export function calculatePersonalInflation(
 		areaRate: getOfficialRate(location.target.key, dataIndex, dates),
 		regionRate: location.region ? getOfficialRate(location.region.key, dataIndex, dates) : undefined,
 		nationalRate: getOfficialRate("philippines", dataIndex, dates),
-		provinceRate: location.province
-			? getOfficialRate(location.province.key, dataIndex, dates)
-			: undefined,
+		provinceRate: location.province ? getOfficialRate(location.province.key, dataIndex, dates) : undefined,
 	};
 
 	const contributors: ContributionFactor[] = [

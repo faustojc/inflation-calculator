@@ -1,4 +1,4 @@
-import { useValue } from "@legendapp/state/react";
+import { createMemo, For } from "solid-js";
 import ExpenseNode from "@/components/ExpenseNode";
 import type { CommodityDef } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
@@ -30,19 +30,17 @@ function mapDataToNode(def: CommodityDef, currentDepth: number, maxDepth: number
 }
 
 export function ExpenseTab() {
-	const tree = useValue(() => {
+	const tree = createMemo(() => {
 		const commodities = dataStore.commodities.get();
 		if (!commodities || commodities.length === 0) return [];
 		return commodities.map((c) => mapDataToNode(c, 0, 1));
 	});
 
 	return (
-		<div id="detailed-tab" className="space-y-3">
-			<div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
-				<div className="pb-1">
-					{tree.map((node) => (
-						<ExpenseNode key={node.code} node={node} level={0} />
-					))}
+		<div id="detailed-tab" class="space-y-3">
+			<div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+				<div class="pb-1">
+					<For each={tree()}>{(node) => <ExpenseNode node={node} level={0} />}</For>
 				</div>
 			</div>
 		</div>

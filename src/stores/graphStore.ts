@@ -1,13 +1,13 @@
-import { observable } from "@legendapp/state";
+import { createSignalAtom } from "@/stores/solidAtoms";
 import type { ContributionFactor } from "@/utils/inflationCompute";
 
 export type CompareModeType = "all" | "area" | "province" | "region" | "national";
 export type TrendType = "inflation" | "cpi";
 
-export const trendType = observable<TrendType>("inflation");
-export const compareMode = observable<CompareModeType>("all");
-export const compareOfficial = observable<ContributionFactor | undefined>(undefined);
-export const activeSlice = observable<string | null>(null);
+export const trendType = createSignalAtom<TrendType>("inflation");
+export const compareMode = createSignalAtom<CompareModeType>("all");
+export const compareOfficial = createSignalAtom<ContributionFactor | undefined>(undefined);
+export const activeSlice = createSignalAtom<string | null>(null);
 
 export const sliceId = (code: string, value: number) => {
 	const rounded = Math.abs(value).toFixed(4);

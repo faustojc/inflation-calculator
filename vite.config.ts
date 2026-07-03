@@ -1,5 +1,5 @@
+import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
-import path from "path";
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 
@@ -19,11 +19,6 @@ export default defineConfig({
 					if (id.includes("node_modules/solid-js")) {
 						return "vendor-solid";
 					}
-
-					if (id.includes("node_modules/tailwind-merge")) {
-						return "vendor-tailwind";
-					}
-
 					if (id.includes("node_modules/lucide-solid")) {
 						return "vendor-icons";
 					}

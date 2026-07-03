@@ -1,14 +1,19 @@
-import { useValue } from "@legendapp/state/react";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChevronDown } from "lucide-solid";
+import { createSignal, For, type JSX } from "solid-js";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/primitives/collapsible";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/primitives/dialog";
 import { cn } from "@/lib/utils";
 import { $openFaq } from "@/stores/faqStore";
 
 type FaqItem = {
 	question: string;
-	answer: React.ReactNode;
+	answer: JSX.Element;
 };
 
 const faqs: FaqItem[] = [
@@ -91,23 +96,23 @@ const faqs: FaqItem[] = [
 					<strong>personal CPI, purchasing power of the peso, and inflation</strong>. It will also display the
 					following:
 				</p>
-				<ul className="ml-1 space-y-2">
-					<li className="flex gap-2">
-						<span className="text-primary mt-0.5">•</span>
+				<ul class="ml-1 space-y-2">
+					<li class="flex gap-2">
+						<span class="text-primary mt-0.5">•</span>
 						<span>
 							<strong>Line graph of CPI or inflation rate</strong>: comparison of personal and official CPI or
 							inflation rate for the last 13 months
 						</span>
 					</li>
-					<li className="flex gap-2">
-						<span className="text-primary mt-0.5">•</span>
+					<li class="flex gap-2">
+						<span class="text-primary mt-0.5">•</span>
 						<span>
 							<strong>Contribution to inflation</strong>: percent contribution of each commodity group to the
 							computed inflation
 						</span>
 					</li>
-					<li className="flex gap-2">
-						<span className="text-primary mt-0.5">•</span>
+					<li class="flex gap-2">
+						<span class="text-primary mt-0.5">•</span>
 						<span>
 							<strong>Analysis</strong>: short analysis of the results
 						</span>
@@ -146,8 +151,7 @@ const faqs: FaqItem[] = [
 ];
 
 const Faq = () => {
-	const open = useValue($openFaq);
-	const [openIndexes, setOpenIndexes] = useState<Set<number>>(() => new Set([0]));
+	const [openIndexes, setOpenIndexes] = createSignal<Set<number>>(new Set([0]));
 
 	const toggleIndex = (index: number, next: boolean) => {
 		setOpenIndexes((prev) => {
@@ -162,53 +166,55 @@ const Faq = () => {
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={$openFaq.set}>
-			<DialogContent className="max-h-[85vh] gap-0 overflow-auto p-0 sm:max-w-2xl">
-				<DialogHeader className="border-b px-6 pt-6 pb-4">
-					<div className="flex items-center gap-2">
-						<DialogTitle className="text-lg font-bold tracking-tight md:text-2xl">
+		<Dialog open={$openFaq.get()} onOpenChange={$openFaq.set}>
+			<DialogContent class="max-h-[85vh] gap-0 overflow-auto p-0 sm:max-w-2xl">
+				<DialogHeader class="border-b px-6 pt-6 pb-4">
+					<div class="flex items-center gap-2">
+						<DialogTitle class="text-lg font-bold tracking-tight md:text-2xl">
 							Frequently Asked Questions
 						</DialogTitle>
 					</div>
-					<DialogDescription className="text-justify">
+					<DialogDescription class="text-justify">
 						Talking points for the Personal Inflation Calculator Application. Tap a question to expand it.
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="overflow-y-auto px-3 py-3 sm:px-4">
-					<ul className="flex flex-col gap-2">
-						{faqs.map((faq, index) => {
-							const isOpen = openIndexes.has(index);
+				<div class="overflow-y-auto px-3 py-3 sm:px-4">
+					<ul class="flex flex-col gap-2">
+						<For each={faqs}>
+							{(faq, index) => {
+								const isOpen = () => openIndexes().has(index());
 
-							return (
-								<li key={faq.question}>
-									<Collapsible
-										open={isOpen}
-										onOpenChange={(next) => toggleIndex(index, next)}
-										className="bg-card rounded-lg border"
-									>
-										<CollapsibleTrigger className="hover:bg-accent/50 focus-visible:ring-ring flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none">
-											<span className="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
-												{index + 1}
-											</span>
-											<span className="flex-1 text-sm font-semibold md:text-base">{faq.question}</span>
-											<ChevronDown
-												className={cn(
-													"text-muted-foreground size-5 shrink-0 transition-transform duration-200",
-													isOpen && "rotate-180",
-												)}
-												aria-hidden="true"
-											/>
-										</CollapsibleTrigger>
-										<CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-											<div className="text-muted-foreground space-y-3 px-4 pt-1 pb-4 text-sm leading-relaxed md:text-[0.95rem] [&_strong]:text-foreground text-justify">
-												{faq.answer}
-											</div>
-										</CollapsibleContent>
-									</Collapsible>
-								</li>
-							);
-						})}
+								return (
+									<li>
+										<Collapsible
+											open={isOpen()}
+											onOpenChange={(next) => toggleIndex(index(), next)}
+											class="bg-card rounded-lg border"
+										>
+											<CollapsibleTrigger class="hover:bg-primary/5 focus-visible:ring-ring flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors focus-visible:ring-2 focus-visible:outline-none">
+												<span class="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+													{index() + 1}
+												</span>
+												<span class="flex-1 text-sm font-semibold md:text-base">{faq.question}</span>
+												<ChevronDown
+													class={cn(
+														"text-muted-foreground size-5 shrink-0 transition-transform duration-200",
+														isOpen() && "rotate-180",
+													)}
+													aria-hidden="true"
+												/>
+											</CollapsibleTrigger>
+											<CollapsibleContent class="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+												<div class="text-muted-foreground space-y-3 px-4 pt-1 pb-4 text-sm leading-relaxed md:text-[0.95rem] [&_strong]:text-foreground text-justify">
+													{faq.answer}
+												</div>
+											</CollapsibleContent>
+										</Collapsible>
+									</li>
+								);
+							}}
+						</For>
 					</ul>
 				</div>
 			</DialogContent>

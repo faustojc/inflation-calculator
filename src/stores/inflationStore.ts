@@ -1,7 +1,8 @@
-import { observable } from "@legendapp/state";
-import { toast } from "@/components/ui/sonner";
+import { batch, createEffect, createRoot, on } from "solid-js";
 import type { AreaDef, CommodityDef } from "@/lib/types";
 import { dataStore, getAreaHierarchy, getCalculationData } from "@/stores/dataStore";
+import { createMemoAtom, createSignalAtom, createStoreAtom } from "@/stores/solidAtoms";
+import { toast } from "@/stores/toastStore";
 import type { CalculationResult } from "@/utils/inflationCompute";
 
 export type IncomeClass = "ALL" | "B30";
@@ -32,7 +33,7 @@ const today = new Date();
 const lastYear = new Date();
 lastYear.setFullYear(today.getFullYear() - 1);
 
-export const settings = observable<AppSettings>({
+export const settings = createStoreAtom<AppSettings>({
 	area: {
 		key: "abra",
 		name: "Abra",
@@ -43,14 +44,14 @@ export const settings = observable<AppSettings>({
 	endDate: today,
 });
 
-export const mode = observable<Mode>("amount");
-export const activeTab = observable<"general" | "detailed">("general");
-export const highlightState = observable<HighlightState>({
+export const mode = createSignalAtom<Mode>("amount");
+export const activeTab = createSignalAtom<"general" | "detailed">("general");
+export const highlightState = createStoreAtom<HighlightState>({
 	code: "",
 	label: "",
 });
 
-export const calculationResult = observable<{
+export const calculationResult = createStoreAtom<{
 	show: boolean;
 	data: CalculationResult | null;
 }>({
@@ -58,20 +59,21 @@ export const calculationResult = observable<{
 	data: null,
 });
 
-export const missingGeneralItems = observable<Set<string>>(new Set());
-export const missingDetailedItems = observable<Set<string>>(new Set());
-export const missingDataItems = observable<Set<string>>(() => {
+export const missingGeneralItems = createSignalAtom<Set<string>>(new Set());
+export const missingDetailedItems = createSignalAtom<Set<string>>(new Set());
+export const missingDataItems = createMemoAtom<Set<string>>(() => {
 	return activeTab.get() === "general" ? missingGeneralItems.get() : missingDetailedItems.get();
 });
-export const prefetchLoading = observable<boolean>(false);
-export const prefetchReady = observable<boolean>(false);
+export const prefetchLoading = createSignalAtom<boolean>(false);
+export const prefetchReady = createSignalAtom<boolean>(false);
 
-export const generalExpenses = observable<Record<string, ExpenseItem>>({});
-export const detailedExpenses = observable<Record<string, ExpenseItem>>({});
-export const expenses = observable<Record<string, ExpenseItem>>(() => {
+export const generalExpenses = createStoreAtom<Record<string, ExpenseItem>>({});
+export const detailedExpenses = createStoreAtom<Record<string, ExpenseItem>>({});
+export const expenses = createMemoAtom<Record<string, ExpenseItem>>(() => {
 	return activeTab.get() === "general" ? generalExpenses.get() : detailedExpenses.get();
 });
-export const expandedNodes = observable<Record<string, boolean>>({});
+export const expandedNodes = createStoreAtom<Record<string, boolean>>({});
+export const categoryTotals = createStoreAtom<Record<string, number>>({});
 
 // for fast lookup of parent nodes
 const uiParentIndex = new Map<string, string | null>();
@@ -111,8 +113,10 @@ export function initializeExpenses() {
 	};
 
 	traverse(commodities);
-	generalExpenses.set({ ...initialExpenses });
-	detailedExpenses.set({ ...initialExpenses });
+	batch(() => {
+		generalExpenses.set({ ...initialExpenses });
+		detailedExpenses.set({ ...initialExpenses });
+	});
 }
 
 export async function prefetchConstraints() {
@@ -147,17 +151,17 @@ export async function prefetchConstraints() {
 			const checkCode = (code: string) => {
 				const key = hierarchy.target.key;
 
-				const officialCurrent = batchMap[key]?.[targetYear]?.["official"]?.[targetMonth]?.[code];
-				const officialBase = batchMap[key]?.[baseYear]?.["official"]?.[targetMonth]?.[code];
+				const officialCurrent = batchMap[key]?.[targetYear]?.official?.[targetMonth]?.[code];
+				const officialBase = batchMap[key]?.[baseYear]?.official?.[targetMonth]?.[code];
 				if (officialCurrent == null || officialCurrent === 0 || officialBase == null || officialBase === 0) {
 					missingGeneral.add(code);
 				}
 
-				// Personal dataset only has leaf-level codes (e.g. 01.1), not major categories (01–13)
+				// Personal dataset only has leaf-level codes (e.g. 01.1), not major categories (01-13)
 				if (!code.includes(".")) return;
 
-				const personalCurrent = batchMap[key]?.[targetYear]?.["personal"]?.[targetMonth]?.[code];
-				const personalBase = batchMap[key]?.[baseYear]?.["personal"]?.[targetMonth]?.[code];
+				const personalCurrent = batchMap[key]?.[targetYear]?.personal?.[targetMonth]?.[code];
+				const personalBase = batchMap[key]?.[baseYear]?.personal?.[targetMonth]?.[code];
 				if (personalCurrent == null || personalCurrent === 0 || personalBase == null || personalBase === 0) {
 					missingPersonal.add(code);
 				}
@@ -174,9 +178,11 @@ export async function prefetchConstraints() {
 			if (node.children) traverse(node.children);
 		});
 
-		missingGeneralItems.set(missingGeneral);
-		missingDetailedItems.set(missingPersonal);
-		prefetchReady.set(true);
+		batch(() => {
+			missingGeneralItems.set(missingGeneral);
+			missingDetailedItems.set(missingPersonal);
+			prefetchReady.set(true);
+		});
 
 		// Clear any previously entered values for newly-missing codes
 		if (missingGeneral.size > 0 || missingPersonal.size > 0) {
@@ -250,19 +256,37 @@ export function markSettingsReady() {
 	debouncedPrefetch();
 }
 
-// Automatically trigger predictive prefetch when dependent config changes
-settings.onChange(() => {
-	if (!settingsInitialized) return;
-	debouncedPrefetch();
-});
-
 let initialPrefetchDone = false;
-dataStore.onChange(() => {
-	const { commodities, areas } = dataStore.peek();
-	if (!initialPrefetchDone && commodities.length > 0 && areas.length > 0) {
-		initialPrefetchDone = true;
-		debouncedPrefetch();
-	}
+
+createRoot(() => {
+	createEffect(
+		on(
+			[
+				() => settings.area.get().key,
+				() => settings.incomeClass.get(),
+				() => settings.startDate.get(),
+				() => settings.endDate.get(),
+			],
+			() => {
+				if (!settingsInitialized) return;
+				debouncedPrefetch();
+			},
+			{ defer: true },
+		),
+	);
+
+	createEffect(
+		on(
+			[() => dataStore.commodities.get().length, () => dataStore.areas.get().length],
+			([commoditiesLength, areasLength]) => {
+				if (!initialPrefetchDone && commoditiesLength > 0 && areasLength > 0) {
+					initialPrefetchDone = true;
+					debouncedPrefetch();
+				}
+			},
+			{ defer: true },
+		),
+	);
 });
 
 export function toggleExpansion(code: string, forceState?: boolean) {
@@ -454,14 +478,16 @@ export function clearMissingExpenses() {
 		}
 	});
 
-	if (genChanged) generalExpenses.set(newGenStore);
+	batch(() => {
+		if (genChanged) generalExpenses.set(newGenStore);
+		if (detChanged) detailedExpenses.set(newDetStore);
+		missingGeneralItems.set(new Set<string>());
+		missingDetailedItems.set(new Set<string>());
+	});
+
 	if (detChanged) {
-		detailedExpenses.set(newDetStore);
 		applyDetailedCategoryTotalDeltas(totalDeltas);
 	}
-
-	missingGeneralItems.set(new Set<string>());
-	missingDetailedItems.set(new Set<string>());
 }
 
 export function removeExpense(id: string) {
@@ -483,17 +509,19 @@ export function clearExpenses() {
 	if (currentTab === "general") {
 		generalExpenses.set({});
 	} else {
-		detailedExpenses.set({});
-		categoryTotals.set({});
+		batch(() => {
+			detailedExpenses.set({});
+			categoryTotals.set({});
+		});
 	}
 }
 
-export const totalAllocation = observable<number>(() => {
+export const totalAllocation = createMemoAtom<number>(() => {
 	const items = expenses.get();
 	return Object.values(items).reduce((sum, item) => sum + item.value, 0);
 });
 
-export const isCalculationDisabled = observable<boolean>(() => {
+export const isCalculationDisabled = createMemoAtom<boolean>(() => {
 	const items = expenses.get();
 	const m = mode.get();
 	const total = totalAllocation.get();
@@ -504,7 +532,7 @@ export const isCalculationDisabled = observable<boolean>(() => {
 	return !hasExpense;
 });
 
-export const totalDisplayLabel = observable(() => {
+export const totalDisplayLabel = createMemoAtom(() => {
 	const m = mode.get();
 	const total = totalAllocation.get();
 	if (m === "percent") {
@@ -518,11 +546,9 @@ export const totalDisplayLabel = observable(() => {
 		};
 	} else {
 		return {
-			text: `Total: ₱${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+			text: `Total: \u20b1${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
 			colorClass: "bg-blue-50 text-blue-700 border-blue-200",
 			isOver: false,
 		};
 	}
 });
-
-export const categoryTotals = observable<Record<string, number>>({});

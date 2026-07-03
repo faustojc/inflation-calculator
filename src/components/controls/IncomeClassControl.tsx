@@ -1,15 +1,14 @@
-import { use$ } from "@legendapp/state/react";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
+} from "@/components/primitives/select";
 import { type IncomeClass, settings } from "@/stores/inflationStore";
 
 const IncomeClassControl = () => {
-	const appSettings = use$(settings);
+	const appSettings = settings.get();
 
 	// Format the number into currency without currency symbol
 	const formatCurrency = (amount: number) => {
@@ -21,22 +20,20 @@ const IncomeClassControl = () => {
 		}).formatToParts(amount);
 
 		const filteredParts = currency.filter(
-			(part) =>
-				part.type !== "currency" &&
-				(part.type !== "literal" || part.value.trim().length !== 0),
+			(part) => part.type !== "currency" && (part.type !== "literal" || part.value.trim().length !== 0),
 		);
 
 		return filteredParts.map((part) => part.value).join("");
 	};
 
 	return (
-		<div className="space-y-1">
+		<div class="space-y-1">
 			<Select
 				name="Income class selection"
 				value={appSettings.incomeClass}
 				onValueChange={(val) => settings.incomeClass.set(val as IncomeClass)}
 			>
-				<SelectTrigger className="w-full">
+				<SelectTrigger class="w-full">
 					<SelectValue />
 				</SelectTrigger>
 				<SelectContent>
@@ -49,22 +46,18 @@ const IncomeClassControl = () => {
 				appSettings.area.monthlyCapita !== undefined &&
 				appSettings.area.monthlyCapita > 0 &&
 				appSettings.incomeClass === "B30" && (
-					<span className="text-xs text-foreground space-x-1">
-						<div className="space-x-1">
+					<span class="text-xs text-foreground space-x-1">
+						<div class="space-x-1">
 							<span>Annual per Capita:</span>
-							<span className="font-bold">PhP</span>
-							<span className="font-bold">
-								{formatCurrency(appSettings.area.annualCapita)}
-							</span>
+							<span class="font-bold">PhP</span>
+							<span class="font-bold">{formatCurrency(appSettings.area.annualCapita)}</span>
 						</div>
-						<div className="space-x-1">
+						<div class="space-x-1">
 							<span>Monthly per Capita:</span>
-							<span className="font-bold">PhP</span>
-							<span className="font-bold">
-								{formatCurrency(appSettings.area.monthlyCapita)}
-							</span>
+							<span class="font-bold">PhP</span>
+							<span class="font-bold">{formatCurrency(appSettings.area.monthlyCapita)}</span>
 						</div>
-						<span className="text-xs text-muted-foreground">(as of 2018)</span>
+						<span class="text-xs text-muted-foreground">(as of 2018)</span>
 					</span>
 				)}
 		</div>

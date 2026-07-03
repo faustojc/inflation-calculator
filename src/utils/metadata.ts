@@ -1,4 +1,3 @@
-import type { KeyboardEvent } from "react";
 import type { AreaManifest, DataIndex, YearlyDataFile } from "@/lib/types";
 import type { Mode } from "@/stores/inflationStore";
 export const MONTHS = [
@@ -166,7 +165,7 @@ export function formatLocationName(str: string, locale = "en") {
 	return str;
 }
 
-export function preventNonNumeric(e: KeyboardEvent<HTMLInputElement>) {
+export function preventNonNumeric(e: KeyboardEvent) {
 	if (e.key === "e" || e.key === "+" || e.key === "-") {
 		e.preventDefault();
 	}

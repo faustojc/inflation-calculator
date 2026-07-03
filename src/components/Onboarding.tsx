@@ -1,21 +1,24 @@
-import { useValue } from "@legendapp/state/react";
-import { BarChart3, BookOpen, Calculator, HelpCircle, TrendingUp } from "lucide-react";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+import { BarChart3, BookOpen, Calculator, HelpCircle, TrendingUp } from "lucide-solid";
+import { onMount } from "solid-js";
+import { Button } from "@/components/primitives/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/primitives/dialog";
+import { Separator } from "@/components/primitives/separator";
 import { openOnboarding, startTour } from "@/stores/onboardingStore";
 
 export const Onboarding = () => {
-	const open = useValue(openOnboarding);
-
 	// First-time visitors: auto-open the welcome modal
-	useEffect(() => {
+	onMount(() => {
 		const hasSeenTour = localStorage.getItem("first_time_visit");
 		if (!hasSeenTour) {
 			setTimeout(() => openOnboarding.set(true), 800);
 		}
-	}, []);
+	});
 
 	const handleClose = () => {
 		openOnboarding.set(false);
@@ -26,36 +29,36 @@ export const Onboarding = () => {
 
 	return (
 		<Dialog
-			open={open}
+			open={openOnboarding.get()}
 			onOpenChange={(isOpen) => {
 				if (!isOpen) handleClose();
 			}}
 		>
-			<DialogContent className="sm:max-w-2xl h-11/12 md:h-[91vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
+			<DialogContent class="sm:max-w-2xl h-11/12 md:h-[91vh] flex flex-col p-0 gap-0 rounded-2xl overflow-hidden">
 				{/* PSA-branded header — sticky top */}
-				<div className="shrink-0 bg-psa-gradient rounded-t-2xl px-6 pt-6 pb-5">
+				<div class="shrink-0 bg-psa-gradient rounded-t-2xl px-6 pt-6 pb-5">
 					<DialogHeader>
-						<DialogTitle className="text-white text-lg md:text-2xl font-bold tracking-tight leading-snug">
+						<DialogTitle class="text-white text-lg md:text-2xl font-bold tracking-tight leading-snug">
 							Determining Your Personal Inflation
 						</DialogTitle>
 					</DialogHeader>
-					<p className="text-white/70 text-xs mt-1 tracking-wide uppercase font-medium">
+					<p class="text-white/70 text-xs mt-1 tracking-wide uppercase font-medium">
 						Philippine Statistics Authority
 					</p>
 				</div>
 
 				{/* Content body — scrollable */}
-				<div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-5">
+				<div class="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-5">
 					{/* What is CPI */}
-					<section className="flex gap-3">
-						<div className="shrink-0 mt-0.5">
-							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-								<BarChart3 className="h-4 w-4 text-primary" />
+					<section class="flex gap-3">
+						<div class="shrink-0 mt-0.5">
+							<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<BarChart3 class="h-4 w-4 text-primary" />
 							</div>
 						</div>
 						<div>
-							<h3 className="font-bold text-foreground mb-1">Consumer Price Index (CPI)</h3>
-							<p className="text-base text-justify text-foreground leading-relaxed">
+							<h3 class="font-bold text-foreground mb-1">Consumer Price Index (CPI)</h3>
+							<p class="text-base text-justify text-foreground leading-relaxed">
 								The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the
 								average change in retail prices of a fixed basket of goods and services commonly purchased by
 								Filipino households. It shows how much, on average, prices have changed from a particular base
@@ -64,18 +67,18 @@ export const Onboarding = () => {
 						</div>
 					</section>
 
-					<Separator className="my-1" />
+					<Separator class="my-1" />
 
 					{/* What is the Inflation rate */}
-					<section className="flex gap-3">
-						<div className="shrink-0 mt-0.5">
-							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-								<TrendingUp className="h-4 w-4 text-primary" />
+					<section class="flex gap-3">
+						<div class="shrink-0 mt-0.5">
+							<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<TrendingUp class="h-4 w-4 text-primary" />
 							</div>
 						</div>
 						<div>
-							<h3 className="font-bold text-foreground mb-1">Inflation Rate</h3>
-							<p className="text-base text-justify text-foreground leading-relaxed">
+							<h3 class="font-bold text-foreground mb-1">Inflation Rate</h3>
+							<p class="text-base text-justify text-foreground leading-relaxed">
 								The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
 								prices have increased or decreased compared to the previous year. Because the CPI reflects the
 								&quot;typical&quot; household, it may not match your personal spending pattern, especially if
@@ -85,18 +88,18 @@ export const Onboarding = () => {
 						</div>
 					</section>
 
-					<Separator className="my-1" />
+					<Separator class="my-1" />
 
 					{/* What does this tool do */}
-					<section className="flex gap-3">
-						<div className="shrink-0 mt-0.5">
-							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-								<HelpCircle className="h-4 w-4 text-primary" />
+					<section class="flex gap-3">
+						<div class="shrink-0 mt-0.5">
+							<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<HelpCircle class="h-4 w-4 text-primary" />
 							</div>
 						</div>
 						<div>
-							<h3 className="font-bold text-foreground mb-1">Why This Calculator?</h3>
-							<p className="text-base text-justify text-foreground leading-relaxed">
+							<h3 class="font-bold text-foreground mb-1">Why This Calculator?</h3>
+							<p class="text-base text-justify text-foreground leading-relaxed">
 								The PSA developed this tool so you can estimate your own inflation rate based on your actual
 								spending. By entering how you allocate your budget across commodity groups, the calculator
 								produces a personal inflation data and compares it with official rates for your selected
@@ -105,18 +108,18 @@ export const Onboarding = () => {
 						</div>
 					</section>
 
-					<Separator className="my-1" />
+					<Separator class="my-1" />
 
 					{/* What the output will show */}
-					<section className="flex gap-3">
-						<div className="shrink-0 mt-0.5">
-							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-								<BookOpen className="h-4 w-4 text-primary" />
+					<section class="flex gap-3">
+						<div class="shrink-0 mt-0.5">
+							<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<BookOpen class="h-4 w-4 text-primary" />
 							</div>
 						</div>
 						<div>
-							<h3 className="font-bold text-foreground mb-1">What You'll Get</h3>
-							<p className="text-base text-justify text-foreground leading-relaxed">
+							<h3 class="font-bold text-foreground mb-1">What You'll Get</h3>
+							<p class="text-base text-justify text-foreground leading-relaxed">
 								The results will show your computed personal inflation rate for the past 13 months alongside
 								official inflation rates, and identify the commodity groups that contribute most to your
 								personal inflation.
@@ -124,27 +127,27 @@ export const Onboarding = () => {
 						</div>
 					</section>
 
-					<Separator className="my-1" />
+					<Separator class="my-1" />
 
 					{/* How to use */}
-					<section className="flex gap-3">
-						<div className="shrink-0 mt-0.5">
-							<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-								<Calculator className="h-4 w-4 text-primary" />
+					<section class="flex gap-3">
+						<div class="shrink-0 mt-0.5">
+							<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+								<Calculator class="h-4 w-4 text-primary" />
 							</div>
 						</div>
 						<div>
-							<h3 className="font-bold text-foreground mb-1">How to Use the Personal Inflation Calculator</h3>
-							<ol className="list-decimal list-inside space-y-3 leading-relaxed text-base text-justify text-foreground">
+							<h3 class="font-bold text-foreground mb-1">How to Use the Personal Inflation Calculator</h3>
+							<ol class="list-decimal list-inside space-y-3 leading-relaxed text-base text-justify text-foreground">
 								<li>
 									<strong>Choose your Province/City.</strong>
-									<p className="text-foreground">
+									<p class="text-foreground">
 										This must be the area where you usually buy or consume household goods and services.
 									</p>
 								</li>
 								<li>
 									<strong>Select the Income Bracket.</strong>
-									<p className="text-foreground">
+									<p class="text-foreground">
 										This is the consumer group you want to use for computing and comparing your personal
 										inflation.
 										<br /> <br />
@@ -162,7 +165,7 @@ export const Onboarding = () => {
 								</li>
 								<li>
 									<strong>Select the Month and Year.</strong>
-									<p className="text-foreground">
+									<p class="text-foreground">
 										This is the reference period you prefer the personal inflation rate to be computed. By
 										default, the month and year selected refer to the latest reference period with available
 										official data on CPI and inflation rate.
@@ -170,7 +173,7 @@ export const Onboarding = () => {
 								</li>
 								<li>
 									<strong>Select Input Type</strong>
-									<p className="text-foreground">
+									<p class="text-foreground">
 										Input type requires monthly or annual expenditure by commodity group.
 										<br /> <br />
 										Choose “Amount” if you want to input your monthly or annual expenditure for each commodity
@@ -187,7 +190,7 @@ export const Onboarding = () => {
 								</li>
 								<li>
 									<strong>Select the Commodity Group.</strong>
-									<p className="text-foreground">
+									<p class="text-foreground">
 										If “General” is selected, inputs will be asked for the 13 major commodity groups only.
 										<br /> <br />
 										If “Specific” is selected, inputs will be asked for specific commodity groups.
@@ -197,7 +200,7 @@ export const Onboarding = () => {
 										are used in this application.
 									</p>
 								</li>
-								<li className="text-foreground">
+								<li class="text-foreground">
 									Press <strong>Calculate</strong> to compute your personal inflation rate and display the
 									analysis.
 								</li>
@@ -207,10 +210,10 @@ export const Onboarding = () => {
 				</div>
 
 				{/* Footer CTA — sticky bottom */}
-				<DialogFooter className="shrink-0 px-6 py-4 border-t bg-muted/80 rounded-b-2xl">
+				<DialogFooter class="shrink-0 px-6 py-4 border-t bg-muted/80 rounded-b-2xl">
 					<Button
 						size="lg"
-						className="w-full bg-psa-gradient hover:opacity-90 text-white font-bold py-5 rounded-xl shadow-sm cursor-pointer"
+						class="w-full bg-psa-gradient hover:opacity-90 text-white font-bold py-5 rounded-xl shadow-sm cursor-pointer"
 						onClick={handleClose}
 					>
 						Take the Tour →

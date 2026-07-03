@@ -1,61 +1,56 @@
-import { useEffect, useRef, useState } from "react";
+import { type Accessor, createEffect, createSignal, onCleanup } from "solid-js";
 
 export type ScrollDirection = "up" | "down";
 
 interface UseScrollDirectionOptions {
 	threshold?: number;
-	enabled?: boolean;
+	enabled?: boolean | Accessor<boolean>;
 }
 
-/**
- * Tracks the user's scroll direction — "up" or "down".
- *
- * Used for the auto-hide header pattern on mobile.
- * - Returns "down" when the user scrolls toward page bottom → header hides.
- * - Returns "up" when the user scrolls toward page top → header reveals.
- *
- * Uses a dead-zone (`threshold`) so minor touch movements don't toggle the header.
- */
-export function useScrollDirection({ threshold = 10, enabled = true }: UseScrollDirectionOptions = {}): ScrollDirection {
-	const [direction, setDirection] = useState<ScrollDirection>("up");
-	const lastScrollY = useRef(0);
-	const ticking = useRef(false);
+function readEnabled(enabled: boolean | Accessor<boolean>) {
+	return typeof enabled === "function" ? enabled() : enabled;
+}
 
-	useEffect(() => {
-		if (!enabled) return;
+export function useScrollDirection({
+	threshold = 10,
+	enabled = true,
+}: UseScrollDirectionOptions = {}): Accessor<ScrollDirection> {
+	const [direction, setDirection] = createSignal<ScrollDirection>("up");
+	let lastScrollY = 0;
+	let ticking = false;
 
-		lastScrollY.current = window.scrollY;
+	createEffect(() => {
+		if (!readEnabled(enabled)) return;
+
+		lastScrollY = window.scrollY;
 
 		const handleScroll = () => {
-			if (ticking.current) return;
+			if (ticking) return;
 
-			ticking.current = true;
+			ticking = true;
 
 			requestAnimationFrame(() => {
 				const currentY = window.scrollY;
-				const delta = currentY - lastScrollY.current;
+				const delta = currentY - lastScrollY;
 
-				// At the very top of the page, always show the header
 				if (currentY <= 0) {
 					setDirection("up");
-					lastScrollY.current = currentY;
+					lastScrollY = currentY;
 				} else if (delta > threshold) {
 					setDirection("down");
-					lastScrollY.current = currentY;
+					lastScrollY = currentY;
 				} else if (delta < -threshold) {
 					setDirection("up");
-					lastScrollY.current = currentY;
+					lastScrollY = currentY;
 				}
-				// If |delta| < threshold, don't update lastScrollY —
-				// let small deltas accumulate until they cross the threshold.
 
-				ticking.current = false;
+				ticking = false;
 			});
 		};
 
 		window.addEventListener("scroll", handleScroll, { passive: true });
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, [enabled, threshold]);
+		onCleanup(() => window.removeEventListener("scroll", handleScroll));
+	});
 
-	return enabled ? direction : "up";
+	return () => (readEnabled(enabled) ? direction() : "up");
 }

@@ -89,7 +89,15 @@ function findWordBoundaryMatch(text: string, query: string): number {
 }
 
 function isWordBoundary(char: string): boolean {
-	return char === " " || char === "," || char === "-" || char === "/" || char === "(" || char === ")" || char === ".";
+	return (
+		char === " " ||
+		char === "," ||
+		char === "-" ||
+		char === "/" ||
+		char === "(" ||
+		char === ")" ||
+		char === "."
+	);
 }
 
 /**
@@ -171,7 +179,12 @@ function fuzzySubsequence(text: string, query: string): FuzzyMatch {
 }
 
 // find the text index of the last matched query character
-function findLastMatchedIndex(text: string, query: string, lastQi: number, existingRanges: [number, number][]): number {
+function findLastMatchedIndex(
+	text: string,
+	query: string,
+	lastQi: number,
+	existingRanges: [number, number][],
+): number {
 	// Walk backward from end to find where we left off
 	let qi = 0;
 	let lastTi = 0;

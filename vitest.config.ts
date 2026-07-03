@@ -1,9 +1,10 @@
-import path from "path";
+import path from "node:path";
 import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-	plugins: [solid()],
+	// hot:false — solid-refresh's HMR banner breaks vitest module resolution
+	plugins: [solid({ hot: false })],
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
