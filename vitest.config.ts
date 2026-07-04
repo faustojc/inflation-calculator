@@ -14,6 +14,6 @@ export default defineConfig({
 		conditions: ["development", "browser"],
 	},
 	test: {
-		include: ["src/**/*.{test,spec}.{ts,tsx}"],
+		include: ["tests/**/*.{test,spec}.{ts,tsx}"],
 	},
 });
