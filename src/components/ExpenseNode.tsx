@@ -187,13 +187,16 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 
 					<div class="col-span-2 relative rounded-xl">
 						<span class="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-xs font-semibold text-base-content/70 pointer-events-none">
-							{hasChildren ? (
+							<Show
+								when={hasChildren}
+								fallback={
+									<Show when={currMode() === "percent"} fallback="PhP">
+										%
+									</Show>
+								}
+							>
 								<Equal class="w-3.5 h-3.5 inline-block text-primary" />
-							) : currMode() === "percent" ? (
-								"%"
-							) : (
-								"PhP"
-							)}
+							</Show>
 						</span>
 
 						<Show

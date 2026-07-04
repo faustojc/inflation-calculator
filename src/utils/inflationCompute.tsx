@@ -1,4 +1,4 @@
-import { createRoot, type JSX } from "solid-js";
+import { createRoot, type JSX, Show } from "solid-js";
 import type { AreaDef, DataIndex, DataType } from "@/lib/types";
 import { setCompareOfficial } from "@/stores/graphStore";
 import type { ExpenseItem } from "@/stores/inflationStore";
@@ -465,12 +465,12 @@ function generateInterpretation(
 	const p2 = (
 		<>
 			You live in <strong>{areaName}</strong>
-			{regionName && (
+			<Show when={regionName}>
 				<>
 					{" "}
 					located in <strong>{regionName}</strong>
 				</>
-			)}
+			</Show>
 			.
 		</>
 	);

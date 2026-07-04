@@ -1,7 +1,7 @@
-﻿import { Calculator, Loader2 } from "lucide-solid";
+﻿import { Calculator, Loader } from "lucide-solid";
 import { createSignal, Show } from "solid-js";
-import CalculationFooter from "@/components/CalculationFooter";
 import { Button } from "@/components/Button";
+import CalculationFooter from "@/components/CalculationFooter";
 import { toast } from "@/components/Toast";
 import { isOnline } from "@/stores/connectionStore";
 import {
@@ -198,7 +198,7 @@ const Footer = () => {
 							</>
 						}
 					>
-						<Loader2 class="h-4 w-4 animate-spin" />
+						<Loader class="h-4 w-4 animate-spin" />
 						Calculating...
 					</Show>
 				</Button>
@@ -208,4 +208,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

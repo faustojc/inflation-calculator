@@ -44,13 +44,13 @@ export function Toaster(props: ToasterProps) {
 									<div class={cn("text-sm font-semibold leading-5", item.classNames?.title)}>
 										{item.title}
 									</div>
-									{item.description && (
+									<Show when={item.description}>
 										<div class={cn("mt-1 text-sm leading-5 opacity-80", item.classNames?.description)}>
 											{item.description}
 										</div>
-									)}
+									</Show>
 								</div>
-								{props.closeButton && (
+								<Show when={props.closeButton}>
 									<Button
 										aria-label="Dismiss notification"
 										class="size-7 shrink-0"
@@ -60,7 +60,7 @@ export function Toaster(props: ToasterProps) {
 									>
 										<XIcon class="size-4" />
 									</Button>
-								)}
+								</Show>
 							</div>
 						);
 					}}

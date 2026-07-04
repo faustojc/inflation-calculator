@@ -182,7 +182,7 @@ function PieContent({ personal, official, instanceId }: Readonly<Props & { insta
 			</div>
 
 			{/* Deflation Footnotes */}
-			{deflationFootnotes.length > 0 && (
+			<Show when={deflationFootnotes.length > 0}>
 				<div class="px-4 pb-2 border-t border-border/50 pt-4">
 					<p class="text-base font-semibold text-muted-foreground mb-2 uppercase">
 						Deflationary Contributors
@@ -207,24 +207,26 @@ function PieContent({ personal, official, instanceId }: Readonly<Props & { insta
 									<span>
 										<strong class="text-foreground text-sm">{note.name}</strong>
 										{" — "}
-										{note.personalShare !== undefined && (
+										<Show when={note.personalShare !== undefined}>
 											<span class="text-sm text-destructive font-semibold">
-												Personal: {note.personalShare.toFixed(1)}%
+												Personal: {note.personalShare?.toFixed(1)}%
 											</span>
-										)}
-										{note.personalShare !== undefined && note.officialShare !== undefined && " | "}
-										{note.officialShare !== undefined && (
+										</Show>
+										<Show when={note.personalShare !== undefined && note.officialShare !== undefined}>
+											{" | "}
+										</Show>
+										<Show when={note.officialShare !== undefined}>
 											<span class="text-sm text-destructive font-semibold">
-												Official: {note.officialShare.toFixed(1)}%
+												Official: {note.officialShare?.toFixed(1)}%
 											</span>
-										)}
+										</Show>
 									</span>
 								</li>
 							)}
 						</For>
 					</ul>
 				</div>
-			)}
+			</Show>
 		</div>
 	);
 }

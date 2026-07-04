@@ -10,18 +10,18 @@ interface Props {
 	patternPrefix: string;
 }
 
-export default function CustomBaseSector({ path, code, index, originalShare, patternPrefix }: Props) {
-	const chartPrefix = patternPrefix.charAt(0);
-
-	const id = sliceId(code, originalShare);
+export default function CustomBaseSector(props: Props) {
+	const chartPrefix = props.patternPrefix.charAt(0);
+	const id = sliceId(props.code, props.originalShare);
 	const fullId = chartPrefix + id;
+
 	const isSelected = () => activeSlice.get() === fullId;
 	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix);
 
 	return (
 		<path
-			d={path}
-			fill={getColor(code, index)}
+			d={props.path}
+			fill={getColor(props.code, props.index)}
 			onClick={() => activeSlice.set(fullId)}
 			onMouseEnter={() => activeSlice.set(fullId)}
 			onMouseLeave={() => activeSlice.set(null)}

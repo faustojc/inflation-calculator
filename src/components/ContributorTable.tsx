@@ -57,12 +57,8 @@ export function ContributorTable(props: Props) {
 										<table class="table w-full">
 											<thead>
 												<tr class="bg-primary/90">
-													<th class="w-8 h-9 text-xs text-white font-bold uppercase tracking-wide">
-														#
-													</th>
-													<th class="h-9 text-xs text-white font-bold uppercase tracking-wide">
-														Commodity
-													</th>
+													<th class="w-8 h-9 text-xs text-white font-bold uppercase tracking-wide">#</th>
+													<th class="h-9 text-xs text-white font-bold uppercase tracking-wide">Commodity</th>
 													<th
 														class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
 														title="Percentage Weight"
@@ -282,5 +278,3 @@ export function ContributorTable(props: Props) {
 		</Show>
 	);
 }
-
-

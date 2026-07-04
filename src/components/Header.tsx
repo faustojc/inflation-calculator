@@ -1,4 +1,5 @@
 import { WifiOff } from "lucide-solid";
+import { Show } from "solid-js";
 import MenuDropdown from "@/components/MenuDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
@@ -40,14 +41,17 @@ export const Header = () => {
 			</div>
 
 			{/* Internet status banner */}
-			{online() ? (
+			<Show
+				when={online()}
+				fallback={
+					<div class="flex items-center justify-center gap-1.5 bg-amber-600 text-white text-xs font-medium py-0.5">
+						<WifiOff class="size-3" />
+						<span>No internet connection</span>
+					</div>
+				}
+			>
 				<div class="h-1 bg-psa-gold" />
-			) : (
-				<div class="flex items-center justify-center gap-1.5 bg-amber-600 text-white text-xs font-medium py-0.5">
-					<WifiOff class="size-3" />
-					<span>No internet connection</span>
-				</div>
-			)}
+			</Show>
 		</header>
 	);
 };

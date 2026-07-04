@@ -1,4 +1,4 @@
-﻿import { createMemo, For } from "solid-js";
+﻿import { createMemo, For, Show } from "solid-js";
 import { cn } from "@/lib/utils";
 
 export type SelectOption = {
@@ -31,11 +31,11 @@ export function Select(props: SelectProps) {
 				props.class,
 			)}
 		>
-			{props.placeholder && !value() && (
+			<Show when={props.placeholder && !value()}>
 				<option value="" disabled>
 					{props.placeholder}
 				</option>
-			)}
+			</Show>
 			<For each={options()}>
 				{(option) => (
 					<option value={option.value} disabled={option.disabled}>

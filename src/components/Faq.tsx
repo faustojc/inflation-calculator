@@ -29,9 +29,9 @@ const faqs: FaqItem[] = [
 					The inflation rate released by the PSA is based on the{" "}
 					<strong>average consumption pattern and commodity preferences of all Filipino households</strong> in
 					a given reference period, which is <strong>2018 in the current CPI data</strong>. Since the data
-					refers to the average of all households, this may not reflect the specific individual’s
-					expenditure and pattern. The average Filipino households is composed of a father, a mother, and
-					three kids, meaning the majority of families followed this composition.
+					refers to the average of all households, this may not reflect the specific individual’s expenditure
+					and pattern. The average Filipino households is composed of a father, a mother, and three kids,
+					meaning the majority of families followed this composition.
 				</p>
 				<p>
 					The expenditure pattern used by the CPI mostly reflects this household composition. However, the CPI

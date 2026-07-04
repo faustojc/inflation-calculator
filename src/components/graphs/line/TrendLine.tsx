@@ -87,7 +87,7 @@ export default function TrendLine(props: Readonly<Props>) {
 			{/* Selects */}
 			<div class="flex flex-col md:flex-row gap-4 items-center shrink-0 px-5">
 				<div class="flex items-center justify-evenly lg:justify-start gap-2 w-full lg:w-fit">
-					<p class="text-foreground text-sm sm:text-base">Select Trend:</p>
+					<p class="text-foreground text-sm sm:text-base text-nowrap">Select Trend:</p>
 					<Select
 						value={currTrend()}
 						onValueChange={(v) => trendType.set(v as TrendType)}
@@ -101,7 +101,7 @@ export default function TrendLine(props: Readonly<Props>) {
 				</div>
 
 				<div class="flex items-center justify-evenly lg:justify-start gap-2 w-full lg:w-fit">
-					<p class="text-foreground text-sm sm:text-base">Compare to:</p>
+					<p class="text-foreground text-sm sm:text-base text-nowrap">Compare to:</p>
 					<Select
 						value={mode()}
 						onValueChange={(v) => compareMode.set(v as CompareModeType)}
@@ -110,7 +110,9 @@ export default function TrendLine(props: Readonly<Props>) {
 						options={[
 							{ value: "all", label: "All" },
 							{ value: "area", label: hierarchy().target.name },
-							...(hasProvince() ? [{ value: "province", label: hierarchy().province?.name ?? "Province" }] : []),
+							...(hasProvince()
+								? [{ value: "province", label: hierarchy().province?.name ?? "Province" }]
+								: []),
 							...(hasRegion() ? [{ value: "region", label: hierarchy().region?.name ?? "Region" }] : []),
 							{ value: "national", label: "Philippines" },
 						]}
@@ -144,5 +146,3 @@ export default function TrendLine(props: Readonly<Props>) {
 		</div>
 	);
 }
-
-

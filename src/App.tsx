@@ -6,9 +6,9 @@ import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import { GeneralTab } from "@/components/GeneralTab";
 import { Header } from "@/components/Header";
-import { Toaster } from "@/components/Toast";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SmartSearch } from "@/components/SmartSearch";
+import { Toaster } from "@/components/Toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { dataStore, initializeApp } from "@/stores/dataStore";
 import { $openFaq } from "@/stores/faqStore";
@@ -217,5 +217,3 @@ export default function App() {
 		</Show>
 	);
 }
-
-

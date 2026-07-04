@@ -1,7 +1,8 @@
 import { Info } from "lucide-solid";
 import type { JSX } from "solid-js";
+import { For } from "solid-js";
 
-const AnalysisTab = ({ interpretation }: { interpretation: JSX.Element[] }) => {
+const AnalysisTab = (props: { interpretation: JSX.Element[] }) => {
 	return (
 		<div class="glass-card p-5">
 			<div class="flex items-center gap-2 mb-3">
@@ -9,9 +10,9 @@ const AnalysisTab = ({ interpretation }: { interpretation: JSX.Element[] }) => {
 				<h3 class="font-bold uppercase tracking-wide text-base text-foreground">Analysis</h3>
 			</div>
 			<ul class="list-disc list-inside space-y-2 text-justify">
-				{interpretation.map((p) => (
-					<li class="text-base leading-relaxed text-foreground">{p}</li>
-				))}
+				<For each={props.interpretation}>
+					{(p) => <li class="text-base leading-relaxed text-foreground">{p}</li>}
+				</For>
 			</ul>
 		</div>
 	);

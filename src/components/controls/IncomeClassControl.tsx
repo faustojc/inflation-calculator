@@ -1,4 +1,5 @@
-﻿import { Select } from "@/components/Select";
+﻿import { Show } from "solid-js";
+import { Select } from "@/components/Select";
 import { type IncomeClass, settings } from "@/stores/inflationStore";
 
 const IncomeClassControl = () => {
@@ -32,25 +33,29 @@ const IncomeClassControl = () => {
 					{ value: "B30", label: "Bottom 30% Income" },
 				]}
 			/>
-			{appSettings.area.annualCapita !== undefined &&
-				appSettings.area.annualCapita > 0 &&
-				appSettings.area.monthlyCapita !== undefined &&
-				appSettings.area.monthlyCapita > 0 &&
-				appSettings.incomeClass === "B30" && (
-					<span class="text-xs text-foreground space-x-1">
-						<div class="space-x-1">
-							<span>Annual per Capita:</span>
-							<span class="font-bold">PhP</span>
-							<span class="font-bold">{formatCurrency(appSettings.area.annualCapita)}</span>
-						</div>
-						<div class="space-x-1">
-							<span>Monthly per Capita:</span>
-							<span class="font-bold">PhP</span>
-							<span class="font-bold">{formatCurrency(appSettings.area.monthlyCapita)}</span>
-						</div>
-						<span class="text-xs text-muted-foreground">(as of 2018)</span>
-					</span>
-				)}
+			<Show
+				when={
+					appSettings.area.annualCapita !== undefined &&
+					appSettings.area.annualCapita > 0 &&
+					appSettings.area.monthlyCapita !== undefined &&
+					appSettings.area.monthlyCapita > 0 &&
+					appSettings.incomeClass === "B30"
+				}
+			>
+				<span class="text-xs text-foreground space-x-1">
+					<div class="space-x-1">
+						<span>Annual per Capita:</span>
+						<span class="font-bold">PhP</span>
+						<span class="font-bold">{formatCurrency(appSettings.area.annualCapita ?? 0)}</span>
+					</div>
+					<div class="space-x-1">
+						<span>Monthly per Capita:</span>
+						<span class="font-bold">PhP</span>
+						<span class="font-bold">{formatCurrency(appSettings.area.monthlyCapita ?? 0)}</span>
+					</div>
+					<span class="text-xs text-muted-foreground">(as of 2018)</span>
+				</span>
+			</Show>
 		</div>
 	);
 };

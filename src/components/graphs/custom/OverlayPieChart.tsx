@@ -1,5 +1,5 @@
 import { arc as d3Arc, pie as d3Pie } from "d3-shape";
-import { type JSX, onCleanup, onMount } from "solid-js";
+import { type JSX, onCleanup, onMount, Show } from "solid-js";
 import CustomBaseSector from "@/components/graphs/custom/CustomBaseSector";
 import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
 import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector";
@@ -118,8 +118,8 @@ export function OverlayPieChart({
 							<path ref={clipSectorRef} />
 						</clipPath>
 
-						{hasNegatives &&
-							negativeItems.map((_, i) => (
+						<Show when={hasNegatives}>
+							{negativeItems.map((_, i) => (
 								<pattern
 									id={`${patternPrefix}-hatch-${i}`}
 									patternUnits="userSpaceOnUse"
@@ -130,6 +130,7 @@ export function OverlayPieChart({
 									<line x1="0" y1="0" x2="0" y2="6" stroke={NEG_STRIPE_COLOR} stroke-width="6.5" />
 								</pattern>
 							))}
+						</Show>
 					</defs>
 
 					{/* LAYER 1 — Base pie clipped to the growing sector */}
@@ -149,7 +150,7 @@ export function OverlayPieChart({
 					</g>
 
 					{/* LAYER 2 — Overlay pie clipped to the same growing sector */}
-					{hasNegatives && (
+					<Show when={hasNegatives}>
 						<g clip-path={`url(#${clipPathId})`}>
 							<g transform={`translate(${CX},${CY})`}>
 								{overlayArcs.map(({ data, path }, i) => (
@@ -165,7 +166,7 @@ export function OverlayPieChart({
 								))}
 							</g>
 						</g>
-					)}
+					</Show>
 
 					{/* Positive labels — blur focus-in, staggered */}
 					{baseArcs.map(({ data }, i) => (
@@ -183,8 +184,8 @@ export function OverlayPieChart({
 					))}
 
 					{/* Negative labels — continue stagger after positives */}
-					{hasNegatives &&
-						overlayArcs.map(({ data }, i) => (
+					<Show when={hasNegatives}>
+						{overlayArcs.map(({ data }, i) => (
 							<g style={labelStyle(baseArcs.length + i)}>
 								<CustomNegativeLabel
 									payload={data}
@@ -198,6 +199,7 @@ export function OverlayPieChart({
 								/>
 							</g>
 						))}
+					</Show>
 				</svg>
 			</div>
 		</div>

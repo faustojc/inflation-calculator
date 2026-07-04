@@ -136,9 +136,9 @@ export function CommandGroup(props: ComponentProps<"div"> & { heading?: JSX.Elem
 	const [local, rest] = splitProps(props, ["class", "heading", "children"]);
 	return (
 		<div {...rest} class={cn("text-foreground overflow-hidden p-1", local.class)}>
-			{local.heading && (
+			<Show when={local.heading}>
 				<div class="text-muted-foreground px-2 py-1.5 text-xs font-medium">{local.heading}</div>
-			)}
+			</Show>
 			{local.children}
 		</div>
 	);
