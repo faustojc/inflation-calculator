@@ -1,5 +1,5 @@
 ﻿import { Loader } from "lucide-solid";
-import { createSignal, lazy, Match, onCleanup, onMount, Show, Suspense, Switch } from "solid-js";
+import { createEffect, createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
 import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
 import Faq from "@/components/Faq";
@@ -32,9 +32,16 @@ const LazyResultsDrawer = lazy(() =>
 export default function App() {
 	const isMobile = useIsMobile();
 	const [canLoadOnboarding, setCanLoadOnboarding] = createSignal(false);
+	const [generalVisited, setGeneralVisited] = createSignal(false);
+	const [detailedVisited, setDetailedVisited] = createSignal(false);
 
 	const isLoading = () => dataStore.isLoading.get() || dataStore.commodities.get().length === 0;
 	const error = () => dataStore.error.get();
+
+	createEffect(() => {
+		if (activeTab.get() === "general") setGeneralVisited(true);
+		else setDetailedVisited(true);
+	});
 
 	onMount(() => {
 		const loadOnboarding = () => setCanLoadOnboarding(true);
@@ -186,14 +193,16 @@ export default function App() {
 						</Show>
 
 						<div id="commodity-inputs">
-							<Switch>
-								<Match when={activeTab.get() === "general"}>
+							<Show when={generalVisited()}>
+								<div classList={{ hidden: activeTab.get() !== "general" }}>
 									<GeneralTab />
-								</Match>
-								<Match when={activeTab.get() === "detailed"}>
+								</div>
+							</Show>
+							<Show when={detailedVisited()}>
+								<div classList={{ hidden: activeTab.get() !== "detailed" }}>
 									<ExpenseTab />
-								</Match>
-							</Switch>
+								</div>
+							</Show>
 						</div>
 					</main>
 

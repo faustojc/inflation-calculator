@@ -179,7 +179,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 							<Show when={!isMobile() && missingStatus()}>
 								<div class="flex items-center gap-2 text-xs font-bold text-error animate-in fade-in">
 									<TriangleAlert class="w-3.5 h-3.5" />
-									<span>No official CPI data</span>
+									<span>No CPI data</span>
 								</div>
 							</Show>
 						</div>
@@ -242,7 +242,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 					<Show when={isMobile() && missingStatus() && !hasChildren}>
 						<div class="col-span-5 flex items-center justify-center gap-2 text-xs font-bold text-error animate-in fade-in">
 							<TriangleAlert class="w-3.5 h-3.5" />
-							<span>No official CPI data</span>
+							<span>No CPI data</span>
 						</div>
 					</Show>
 				</div>

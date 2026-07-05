@@ -165,7 +165,7 @@ export function SmartSearch() {
 											<LucideNavigation class="ml-4 h-4 w-4 text-primary opacity-60 shrink-0" />
 											<div class="flex-1 flex flex-col gap-0.5 min-w-0">
 												<div class="flex items-center gap-2 flex-wrap">
-													<span class="font-medium truncate">
+													<span class="font-medium text-wrap">
 														<HighlightedText text={item.keyword} ranges={match.ranges} />
 													</span>
 												</div>
