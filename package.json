@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "bunx --bun vite",
 		"build-only": "bunx --bun vite build",
-		"build": "tsc -b \u0026\u0026 bunx --bun vite build",
+		"build": "tsc -b && bunx --bun vite build",
 		"lint": "eslint .",
 		"preview": "vite preview",
 		"test": "vitest run",
