@@ -140,9 +140,7 @@ export function SmartSearch() {
 							</span>
 						</span>
 						<Show when={!isMobile()}>
-							<div class="bg-primary px-2 py-0.5 rounded text-xs font-mono text-primary-foreground">
-								Ctrl K
-							</div>
+							<p class="bg-primary px-2 py-0.5 rounded text-xs font-mono text-white">Ctrl K</p>
 						</Show>
 					</button>
 				</PopoverTrigger>

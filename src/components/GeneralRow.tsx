@@ -41,9 +41,6 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 	const inputLimit = () => (m() === "percent" ? 100 : 500000);
 	const displayValue = () => (value() > 0 ? String(value()) : "");
 
-	// Commit on every keystroke — Solid's fine-grained reactivity keeps downstream
-	// updates cheap. The DOM keeps in-progress text like "5." because the bound
-	// value only writes back when the committed number actually changes.
 	const handleInput = (e: InputEvent & { currentTarget: HTMLInputElement }) => {
 		const el = e.currentTarget;
 		if (el.value === "") {
@@ -66,7 +63,6 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 	};
 
 	const handleBlur = (e: FocusEvent & { currentTarget: HTMLInputElement }) => {
-		// Normalize leftover partial text ("5.", "007") to the committed value.
 		e.currentTarget.value = displayValue();
 	};
 
@@ -102,9 +98,9 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 			`.replace(/\s+/g, " ")}
 		>
 			<div class="col-span-2 min-w-0">
-				<div class="flex items-center gap-2 mb-0.5">
+				<div class="flex items-center gap-2 mb-0.5"> 
 					<span
-						class={`font-mono text-[0.65rem] px-1.5 py-0.5 rounded font-semibold shrink-0 ${missingStatus() ? "bg-error text-error-content" : "bg-primary text-primary-content"}`}
+						class={`font-mono text-[0.65rem] px-1.5 py-0.5 rounded font-semibold shrink-0 ${missingStatus() ? "bg-error text-error-content" : "bg-primary text-white"}`}
 					>
 						{props.cat.code}
 					</span>

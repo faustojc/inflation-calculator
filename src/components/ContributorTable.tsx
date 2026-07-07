@@ -54,69 +54,73 @@ export function ContributorTable(props: Props) {
 										</div>
 
 										{/* Column table */}
-										<table class="table w-full">
-											<thead>
-												<tr class="bg-primary/90">
-													<th class="w-8 h-9 text-xs text-white font-bold uppercase tracking-wide">#</th>
-													<th class="h-9 text-xs text-white font-bold uppercase tracking-wide">Commodity</th>
-													<th
-														class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
-														title="Percentage Weight"
-													>
-														Weight (in percent)
-													</th>
-													<th
-														class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
-														title="Inflation Rate"
-													>
-														Inflation Rate
-													</th>
-													<th
-														class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
-														title="Percentage Share to Inflation"
-													>
-														%Share Inflation
-													</th>
-												</tr>
-											</thead>
-											<tbody>
-												<For each={factor.contributors.slice(0, displayRows())}>
-													{(c, i) => {
-														const isAllItems = c.code === "0";
-														const pctWeight = isAllItems ? 100 : (c.weight / totalWeight()) * 100;
-														return (
-															<tr class={isAllItems ? "bg-primary/8 border-b-2 border-primary/20" : ""}>
-																<td
-																	class={`text-center py-2 h-auto text-xs ${
-																		isAllItems
-																			? "font-bold text-primary"
-																			: "font-medium text-muted-foreground"
-																	}`}
-																>
-																	{isAllItems ? "—" : i()}
-																</td>
-																<td
-																	class={`py-2 h-auto text-xs max-w-95 ${isAllItems ? "font-bold" : "font-medium"}`}
-																>
-																	<div class="line-clamp-2" title={c.name}>
-																		{c.name}
-																	</div>
-																</td>
-																<td class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
-																	{pctWeight.toFixed(1)}
-																</td>
-																<td class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
-																	{c.inflationRate.toFixed(1)}
-																</td>
-																<td class="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
-																	{c.percentShare.toFixed(1)}
-																</td>
-															</tr>
-														);
-													}}
-												</For>
-											</tbody>
-										</table>
+										<div class="overflow-x-auto">
+											<table class="table w-full">
+												<thead>
+													<tr class="bg-primary/90">
+														<th class="w-8 h-9 text-xs text-white font-bold uppercase tracking-wide">#</th>
+														<th class="h-9 text-xs text-white font-bold uppercase tracking-wide">
+															Commodity
+														</th>
+														<th
+															class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
+															title="Percentage Weight"
+														>
+															Weight (in percent)
+														</th>
+														<th
+															class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
+															title="Inflation Rate"
+														>
+															Inflation Rate
+														</th>
+														<th
+															class="text-center h-9 text-xs text-white whitespace-nowrap font-bold uppercase tracking-wide"
+															title="Percentage Share to Inflation"
+														>
+															%Share Inflation
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													<For each={factor.contributors.slice(0, displayRows())}>
+														{(c, i) => {
+															const isAllItems = c.code === "0";
+															const pctWeight = isAllItems ? 100 : (c.weight / totalWeight()) * 100;
+															return (
+																<tr class={isAllItems ? "bg-primary/8 border-b-2 border-primary/20" : ""}>
+																	<td
+																		class={`text-center py-2 h-auto text-xs ${
+																			isAllItems
+																				? "font-bold text-primary"
+																				: "font-medium text-muted-foreground"
+																		}`}
+																	>
+																		{isAllItems ? "—" : i()}
+																	</td>
+																	<td
+																		class={`py-2 h-auto text-xs max-w-95 ${isAllItems ? "font-bold" : "font-medium"}`}
+																	>
+																		<div class="line-clamp-2" title={c.name}>
+																			{c.name}
+																		</div>
+																	</td>
+																	<td class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+																		{pctWeight.toFixed(1)}
+																	</td>
+																	<td class="text-center py-2 h-auto text-xs tabular-nums font-mono text-muted-foreground">
+																		{c.inflationRate.toFixed(1)}
+																	</td>
+																	<td class="text-center py-2 h-auto text-xs tabular-nums font-mono font-semibold">
+																		{c.percentShare.toFixed(1)}
+																	</td>
+																</tr>
+															);
+														}}
+													</For>
+												</tbody>
+											</table>
+										</div>
 									</div>
 								);
 							}}
