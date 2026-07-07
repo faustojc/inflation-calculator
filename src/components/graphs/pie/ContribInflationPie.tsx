@@ -1,4 +1,4 @@
-import { createUniqueId, For, Show } from "solid-js";
+import { createMemo, createUniqueId, For, Show } from "solid-js";
 import CustomPieLegend, { type LegendItem } from "@/components/graphs/custom/CustomPieLegend";
 import { OverlayPieChart } from "@/components/graphs/custom/OverlayPieChart";
 import type { PieEntry } from "@/lib/types";
@@ -89,18 +89,18 @@ export default function ContribInflationPie(props: Readonly<Props>) {
 	);
 }
 
-function PieContent({ personal, official, instanceId }: Readonly<Props & { instanceId: string }>) {
-	const personalParts = buildPieData(personal.contributors);
-	const officialParts = buildPieData(official.contributors);
+function PieContent(props: Readonly<Props & { instanceId: string }>) {
+	const personalParts = createMemo(() => buildPieData(props.personal.contributors));
+	const officialParts = createMemo(() => buildPieData(props.official.contributors));
 
-	const personalLegend = buildLegend(personal.contributors);
-	const officialLegend = buildLegend(official.contributors);
+	const personalLegend = createMemo(() => buildLegend(props.personal.contributors));
+	const officialLegend = createMemo(() => buildLegend(props.official.contributors));
 
-	const deflationFootnotes = (() => {
+	const deflationFootnotes = createMemo(() => {
 		const notes: { name: string; code: string; personalShare?: number; officialShare?: number }[] = [];
 
-		const personalNegs = personal.contributors.filter((c) => c.code !== "0" && c.percentShare < 0);
-		const officialNegs = official.contributors.filter((c) => c.code !== "0" && c.percentShare < 0);
+		const personalNegs = props.personal.contributors.filter((c) => c.code !== "0" && c.percentShare < 0);
+		const officialNegs = props.official.contributors.filter((c) => c.code !== "0" && c.percentShare < 0);
 
 		for (const c of personalNegs) {
 			notes.push({ name: c.name, code: c.code, personalShare: c.percentShare });
@@ -116,7 +116,7 @@ function PieContent({ personal, official, instanceId }: Readonly<Props & { insta
 		}
 
 		return notes;
-	})();
+	});
 
 	return (
 		<div class="flex flex-col gap-6">
@@ -128,26 +128,26 @@ function PieContent({ personal, official, instanceId }: Readonly<Props & { insta
 				<div class="col-span-1 flex flex-col gap-2">
 					<div class="flex gap-3 items-center justify-center">
 						<h4 class="text-base lg:text-xl text-center font-semibold text-primary/80">
-							{personal.factorName}
+							{props.personal.factorName}
 						</h4>
 						<h4 class="text-base lg:text-xl text-center text-primary/80 font-semibold">
 							Inflation Rate:
 							<span class="text-base lg:text-xl text-blue-700 font-bold ml-1">
-								{personal.inflationRate.toFixed(1)}%
+								{props.personal.inflationRate.toFixed(1)}%
 							</span>
 						</h4>
 					</div>
 					<div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
 						<div class="w-full">
 							<OverlayPieChart
-								basePie={personalParts.basePie}
-								overlayPie={personalParts.overlayPie}
-								negativeItems={personalParts.negativeItems}
-								patternPrefix={`p-${instanceId}`}
+								basePie={personalParts().basePie}
+								overlayPie={personalParts().overlayPie}
+								negativeItems={personalParts().negativeItems}
+								patternPrefix={`p-${props.instanceId}`}
 							/>
 						</div>
 						<div class="w-full flex items-center sm:py-4">
-							<CustomPieLegend props={personalLegend} patternPrefix={`p-${instanceId}`} />
+							<CustomPieLegend props={personalLegend()} patternPrefix={`p-${props.instanceId}`} />
 						</div>
 					</div>
 				</div>
@@ -156,39 +156,39 @@ function PieContent({ personal, official, instanceId }: Readonly<Props & { insta
 				<div class="col-span-1 flex flex-col gap-2">
 					<div class="flex gap-3 items-center justify-center">
 						<h4 class="text-base lg:text-xl text-center font-semibold text-primary/80">
-							{official.areaName}
+							{props.official.areaName}
 						</h4>
 						<h4 class="text-base lg:text-xl text-center text-primary/80 font-semibold">
 							Inflation Rate:
 							<span class="text-base lg:text-xl text-blue-700 font-bold ml-1">
-								{official.inflationRate.toFixed(1)}%
+								{props.official.inflationRate.toFixed(1)}%
 							</span>
 						</h4>
 					</div>
 					<div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
 						<div class="w-full">
 							<OverlayPieChart
-								basePie={officialParts.basePie}
-								overlayPie={officialParts.overlayPie}
-								negativeItems={officialParts.negativeItems}
-								patternPrefix={`o-${instanceId}`}
+								basePie={officialParts().basePie}
+								overlayPie={officialParts().overlayPie}
+								negativeItems={officialParts().negativeItems}
+								patternPrefix={`o-${props.instanceId}`}
 							/>
 						</div>
 						<div class="w-full flex items-center sm:py-4">
-							<CustomPieLegend props={officialLegend} patternPrefix={`o-${instanceId}`} />
+							<CustomPieLegend props={officialLegend()} patternPrefix={`o-${props.instanceId}`} />
 						</div>
 					</div>
 				</div>
 			</div>
 
 			{/* Deflation Footnotes */}
-			<Show when={deflationFootnotes.length > 0}>
+			<Show when={deflationFootnotes().length > 0}>
 				<div class="px-4 pb-2 border-t border-border/50 pt-4">
 					<p class="text-base font-semibold text-muted-foreground mb-2 uppercase">
 						Deflationary Contributors
 					</p>
 					<ul class="space-y-1.5">
-						<For each={deflationFootnotes}>
+						<For each={deflationFootnotes()}>
 							{(note) => (
 								<li class="flex items-center gap-2 text-xs text-muted-foreground">
 									<span

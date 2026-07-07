@@ -50,4 +50,4 @@ export function toggleTheme() {
 }
 
 // Module-level apply before first paint to prevent dark-mode FOUC.
-applyTheme(theme());
+applyTheme(getInitialTheme());

@@ -11,19 +11,18 @@ interface Props {
 }
 
 export default function CustomBaseSector(props: Props) {
-	const chartPrefix = props.patternPrefix.charAt(0);
-	const id = sliceId(props.code, props.originalShare);
-	const fullId = chartPrefix + id;
+	const chartPrefix = () => props.patternPrefix.charAt(0);
+	const fullId = () => chartPrefix() + sliceId(props.code, props.originalShare);
 
-	const isSelected = () => activeSlice.get() === fullId;
-	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix);
+	const isSelected = () => activeSlice.get() === fullId();
+	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
 
 	return (
 		<path
 			d={props.path}
 			fill={getColor(props.code, props.index)}
-			onClick={() => activeSlice.set(fullId)}
-			onMouseEnter={() => activeSlice.set(fullId)}
+			onClick={() => activeSlice.set(fullId())}
+			onMouseEnter={() => activeSlice.set(fullId())}
 			onMouseLeave={() => activeSlice.set(null)}
 			style={{
 				"fill-opacity": isAnyInThisChartSelected() && !isSelected() ? 0.1 : 1,

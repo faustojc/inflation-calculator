@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, createSignal, onCleanup } from "solid-js";
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup } from "solid-js";
 
 export type ScrollDirection = "up" | "down";
 
@@ -52,5 +52,6 @@ export function useScrollDirection({
 		onCleanup(() => window.removeEventListener("scroll", handleScroll));
 	});
 
-	return () => (readEnabled(enabled) ? direction() : "up");
+	const resolvedDirection = createMemo(() => (readEnabled(enabled) ? direction() : "up"));
+	return resolvedDirection;
 }

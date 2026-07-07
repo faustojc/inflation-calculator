@@ -18,12 +18,12 @@ import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/u
 
 const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 	const currMode = () => mode.get();
-	const hasChildren = props.node.children && props.node.children.length > 0;
+	const hasChildren = () => Boolean(props.node.children && props.node.children.length > 0);
 
 	const isMatch = () => highlightState.code.get() === props.node.code;
 	const highlightLabel = () => (isMatch() ? highlightState.label.get() : "");
 	const displayValue = () =>
-		hasChildren
+		hasChildren()
 			? categoryTotals[props.node.code]?.get() || 0
 			: detailedExpenses[props.node.code]?.get()?.value || 0;
 	const isOpen = () => expandedNodes[props.node.code]?.get() ?? (props.level < 1 || displayValue() > 0);
@@ -40,7 +40,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 	createEffect(() => {
 		if (isMatch()) {
 			rowRef?.scrollIntoView({ behavior: "smooth", block: "center" });
-			if (!hasChildren) {
+			if (!hasChildren()) {
 				setTimeout(() => inputRef?.focus(), 500);
 			}
 		}
@@ -122,7 +122,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 							? "bg-error/10 border-error/40 ring-inset ring-1 ring-error"
 							: isMatch()
 								? "bg-warning/10 border-warning/40 ring-inset ring-1 ring-warning"
-								: hasChildren
+								: hasChildren()
 									? props.level === 0
 										? "bg-primary/15 border-primary/30 hover:bg-primary/20"
 										: "bg-primary/8 border-primary/20 hover:bg-primary/12"
@@ -130,13 +130,13 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 					}
 				`.replace(/\s+/g, " ")}
 			>
-				<Show when={hasChildren}>
+				<Show when={hasChildren()}>
 					<button
 						type="button"
-						disabled={!hasChildren}
+						disabled={!hasChildren()}
 						tabIndex={-1}
 						onClick={() => handleToggle(!isOpen())}
-						class={`p-0.5 rounded transition-colors ${hasChildren ? "text-primary hover:text-primary hover:bg-primary/20 cursor-pointer" : "w-5"}`}
+						class={`p-0.5 rounded transition-colors ${hasChildren() ? "text-primary hover:text-primary hover:bg-primary/15 cursor-pointer" : "w-5"}`}
 						aria-label={isOpen() ? `Collapse ${props.node.name}` : `Expand ${props.node.name}`}
 						aria-expanded={isOpen()}
 					>
@@ -188,7 +188,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 					<div class="col-span-2 relative rounded-xl">
 						<span class="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-xs font-semibold text-base-content/70 pointer-events-none">
 							<Show
-								when={hasChildren}
+								when={hasChildren()}
 								fallback={
 									<Show when={currMode() === "percent"} fallback="PhP">
 										%
@@ -200,7 +200,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 						</span>
 
 						<Show
-							when={hasChildren}
+							when={hasChildren()}
 							fallback={
 								<input
 									ref={inputRef}
@@ -239,7 +239,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 							</div>
 						</Show>
 					</div>
-					<Show when={isMobile() && missingStatus() && !hasChildren}>
+					<Show when={isMobile() && missingStatus() && !hasChildren()}>
 						<div class="col-span-5 flex items-center justify-center gap-2 text-xs font-bold text-error animate-in fade-in">
 							<TriangleAlert class="w-3.5 h-3.5" />
 							<span>No CPI data</span>
@@ -248,7 +248,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 				</div>
 			</div>
 
-			<Show when={hasChildren && rendering()}>
+			<Show when={hasChildren() && rendering()}>
 				<div
 					class={`grid ${isOpen() ? "animate-collapsible-down" : "animate-collapsible-up"}`}
 					style={{ "grid-template-rows": isOpen() ? "1fr" : "0fr" }}

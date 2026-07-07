@@ -8,29 +8,23 @@ export interface LegendItem {
 	value: number;
 }
 
-const CustomPieLegend = ({
-	props,
-	patternPrefix,
-}: {
-	props: readonly LegendItem[];
-	patternPrefix?: string;
-}) => {
-	const chartPrefix = patternPrefix?.charAt(0) || "";
+const CustomPieLegend = (props: { props: readonly LegendItem[]; patternPrefix?: string }) => {
+	const chartPrefix = () => props.patternPrefix?.charAt(0) || "";
 
 	const setActiveSlice = (code: string, value: number) => {
 		if (value >= 0 && value <= 0.099) return;
 		const id = sliceId(code, value);
-		activeSlice.set(chartPrefix + id);
+		activeSlice.set(chartPrefix() + id);
 	};
 	const onMouseLeave = () => activeSlice.set(null);
 
 	return (
 		<ul class="flex flex-col text-sm text-muted-foreground">
-			<For each={props}>
+			<For each={props.props}>
 				{(entry) => {
-					const fullId = chartPrefix + sliceId(entry.code, entry.value);
-					const isActive = () => fullId === activeSlice.get() && entry.value !== 0;
-					const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix);
+					const fullId = () => chartPrefix() + sliceId(entry.code, entry.value);
+					const isActive = () => fullId() === activeSlice.get() && entry.value !== 0;
+					const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
 
 					return (
 						<li

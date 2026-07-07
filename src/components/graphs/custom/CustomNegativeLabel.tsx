@@ -16,28 +16,26 @@ interface Props {
 }
 
 const CustomNegativeLabel = (props: Props) => {
-	const entry = props.payload;
+	const entry = () => props.payload;
 
-	if (entry.originalShare === 0 || entry.type === "filler") return null;
-	if (!props.chartId || !props.basePie || !props.overlayPie) return null;
+	const chartPrefix = () => props.chartId.charAt(0);
+	const fullId = () => chartPrefix() + sliceId(entry().code, entry().originalShare);
+	const isSelected = () => activeSlice.get() === fullId();
+	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
 
-	const chartPrefix = props.chartId.charAt(0);
-	const fullId = chartPrefix + sliceId(entry.code, entry.originalShare);
-	const isSelected = () => activeSlice.get() === fullId;
-	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix);
+	const layout = () =>
+		getSmartLabelLayout(props.chartId, props.basePie, props.overlayPie, props.cx, props.cy, props.outerRadius);
+	const pos = () => layout().get(`n_${entry().code}`);
 
-	const layout = getSmartLabelLayout(
-		props.chartId,
-		props.basePie,
-		props.overlayPie,
-		props.cx,
-		props.cy,
-		props.outerRadius,
-	);
-	const pos = layout.get(`n_${entry.code}`);
+	const visible = () =>
+		entry().originalShare !== 0 &&
+		entry().type !== "filler" &&
+		!!props.chartId &&
+		!!props.basePie &&
+		!!props.overlayPie;
 
 	return (
-		<Show when={pos}>
+		<Show when={visible() && pos()}>
 			{(p) => (
 				<g
 					style={{
@@ -71,7 +69,7 @@ const CustomNegativeLabel = (props: Props) => {
 						class={`text-xs sm:text-sm font-semibold text-destructive ${isSelected() ? "text-base sm:text-lg" : ""}`}
 						style={{ transition: "font-size 0.2s ease-in-out" }}
 					>
-						{`${entry.originalShare.toFixed(1)}%`}
+						{`${entry().originalShare.toFixed(1)}%`}
 					</text>
 				</g>
 			)}

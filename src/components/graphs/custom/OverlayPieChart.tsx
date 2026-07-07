@@ -1,5 +1,5 @@
 import { arc as d3Arc, pie as d3Pie } from "d3-shape";
-import { type JSX, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, For, type JSX, onCleanup, onMount, Show } from "solid-js";
 import CustomBaseSector from "@/components/graphs/custom/CustomBaseSector";
 import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
 import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector";
@@ -36,20 +36,14 @@ function revealSectorPath(sweep: number): string {
 	return `M ${CX} ${CY} L ${x1} ${y1} A ${CLIP_R} ${CLIP_R} 0 ${sweep > Math.PI ? 1 : 0} 1 ${x2} ${y2} Z`;
 }
 
-export function OverlayPieChart({
-	basePie,
-	overlayPie,
-	negativeItems,
-	patternPrefix,
-}: {
+export function OverlayPieChart(props: {
 	basePie: PieEntry[];
 	overlayPie: PieEntry[];
 	negativeItems: CommodityContribution[];
 	patternPrefix: string;
 }) {
-	const hasNegatives = negativeItems.length > 0;
-	let clipSectorRef!: SVGPathElement;
-	const clipPathId = `${patternPrefix}-reveal-clip`;
+	const hasNegatives = () => props.negativeItems.length > 0;
+	const clipPathId = () => `${props.patternPrefix}-reveal-clip`;
 	const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 	const nav = navigator as Navigator & { deviceMemory?: number };
 	const lowEndDevice = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
@@ -59,6 +53,8 @@ export function OverlayPieChart({
 
 		return mobile || lowEndDevice ? 250 : PIE_DURATION;
 	})();
+
+	let clipSectorRef!: SVGPathElement;
 
 	// Animate the clipPath sector from 0 -> 2pi, shortened or skipped on constrained devices.
 	onMount(() => {
@@ -93,10 +89,12 @@ export function OverlayPieChart({
 		.innerRadius(0)
 		.outerRadius(OVERLAY_OUTER_R);
 
-	const baseArcs = pieLayout(basePie).map((a) => ({ data: a.data, path: baseArcGen(a) ?? "" }));
-	const overlayArcs = hasNegatives
-		? pieLayout(overlayPie).map((a) => ({ data: a.data, path: overlayArcGen(a) ?? "" }))
-		: [];
+	const baseArcs = createMemo(() =>
+		pieLayout(props.basePie).map((a) => ({ data: a.data, path: baseArcGen(a) ?? "" })),
+	);
+	const overlayArcs = createMemo(() =>
+		hasNegatives() ? pieLayout(props.overlayPie).map((a) => ({ data: a.data, path: overlayArcGen(a) ?? "" })) : [],
+	);
 
 	const labelStyle = (i: number): JSX.CSSProperties =>
 		animationMs === 0
@@ -114,91 +112,101 @@ export function OverlayPieChart({
 
 					<defs>
 						{/* Reveal clip — animated by rAF */}
-						<clipPath id={clipPathId}>
+						<clipPath id={clipPathId()}>
 							<path ref={clipSectorRef} />
 						</clipPath>
 
-						<Show when={hasNegatives}>
-							{negativeItems.map((_, i) => (
-								<pattern
-									id={`${patternPrefix}-hatch-${i}`}
-									patternUnits="userSpaceOnUse"
-									width="6"
-									height="6"
-									patternTransform="rotate(45)"
-								>
-									<line x1="0" y1="0" x2="0" y2="6" stroke={NEG_STRIPE_COLOR} stroke-width="6.5" />
-								</pattern>
-							))}
+						<Show when={hasNegatives()}>
+							<For each={props.negativeItems}>
+								{(_, i) => (
+									<pattern
+										id={`${props.patternPrefix}-hatch-${i()}`}
+										patternUnits="userSpaceOnUse"
+										width="6"
+										height="6"
+										patternTransform="rotate(45)"
+									>
+										<line x1="0" y1="0" x2="0" y2="6" stroke={NEG_STRIPE_COLOR} stroke-width="6.5" />
+									</pattern>
+								)}
+							</For>
 						</Show>
 					</defs>
 
 					{/* LAYER 1 — Base pie clipped to the growing sector */}
-					<g clip-path={`url(#${clipPathId})`}>
+					<g clip-path={`url(#${clipPathId()})`}>
 						<g transform={`translate(${CX},${CY})`} stroke="#fff" stroke-width={2}>
-							{baseArcs.map(({ data, path }, i) => (
-								<CustomBaseSector
-									path={path}
-									code={data.code}
-									index={i}
-									value={data.value}
-									originalShare={data.originalShare}
-									patternPrefix={patternPrefix}
-								/>
-							))}
+							<For each={baseArcs()}>
+								{({ data, path }, i) => (
+									<CustomBaseSector
+										path={path}
+										code={data.code}
+										index={i()}
+										value={data.value}
+										originalShare={data.originalShare}
+										patternPrefix={props.patternPrefix}
+									/>
+								)}
+							</For>
 						</g>
 					</g>
 
 					{/* LAYER 2 — Overlay pie clipped to the same growing sector */}
-					<Show when={hasNegatives}>
-						<g clip-path={`url(#${clipPathId})`}>
+					<Show when={hasNegatives()}>
+						<g clip-path={`url(#${clipPathId()})`}>
 							<g transform={`translate(${CX},${CY})`}>
-								{overlayArcs.map(({ data, path }, i) => (
-									<CustomOverlaySector
-										path={path}
-										type={data.type}
-										code={data.code}
-										negIdx={data.negIdx ?? i}
-										value={data.value}
-										originalShare={data.originalShare}
-										patternPrefix={patternPrefix}
-									/>
-								))}
+								<For each={overlayArcs()}>
+									{({ data, path }, i) => (
+										<CustomOverlaySector
+											path={path}
+											type={data.type}
+											code={data.code}
+											negIdx={data.negIdx ?? i()}
+											value={data.value}
+											originalShare={data.originalShare}
+											patternPrefix={props.patternPrefix}
+										/>
+									)}
+								</For>
 							</g>
 						</g>
 					</Show>
 
 					{/* Positive labels — blur focus-in, staggered */}
-					{baseArcs.map(({ data }, i) => (
-						<g style={labelStyle(i)}>
-							<CustomPositiveLabel
-								payload={data}
-								chartId={patternPrefix}
-								basePie={basePie}
-								overlayPie={overlayPie}
-								cx={CX}
-								cy={CY}
-								outerRadius={BASE_OUTER_R}
-							/>
-						</g>
-					))}
-
-					{/* Negative labels — continue stagger after positives */}
-					<Show when={hasNegatives}>
-						{overlayArcs.map(({ data }, i) => (
-							<g style={labelStyle(baseArcs.length + i)}>
-								<CustomNegativeLabel
+					<For each={baseArcs()}>
+						{({ data }, i) => (
+							<g style={labelStyle(i())}>
+								<CustomPositiveLabel
 									payload={data}
-									index={i}
-									chartId={patternPrefix}
-									basePie={basePie}
-									overlayPie={overlayPie}
+									chartId={props.patternPrefix}
+									basePie={props.basePie}
+									overlayPie={props.overlayPie}
 									cx={CX}
 									cy={CY}
-									outerRadius={OVERLAY_OUTER_R}
+									outerRadius={BASE_OUTER_R}
 								/>
 							</g>
-						))}
+						)}
+					</For>
+
+					{/* Negative labels — continue stagger after positives */}
+					<Show when={hasNegatives()}>
+						<For each={overlayArcs()}>
+							{({ data }, i) => (
+								<g style={labelStyle(baseArcs().length + i())}>
+									<CustomNegativeLabel
+										payload={data}
+										index={i()}
+										chartId={props.patternPrefix}
+										basePie={props.basePie}
+										overlayPie={props.overlayPie}
+										cx={CX}
+										cy={CY}
+										outerRadius={OVERLAY_OUTER_R}
+									/>
+								</g>
+							)}
+						</For>
 					</Show>
 				</svg>
 			</div>

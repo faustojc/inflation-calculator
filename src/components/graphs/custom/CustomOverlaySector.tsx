@@ -12,34 +12,25 @@ interface Props {
 	patternPrefix: string;
 }
 
-export default function CustomOverlaySector({
-	path,
-	type,
-	code,
-	negIdx,
-	originalShare,
-	patternPrefix,
-}: Props) {
-	const chartPrefix = patternPrefix.charAt(0);
-
-	const id = sliceId(code, originalShare);
-	const fullId = chartPrefix + id;
-	const isSelected = () => activeSlice.get() === fullId;
-	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix);
+export default function CustomOverlaySector(props: Props) {
+	const chartPrefix = () => props.patternPrefix.charAt(0);
+	const fullId = () => chartPrefix() + sliceId(props.code, props.originalShare);
+	const isSelected = () => activeSlice.get() === fullId();
+	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
 
 	return (
 		<Show
-			when={type !== "filler"}
-			fallback={<path d={path} fill="transparent" stroke="none" style={{ "pointer-events": "none" }} />}
+			when={props.type !== "filler"}
+			fallback={<path d={props.path} fill="transparent" stroke="none" style={{ "pointer-events": "none" }} />}
 		>
 			<path
-				d={path}
-				fill={`url(#${patternPrefix}-hatch-${negIdx})`}
+				d={props.path}
+				fill={`url(#${props.patternPrefix}-hatch-${props.negIdx})`}
 				stroke={NEG_STROKE_COLOR}
 				stroke-width={2}
 				stroke-dasharray="6 3"
-				onClick={() => activeSlice.set(fullId)}
-				onMouseEnter={() => activeSlice.set(fullId)}
+				onClick={() => activeSlice.set(fullId())}
+				onMouseEnter={() => activeSlice.set(fullId())}
 				onMouseLeave={() => activeSlice.set(null)}
 				style={{
 					opacity: isAnyInThisChartSelected() && !isSelected() ? 0.1 : 1,
@@ -47,7 +38,7 @@ export default function CustomOverlaySector({
 					cursor: "pointer",
 					// overlayFlareIn: red glow that fades out on entry (backwards = revert to inline opacity after done)
 					// marchDashes: continuous marching-ants stroke, starts after flare-in settles
-					animation: `overlayFlareIn 0.6s ease-out ${negIdx * 0.1}s backwards, marchDashes 0.8s linear ${negIdx * 0.1 + 0.6}s infinite`,
+					animation: `overlayFlareIn 0.6s ease-out ${props.negIdx * 0.1}s backwards, marchDashes 0.8s linear ${props.negIdx * 0.1 + 0.6}s infinite`,
 				}}
 			/>
 		</Show>

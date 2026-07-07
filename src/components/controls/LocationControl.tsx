@@ -84,13 +84,14 @@ const LocationControl = () => {
 	const regionHeadings = createMemo(() => getRegionHeadings(groupedAreas()));
 	const filteredGroups = createMemo(() => {
 		const query = search().toLowerCase().trim();
+		const headings = regionHeadings();
 		return Object.entries(groupedAreas()).reduce<[string, GroupedArea[]][]>((result, [region, items]) => {
 			if (!query) {
 				result.push([region, items]);
 				return result;
 			}
 
-			const regionName = regionHeadings()[region]?.toLowerCase() ?? "";
+			const regionName = headings[region]?.toLowerCase() ?? "";
 			if (regionName.includes(query)) {
 				result.push([region, items]);
 				return result;

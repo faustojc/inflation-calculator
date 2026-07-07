@@ -157,6 +157,9 @@ export function CommandItem(
 
 	onMount(() => {
 		if (!context) return;
+		// The getter is stored by registerItem and read inside a tracked memo (hasMatches),
+		// so this reactive access is intentional despite the lint heuristic.
+		// eslint-disable-next-line solid/reactivity
 		const unregister = context.registerItem(() => local.value ?? "");
 		onCleanup(unregister);
 	});

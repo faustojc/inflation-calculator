@@ -73,7 +73,7 @@ const Footer = () => {
 
 			if (!datesForType) {
 				const reason = !isOnline.get()
-					? "You're offline and the CPI data for this area hasn't been cached."
+					? "You're offline and the CPI data for this area hasn't been saved locally."
 					: `No ${dataType} CPI data available for this area and income class.`;
 				toast.warning("Unable to calculate inflation", { description: reason });
 				return;
@@ -179,7 +179,7 @@ const Footer = () => {
 	};
 
 	return (
-		<footer class="sticky bottom-0 left-0 right-0 z-50 bg-card/95 border-t border-border">
+		<footer class="sticky bottom-0 left-0 right-0 z-50 bg-card border-t border-border">
 			<div class="max-w-5xl mx-auto px-4 py-3">
 				<CalculationFooter />
 				<Button

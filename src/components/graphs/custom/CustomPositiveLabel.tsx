@@ -1,3 +1,4 @@
+import { createMemo, Show, splitProps } from "solid-js";
 import type { PieEntry } from "@/lib/types";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getSmartLabelLayout } from "@/utils/labelLayoutUtility";
@@ -12,48 +13,53 @@ export interface CustomLabelProps {
 	overlayPie: PieEntry[];
 }
 
-const CustomPositiveLabel = ({
-	cx,
-	cy,
-	outerRadius,
-	payload,
-	chartId,
-	basePie,
-	overlayPie,
-}: CustomLabelProps) => {
-	if (payload.originalShare === 0) return null;
-	if (!chartId || !basePie || !overlayPie) return null;
+const CustomPositiveLabel = (props: CustomLabelProps) => {
+	const [p] = splitProps(props, ["payload", "chartId", "basePie", "overlayPie", "cx", "cy", "outerRadius"]);
 
-	const chartPrefix = chartId.charAt(0);
-	const fullId = chartPrefix + sliceId(payload.code, payload.originalShare);
-	const isSelected = () => activeSlice.get() === fullId;
-	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix);
+	const chartPrefix = createMemo(() => p.chartId.charAt(0));
+	const fullId = createMemo(() => chartPrefix() + sliceId(p.payload.code, p.payload.originalShare));
 
-	const layout = getSmartLabelLayout(chartId, basePie, overlayPie, cx, cy, outerRadius);
-	const pos = layout.get(`p_${payload.code}`);
-	if (!pos) return null;
+	const isSelected = () => activeSlice.get() === fullId();
+	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
+	const layout = createMemo(() =>
+		getSmartLabelLayout(p.chartId, p.basePie, p.overlayPie, p.cx, p.cy, p.outerRadius),
+	);
 
-	const { sx, sy, ex, ey, cos, textAnchor } = pos;
+	const pos = createMemo(() => layout().get(`p_${p.payload.code}`));
+	const shouldShow = createMemo(
+		() => p.payload.originalShare > 0 && Boolean(p.chartId) && Boolean(p.basePie) && Boolean(p.overlayPie),
+	);
 
 	return (
-		<g
-			style={{
-				opacity: isAnyInThisChartSelected() && !isSelected() ? 0.2 : 1,
-				transition: "opacity 0.2s ease-in-out",
-			}}
-		>
-			<path d={`M${sx},${sy} L${ex},${ey}`} class="stroke-foreground" fill="none" />
-			<text
-				x={ex + (cos >= 0 ? 1 : -1) * 12}
-				y={ey}
-				text-anchor={textAnchor}
-				dominant-baseline="central"
-				class={`text-xs sm:text-sm font-semibold fill-foreground ${isSelected() ? "text-base sm:text-lg" : ""}`}
-				style={{ transition: "font-size 0.2s ease-in-out" }}
-			>
-				{`${payload.originalShare.toFixed(1)}%`}
-			</text>
-		</g>
+		<Show when={shouldShow()}>
+			<Show when={pos()}>
+				{(pos) => (
+					<g
+						class={`transition-opacity duration-200 ease-in-out ${
+							isAnyInThisChartSelected() && !isSelected() ? "opacity-20" : ""
+						}`.replace(/\s+/g, " ")}
+					>
+						<path
+							d={`M${pos().sx},${pos().sy} L${pos().ex},${pos().ey}`}
+							class="stroke-foreground"
+							fill="none"
+						/>
+
+						<text
+							x={pos().ex + (pos().cos >= 0 ? 1 : -1) * 12}
+							y={pos().ey}
+							text-anchor={pos().textAnchor}
+							dominant-baseline="central"
+							class={`text-xs sm:text-sm font-semibold fill-foreground transition-all duration-200 ease-in-out ${
+								isSelected() ? "text-base sm:text-lg" : ""
+							}`.replace(/\s+/g, " ")}
+						>
+							{`${p.payload.originalShare.toFixed(1)}%`}
+						</text>
+					</g>
+				)}
+			</Show>
+		</Show>
 	);
 };
 

@@ -129,7 +129,7 @@ export function SmartSearch() {
 						type="button"
 						role="combobox"
 						aria-expanded={open()}
-						class="btn btn-ghost w-full flex justify-between font-normal bg-card h-14 px-4 border-2 border-primary/30 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all rounded-xl group"
+						class="btn btn-ghost w-full flex justify-between font-normal bg-card h-14 px-4 border-2 border-primary shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/10 transition-all rounded-xl group"
 					>
 						<span class="flex items-center gap-3 text-muted-foreground group-hover:text-primary transition-colors text-base overflow-hidden">
 							<div class="bg-primary/10 p-1.5 rounded-md group-hover:bg-primary group-hover:text-white transition-all">
@@ -150,9 +150,9 @@ export function SmartSearch() {
 				>
 					<Command shouldFilter={false}>
 						<CommandInput placeholder="Type to search items..." value={query()} onValueChange={setQuery} />
-						<CommandList>
+						<CommandList class="w-full">
 							<Show when={filteredOptions().length === 0 && query().length >= 2}>
-								<CommandEmpty class="py-6 text-center text-sm text-muted-foreground">
+								<CommandEmpty class="p-6 text-center text-sm text-muted-foreground">
 									No items found. Try a broader term.
 								</CommandEmpty>
 							</Show>
