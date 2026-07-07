@@ -310,18 +310,19 @@ export async function getWeights(
 
 export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 	const { areas } = dataStore.get();
+	const clone = (a: AreaDef | undefined): AreaDef | undefined => (a ? { ...a } : undefined);
 
 	const selectedArea = areas.find((a) => a.key === selectedKey);
 	if (!selectedArea) {
 		return { target: { key: selectedKey, name: "Selected Area", regionId: 0 } };
 	}
 
-	// if the selected are is NCR, return NCR and philippines only
+	// if the selected area is NCR, return NCR and philippines only
 	if (selectedKey.toLowerCase() === "ncr") {
 		return {
-			target: selectedArea,
-			national: areas.find((a) => a.key.toLowerCase() === "philippines"),
-			ncr: selectedArea,
+			target: clone(selectedArea)!,
+			national: clone(areas.find((a) => a.key.toLowerCase() === "philippines")),
+			ncr: clone(selectedArea),
 		};
 	}
 
@@ -345,11 +346,11 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 	}
 
 	return {
-		target: selectedArea,
-		region,
-		national,
-		ncr,
-		province,
+		target: clone(selectedArea)!,
+		region: clone(region),
+		national: clone(national),
+		ncr: clone(ncr),
+		province: clone(province),
 	};
 }
 
