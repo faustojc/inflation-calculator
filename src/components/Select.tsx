@@ -38,7 +38,7 @@ export function Select(props: SelectProps) {
 			</Show>
 			<For each={options()}>
 				{(option) => (
-					<option value={option.value} disabled={option.disabled}>
+					<option value={option.value} selected={option.value === value()} disabled={option.disabled}>
 						{option.label}
 					</option>
 				)}
