@@ -90,8 +90,8 @@ export interface CalculationResult {
 // Moved outside to precreate the function
 // Get need Start/End CPI for "ALL" items to calculate official rates
 function getOfficialRate(key: string, dataIndex: DataIndex, dates: DateRange) {
-	const start = findCpi(dataIndex, key, dates.startYear, dates.startMonth, "0", "official");
-	const end = findCpi(dataIndex, key, dates.endYear, dates.endMonth, "0", "official");
+	const start = findCpiOrNull(dataIndex, key, dates.startYear, dates.startMonth, "0", "official");
+	const end = findCpiOrNull(dataIndex, key, dates.endYear, dates.endMonth, "0", "official");
 	return start && end ? calcGrowth(end, start) : 0;
 }
 
@@ -110,8 +110,8 @@ function calculateOfficialContribution(
 	for (let i = 0; i < codes.length; i++) {
 		const code = codes[i]!;
 		const weight = areaWeights[i];
-		const cpiEnd = findCpi(dataIndex, areaKey, dates.endYear, dates.endMonth, code, "official");
-		const cpiStart = findCpi(dataIndex, areaKey, dates.startYear, dates.startMonth, code, "official");
+		const cpiEnd = findCpiOrNull(dataIndex, areaKey, dates.endYear, dates.endMonth, code, "official");
+		const cpiStart = findCpiOrNull(dataIndex, areaKey, dates.startYear, dates.startMonth, code, "official");
 
 		if (cpiEnd !== null && cpiStart !== null && weight !== undefined) {
 			const weightedChange = (cpiEnd - cpiStart) * weight;
@@ -212,7 +212,7 @@ function getValue(
 ): number | null {
 	if (!key) return null;
 	if (trendType === "cpi") {
-		return findCpi(dataIndex, key, year, month, code, "official");
+		return findCpiOrNull(dataIndex, key, year, month, code, "official");
 	}
 
 	return calculateYoY(dataIndex, key, year, month, code);
@@ -243,9 +243,24 @@ function findCpi(
 	code: string,
 	dataType: "official" | "personal",
 ): number {
-	const value = index[areaKey]?.[year]?.[dataType]?.[month]?.[code];
+	const value = findCpiOrNull(index, areaKey, year, month, code, dataType);
 	if (value == null) throw new Error(`Missing CPI value for ${areaKey}/${year}/${dataType}/${month}/${code}`);
 	return value;
+}
+
+/**
+ * Like findCpi but returns null when the value doesn't exist. Use for lookups
+ * that iterate codes not guaranteed to be present.
+ */
+function findCpiOrNull(
+	index: DataIndex,
+	areaKey: string,
+	year: number,
+	month: number,
+	code: string,
+	dataType: "official" | "personal",
+): number | null {
+	return index[areaKey]?.[year]?.[dataType]?.[month]?.[code] ?? null;
 }
 
 /**
@@ -276,8 +291,8 @@ function calculateYoY(
 	code: string,
 ): number {
 	if (!key) return 0;
-	const curr = findCpi(dataIndex, key, year, month, code, "official");
-	const prev = findCpi(dataIndex, key, year - 1, month, code, "official");
+	const curr = findCpiOrNull(dataIndex, key, year, month, code, "official");
+	const prev = findCpiOrNull(dataIndex, key, year - 1, month, code, "official");
 	if (curr && prev && prev > 0) {
 		return calcGrowth(curr, prev);
 	}
@@ -466,10 +481,8 @@ function generateInterpretation(
 		<>
 			You live in <strong>{areaName}</strong>
 			<Show when={regionName}>
-				<>
-					{" "}
-					located in <strong>{regionName}</strong>
-				</>
+				{" "}
+				located in <strong>{regionName}</strong>
 			</Show>
 			.
 		</>
