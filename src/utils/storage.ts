@@ -4,8 +4,6 @@ export const CACHE_NAME = "inflation-data-v3";
 const LEGACY_CACHE_NAME = "inflation-data-v2";
 const CACHE_VERSION_KEY = "inflation-cache-version";
 
-// One-time cleanup: orphan the v2 bucket left behind by the pre-chunk data
-// format. Fire-and-forget — nothing depends on the result.
 if ("caches" in globalThis) {
 	caches.delete(LEGACY_CACHE_NAME).catch(() => {});
 }

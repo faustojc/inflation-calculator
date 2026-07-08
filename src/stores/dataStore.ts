@@ -20,9 +20,6 @@ import {
 } from "@/utils/metadata";
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 
-// Static CPI data path under public/api/v3. Returned relative (no leading
-// slash) so it resolves against the app base — works whether the build is
-// served from the document root or a subfolder.
 export function cpiUrl(path: string): string {
 	return `api/v3/${path}`;
 }
@@ -97,13 +94,7 @@ export async function initializeApp() {
 
 		const meta: Metadata = await metaRes.json();
 
-		// Client and data must agree on the v3 chunking scheme; proceeding on a
-		// mismatch would construct wrong chunk URLs and silently miss data.
-		if (
-			meta.schema_version !== 3 ||
-			meta.chunk_epoch !== CHUNK_EPOCH ||
-			meta.chunk_years !== CHUNK_YEARS
-		) {
+		if (meta.schema_version !== 3 || meta.chunk_epoch !== CHUNK_EPOCH || meta.chunk_years !== CHUNK_YEARS) {
 			console.error(
 				`[Data] Format mismatch: expected schema v3 (epoch ${CHUNK_EPOCH}, span ${CHUNK_YEARS}), ` +
 					`got schema v${meta.schema_version} (epoch ${meta.chunk_epoch}, span ${meta.chunk_years}).`,
@@ -176,10 +167,6 @@ export async function initializeApp() {
 		});
 
 		await setCurrentArea(meta.areas.at(1)!.key);
-
-		// Warm-up: prefetch the latest chunk (class ALL) of the default area so
-		// the first Calculate is cache-warm. Manifest is already cached by
-		// setCurrentArea, so the chunk gate costs nothing. Fire-and-forget.
 		void fetchChunk(meta.areas.at(1)!.key, "ALL", chunkName(meta.year_range.official.max));
 
 		dataStore.assign({
@@ -238,17 +225,12 @@ export function chunkUrl(area: string, incomeClass: IncomeClass, chunk: string):
 	return cpiUrl(`data/${area}/${incomeClass.toLowerCase()}/${chunk}.json`);
 }
 
-async function fetchChunk(
-	area: string,
-	incomeClass: IncomeClass,
-	chunk: string,
-): Promise<ChunkFile | null> {
+async function fetchChunk(area: string, incomeClass: IncomeClass, chunk: string): Promise<ChunkFile | null> {
 	const cacheKey = `${area}|${incomeClass}|${chunk}`;
 	let promise = FETCH_CACHE.get(cacheKey);
 
 	if (!promise) {
-		// Manifest gate: skip chunks the generator never published (e.g.
-		// b30/1994-2001.json) without a 404 round-trip.
+		// skip chunks the generator never published (e.g. b30/1994-2001.json) without a 404 round-trip.
 		const manifest = await getAreaManifest(area);
 		if (!manifest?.chunks?.[incomeClass]?.includes(chunk)) {
 			return null;
@@ -276,7 +258,6 @@ async function fetchChunk(
 }
 
 function indexChunk(file: ChunkFile, incomeClass: IncomeClass) {
-	// Each class gets its own tree — never overwrite cells across classes.
 	const tree = GLOBAL_INDEX[incomeClass];
 
 	for (const [yearStr, types] of Object.entries(file.years)) {
@@ -312,9 +293,7 @@ export async function getCalculationData(
 	startYear: number,
 	endYear: number,
 ): Promise<DataIndex> {
-	// Manifests for all areas concurrently — usually cache-hits from setCurrentArea.
 	const manifests = await Promise.all(areaKeys.map((area) => getAreaManifest(area)));
-
 	const pending: Promise<void>[] = [];
 
 	areaKeys.forEach((area, areaIdx) => {
