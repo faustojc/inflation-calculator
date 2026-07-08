@@ -1,5 +1,5 @@
 import type { AreaManifest, ChunkFile, DataIndex } from "@/lib/types";
-import type { Mode } from "@/stores/inflationStore";
+import type { IncomeClass, Mode } from "@/stores/inflationStore";
 export const MONTHS = [
 	"January",
 	"February",
@@ -102,15 +102,20 @@ const COMMODITY_COLORS: Record<string, string> = {
 export const NEG_STRIPE_COLOR = "rgba(220, 38, 38, 0.35)";
 export const NEG_STROKE_COLOR = "#DC2626";
 
-// Global indexing for serialized json data
-export const GLOBAL_INDEX: DataIndex = {};
+// Global indexing for serialized json data — one tree per income class.
+// Classes must NOT share index cells: the old overwrite-in-place scheme served
+// stale values after switching class, because INDEXED_KEYS (per area|year|class)
+// blocks re-indexing once both classes have been indexed for the same years.
+export const GLOBAL_INDEX: Record<IncomeClass, DataIndex> = { ALL: {}, B30: {} };
 export const INDEXED_KEYS = new Set<string>();
 // Keyed by `${area}|${incomeClass}|${chunk}`
 export const FETCH_CACHE = new Map<string, Promise<ChunkFile | null>>();
 
 export function clearGlobalIndex() {
-	for (const key of Object.keys(GLOBAL_INDEX)) {
-		delete GLOBAL_INDEX[key];
+	for (const cls of Object.keys(GLOBAL_INDEX) as IncomeClass[]) {
+		for (const key of Object.keys(GLOBAL_INDEX[cls])) {
+			delete GLOBAL_INDEX[cls][key];
+		}
 	}
 	INDEXED_KEYS.clear();
 	FETCH_CACHE.clear();
