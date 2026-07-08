@@ -102,10 +102,6 @@ const COMMODITY_COLORS: Record<string, string> = {
 export const NEG_STRIPE_COLOR = "rgba(220, 38, 38, 0.35)";
 export const NEG_STROKE_COLOR = "#DC2626";
 
-// Global indexing for serialized json data — one tree per income class.
-// Classes must NOT share index cells: the old overwrite-in-place scheme served
-// stale values after switching class, because INDEXED_KEYS (per area|year|class)
-// blocks re-indexing once both classes have been indexed for the same years.
 export const GLOBAL_INDEX: Record<IncomeClass, DataIndex> = { ALL: {}, B30: {} };
 export const INDEXED_KEYS = new Set<string>();
 // Keyed by `${area}|${incomeClass}|${chunk}`
