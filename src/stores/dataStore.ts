@@ -10,7 +10,7 @@ import type {
 } from "@/lib/types";
 import type { IncomeClass } from "@/stores/inflationStore";
 import { createMemoAtom, createStoreAtom } from "@/stores/solidAtoms";
-import { CHUNK_EPOCH, CHUNK_YEARS, chunkRange, chunksForRange } from "@/utils/chunks";
+import { CHUNK_EPOCH, CHUNK_YEARS, chunkName, chunkRange, chunksForRange } from "@/utils/chunks";
 import {
 	FETCH_CACHE,
 	formatLocationName,
@@ -176,6 +176,11 @@ export async function initializeApp() {
 		});
 
 		await setCurrentArea(meta.areas.at(1)!.key);
+
+		// Warm-up: prefetch the latest chunk (class ALL) of the default area so
+		// the first Calculate is cache-warm. Manifest is already cached by
+		// setCurrentArea, so the chunk gate costs nothing. Fire-and-forget.
+		void fetchChunk(meta.areas.at(1)!.key, "ALL", chunkName(meta.year_range.official.max));
 
 		dataStore.assign({
 			areas: meta.areas,
