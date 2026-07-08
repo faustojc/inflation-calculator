@@ -1,4 +1,4 @@
-﻿import { Check, ChevronsUpDown, Loader2Icon } from "lucide-solid";
+﻿import { Check, ChevronsUpDown, LoaderCircle } from "lucide-solid";
 import { createMemo, createSignal, For, Show } from "solid-js";
 import { Button } from "@/components/Button";
 import {
@@ -179,9 +179,9 @@ const LocationControl = () => {
 					variant="outline"
 					role="combobox"
 					aria-expanded={openProvince()}
-					class="w-full justify-between font-medium truncate"
+					class="w-full justify-between"
 				>
-					{selectArea() || "Select Location..."}
+					<span class="text-sm font-medium truncate">{selectArea() || "Select Location..."}</span>
 					<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>
 			</PopoverTrigger>
@@ -220,7 +220,7 @@ const LocationControl = () => {
 													</div>
 
 													<Show when={loading().key === a.key && loading().isLoading}>
-														<Loader2Icon class="animate-spin" />
+														<LoaderCircle class="animate-spin" />
 													</Show>
 												</CommandItem>
 											)}
