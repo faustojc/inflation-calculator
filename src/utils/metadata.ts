@@ -1,4 +1,4 @@
-import type { AreaManifest, DataIndex, YearlyDataFile } from "@/lib/types";
+import type { AreaManifest, ChunkFile, DataIndex } from "@/lib/types";
 import type { Mode } from "@/stores/inflationStore";
 export const MONTHS = [
 	"January",
@@ -105,7 +105,8 @@ export const NEG_STROKE_COLOR = "#DC2626";
 // Global indexing for serialized json data
 export const GLOBAL_INDEX: DataIndex = {};
 export const INDEXED_KEYS = new Set<string>();
-export const FETCH_CACHE = new Map<string, Promise<YearlyDataFile | null>>();
+// Keyed by `${area}|${incomeClass}|${chunk}`
+export const FETCH_CACHE = new Map<string, Promise<ChunkFile | null>>();
 
 export function clearGlobalIndex() {
 	for (const key of Object.keys(GLOBAL_INDEX)) {

@@ -41,24 +41,19 @@ export interface AreaHierarchy {
 	national?: AreaDef;
 }
 
-// Structure of data/{key}/{year}.json
-export interface YearlyDataFile {
+// Structure of data/{key}/{class-dir}/{start}-{end}.json
+export interface ChunkFile {
+	v: 3;
 	area: string;
 	name: string;
-	year: number;
-	ids: {
-		r: number;
-		p?: number;
-		c?: number;
-	};
-	data: {
-		[dataset in DataType]:
-			| {
-					[incomeKey: string]: {
-						[code: string]: (number | null)[];
-					};
-			  }
-			| undefined;
+	ids: { r: number; p?: number; c?: number };
+	class: IncomeClass; // "ALL" | "B30"
+	range: [number, number]; // inclusive
+	years: {
+		[year: string]: {
+			official?: { [code: string]: (number | null)[] };
+			personal?: { [code: string]: (number | null)[] };
+		};
 	};
 }
 
@@ -70,8 +65,10 @@ export interface SearchOption {
 }
 
 export interface AreaManifest {
+	v: 3;
 	dates: Record<DataType, Record<IncomeClass, Record<number, number>>>;
 	weights: Record<IncomeClass, number[]>;
+	chunks: Record<IncomeClass, string[]>;
 }
 
 export interface PieEntry {
