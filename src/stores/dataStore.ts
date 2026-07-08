@@ -234,6 +234,10 @@ export async function setCurrentArea(areaKey: string) {
 	}
 }
 
+export function chunkUrl(area: string, incomeClass: IncomeClass, chunk: string): string {
+	return cpiUrl(`data/${area}/${incomeClass.toLowerCase()}/${chunk}.json`);
+}
+
 async function fetchChunk(
 	area: string,
 	incomeClass: IncomeClass,
@@ -250,7 +254,7 @@ async function fetchChunk(
 			return null;
 		}
 
-		const url = cpiUrl(`data/${area}/${incomeClass.toLowerCase()}/${chunk}.json`);
+		const url = chunkUrl(area, incomeClass, chunk);
 		promise = fetchWithCache(url, "cache-first")
 			.then((r) => {
 				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
@@ -272,6 +276,9 @@ async function fetchChunk(
 }
 
 function indexChunk(file: ChunkFile, incomeClass: IncomeClass) {
+	// Each class gets its own tree — never overwrite cells across classes.
+	const tree = GLOBAL_INDEX[incomeClass];
+
 	for (const [yearStr, types] of Object.entries(file.years)) {
 		const year = Number(yearStr);
 		const indexKey = `${file.area}|${year}|${incomeClass}`;
@@ -285,11 +292,11 @@ function indexChunk(file: ChunkFile, incomeClass: IncomeClass) {
 				for (let i = 0; i < values.length; i++) {
 					const val = values[i];
 					if (val !== null && val !== undefined) {
-						GLOBAL_INDEX[file.area] ??= {};
-						GLOBAL_INDEX[file.area]![year] ??= {};
-						GLOBAL_INDEX[file.area]![year]![dataType] ??= {};
-						GLOBAL_INDEX[file.area]![year]![dataType]![i + 1] ??= {};
-						GLOBAL_INDEX[file.area]![year]![dataType]![i + 1]![code] = val;
+						tree[file.area] ??= {};
+						tree[file.area]![year] ??= {};
+						tree[file.area]![year]![dataType] ??= {};
+						tree[file.area]![year]![dataType]![i + 1] ??= {};
+						tree[file.area]![year]![dataType]![i + 1]![code] = val;
 					}
 				}
 			}
@@ -339,7 +346,7 @@ export async function getCalculationData(
 		await Promise.all(pending);
 	}
 
-	return GLOBAL_INDEX;
+	return GLOBAL_INDEX[incomeClass];
 }
 
 export async function getWeights(

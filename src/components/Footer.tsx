@@ -5,7 +5,7 @@ import CalculationFooter from "@/components/CalculationFooter";
 import { toast } from "@/components/Toast";
 import { isOnline } from "@/stores/connectionStore";
 import {
-	cpiUrl,
+	chunkUrl,
 	dataStore,
 	getAreaHierarchy,
 	getAreaManifest,
@@ -23,6 +23,7 @@ import {
 	settings,
 	totalAllocation,
 } from "@/stores/inflationStore";
+import { chunksForRange } from "@/utils/chunks";
 import { calculatePersonalInflation } from "@/utils/inflationCompute";
 import { isCached } from "@/utils/storage";
 
@@ -102,15 +103,23 @@ const Footer = () => {
 			]);
 			let keysToFetch = Array.from(uniqueKeys).filter(Boolean) as string[];
 
-			// When offline, only include areas whose yearly data is cached
+			// When offline, only include areas whose chunk data is cached
 			if (!isOnline.get()) {
 				const cachedKeys = await Promise.all(
 					keysToFetch.map(async (key) => {
-						const [cur, prev] = await Promise.all([
-							isCached(cpiUrl(`data/${key}/${dates.endYear}.json`)),
-							isCached(cpiUrl(`data/${key}/${dates.startYear}.json`)),
-						]);
-						return cur && prev ? key : null;
+						// Manifest resolves from Cache Storage when offline; without it
+						// we cannot know which chunks exist, so treat the area as uncached.
+						const manifest = await getAreaManifest(key);
+						const available = new Set(manifest?.chunks?.[incomeClass] ?? []);
+						const needed = chunksForRange(dates.startYear - 1, dates.endYear).filter((c) =>
+							available.has(c),
+						);
+						if (needed.length === 0) return null;
+
+						const cached = await Promise.all(
+							needed.map((c) => isCached(chunkUrl(key, incomeClass, c))),
+						);
+						return cached.every(Boolean) ? key : null;
 					}),
 				);
 				keysToFetch = cachedKeys.filter(Boolean) as string[];

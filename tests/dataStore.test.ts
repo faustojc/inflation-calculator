@@ -61,6 +61,26 @@ const CHUNK_2018: ChunkFile = {
 	},
 };
 
+// Same chunk window as CHUNK_2018 but class B30 with distinct values —
+// switching classes must never serve one class's numbers to the other.
+const CHUNK_2018_B30: ChunkFile = {
+	v: 3,
+	area: "aklan",
+	name: "Aklan",
+	ids: { r: 6, p: 4 },
+	class: "B30",
+	range: [2018, 2025],
+	years: {
+		"2018": {
+			official: { "0": [91.1] },
+			personal: { "0": [92.2] },
+		},
+		"2019": {
+			official: { "0": [93.3, 93.4] },
+		},
+	},
+};
+
 function jsonResponse(body: unknown): Response {
 	return {
 		ok: true,
@@ -85,6 +105,8 @@ const fetchMock = vi.fn((url: string) => {
 	if (url.endsWith("data/aklan/manifest.json")) return Promise.resolve(jsonResponse(MANIFEST));
 	if (url.endsWith("data/aklan/all/2010-2017.json")) return Promise.resolve(jsonResponse(CHUNK_2010));
 	if (url.endsWith("data/aklan/all/2018-2025.json")) return Promise.resolve(jsonResponse(CHUNK_2018));
+	if (url.endsWith("data/aklan/b30/2018-2025.json"))
+		return Promise.resolve(jsonResponse(CHUNK_2018_B30));
 	return Promise.resolve(notFoundResponse());
 });
 
@@ -121,6 +143,23 @@ describe("getCalculationData (v3 chunks)", () => {
 
 	it("B30 request for 1994-2001 is gated by the manifest (0 chunk requests)", async () => {
 		await getCalculationData(["aklan"], "B30", 1994, 2001);
+		expect(chunkRequests()).toHaveLength(0);
+	});
+
+	it("switching income class ALL→B30→ALL always serves the selected class's data", async () => {
+		const all1 = await getCalculationData(["aklan"], "ALL", 2018, 2019);
+		expect(all1.aklan![2018]!.official![1]!["0"]).toBe(95.4);
+
+		const b30 = await getCalculationData(["aklan"], "B30", 2018, 2019);
+		expect(b30.aklan![2018]!.official![1]!["0"]).toBe(91.1);
+		expect(b30.aklan![2018]!.personal![1]!["0"]).toBe(92.2);
+		expect(b30.aklan![2019]!.official![2]!["0"]).toBe(93.4);
+
+		// Switch back: ALL values must be intact, and no re-fetch is needed.
+		fetchMock.mockClear();
+		const all2 = await getCalculationData(["aklan"], "ALL", 2018, 2019);
+		expect(all2.aklan![2018]!.official![1]!["0"]).toBe(95.4);
+		expect(all2.aklan![2018]!.personal![1]!["0"]).toBe(96.7);
 		expect(chunkRequests()).toHaveLength(0);
 	});
 
