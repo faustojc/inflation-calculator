@@ -1,18 +1,34 @@
-import Drawer from "@corvu/drawer";
-import { format } from "date-fns";
-import { ChartLine, FileText, Info, Users } from "lucide-solid";
-import { createSignal, For, lazy, Match, Show, Suspense, Switch } from "solid-js";
-import { Dynamic } from "solid-js/web";
 import { Button } from "@/components/Button";
 import AdditionalInfoTab from "@/components/tabs/AdditionalInfoTab";
 import AnalysisTab from "@/components/tabs/AnalysisTab";
 import { cn } from "@/lib/utils";
 import { calculationResult } from "@/stores/inflationStore";
+import Drawer from "@corvu/drawer";
+import { format } from "date-fns";
+import { ChartLine, FileText, Info, Users } from "lucide-solid";
+import { createSignal, For, lazy, Match, Show, Suspense, Switch } from "solid-js";
+import { Dynamic } from "solid-js/web";
 
 const ContributorTab = lazy(() => import("@/components/tabs/ContributorTab"));
 const InflationDataTab = lazy(() => import("@/components/tabs/InflationDataTab"));
 
 type ResultTab = "inflation-data" | "contributor" | "analysis" | "additional-info";
+
+function TabLoadingFallback() {
+	return (
+		<output class="flex flex-col gap-4 h-full" aria-label="Loading report">
+			<div class="skeleton h-8 w-1/2 rounded-lg" />
+			<div class="grid grid-cols-2 gap-3">
+				<div class="skeleton h-24 rounded-xl" />
+				<div class="skeleton h-24 rounded-xl" />
+			</div>
+			<div class="skeleton h-64 w-full rounded-xl" />
+			<div class="skeleton h-4 w-3/4 rounded" />
+			<div class="skeleton h-4 w-2/3 rounded" />
+			<span class="sr-only">Loading report…</span>
+		</output>
+	);
+}
 
 const TABS: { value: ResultTab; label: string; icon: typeof ChartLine }[] = [
 	{ value: "inflation-data", label: "Data", icon: ChartLine },
@@ -57,7 +73,7 @@ export function ResultsDrawer() {
 								<div class="flex flex-col flex-1 w-full min-h-0 overflow-hidden">
 									{/* Scrollable Content */}
 									<div class="flex-1 overflow-y-auto w-full px-4 pt-4 pb-8">
-										<Suspense fallback={<div class="rounded-lg bg-primary animate-pulse" />}>
+										<Suspense fallback={<TabLoadingFallback />}>
 											<Switch>
 												<Match when={activeTab() === "inflation-data"}>
 													<div class="mt-0 outline-none h-full">
@@ -106,7 +122,8 @@ export function ResultsDrawer() {
 														onClick={() => setActiveTab(tab.value)}
 														class={cn(
 															"inline-flex flex-col items-center justify-center gap-1.5 h-auto py-1.5 px-1 md:text-xs text-[12px] leading-tight font-medium rounded-lg border border-transparent whitespace-nowrap cursor-pointer text-foreground transition-[color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:pointer-events-none [&_svg]:shrink-0",
-															activeTab() === tab.value && "bg-primary text-primary-content shadow-sm",
+															activeTab() === tab.value &&
+																"bg-primary text-primary-content shadow-sm",
 														)}
 													>
 														<Dynamic

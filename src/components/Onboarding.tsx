@@ -1,22 +1,20 @@
-﻿import { ArrowRight, BookOpen, Calculator, ChartBar, CircleQuestionMark, TrendingUp } from "lucide-solid";
-import { onMount, Show } from "solid-js";
-import { Button } from "@/components/Button";
+﻿import { Button } from "@/components/Button";
 import { openOnboarding, startTour } from "@/stores/onboardingStore";
+import { ArrowRight, BookOpen, Calculator, ChartBar, CircleQuestionMark, TrendingUp } from "lucide-solid";
+import { onMount, Show } from "solid-js";
 
 export const Onboarding = () => {
 	// First-time visitors: auto-open the welcome modal
 	onMount(() => {
 		const hasSeenTour = localStorage.getItem("first_time_visit");
 		if (!hasSeenTour) {
-			setTimeout(() => openOnboarding.set(true), 800);
+			setTimeout(() => openOnboarding.set(true), 600);
 		}
 	});
 
 	const handleClose = () => {
 		openOnboarding.set(false);
 		localStorage.setItem("first_time_visit", "true");
-
-		setTimeout(() => void startTour(), 180);
 	};
 
 	return (
@@ -55,9 +53,9 @@ export const Onboarding = () => {
 								<h3 class="font-bold text-foreground mb-1">Consumer Price Index (CPI)</h3>
 								<p class="text-base text-justify text-foreground leading-relaxed">
 									The Philippine Statistics Authority (PSA) releases monthly CPI data, an indicator of the
-									average change in retail prices of a fixed basket of goods and services commonly purchased
-									by Filipino households. It shows how much, on average, prices have changed from a particular
-									base year (2018 = 100).
+									average change in retail prices of a fixed basket of goods and services commonly purchased by
+									Filipino households. It shows how much, on average, prices have changed from a particular base
+									year (2018 = 100).
 								</p>
 							</div>
 						</section>
@@ -74,11 +72,11 @@ export const Onboarding = () => {
 							<div>
 								<h3 class="font-bold text-foreground mb-1">Inflation Rate</h3>
 								<p class="text-base text-justify text-foreground leading-relaxed">
-									The inflation rate is the year-on-year percent change in the CPI. It measures how fast
-									overall prices have increased or decreased compared to the previous year. Because the CPI
-									reflects the &quot;typical&quot; household, it may not match your personal spending pattern,
-									especially if you spend more on a particular set of goods or services such as food, rent,
-									transport, tuition, or utilities.
+									The inflation rate is the year-on-year percent change in the CPI. It measures how fast overall
+									prices have increased or decreased compared to the previous year. Because the CPI reflects the
+									&quot;typical&quot; household, it may not match your personal spending pattern, especially if
+									you spend more on a particular set of goods or services such as food, rent, transport,
+									tuition, or utilities.
 								</p>
 							</div>
 						</section>
@@ -147,24 +145,24 @@ export const Onboarding = () => {
 											inflation.
 											<br /> <br />
 											If “All Income Households” is selected, the personal inflation rate will be computed
-											using the average prices of commodities in the market basket of all income households of
-											the selected province/city. The personal inflation rate will also be compared with the
-											official CPI and inflation rate for All Income Households.
+											using the average prices of commodities in the market basket of all income households
+											of the selected province/city. The personal inflation rate will also be compared with
+											the official CPI and inflation rate for All Income Households.
 											<br /> <br />
 											If Bottom 30% Income Households is selected, the personal inflation rate will be
-											computed using the average prices of commodities in the market basket of the bottom 30%
-											income households of the selected province/city. Each province/city has its own income
-											bracket for the bottom 30% income households. The income brackets are based on the
-											average annual per capita income by decile from the 2018 Family Income and Expenditure
-											Survey.
+											computed using the average prices of commodities in the market basket of the bottom
+											30% income households of the selected province/city. Each province/city has its own
+											income bracket for the bottom 30% income households. The income brackets are based on
+											the average annual per capita income by decile from the 2018 Family Income and
+											Expenditure Survey.
 										</p>
 									</li>
 									<li>
 										<strong>Select the Month and Year.</strong>
 										<p class="text-foreground">
 											This is the reference period you prefer the personal inflation rate to be computed. By
-											default, the month and year selected refer to the latest reference period with available
-											official data on CPI and inflation rate.
+											default, the month and year selected refer to the latest reference period with
+											available official data on CPI and inflation rate.
 										</p>
 									</li>
 									<li>
@@ -188,14 +186,13 @@ export const Onboarding = () => {
 									<li>
 										<strong>Select the Commodity Group.</strong>
 										<p class="text-foreground">
-											If “General” is selected, inputs will be asked for the 13 major commodity groups
-											only.
+											If “General” is selected, inputs will be asked for the 13 major commodity groups only.
 											<br /> <br />
 											If “Specific” is selected, inputs will be asked for specific commodity groups.
 											<br /> <br />
 											The commodity groups are based on the 2020 Philippine Classification of Individual
-											Consumption According to Purpose (PCOICOP). Only the Group-level (3-digit PCOICOP Codes)
-											are used in this application.
+											Consumption According to Purpose (PCOICOP). Only the Group-level (3-digit PCOICOP
+											Codes) are used in this application.
 										</p>
 									</li>
 									<li class="text-foreground">
@@ -212,7 +209,10 @@ export const Onboarding = () => {
 						<Button
 							size="lg"
 							class="w-full bg-psa-gradient hover:opacity-90 text-white font-bold py-5 rounded-xl shadow-sm cursor-pointer"
-							onClick={handleClose}
+							onClick={() => {
+								openOnboarding.set(false);
+								setTimeout(() => startTour(), 180);
+							}}
 						>
 							Take the Tour <ArrowRight class="inline" />
 						</Button>

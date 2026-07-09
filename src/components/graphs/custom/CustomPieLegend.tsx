@@ -28,8 +28,9 @@ const CustomPieLegend = (props: { props: readonly LegendItem[]; patternPrefix?: 
 
 					return (
 						<li
-							class="flex items-center gap-2 py-1 transition-opacity duration-200 cursor-pointer"
-							style={{ opacity: isAnyInThisChartSelected() && !isActive() ? 0.3 : 1 }}
+							class={`flex items-center gap-2 py-1 transition-opacity duration-200 cursor-pointer ${
+								isAnyInThisChartSelected() && !isActive() ? "opacity-30" : "opacity-100"
+							}`.replace(/\s+/g, " ")}
 							onClick={() => setActiveSlice(entry.code, entry.value)}
 							onKeyDown={() => setActiveSlice(entry.code, entry.value)}
 							onMouseOver={() => setActiveSlice(entry.code, entry.value)}
@@ -39,10 +40,9 @@ const CustomPieLegend = (props: { props: readonly LegendItem[]; patternPrefix?: 
 							<span class={`text-xs text-muted-foreground w-5 shrink-0 ${isActive() ? "font-bold" : ""}`}>
 								{entry.code}
 							</span>
-							<span
-								class="inline-block w-3 h-3 rounded-full shrink-0"
-								style={{ "background-color": entry.color }}
-							/>
+							<svg class="w-3 h-3 shrink-0" viewBox="0 0 12 12" aria-hidden="true">
+								<circle cx="6" cy="6" r="6" fill={entry.color} />
+							</svg>
 							<span class={`text-wrap ${isActive() ? "font-bold" : ""}`}>
 								{entry.name}
 								<strong class={`ml-1 text-nowrap ${entry.value < 0 ? "text-destructive" : "text-primary"}`}>

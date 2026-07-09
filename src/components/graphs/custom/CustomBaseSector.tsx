@@ -15,7 +15,7 @@ export default function CustomBaseSector(props: Props) {
 	const fullId = () => chartPrefix() + sliceId(props.code, props.originalShare);
 
 	const isSelected = () => activeSlice.get() === fullId();
-	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
+	const isChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
 
 	return (
 		<path
@@ -24,11 +24,7 @@ export default function CustomBaseSector(props: Props) {
 			onClick={() => activeSlice.set(fullId())}
 			onMouseEnter={() => activeSlice.set(fullId())}
 			onMouseLeave={() => activeSlice.set(null)}
-			style={{
-				"fill-opacity": isAnyInThisChartSelected() && !isSelected() ? 0.1 : 1,
-				transition: "fill-opacity 0.2s ease-in-out",
-				cursor: "pointer",
-			}}
+			class={`cursor-pointer ${isChartSelected() && !isSelected() ? "fill-opacity-10" : "fill-opacity-100"} transition-[fill-opacity] duration-200 ease-in-out`}
 		/>
 	);
 }

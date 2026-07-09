@@ -10,7 +10,7 @@ const HighlightedText = (props: { text: string; ranges: [number, number][] }) =>
 				acc.push(<span>{props.text.slice(lastIdx, start)}</span>);
 			}
 			acc.push(
-				<mark class="bg-primary/20 text-blue-600 dark:text-blue-400 font-semibold rounded-sm px-0.5">
+				<mark class="bg-primary/20 text-blue-900 dark:text-blue-400 font-bold rounded-sm px-0.5">
 					{props.text.slice(start, end)}
 				</mark>,
 			);

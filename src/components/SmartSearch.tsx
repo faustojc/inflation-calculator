@@ -122,7 +122,7 @@ export function SmartSearch() {
 			}`}
 			id="smart-search-container"
 		>
-			<Popover open={open()} onOpenChange={setOpen}>
+			<Popover open={open()} onOpenChange={setOpen} modal={true}>
 				<PopoverTrigger asChild>
 					<button
 						id="smart-search"

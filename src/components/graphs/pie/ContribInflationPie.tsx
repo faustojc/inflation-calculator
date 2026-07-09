@@ -1,9 +1,9 @@
-import { createMemo, createUniqueId, For, Show } from "solid-js";
 import CustomPieLegend, { type LegendItem } from "@/components/graphs/custom/CustomPieLegend";
 import { OverlayPieChart } from "@/components/graphs/custom/OverlayPieChart";
 import type { PieEntry } from "@/lib/types";
 import type { CommodityContribution, ContributionFactor } from "@/utils/inflationCompute";
 import { getColor, NEG_STRIPE_COLOR, NEG_STROKE_COLOR } from "@/utils/metadata";
+import { createMemo, createUniqueId, For, Show } from "solid-js";
 
 interface Props {
 	personal: ContributionFactor;
@@ -78,7 +78,7 @@ function buildLegend(contributors: readonly CommodityContribution[]): LegendItem
 }
 
 export default function ContribInflationPie(props: Readonly<Props>) {
-	const instanceId = createUniqueId().replace(/:/g, "");
+	const instanceId = createUniqueId().replaceAll(":", "");
 
 	// `official` changes when the user picks a different comparison — the keyed
 	// <Show> below recreates the whole subtree so setup-time pie math reruns.
@@ -131,9 +131,9 @@ function PieContent(props: Readonly<Props & { instanceId: string }>) {
 							{props.personal.factorName}
 						</h4>
 						<h4 class="text-base lg:text-xl text-center text-primary/80 font-semibold">
-							Inflation Rate:
-							<span class="text-base lg:text-xl text-blue-700 font-bold ml-1">
-								{props.personal.inflationRate.toFixed(1)}%
+							Inflation Rate:{" "}
+							<span class="text-base lg:text-xl text-blue-700 font-bold">
+								{props.personal.inflationRate.toFixed(1)}{" "}
 							</span>
 						</h4>
 					</div>
@@ -155,12 +155,10 @@ function PieContent(props: Readonly<Props & { instanceId: string }>) {
 				{/* Official Pie */}
 				<div class="col-span-1 flex flex-col gap-2">
 					<div class="flex gap-3 items-center justify-center">
-						<h4 class="text-base lg:text-xl text-center font-semibold text-primary/80">
-							{props.official.areaName}
-						</h4>
+						<h4 class="text-base lg:text-xl text-center font-semibold text-primary/80">{props.official.areaName}</h4>
 						<h4 class="text-base lg:text-xl text-center text-primary/80 font-semibold">
-							Inflation Rate:
-							<span class="text-base lg:text-xl text-blue-700 font-bold ml-1">
+							Inflation Rate:{" "}
+							<span class="text-base lg:text-xl text-blue-700 font-bold ">
 								{props.official.inflationRate.toFixed(1)}%
 							</span>
 						</h4>
@@ -184,9 +182,7 @@ function PieContent(props: Readonly<Props & { instanceId: string }>) {
 			{/* Deflation Footnotes */}
 			<Show when={deflationFootnotes().length > 0}>
 				<div class="px-4 pb-2 border-t border-border/50 pt-4">
-					<p class="text-base font-semibold text-muted-foreground mb-2 uppercase">
-						Deflationary Contributors
-					</p>
+					<p class="text-base font-semibold text-muted-foreground mb-2 uppercase">Deflationary Contributors</p>
 					<ul class="space-y-1.5">
 						<For each={deflationFootnotes()}>
 							{(note) => (

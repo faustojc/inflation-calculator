@@ -1,6 +1,6 @@
-import { Show } from "solid-js";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { NEG_STROKE_COLOR } from "@/utils/metadata";
+import { Show } from "solid-js";
 
 interface Props {
 	path: string;
@@ -16,12 +16,12 @@ export default function CustomOverlaySector(props: Props) {
 	const chartPrefix = () => props.patternPrefix.charAt(0);
 	const fullId = () => chartPrefix() + sliceId(props.code, props.originalShare);
 	const isSelected = () => activeSlice.get() === fullId();
-	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
+	const isChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
 
 	return (
 		<Show
 			when={props.type !== "filler"}
-			fallback={<path d={props.path} fill="transparent" stroke="none" style={{ "pointer-events": "none" }} />}
+			fallback={<path d={props.path} fill="transparent" stroke="none" class="pointer-events-none" />}
 		>
 			<path
 				d={props.path}
@@ -32,14 +32,9 @@ export default function CustomOverlaySector(props: Props) {
 				onClick={() => activeSlice.set(fullId())}
 				onMouseEnter={() => activeSlice.set(fullId())}
 				onMouseLeave={() => activeSlice.set(null)}
-				style={{
-					opacity: isAnyInThisChartSelected() && !isSelected() ? 0.1 : 1,
-					transition: "opacity 0.2s ease-in-out",
-					cursor: "pointer",
-					// overlayFlareIn: red glow that fades out on entry (backwards = revert to inline opacity after done)
-					// marchDashes: continuous marching-ants stroke, starts after flare-in settles
-					animation: `overlayFlareIn 0.6s ease-out ${props.negIdx * 0.1}s backwards, marchDashes 0.8s linear ${props.negIdx * 0.1 + 0.6}s infinite`,
-				}}
+				class={`overlay-sector cursor-pointer transition-opacity duration-200 ease-in-out ${
+					isChartSelected() && !isSelected() ? "opacity-10" : "opacity-100"
+				}`.replace(/\s+/g, " ")}
 			/>
 		</Show>
 	);

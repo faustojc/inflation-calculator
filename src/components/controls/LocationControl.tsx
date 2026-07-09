@@ -1,6 +1,4 @@
-﻿import { Check, ChevronsUpDown, LoaderCircle } from "lucide-solid";
-import { createMemo, createSignal, For, Show } from "solid-js";
-import { Button } from "@/components/Button";
+﻿import { Button } from "@/components/Button";
 import {
 	Command,
 	CommandEmpty,
@@ -17,6 +15,8 @@ import { isOnline } from "@/stores/connectionStore";
 import { cpiUrl, dataStore, getAreaManifest, setCurrentArea } from "@/stores/dataStore";
 import { activeTab, settings } from "@/stores/inflationStore";
 import { isCached } from "@/utils/storage";
+import { Check, ChevronsUpDown, LoaderCircle } from "lucide-solid";
+import { createMemo, createSignal, For, Show } from "solid-js";
 
 interface GroupedArea {
 	key: string;
@@ -32,8 +32,10 @@ function groupAreas(areas: ReturnType<typeof dataStore.areas.get>) {
 		grouped[area.regionId] ??= [];
 
 		if (area.key === "ncr" && !area.provinceId && !area.cityId) {
-			grouped[area.regionId]?.push({ key: area.key, regionName: area.name, areaName: area.name });
-			grouped[area.regionId]?.push({ key: area.key, areaName: area.name });
+			grouped[area.regionId]?.push(
+				{ key: area.key, regionName: area.name, areaName: area.name },
+				{ key: area.key, areaName: area.name },
+			);
 			continue;
 		}
 
@@ -175,12 +177,7 @@ const LocationControl = () => {
 			modal={true}
 		>
 			<PopoverTrigger asChild>
-				<Button
-					variant="outline"
-					role="combobox"
-					aria-expanded={openProvince()}
-					class="w-full justify-between"
-				>
+				<Button variant="outline" role="combobox" aria-expanded={openProvince()} class="w-full justify-between">
 					<span class="text-sm font-medium truncate">{selectArea() || "Select Location..."}</span>
 					<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>

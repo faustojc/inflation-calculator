@@ -167,7 +167,7 @@ const DateControl = () => {
 			</div>
 
 			<div class="w-full">
-				<Popover open={openYear()} onOpenChange={setOpenYear}>
+				<Popover open={openYear()} onOpenChange={setOpenYear} modal={true}>
 					<PopoverTrigger asChild>
 						<Button
 							variant="outline"
