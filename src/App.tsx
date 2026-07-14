@@ -1,6 +1,4 @@
-﻿import { Loader } from "lucide-solid";
-import { createEffect, createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
-import ClearButton from "@/components/ClearButton";
+﻿import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
@@ -21,13 +19,11 @@ import {
 	settings,
 } from "@/stores/inflationStore";
 import { openOnboarding } from "@/stores/onboardingStore";
+import { Loader, RefreshCw, TriangleAlert } from "lucide-solid";
+import { createEffect, createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
 
-const LazyOnboarding = lazy(() =>
-	import("@/components/Onboarding").then((module) => ({ default: module.Onboarding })),
-);
-const LazyResultsDrawer = lazy(() =>
-	import("@/components/ResultsDrawer").then((module) => ({ default: module.ResultsDrawer })),
-);
+const LazyOnboarding = lazy(() => import("@/components/Onboarding").then((module) => ({ default: module.Onboarding })));
+const LazyResultsDrawer = lazy(() => import("@/components/ResultsDrawer").then((module) => ({ default: module.ResultsDrawer })));
 
 export default function App() {
 	const isMobile = useIsMobile();
@@ -93,7 +89,7 @@ export default function App() {
 			if (e.key !== "Tab") return;
 
 			const container = document.getElementById("commodity-inputs");
-			if (!container || !container.contains(document.activeElement)) return;
+			if (!container?.contains(document.activeElement)) return;
 
 			const inputs = Array.from(container.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
 				(el) => !el.disabled && el.offsetParent !== null,
@@ -122,12 +118,30 @@ export default function App() {
 		<Show
 			when={!error()}
 			fallback={
-				<div class="min-h-screen flex flex-col items-center justify-center p-4 bg-page-pattern">
-					<div
-						id="none"
-						class="flex flex-col items-center gap-4 p-8 bg-card rounded-2xl shadow-lg border border-border text-sm text-destructive"
-					>
-						{error()}
+				<div class="min-h-screen flex items-center justify-center bg-page-pattern px-4 py-12 font-sans">
+					<div id="none" class="glass-card w-full max-w-lg p-6 sm:p-8">
+						<div class="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-error/10 text-error">
+							<TriangleAlert class="size-7" />
+						</div>
+						<div class="space-y-2 text-center">
+							<h1 class="text-xl font-bold text-foreground">Unable to Load Calculator</h1>
+							<p class="text-sm text-foreground">
+								The app could not finish loading the required inflation data. Refresh the page to try again.
+							</p>
+						</div>
+						<div class="mt-6 rounded-lg border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+							{error()}
+						</div>
+						<div class="mt-6 flex justify-center">
+							<button
+								type="button"
+								class="btn btn-primary inline-flex items-center"
+								onClick={() => window.location.reload()}
+							>
+								<RefreshCw class="size-4" />
+								Reload Page
+							</button>
+						</div>
 					</div>
 				</div>
 			}
@@ -152,9 +166,7 @@ export default function App() {
 					<Header />
 
 					<main class="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
-						<h1 class="text-center text-xl md:text-2xl lg:text-3xl font-bold text-foreground text-balance">
-							PERSONAL INFLATION CALCULATOR
-						</h1>
+						<h1 class="text-center text-xl lg:text-3xl font-bold text-foreground">PERSONAL INFLATION CALCULATOR</h1>
 
 						<SettingsPanel />
 

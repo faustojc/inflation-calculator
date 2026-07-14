@@ -11,13 +11,7 @@ import type {
 import type { IncomeClass } from "@/stores/inflationStore";
 import { createMemoAtom, createStoreAtom } from "@/stores/solidAtoms";
 import { CHUNK_EPOCH, CHUNK_YEARS, chunkName, chunkRange, chunksForRange } from "@/utils/chunks";
-import {
-	FETCH_CACHE,
-	formatLocationName,
-	GLOBAL_INDEX,
-	INDEXED_KEYS,
-	MANIFEST_CACHE,
-} from "@/utils/metadata";
+import { FETCH_CACHE, formatLocationName, GLOBAL_INDEX, INDEXED_KEYS, MANIFEST_CACHE } from "@/utils/metadata";
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 
 export function cpiUrl(path: string): string {
@@ -75,7 +69,7 @@ export async function initializeApp() {
 
 		let [metaRes, commRes] = await Promise.all([
 			fetchWithCache(cpiUrl("metadata.json"), "network-first"),
-			fetchWithCache(cpiUrl("commodities.json"), "network-first"),
+			fetchWithCache(cpiUrl("commodities.json"), "cache-first"), // cache commodity cuz it won't change
 		]);
 
 		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
@@ -86,7 +80,7 @@ export async function initializeApp() {
 		if (wasInvalidated) {
 			[metaRes, commRes] = await Promise.all([
 				fetchWithCache(cpiUrl("metadata.json"), "network-first"),
-				fetchWithCache(cpiUrl("commodities.json"), "network-first"),
+				fetchWithCache(cpiUrl("commodities.json"), "cache-first"),
 			]);
 
 			if (!metaRes.ok || !commRes.ok) throw new Error("Failed to reload data after cache invalidation");
@@ -260,24 +254,36 @@ async function fetchChunk(area: string, incomeClass: IncomeClass, chunk: string)
 function indexChunk(file: ChunkFile, incomeClass: IncomeClass) {
 	const tree = GLOBAL_INDEX[incomeClass];
 
+	tree[file.area] ??= {};
+	const areaIndex = tree[file.area]!;
+
 	for (const [yearStr, types] of Object.entries(file.years)) {
 		const year = Number(yearStr);
 		const indexKey = `${file.area}|${year}|${incomeClass}`;
+
 		if (INDEXED_KEYS.has(indexKey)) continue;
+
+		areaIndex[year] ??= {};
+		const yearIndex = areaIndex[year]!;
 
 		for (const dataType of ["official", "personal"] as const) {
 			const block = types[dataType];
 			if (!block) continue;
 
+			yearIndex[dataType] ??= {};
+			const months = yearIndex[dataType]!;
+
 			for (const [code, values] of Object.entries(block)) {
-				for (let i = 0; i < values.length; i++) {
+				for (let i = 0; i < 12; i++) {
 					const val = values[i];
-					if (val !== null && val !== undefined) {
-						tree[file.area] ??= {};
-						tree[file.area]![year] ??= {};
-						tree[file.area]![year]![dataType] ??= {};
-						tree[file.area]![year]![dataType]![i + 1] ??= {};
-						tree[file.area]![year]![dataType]![i + 1]![code] = val;
+
+					if (val != null) {
+						let month = months[i + 1];
+						if (!month) {
+							month = {};
+							months[i + 1] = month;
+						}
+						month[code] = val;
 					}
 				}
 			}
@@ -328,10 +334,7 @@ export async function getCalculationData(
 	return GLOBAL_INDEX[incomeClass];
 }
 
-export async function getWeights(
-	areaKeys: string[],
-	incomeClass: IncomeClass,
-): Promise<Record<string, number[]>> {
+export async function getWeights(areaKeys: string[], incomeClass: IncomeClass): Promise<Record<string, number[]>> {
 	const results: Record<string, number[]> = {};
 	const pending: Promise<void>[] = [];
 
@@ -376,10 +379,7 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 			province = selectedArea;
 		} else {
 			province = areas.find(
-				(a) =>
-					a.regionId === selectedArea.regionId &&
-					a.provinceId === selectedArea.provinceId &&
-					a.cityId === undefined,
+				(a) => a.regionId === selectedArea.regionId && a.provinceId === selectedArea.provinceId && a.cityId === undefined,
 			);
 		}
 	}

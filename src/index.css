@@ -4,7 +4,7 @@
 	themes: false;
 	include:
 		properties, rootcolor, scrollbar, svg, rootscrolllock, rootscrollgutter, alert, badge, button, input, modal, progress,
-		select, table, toast;
+		select, table, toast, tooltip;
 }
 
 @plugin "daisyui/theme" {
@@ -241,12 +241,6 @@ ol > li::marker {
 .dark .bg-page-pattern {
 	background-color: hsl(220, 30%, 6%);
 	background-image: radial-gradient(circle, hsl(220 20% 14% / 0.4) 1px, transparent 1px);
-}
-
-.tooltip-content {
-	width: calc(var(--tooltip-trigger-width) + 50px);
-	max-height: var(--tooltip-content-available-height);
-	transform-origin: var(--tooltip-content-transform-origin);
 }
 
 /* ── Driver.js Onboarding Tour Overrides ── */
