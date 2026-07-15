@@ -49,13 +49,6 @@ export default defineConfig({
 			output: {
 				chunkFileNames: (chunkInfo) => (chunkInfo.isDynamicEntry ? "assets/[hash].js" : "assets/[name]-[hash].js"),
 				manualChunks: (id) => {
-					if (id.includes("node_modules/solid-js")) {
-						return "vendor-solid";
-					}
-					if (id.includes("node_modules/lucide-solid")) {
-						return "vendor-icons";
-					}
-
 					if (id.includes("node_modules/date-fns")) {
 						return "vendor-utils";
 					}
@@ -66,10 +59,6 @@ export default defineConfig({
 
 					if (id.includes("node_modules/d3-shape") || id.includes("node_modules/d3-path")) {
 						return "vendor-d3";
-					}
-
-					if (id.includes("src/stores")) {
-						return "vendor-states";
 					}
 				},
 			},
