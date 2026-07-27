@@ -21,17 +21,13 @@ export { theme };
 function applyTheme(t: Theme) {
 	const root = document.documentElement;
 	const value = isTheme(t) ? t : FALLBACK_THEME;
-	const resolved =
-		value === "system"
-			? window.matchMedia("(prefers-color-scheme: dark)").matches
-				? "dark"
-				: "light"
-			: value;
+	const resolved = value === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : value;
 
 	root.classList.remove("dark", "light");
 	root.classList.add(resolved);
 	root.setAttribute("data-theme", resolved === "dark" ? "psa-dark" : "psa-light");
 
+	setThemeSignal(resolved);
 	localStorage.setItem(STORAGE_KEY, value);
 }
 

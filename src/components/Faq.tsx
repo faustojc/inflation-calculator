@@ -1,7 +1,7 @@
-﻿import { ChevronDown } from "lucide-solid";
-import { createSignal, For, type JSX, Show } from "solid-js";
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { $openFaq } from "@/stores/faqStore";
+import { ChevronDown, X } from "lucide-solid";
+import { createSignal, For, type JSX, Show } from "solid-js";
 
 type FaqItem = {
 	question: string;
@@ -14,9 +14,9 @@ const faqs: FaqItem[] = [
 		answer: (
 			<p>
 				The Personal Inflation Calculator is an application that would allow an individual to{" "}
-				<strong>calculate inflation rate based on their personal expenditure patterns</strong>. This
-				application intends to answer the common observation of the public that the inflation rate released by
-				the Philippine Statistics Authority does not reflect the inflation felt by the consumers.
+				<strong>calculate inflation rate based on their personal expenditure patterns</strong>. This application intends
+				to answer the common observation of the public that the inflation rate released by the Philippine Statistics
+				Authority does not reflect the inflation felt by the consumers.
 			</p>
 		),
 	},
@@ -27,21 +27,20 @@ const faqs: FaqItem[] = [
 			<>
 				<p>
 					The inflation rate released by the PSA is based on the{" "}
-					<strong>average consumption pattern and commodity preferences of all Filipino households</strong> in
-					a given reference period, which is <strong>2018 in the current CPI data</strong>. Since the data
-					refers to the average of all households, this may not reflect the specific individual’s expenditure
-					and pattern. The average Filipino households is composed of a father, a mother, and three kids,
-					meaning the majority of families followed this composition.
+					<strong>average consumption pattern and commodity preferences of all Filipino households</strong> in a given
+					reference period, which is <strong>2018 in the current CPI data</strong>. Since the data refers to the average
+					of all households, this may not reflect the specific individual’s expenditure and pattern. The average
+					Filipino households is composed of a father, a mother, and three kids, meaning the majority of families
+					followed this composition.
 				</p>
 				<p>
-					The expenditure pattern used by the CPI mostly reflects this household composition. However, the CPI
-					also takes into account other family structures such as one-member households, a couple without
-					children, a household composed of multiple non-married members, and others.
+					The expenditure pattern used by the CPI mostly reflects this household composition. However, the CPI also
+					takes into account other family structures such as one-member households, a couple without children, a
+					household composed of multiple non-married members, and others.
 				</p>
 				<p>
-					A specific individual or family’s expenditure pattern may not resemble the average expenditure
-					pattern, hence, the{" "}
-					<strong>difference between the official inflation rate and the perceived inflation rate</strong>.
+					A specific individual or family’s expenditure pattern may not resemble the average expenditure pattern, hence,
+					the <strong>difference between the official inflation rate and the perceived inflation rate</strong>.
 				</p>
 			</>
 		),
@@ -52,16 +51,15 @@ const faqs: FaqItem[] = [
 			<>
 				<p>
 					The CPI and inflation rate is a measure of the{" "}
-					<strong>year-on-year change in the average prices of commonly purchased goods and services</strong>{" "}
-					by the Filipino households. These goods and services are selected using the result of the Commodity
-					and Outlet Survey (COS) of the Survey of Key Informants (SKI). These surveys aim to know the
-					specific goods and services that are commonly consumed by the Filipino households in a reference
-					year. These sets goods and services are compiled by province and forms the provincial CPI market
-					basket.
+					<strong>year-on-year change in the average prices of commonly purchased goods and services</strong> by the
+					Filipino households. These goods and services are selected using the result of the Commodity and Outlet Survey
+					(COS) of the Survey of Key Informants (SKI). These surveys aim to know the specific goods and services that
+					are commonly consumed by the Filipino households in a reference year. These sets goods and services are
+					compiled by province and forms the provincial CPI market basket.
 				</p>
 				<p>
-					Prices of these goods and services are collected on a regular basis by the PSA regular staff and
-					hired price collectors. These prices are then used to compute for the monthly inflation rates.
+					Prices of these goods and services are collected on a regular basis by the PSA regular staff and hired price
+					collectors. These prices are then used to compute for the monthly inflation rates.
 				</p>
 			</>
 		),
@@ -70,12 +68,12 @@ const faqs: FaqItem[] = [
 		question: "How would the personal inflation rate be computed?",
 		answer: (
 			<p>
-				The personal inflation rate application will require the user to supply their regular expenditure
-				pattern by providing the <strong>average monthly or annual expenses for each commodity group</strong>{" "}
-				used in computing the CPI. The application will also ask the user the{" "}
-				<strong>location where they usually buy or consume the goods and services</strong>. The application
-				will then use the collected prices of products and services in the location selected by the user
-				together with the provided expenditure pattern to compute the personal inflation rate of the user.
+				The personal inflation rate application will require the user to supply their regular expenditure pattern by
+				providing the <strong>average monthly or annual expenses for each commodity group</strong> used in computing the
+				CPI. The application will also ask the user the{" "}
+				<strong>location where they usually buy or consume the goods and services</strong>. The application will then use
+				the collected prices of products and services in the location selected by the user together with the provided
+				expenditure pattern to compute the personal inflation rate of the user.
 			</p>
 		),
 	},
@@ -119,12 +117,9 @@ const faqs: FaqItem[] = [
 		answer: (
 			<p>
 				<strong>No</strong>, the computed personal inflation rate by the application is{" "}
-				<strong>
-					intended only to provide the user information on the inflation rate that the user may feel
-				</strong>{" "}
-				in relation to their specific expenditure. The additional information on the contributors to inflation
-				should also inform the user of the commodity groups that drives their inflation to assist them in
-				managing their expenses.
+				<strong>intended only to provide the user information on the inflation rate that the user may feel</strong> in
+				relation to their specific expenditure. The additional information on the contributors to inflation should also
+				inform the user of the commodity groups that drives their inflation to assist them in managing their expenses.
 			</p>
 		),
 	},
@@ -132,11 +127,10 @@ const faqs: FaqItem[] = [
 		question: "Does the personal inflation calculator application collect personal information?",
 		answer: (
 			<p>
-				<strong>No</strong>, the application <strong>does not collect and save personal information</strong>{" "}
-				such as name, age, monthly income, address, or job. It will only collect information on the location
-				where the user accessed the application. This is to monitor the awareness of the general public on the
-				availability of the application. This data will provide the PSA information on the concentration of
-				individuals who access the application.
+				<strong>No</strong>, the application <strong>does not collect and save personal information</strong> such as name,
+				age, monthly income, address, or job. It will only collect information on the location where the user accessed the
+				application. This is to monitor the awareness of the general public on the availability of the application. This
+				data will provide the PSA information on the concentration of individuals who access the application.
 			</p>
 		),
 	},
@@ -173,7 +167,7 @@ const Faq = () => {
 					aria-label="Close FAQ"
 					onClick={() => $openFaq.set(false)}
 				>
-					x
+					<X class="w-4 h-4" />
 				</button>
 				<div class="border-b px-6 pt-6 pb-4">
 					<div class="flex items-center gap-2">

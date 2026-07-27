@@ -1,6 +1,4 @@
-﻿import { CircleAlert } from "lucide-solid";
-import { createEffect, Show } from "solid-js";
-import type { CommodityDef } from "@/lib/types";
+﻿import type { CommodityDef } from "@/lib/types";
 import {
 	generalExpenses,
 	highlightState,
@@ -10,9 +8,14 @@ import {
 	updateExpenseValue,
 } from "@/stores/inflationStore";
 import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric } from "@/utils/metadata";
+import { CircleAlert } from "lucide-solid";
+import { createEffect, createSignal, lazy, Show, Suspense } from "solid-js";
+
+const ImagePreviewModal = lazy(() => import("@/components/ImagePreviewModal"));
 
 const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 	const m = () => mode.get();
+	const [previewOpen, setPreviewOpen] = createSignal(false);
 
 	const value = () => getLimitValue(m(), generalExpenses[props.cat.code]?.get()?.value || 0);
 	const isMatch = () => highlightState.code.get() === props.cat.code;
@@ -35,8 +38,7 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 		}
 	});
 
-	const commitValue = (nextValue: number) =>
-		updateExpenseValue(props.cat.code, props.cat.name, nextValue, "general");
+	const commitValue = (nextValue: number) => updateExpenseValue(props.cat.code, props.cat.name, nextValue, "general");
 
 	const inputLimit = () => (m() === "percent" ? 100 : 500000);
 	const displayValue = () => (value() > 0 ? String(value()) : "");
@@ -98,15 +100,24 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 			`.replace(/\s+/g, " ")}
 		>
 			<div class="col-span-2 min-w-0">
-				<div class="flex items-center gap-2 mb-0.5"> 
-					<span
-						class={`font-mono text-[0.65rem] px-1.5 py-0.5 rounded font-semibold shrink-0 ${missingStatus() ? "bg-error text-error-content" : "bg-primary text-white"}`}
+				<div class="flex items-center gap-2 mb-0.5">
+					<button
+						type="button"
+						class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+						aria-label={`View full image for ${props.cat.name}`}
+						onClick={() => setPreviewOpen(true)}
 					>
-						{props.cat.code}
-					</span>
-					<h3 class={`font-semibold text-base text-wrap ${isMatch() ? "font-extrabold" : ""}`}>
-						{props.cat.name}
-					</h3>
+						<img
+							src={`major/${props.cat.code}.jpg`}
+							alt={props.cat.name}
+							width={48}
+							height={48}
+							class="w-12 h-12 block object-cover"
+							loading="lazy"
+							decoding="async"
+						/>
+					</button>
+					<h3 class={`font-semibold text-base text-wrap ${isMatch() ? "font-extrabold" : ""}`}>{props.cat.name}</h3>
 					<Show when={isMatch()}>
 						<p class="text-xs font-bold text-primary text-wrap animate-in fade-in">
 							← {highlightLabel() || "It"} belongs here
@@ -163,6 +174,18 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 					<CircleAlert class="w-3.5 h-3.5" />
 					<span>No official CPI data</span>
 				</div>
+			</Show>
+
+			<Show when={previewOpen()}>
+				<Suspense fallback={null}>
+					<ImagePreviewModal
+						src={`major/${props.cat.code}.jpg`}
+						alt={props.cat.name}
+						title={props.cat.name}
+						caption={MAJOR_CATEGORY_DESCRIPTIONS[props.cat.code] || "General expenses"}
+						onClose={() => setPreviewOpen(false)}
+					/>
+				</Suspense>
 			</Show>
 		</div>
 	);

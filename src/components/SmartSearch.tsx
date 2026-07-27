@@ -1,6 +1,4 @@
-﻿import { LucideNavigation, Search, Tag } from "lucide-solid";
-import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/Command";
+﻿import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/Command";
 import HighlightedText from "@/components/HighlightedText";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,6 +7,8 @@ import { type FuzzyMatch, fuzzyScore } from "@/lib/fuzzySearch";
 import type { SearchOption } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
 import { activeTab, locateCategory, missingDataItems } from "@/stores/inflationStore";
+import { LucideNavigation, Search, Tag } from "lucide-solid";
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 
 interface ScoredOption {
 	item: SearchOption;
@@ -110,7 +110,7 @@ export function SmartSearch() {
 	return (
 		<div
 			class={`sticky z-30 transition-[top] duration-300 ease-in-out motion-reduce:transition-none ${
-				isMobile() && headerHidden() ? "top-0" : "top-18 sm:top-25"
+				isMobile() && headerHidden() ? "top-0" : "top-18 sm:top-22"
 			}`}
 			id="smart-search-container"
 		>
