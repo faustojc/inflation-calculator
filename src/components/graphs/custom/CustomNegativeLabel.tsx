@@ -36,7 +36,7 @@ const CustomNegativeLabel = (props: Props) => {
 				<g
 					class={`transition-opacity duration-200 ease-in-out ${
 						isChartSelected() && !isSelected() ? "opacity-20" : "opacity-100"
-					}`.replace(/\s+/g, " ")}
+					}`}
 				>
 					<path
 						d={`M${p().sx},${p().sy} L${p().ex},${p().ey}`}

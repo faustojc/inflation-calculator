@@ -1,4 +1,5 @@
 ﻿import type { CommodityDef } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
 	generalExpenses,
 	highlightState,
@@ -8,10 +9,9 @@ import {
 	updateExpenseValue,
 } from "@/stores/inflationStore";
 import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric } from "@/utils/metadata";
+import { ImagePreviewModal, preloadImagePreview } from "@/components/imagePreview";
 import { CircleAlert } from "lucide-solid";
-import { createEffect, createSignal, lazy, Show, Suspense } from "solid-js";
-
-const ImagePreviewModal = lazy(() => import("@/components/ImagePreviewModal"));
+import { createEffect, createSignal, Show, Suspense } from "solid-js";
 
 const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 	const m = () => mode.get();
@@ -86,18 +86,16 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 	return (
 		<div
 			ref={rowRef}
-			class={`
-				grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl border transition-all duration-300
-				${
-					missingStatus()
-						? "bg-error/10 border-error/40 ring-2 ring-error/40 shadow-md"
-						: isMatch()
-							? "bg-warning/10 border-warning/40 ring-2 ring-warning/40 shadow-md"
-							: hasFilled()
-								? "bg-primary/5 border-primary/20 shadow-sm"
-								: "bg-card border-border hover:border-primary/30 hover:shadow-sm"
-				}
-			`.replace(/\s+/g, " ")}
+			class={cn(
+				"grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl border transition-all duration-300",
+				missingStatus()
+					? "bg-error/10 border-error/40 ring-2 ring-error/40 shadow-md"
+					: isMatch()
+						? "bg-warning/10 border-warning/40 ring-2 ring-warning/40 shadow-md"
+						: hasFilled()
+							? "bg-primary/5 border-primary/20 shadow-sm"
+							: "bg-card border-border hover:border-primary/30 hover:shadow-sm",
+			)}
 		>
 			<div class="col-span-2 min-w-0">
 				<div class="flex items-center gap-2 mb-0.5">
@@ -106,6 +104,8 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 						tabIndex={-1}
 						class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
 						aria-label={`View full image for ${props.cat.name}`}
+						onPointerEnter={preloadImagePreview}
+						onPointerDown={preloadImagePreview}
 						onClick={() => setPreviewOpen(true)}
 					>
 						<img
@@ -141,19 +141,16 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 						min={0}
 						max={500000}
 						placeholder="0"
-						class={`
-							input input-bordered commodity-input
-							pl-8 font-mono text-right text-sm h-9
-							${
-								missingStatus()
-									? "ring-2 ring-error border-error text-error font-semibold opacity-70 cursor-not-allowed"
-									: isMatch()
-										? "ring-2 ring-warning border-warning"
-										: hasFilled()
-											? "border-primary font-semibold"
-											: ""
-							}
-						`.replace(/\s+/g, " ")}
+						class={cn(
+							"input input-bordered commodity-input pl-8 font-mono text-right text-sm h-9",
+							missingStatus()
+								? "ring-2 ring-error border-error text-error font-semibold opacity-70 cursor-not-allowed"
+								: isMatch()
+									? "ring-2 ring-warning border-warning"
+									: hasFilled()
+										? "border-primary font-semibold"
+										: "",
+						)}
 						value={displayValue()}
 						disabled={missingStatus()}
 						onKeyDown={handleKeyDown}

@@ -30,7 +30,7 @@ const CustomPieLegend = (props: { props: readonly LegendItem[]; patternPrefix?: 
 						<li
 							class={`flex items-center gap-2 py-1 transition-opacity duration-200 cursor-pointer ${
 								isAnyInThisChartSelected() && !isActive() ? "opacity-30" : "opacity-100"
-							}`.replace(/\s+/g, " ")}
+							}`}
 							onClick={() => setActiveSlice(entry.code, entry.value)}
 							onKeyDown={() => setActiveSlice(entry.code, entry.value)}
 							onMouseOver={() => setActiveSlice(entry.code, entry.value)}

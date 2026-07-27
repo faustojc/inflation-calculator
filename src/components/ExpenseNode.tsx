@@ -1,4 +1,5 @@
 ﻿import type { DisplayNode } from "@/components/ExpenseTab";
+import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -13,10 +14,9 @@ import {
 	updateExpenseValue,
 } from "@/stores/inflationStore";
 import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
+import { ImagePreviewModal, preloadImagePreview } from "@/components/imagePreview";
 import { ArrowLeft, ChevronDown, ChevronRight, Equal, InfoIcon, TriangleAlert } from "lucide-solid";
-import { createEffect, createSignal, For, lazy, onCleanup, Show, Suspense } from "solid-js";
-
-const ImagePreviewModal = lazy(() => import("@/components/ImagePreviewModal"));
+import { createEffect, createSignal, For, onCleanup, Show, Suspense } from "solid-js";
 
 const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 	const [previewOpen, setPreviewOpen] = createSignal(false);
@@ -117,19 +117,18 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 			<div
 				ref={rowRef}
 				style={{ "padding-left": `${props.level * 20 + 12}px` }}
-				class={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
-					${
-						missingStatus()
-							? "bg-error/10 border-error/40 ring-inset ring-1 ring-error"
-							: isMatch()
-								? "bg-warning/10 border-warning/40 ring-inset ring-1 ring-warning"
-								: hasChildren()
-									? props.level === 0
-										? "bg-primary/15 border-primary/30 hover:bg-primary/20"
-										: "bg-primary/8 border-primary/20 hover:bg-primary/12"
-									: "bg-base-100 border-border hover:bg-base-200"
-					}
-				`.replace(/\s+/g, " ")}
+				class={cn(
+					"group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300",
+					missingStatus()
+						? "bg-error/10 border-error/40 ring-inset ring-1 ring-error"
+						: isMatch()
+							? "bg-warning/10 border-warning/40 ring-inset ring-1 ring-warning"
+							: hasChildren()
+								? props.level === 0
+									? "bg-primary/15 border-primary/30 hover:bg-primary/20"
+									: "bg-primary/8 border-primary/20 hover:bg-primary/12"
+								: "bg-base-100 border-border hover:bg-base-200",
+				)}
 			>
 				<Show when={hasChildren()}>
 					<button
@@ -165,12 +164,14 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 								</Popover>
 							</Show>
 
-							<Show when={hasChildren()}>
+							<Show when={props.level === 0}>
 								<button
 									type="button"
 									tabIndex={-1}
 									class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
 									aria-label={`View full image for ${props.node.name}`}
+									onPointerEnter={preloadImagePreview}
+									onPointerDown={preloadImagePreview}
 									onClick={() => setPreviewOpen(true)}
 								>
 									<img
@@ -230,15 +231,16 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 									name={props.node.name}
 									type="number"
 									aria-label={`Expense amount for ${props.node.name}`}
-									class={`input input-bordered commodity-input w-full h-8 pl-6 text-right font-mono text-sm transition-all ${
+									class={cn(
+										"input input-bordered commodity-input w-full h-8 pl-6 text-right font-mono text-sm transition-all",
 										missingStatus()
 											? "ring-2 ring-error border-error text-error font-semibold opacity-70 cursor-not-allowed"
 											: isMatch()
 												? "ring-2 ring-warning border-warning bg-base-100 scale-105"
 												: displayValue() > 0
 													? "bg-primary/10 border-primary/50 text-foreground font-semibold"
-													: "bg-base-200 border-base-300 text-foreground hover:border-primary/50 hover:bg-base-100"
-									}`.replace(/\s+/g, " ")}
+													: "bg-base-200 border-base-300 text-foreground hover:border-primary/50 hover:bg-base-100",
+									)}
 									placeholder="0"
 									value={inputText()}
 									min={0}

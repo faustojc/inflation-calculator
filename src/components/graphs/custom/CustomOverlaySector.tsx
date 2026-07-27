@@ -34,7 +34,7 @@ export default function CustomOverlaySector(props: Props) {
 				onMouseLeave={() => activeSlice.set(null)}
 				class={`overlay-sector cursor-pointer transition-opacity duration-200 ease-in-out ${
 					isChartSelected() && !isSelected() ? "opacity-10" : "opacity-100"
-				}`.replace(/\s+/g, " ")}
+				}`}
 			/>
 		</Show>
 	);

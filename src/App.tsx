@@ -20,7 +20,7 @@ import {
 } from "@/stores/inflationStore";
 import { openOnboarding } from "@/stores/onboardingStore";
 import { Loader, RefreshCw, TriangleAlert } from "lucide-solid";
-import { createEffect, createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
+import { createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
 
 const LazyOnboarding = lazy(() => import("@/components/Onboarding").then((module) => ({ default: module.Onboarding })));
 const LazyResultsDrawer = lazy(() => import("@/components/ResultsDrawer").then((module) => ({ default: module.ResultsDrawer })));
@@ -28,16 +28,9 @@ const LazyResultsDrawer = lazy(() => import("@/components/ResultsDrawer").then((
 export default function App() {
 	const isMobile = useIsMobile();
 	const [canLoadOnboarding, setCanLoadOnboarding] = createSignal(false);
-	const [generalVisited, setGeneralVisited] = createSignal(false);
-	const [detailedVisited, setDetailedVisited] = createSignal(false);
 
 	const isLoading = () => dataStore.isLoading.get() || dataStore.commodities.get().length === 0;
 	const error = () => dataStore.error.get();
-
-	createEffect(() => {
-		if (activeTab.get() === "general") setGeneralVisited(true);
-		else setDetailedVisited(true);
-	});
 
 	onMount(() => {
 		const loadOnboarding = () => setCanLoadOnboarding(true);
@@ -229,15 +222,10 @@ export default function App() {
 						</Show>
 
 						<div id="commodity-inputs">
-							<Show when={generalVisited()}>
-								<div classList={{ hidden: activeTab.get() !== "general" }}>
-									<GeneralTab />
-								</div>
-							</Show>
-							<Show when={detailedVisited()}>
-								<div classList={{ hidden: activeTab.get() !== "detailed" }}>
-									<ExpenseTab />
-								</div>
+							{/* Only the active tab is mounted; expense state lives in the
+							    stores, so unmounting loses nothing. */}
+							<Show when={activeTab.get() === "general"} fallback={<ExpenseTab />}>
+								<GeneralTab />
 							</Show>
 						</div>
 					</main>
