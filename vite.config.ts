@@ -5,6 +5,12 @@ import { gzipSync } from "node:zlib";
 import { defineConfig, type Plugin } from "vite";
 import solid from "vite-plugin-solid";
 
+// Cloudflare Pages sets CF_PAGES=1 in its build env.
+// It serves from the domain root and compresses on the fly,
+// so no base prefix and no .gz sidecars there.
+const isCloudflarePages = !!process.env.CF_PAGES;
+const base = process.env.BASE_PATH ?? (isCloudflarePages ? "/" : "/inflation-calculator/");
+
 // Precompress dist files to .gz
 function gzip(): Plugin {
 	const compressible = /\.(js|css|json)$/;
@@ -38,8 +44,8 @@ function gzip(): Plugin {
 }
 
 export default defineConfig({
-	plugins: [solid(), tailwindcss(), gzip()],
-	base: "/inflation-calculator/",
+	plugins: [solid(), tailwindcss(), ...(isCloudflarePages ? [] : [gzip()])],
+	base,
 	build: {
 		target: "esnext",
 		minify: true,

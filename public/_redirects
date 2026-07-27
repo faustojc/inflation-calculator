@@ -1,0 +1,7 @@
+# Cloudflare Pages routing. Ignored by nginx deploys.
+# Static assets are matched before these rules; only misses land here.
+# Missing CPI data must 404, not fall back to index.html (breaks JSON parsing).
+/api/*  /404.html  404
+/assets/*  /404.html  404
+# SPA fallback
+/*  /index.html  200
