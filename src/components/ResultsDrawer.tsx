@@ -55,11 +55,11 @@ export function ResultsDrawer() {
 					onOpenChange={(open) => calculationResult.set({ show: open, data: data() })}
 				>
 					<Drawer.Portal>
-						<Drawer.Overlay class="fixed inset-0 z-50 bg-black/50 data-closed:opacity-0 data-transitioning:transition-opacity data-transitioning:duration-500 motion-reduce:data-transitioning:transition-none" />
+						<Drawer.Overlay class="fixed inset-0 z-50 bg-black/50 data-closed:opacity-0 data-transitioning:transition-opacity data-transitioning:duration-500 motion-reduce:data-transitioning:duration-0" />
 						<Drawer.Content
 							aria-describedby="inflation-report"
 							aria-description="Inflation report with analysis"
-							class="group/drawer-content fixed inset-x-0 bottom-0 z-50 flex h-[95vh] flex-col rounded-t-4xl font-sans glass-panel border-none data-transitioning:transition-transform data-transitioning:duration-500 data-transitioning:ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:data-transitioning:transition-none"
+							class="group/drawer-content fixed inset-x-0 bottom-0 z-50 flex h-[95vh] flex-col rounded-t-4xl font-sans glass-panel border-none data-transitioning:transition-transform data-transitioning:duration-500 data-transitioning:ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:data-transitioning:duration-0"
 						>
 							<div class="flex items-center justify-center w-full flex-col h-full overflow-hidden transform-gpu border-none shadow-none ring-0 p-0 m-0">
 								{/* Header */}
