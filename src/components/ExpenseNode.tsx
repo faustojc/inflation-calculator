@@ -145,24 +145,6 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 							<ChevronDown class="h-4 w-4" />
 						</Show>
 					</button>
-
-					<button
-						type="button"
-						tabIndex={-1}
-						class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-						aria-label={`View full image for ${props.node.name}`}
-						onClick={() => setPreviewOpen(true)}
-					>
-						<img
-							src={`major/${props.node.code}.jpg`}
-							alt={props.node.name}
-							width={48}
-							height={48}
-							class="w-12 h-12 block object-cover"
-							loading="lazy"
-							decoding="async"
-						/>
-					</button>
 				</Show>
 
 				<div class="grid grid-cols-5 items-center w-full gap-2">
@@ -182,6 +164,27 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 									</PopoverContent>
 								</Popover>
 							</Show>
+
+							<Show when={hasChildren()}>
+								<button
+									type="button"
+									tabIndex={-1}
+									class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+									aria-label={`View full image for ${props.node.name}`}
+									onClick={() => setPreviewOpen(true)}
+								>
+									<img
+										src={`major/${props.node.code}.jpg`}
+										alt={props.node.name}
+										width={48}
+										height={48}
+										class="w-12 h-12 block object-cover"
+										loading="lazy"
+										decoding="async"
+									/>
+								</button>
+							</Show>
+
 							<p
 								class={`text-sm text-wrap text-left
 								${props.level === 0 ? "font-bold" : "text-foreground"}
