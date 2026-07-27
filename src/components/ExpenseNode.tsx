@@ -1,6 +1,4 @@
-﻿import { ArrowLeft, ChevronDown, ChevronRight, Equal, InfoIcon, TriangleAlert } from "lucide-solid";
-import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
-import type { DisplayNode } from "@/components/ExpenseTab";
+﻿import type { DisplayNode } from "@/components/ExpenseTab";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -14,18 +12,22 @@ import {
 	toggleExpansion,
 	updateExpenseValue,
 } from "@/stores/inflationStore";
-import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
+import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
+import { ArrowLeft, ChevronDown, ChevronRight, Equal, InfoIcon, TriangleAlert } from "lucide-solid";
+import { createEffect, createSignal, For, lazy, onCleanup, Show, Suspense } from "solid-js";
+
+const ImagePreviewModal = lazy(() => import("@/components/ImagePreviewModal"));
 
 const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
+	const [previewOpen, setPreviewOpen] = createSignal(false);
+
 	const currMode = () => mode.get();
 	const hasChildren = () => Boolean(props.node.children && props.node.children.length > 0);
 
 	const isMatch = () => highlightState.code.get() === props.node.code;
 	const highlightLabel = () => (isMatch() ? highlightState.label.get() : "");
 	const displayValue = () =>
-		hasChildren()
-			? categoryTotals[props.node.code]?.get() || 0
-			: detailedExpenses[props.node.code]?.get()?.value || 0;
+		hasChildren() ? categoryTotals[props.node.code]?.get() || 0 : detailedExpenses[props.node.code]?.get()?.value || 0;
 	const isOpen = () => expandedNodes[props.node.code]?.get() ?? (props.level < 1 || displayValue() > 0);
 	const isMissing = () => missingDetailedItems.get().has(props.node.code);
 	const isReady = () => prefetchReady.get();
@@ -58,8 +60,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 		onCleanup(() => clearTimeout(timer));
 	});
 
-	const commitValue = (nextValue: number) =>
-		updateExpenseValue(props.node.code, props.node.name, nextValue, "detailed");
+	const commitValue = (nextValue: number) => updateExpenseValue(props.node.code, props.node.name, nextValue, "detailed");
 
 	const inputLimit = () => (currMode() === "percent" ? 100 : 500000);
 	const inputText = () => {
@@ -143,6 +144,24 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 						<Show when={isOpen()} fallback={<ChevronRight class="h-4 w-4" />}>
 							<ChevronDown class="h-4 w-4" />
 						</Show>
+					</button>
+
+					<button
+						type="button"
+						tabIndex={-1}
+						class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+						aria-label={`View full image for ${props.node.name}`}
+						onClick={() => setPreviewOpen(true)}
+					>
+						<img
+							src={`major/${props.node.code}.jpg`}
+							alt={props.node.name}
+							width={48}
+							height={48}
+							class="w-12 h-12 block object-cover"
+							loading="lazy"
+							decoding="async"
+						/>
 					</button>
 				</Show>
 
@@ -261,6 +280,18 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 						</div>
 					</div>
 				</div>
+			</Show>
+
+			<Show when={previewOpen()}>
+				<Suspense fallback={null}>
+					<ImagePreviewModal
+						src={`major/${props.node.code}.jpg`}
+						alt={props.node.name}
+						title={props.node.name}
+						caption={MAJOR_CATEGORY_DESCRIPTIONS[props.node.code] || "General expenses"}
+						onClose={() => setPreviewOpen(false)}
+					/>
+				</Suspense>
 			</Show>
 		</div>
 	);

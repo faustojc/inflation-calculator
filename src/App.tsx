@@ -83,35 +83,59 @@ export default function App() {
 		});
 	});
 
-	// Focus trap: Tab cycles within .commodity-input fields inside #commodity-inputs
+	// Tab / Shift+Tab step through the enabled .commodity-input fields inside
+	// #commodity-inputs and wrap at both ends. Everything else in the rows
+	// (image buttons, chevrons, popover triggers) is tabIndex={-1}, so the
+	// visible tab order is inputs only.
 	onMount(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key !== "Tab") return;
+		let lastFocusedId: string | null = null;
 
+		const visibleInputs = () => {
 			const container = document.getElementById("commodity-inputs");
-			if (!container?.contains(document.activeElement)) return;
-
-			const inputs = Array.from(container.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
+			if (!container) return [];
+			return Array.from(container.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
 				(el) => !el.disabled && el.offsetParent !== null,
 			);
-
-			if (inputs.length === 0) return;
-
-			const firstInput = inputs[0]!;
-			const lastInput = inputs[inputs.length - 1]!;
-			const activeElement = document.activeElement as HTMLInputElement;
-
-			if (!e.shiftKey && activeElement === lastInput) {
-				e.preventDefault();
-				firstInput.focus();
-			} else if (e.shiftKey && activeElement === firstInput) {
-				e.preventDefault();
-				lastInput.focus();
-			}
 		};
 
+		const handleFocusIn = (e: FocusEvent) => {
+			const target = e.target as HTMLElement | null;
+			if (target?.classList.contains("commodity-input")) lastFocusedId = target.id;
+		};
+
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key !== "Tab" || e.altKey || e.ctrlKey || e.metaKey) return;
+
+			// The results drawer runs its own focus trap; don't fight it.
+			if (document.querySelector("[data-corvu-drawer-content]")) return;
+
+			const inputs = visibleInputs();
+			if (inputs.length === 0) return;
+
+			const active = document.activeElement;
+
+			// Nothing focused (clicked empty space, closed a modal): resume on the
+			// last input the user touched rather than restarting at the document top.
+			if (!active || active === document.body) {
+				e.preventDefault();
+				(inputs.find((el) => el.id === lastFocusedId) ?? inputs[0]!).focus();
+				return;
+			}
+
+			const index = inputs.indexOf(active as HTMLInputElement);
+			if (index === -1) return;
+
+			e.preventDefault();
+			const next = e.shiftKey ? (index - 1 + inputs.length) % inputs.length : (index + 1) % inputs.length;
+			inputs[next]!.focus();
+		};
+
+		document.addEventListener("focusin", handleFocusIn);
 		document.addEventListener("keydown", handleKeyDown);
-		onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
+		onCleanup(() => {
+			document.removeEventListener("focusin", handleFocusIn);
+			document.removeEventListener("keydown", handleKeyDown);
+		});
 	});
 
 	return (

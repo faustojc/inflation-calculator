@@ -103,6 +103,7 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 				<div class="flex items-center gap-2 mb-0.5">
 					<button
 						type="button"
+						tabIndex={-1}
 						class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
 						aria-label={`View full image for ${props.cat.name}`}
 						onClick={() => setPreviewOpen(true)}

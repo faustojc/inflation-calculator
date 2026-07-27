@@ -1,8 +1,28 @@
 ﻿import { TrendingUp } from "lucide-solid";
-import { lazy, Suspense } from "solid-js";
+import { For, lazy, Suspense } from "solid-js";
 import type { DateRange, LocationContext, TrendPoint } from "@/utils/inflationCompute";
 
 const TrendLine = lazy(() => import("@/components/graphs/line/TrendLine"));
+
+const BONE = "skeleton motion-reduce:animate-none";
+
+// Chart-shaped placeholder: title, legend chips, plot area, x-axis ticks.
+function TrendLineSkeleton() {
+	return (
+		<output aria-busy="true" aria-label="Loading trend chart" class="block glass-card h-100 w-full p-4">
+			<div class={`${BONE} h-5 w-52 max-w-full rounded`} />
+			<div class="mt-3 flex gap-3">
+				<div class={`${BONE} h-6 w-24 rounded-full`} />
+				<div class={`${BONE} h-6 w-24 rounded-full`} />
+			</div>
+			<div class={`${BONE} mt-4 h-56 w-full rounded-lg`} />
+			<div class="mt-3 flex justify-between gap-2">
+				<For each={[0, 1, 2, 3, 4]}>{() => <div class={`${BONE} h-3 w-10 rounded`} />}</For>
+			</div>
+			<span class="sr-only">Loading trend chart…</span>
+		</output>
+	);
+}
 
 const InflationDataTab = (props: {
 	personalRate: number;
@@ -69,7 +89,7 @@ const InflationDataTab = (props: {
 
 			{/* Trend graph */}
 			<div class="col-span-8 lg:col-span-6 lg:min-h-0">
-				<Suspense fallback={<div class="h-100 rounded-xl bg-muted/40 animate-pulse" />}>
+				<Suspense fallback={<TrendLineSkeleton />}>
 					<TrendLine
 						inflationTrend={props.inflationTrend}
 						cpiTrend={props.cpiTrend}
