@@ -37,4 +37,17 @@ coverage
 playwright-report
 test-results
 
-public/api/v2
+public/api/
+docs/
+graphify-out/
+load-tests/
+nginx/
+remote/
+
+compose.yaml
+manage-nginx.sh
+nginx-test.conf
+nginx.conf
+GeoLite2-City.mmdb
+.containerignore
+.dockerignore
