@@ -1,22 +1,14 @@
-﻿import type { ComponentProps, JSX } from "solid-js";
-import {
-	createContext,
-	createEffect,
-	createSignal,
-	onCleanup,
-	onMount,
-	Show,
-	splitProps,
-	useContext,
-} from "solid-js";
+﻿import { cn } from "@/lib/utils";
+import type { ComponentProps, JSX } from "solid-js";
+import { createContext, createEffect, createSignal, onCleanup, onMount, Show, splitProps, useContext } from "solid-js";
 import { Portal } from "solid-js/web";
-import { cn } from "@/lib/utils";
 
 const PopoverContext = createContext<{
 	open: () => boolean;
 	setOpen: (open: boolean) => void;
 	trigger: () => HTMLElement | undefined;
 	setTrigger: (element: HTMLElement) => void;
+	modal: () => boolean;
 }>();
 
 type PopoverProps = {
@@ -37,7 +29,7 @@ export function Popover(props: PopoverProps) {
 	};
 
 	return (
-		<PopoverContext.Provider value={{ open, setOpen, trigger, setTrigger }}>
+		<PopoverContext.Provider value={{ open, setOpen, trigger, setTrigger, modal: () => props.modal ?? false }}>
 			{props.children}
 		</PopoverContext.Provider>
 	);
@@ -87,61 +79,101 @@ export function PopoverTrigger(props: ComponentProps<"button"> & { asChild?: boo
 	);
 }
 
-export function PopoverContent(
-	props: ComponentProps<"div"> & { align?: "start" | "center" | "end"; sideOffset?: number },
-) {
+export function PopoverContent(props: ComponentProps<"div"> & { align?: "start" | "center" | "end"; sideOffset?: number }) {
 	const context = useContext(PopoverContext);
 	let ref: HTMLDivElement | undefined;
 	const [local, rest] = splitProps(props, ["class", "align", "sideOffset"]);
-	const align = () => local.align ?? "center";
-	const offset = () => local.sideOffset ?? 4;
-
-	const updatePosition = () => {
-		const trigger = context?.trigger();
-		if (!trigger || !ref) return;
-		const rect = trigger.getBoundingClientRect();
-		ref.style.setProperty("--popover-trigger-width", `${rect.width}px`);
-
-		const width = ref.offsetWidth;
-		const height = ref.offsetHeight;
-		let left =
-			align() === "start"
-				? rect.left
-				: align() === "end"
-					? rect.right - width
-					: rect.left + rect.width / 2 - width / 2;
-		left = Math.min(Math.max(8, left), Math.max(8, window.innerWidth - width - 8));
-		let top = rect.bottom + offset();
-		if (top + height > window.innerHeight - 8 && rect.top - offset() - height >= 8)
-			top = rect.top - offset() - height;
-		top = Math.min(Math.max(8, top), Math.max(8, window.innerHeight - height - 8));
-		ref.style.setProperty("--popover-left", `${left}px`);
-		ref.style.setProperty("--popover-top", `${top}px`);
-	};
 
 	createEffect(() => {
-		if (!context?.open()) return;
-		updatePosition();
+		if (!context?.open() || !ref) return;
+		const el = ref;
+		const align = local.align ?? "center";
+		const offset = local.sideOffset ?? 4;
+		let side: "top" | "bottom" | undefined;
+		let frame = 0;
+
+		const position = () => {
+			const trigger = context.trigger();
+			if (!trigger) return;
+			const rect = trigger.getBoundingClientRect();
+			el.style.setProperty("--popover-trigger-width", `${rect.width}px`);
+
+			const width = el.offsetWidth;
+			let left =
+				align === "start" ? rect.left : align === "end" ? rect.right - width : rect.left + rect.width / 2 - width / 2;
+
+			left = Math.min(Math.max(8, left), Math.max(8, window.innerWidth - width - 8));
+			el.style.left = `${left}px`;
+
+			const spaceBelow = window.innerHeight - rect.bottom - offset - 8;
+			const spaceAbove = rect.top - offset - 8;
+			side ??= spaceBelow >= el.offsetHeight || spaceBelow >= spaceAbove ? "bottom" : "top";
+
+			const maxHeight = Math.min(window.innerHeight * 0.7, 512, side === "bottom" ? spaceBelow : spaceAbove);
+			el.style.maxHeight = `${Math.max(0, maxHeight)}px`;
+			if (side === "bottom") {
+				el.style.top = `${rect.bottom + offset}px`;
+				el.style.bottom = "auto";
+			} else {
+				el.style.bottom = `${window.innerHeight - rect.top + offset}px`;
+				el.style.top = "auto";
+			}
+		};
+
+		const schedule = () => {
+			if (frame) return;
+			frame = requestAnimationFrame(() => {
+				frame = 0;
+				position();
+			});
+		};
+
+		position();
+
 		const onDocumentPointerDown = (event: PointerEvent) => {
 			const target = event.target as Node;
-			if (ref?.contains(target) || context?.trigger()?.contains(target)) return;
-			context?.setOpen(false);
+			if (el.contains(target) || context.trigger()?.contains(target)) return;
+			context.setOpen(false);
 		};
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key !== "Escape") return;
 			event.stopPropagation();
-			context?.setOpen(false);
-			context?.trigger()?.querySelector<HTMLElement>("button, [tabindex]")?.focus();
+			context.setOpen(false);
+			context.trigger()?.querySelector<HTMLElement>("button, [tabindex]")?.focus();
 		};
+		const resizeObserver = new ResizeObserver(schedule);
+		resizeObserver.observe(el);
+
 		document.addEventListener("pointerdown", onDocumentPointerDown);
 		document.addEventListener("keydown", onKeyDown);
-		window.addEventListener("resize", updatePosition);
-		window.addEventListener("scroll", updatePosition, true);
+		window.addEventListener("resize", schedule);
+
+		let onScroll: ((event: Event) => void) | undefined;
+		if (context.modal()) {
+			const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+			const prevOverflow = document.body.style.overflow;
+			const prevPaddingRight = document.body.style.paddingRight;
+			document.body.style.overflow = "hidden";
+			if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+			onCleanup(() => {
+				document.body.style.overflow = prevOverflow;
+				document.body.style.paddingRight = prevPaddingRight;
+			});
+		} else {
+			onScroll = (event: Event) => {
+				if (event.target instanceof Node && el.contains(event.target)) return;
+				schedule();
+			};
+			window.addEventListener("scroll", onScroll, true);
+		}
+
 		onCleanup(() => {
+			cancelAnimationFrame(frame);
+			resizeObserver.disconnect();
 			document.removeEventListener("pointerdown", onDocumentPointerDown);
 			document.removeEventListener("keydown", onKeyDown);
-			window.removeEventListener("resize", updatePosition);
-			window.removeEventListener("scroll", updatePosition, true);
+			window.removeEventListener("resize", schedule);
+			if (onScroll) window.removeEventListener("scroll", onScroll, true);
 		});
 	});
 
@@ -152,10 +184,9 @@ export function PopoverContent(
 					ref={(element) => {
 						ref = element;
 					}}
-					style={{ left: "var(--popover-left)", top: "var(--popover-top)" }}
 					{...rest}
 					class={cn(
-						"popover fixed z-50 flex max-h-[min(70vh,32rem)] flex-col overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-none",
+						"popover fixed z-50 flex flex-col overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md outline-none",
 						local.class,
 					)}
 				/>

@@ -1,6 +1,4 @@
-﻿import { Loader } from "lucide-solid";
-import { createEffect, createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
-import ClearButton from "@/components/ClearButton";
+﻿import ClearButton from "@/components/ClearButton";
 import ExpenseTab from "@/components/ExpenseTab";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
@@ -21,27 +19,18 @@ import {
 	settings,
 } from "@/stores/inflationStore";
 import { openOnboarding } from "@/stores/onboardingStore";
+import { Loader, RefreshCw, TriangleAlert } from "lucide-solid";
+import { createSignal, lazy, onCleanup, onMount, Show, Suspense } from "solid-js";
 
-const LazyOnboarding = lazy(() =>
-	import("@/components/Onboarding").then((module) => ({ default: module.Onboarding })),
-);
-const LazyResultsDrawer = lazy(() =>
-	import("@/components/ResultsDrawer").then((module) => ({ default: module.ResultsDrawer })),
-);
+const LazyOnboarding = lazy(() => import("@/components/Onboarding").then((module) => ({ default: module.Onboarding })));
+const LazyResultsDrawer = lazy(() => import("@/components/ResultsDrawer").then((module) => ({ default: module.ResultsDrawer })));
 
 export default function App() {
 	const isMobile = useIsMobile();
 	const [canLoadOnboarding, setCanLoadOnboarding] = createSignal(false);
-	const [generalVisited, setGeneralVisited] = createSignal(false);
-	const [detailedVisited, setDetailedVisited] = createSignal(false);
 
 	const isLoading = () => dataStore.isLoading.get() || dataStore.commodities.get().length === 0;
 	const error = () => dataStore.error.get();
-
-	createEffect(() => {
-		if (activeTab.get() === "general") setGeneralVisited(true);
-		else setDetailedVisited(true);
-	});
 
 	onMount(() => {
 		const loadOnboarding = () => setCanLoadOnboarding(true);
@@ -87,47 +76,89 @@ export default function App() {
 		});
 	});
 
-	// Focus trap: Tab cycles within .commodity-input fields inside #commodity-inputs
+	// Tab / Shift+Tab step through the enabled .commodity-input fields inside
+	// #commodity-inputs and wrap at both ends. Everything else in the rows
+	// (image buttons, chevrons, popover triggers) is tabIndex={-1}, so the
+	// visible tab order is inputs only.
 	onMount(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key !== "Tab") return;
+		let lastFocusedId: string | null = null;
 
+		const visibleInputs = () => {
 			const container = document.getElementById("commodity-inputs");
-			if (!container || !container.contains(document.activeElement)) return;
-
-			const inputs = Array.from(container.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
+			if (!container) return [];
+			return Array.from(container.querySelectorAll<HTMLInputElement>(".commodity-input")).filter(
 				(el) => !el.disabled && el.offsetParent !== null,
 			);
-
-			if (inputs.length === 0) return;
-
-			const firstInput = inputs[0]!;
-			const lastInput = inputs[inputs.length - 1]!;
-			const activeElement = document.activeElement as HTMLInputElement;
-
-			if (!e.shiftKey && activeElement === lastInput) {
-				e.preventDefault();
-				firstInput.focus();
-			} else if (e.shiftKey && activeElement === firstInput) {
-				e.preventDefault();
-				lastInput.focus();
-			}
 		};
 
+		const handleFocusIn = (e: FocusEvent) => {
+			const target = e.target as HTMLElement | null;
+			if (target?.classList.contains("commodity-input")) lastFocusedId = target.id;
+		};
+
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key !== "Tab" || e.altKey || e.ctrlKey || e.metaKey) return;
+
+			// The results drawer runs its own focus trap; don't fight it.
+			if (document.querySelector("[data-corvu-drawer-content]")) return;
+
+			const inputs = visibleInputs();
+			if (inputs.length === 0) return;
+
+			const active = document.activeElement;
+
+			// Nothing focused (clicked empty space, closed a modal): resume on the
+			// last input the user touched rather than restarting at the document top.
+			if (!active || active === document.body) {
+				e.preventDefault();
+				(inputs.find((el) => el.id === lastFocusedId) ?? inputs[0]!).focus();
+				return;
+			}
+
+			const index = inputs.indexOf(active as HTMLInputElement);
+			if (index === -1) return;
+
+			e.preventDefault();
+			const next = e.shiftKey ? (index - 1 + inputs.length) % inputs.length : (index + 1) % inputs.length;
+			inputs[next]!.focus();
+		};
+
+		document.addEventListener("focusin", handleFocusIn);
 		document.addEventListener("keydown", handleKeyDown);
-		onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
+		onCleanup(() => {
+			document.removeEventListener("focusin", handleFocusIn);
+			document.removeEventListener("keydown", handleKeyDown);
+		});
 	});
 
 	return (
 		<Show
 			when={!error()}
 			fallback={
-				<div class="min-h-screen flex flex-col items-center justify-center p-4 bg-page-pattern">
-					<div
-						id="none"
-						class="flex flex-col items-center gap-4 p-8 bg-card rounded-2xl shadow-lg border border-border text-sm text-destructive"
-					>
-						{error()}
+				<div class="min-h-screen flex items-center justify-center bg-page-pattern px-4 py-12 font-sans">
+					<div id="none" class="glass-card w-full max-w-lg p-6 sm:p-8">
+						<div class="mx-auto mb-5 flex size-14 items-center justify-center rounded-full bg-error/10 text-error">
+							<TriangleAlert class="size-7" />
+						</div>
+						<div class="space-y-2 text-center">
+							<h1 class="text-xl font-bold text-foreground">Unable to Load Calculator</h1>
+							<p class="text-sm text-foreground">
+								The app could not finish loading the required inflation data. Refresh the page to try again.
+							</p>
+						</div>
+						<div class="mt-6 rounded-lg border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+							{error()}
+						</div>
+						<div class="mt-6 flex justify-center">
+							<button
+								type="button"
+								class="btn btn-primary inline-flex items-center"
+								onClick={() => window.location.reload()}
+							>
+								<RefreshCw class="size-4" />
+								Reload Page
+							</button>
+						</div>
 					</div>
 				</div>
 			}
@@ -152,9 +183,7 @@ export default function App() {
 					<Header />
 
 					<main class="max-w-5xl mx-auto px-4 py-5 pb-44 space-y-4">
-						<h1 class="text-center text-xl md:text-2xl lg:text-3xl font-bold text-foreground text-balance">
-							PERSONAL INFLATION CALCULATOR
-						</h1>
+						<h1 class="text-center text-xl lg:text-3xl font-bold text-foreground">PERSONAL INFLATION CALCULATOR</h1>
 
 						<SettingsPanel />
 
@@ -193,15 +222,10 @@ export default function App() {
 						</Show>
 
 						<div id="commodity-inputs">
-							<Show when={generalVisited()}>
-								<div classList={{ hidden: activeTab.get() !== "general" }}>
-									<GeneralTab />
-								</div>
-							</Show>
-							<Show when={detailedVisited()}>
-								<div classList={{ hidden: activeTab.get() !== "detailed" }}>
-									<ExpenseTab />
-								</div>
+							{/* Only the active tab is mounted; expense state lives in the
+							    stores, so unmounting loses nothing. */}
+							<Show when={activeTab.get() === "general"} fallback={<ExpenseTab />}>
+								<GeneralTab />
 							</Show>
 						</div>
 					</main>

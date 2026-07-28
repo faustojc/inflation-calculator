@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { mode } from "@/stores/inflationStore";
 
 const InputTypeControl = () => {
@@ -13,11 +14,10 @@ const InputTypeControl = () => {
 				name="Amount type selection"
 				aria-label="Select amount type"
 				onClick={() => mode.set("amount")}
-				class={`flex-1 ml-1 px-4 py-1 rounded-md text-sm transition-all duration-200 ${
-					m() === "amount"
-						? "bg-primary shadow text-white font-semibold"
-						: "text-foreground hover:text-primary"
-				}`.replace(/\s+/g, " ")}
+				class={cn(
+					"flex-1 ml-1 px-4 py-1 rounded-md text-sm transition-all duration-200",
+					m() === "amount" ? "bg-primary shadow text-white font-semibold" : "text-foreground hover:text-primary",
+				)}
 			>
 				Amount
 			</button>
@@ -26,11 +26,10 @@ const InputTypeControl = () => {
 				name="Percent type selection"
 				aria-label="Select percent type"
 				onClick={() => mode.set("percent")}
-				class={`flex-1 px-4 py-1 rounded-md text-sm transition-all duration-200 ${
-					m() === "percent"
-						? "bg-primary shadow text-white font-semibold"
-						: "text-foreground hover:text-primary"
-				}`.replace(/\s+/g, " ")}
+				class={cn(
+					"flex-1 px-4 py-1 rounded-md text-sm transition-all duration-200",
+					m() === "percent" ? "bg-primary shadow text-white font-semibold" : "text-foreground hover:text-primary",
+				)}
 			>
 				Percent
 			</button>

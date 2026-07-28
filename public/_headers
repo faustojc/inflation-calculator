@@ -1,0 +1,6 @@
+# Cloudflare Pages headers. Ignored by nginx deploys.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/api/*
+  Cache-Control: public, max-age=3600

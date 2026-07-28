@@ -37,7 +37,7 @@ const CustomPositiveLabel = (props: CustomLabelProps) => {
 					<g
 						class={`transition-opacity duration-200 ease-in-out ${
 							isAnyInThisChartSelected() && !isSelected() ? "opacity-20" : ""
-						}`.replace(/\s+/g, " ")}
+						}`}
 					>
 						<path
 							d={`M${pos().sx},${pos().sy} L${pos().ex},${pos().ey}`}
@@ -52,7 +52,7 @@ const CustomPositiveLabel = (props: CustomLabelProps) => {
 							dominant-baseline="central"
 							class={`text-xs sm:text-sm font-semibold fill-foreground transition-all duration-200 ease-in-out ${
 								isSelected() ? "text-base sm:text-lg" : ""
-							}`.replace(/\s+/g, " ")}
+							}`}
 						>
 							{`${p.payload.originalShare.toFixed(1)}%`}
 						</text>

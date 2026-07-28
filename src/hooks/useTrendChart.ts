@@ -1,7 +1,7 @@
-import { createEffect, on, onCleanup } from "solid-js";
-import type uPlot from "uplot";
 import type { TrendPoint } from "@/utils/inflationCompute";
 import { buildUplotData, computeXSplits, SERIES_COLORS } from "@/utils/trendChartUtils";
+import { createEffect, on, onCleanup } from "solid-js";
+import type uPlot from "uplot";
 
 interface TrendChartOptions {
 	trend: () => TrendPoint[];
@@ -36,14 +36,7 @@ export function createTrendChart(options: TrendChartOptions) {
 
 	createEffect(
 		on(
-			[
-				options.trend,
-				options.isMobile,
-				options.yAxisConfig,
-				options.hasProvince,
-				options.hasRegion,
-				options.seriesLabels,
-			],
+			[options.trend, options.isMobile, options.yAxisConfig, options.hasProvince, options.hasRegion, options.seriesLabels],
 			([trend, isMobile, yAxisConfig, hasProvince, hasRegion, seriesLabels]) => {
 				let disposed = false;
 				let cleanupChart: (() => void) | null = null;
@@ -65,15 +58,13 @@ export function createTrendChart(options: TrendChartOptions) {
 					uplotInstance = null;
 
 					const nav = navigator as Navigator & { deviceMemory?: number };
-					const prefersReducedMotion =
-						window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+					const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 					const lowEndDevice = (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4;
 					const animDuration = prefersReducedMotion ? 0 : isMobile || lowEndDevice ? 220 : 700;
 					animProgress = animDuration > 0 ? 0 : 1;
 
 					const style = getComputedStyle(document.documentElement);
-					const readColor = (name: string, fallback: string) =>
-						style.getPropertyValue(name).trim() || fallback;
+					const readColor = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
 					const fg = readColor("--color-base-content", "#111827");
 					const muted = readColor("--chart-grid", "rgba(100,116,139,0.35)");
 					const primaryColor = readColor("--color-primary", "#0038a8");
@@ -93,7 +84,7 @@ export function createTrendChart(options: TrendChartOptions) {
 					let lastTooltipIdx = -1;
 
 					if (tooltip) {
-						while (tooltip.firstChild) tooltip.removeChild(tooltip.firstChild);
+						while (tooltip.firstChild) tooltip.firstChild.remove();
 						tooltip.style.boxShadow = "0 2px 10px rgba(0,0,0,0.45)";
 
 						tooltipDateEl = document.createElement("div");
@@ -250,9 +241,7 @@ export function createTrendChart(options: TrendChartOptions) {
 						],
 						scales: {
 							x: { range: () => [-0.15, trend.length - 0.88] },
-							y: {
-								range: () => [yAxisConfig.domain[0] - 0.1, yAxisConfig.domain[1] + 0.1],
-							},
+							y: { range: () => [yAxisConfig.domain[0] - 0.1, yAxisConfig.domain[1] + 0.1] },
 						},
 						hooks: {
 							drawAxes: [

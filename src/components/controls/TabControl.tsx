@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { activeTab, calculationResult } from "@/stores/inflationStore";
 
 const TabControl = () => {
@@ -15,11 +16,12 @@ const TabControl = () => {
 				name="General Commodity Tab"
 				aria-label="Select general commodity tab"
 				onClick={() => handleChangeTab("general")}
-				class={`flex-1 px-6 py-2.5 rounded-md text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
+				class={cn(
+					"flex-1 px-6 py-2.5 rounded-md text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2",
 					currTab() === "general"
 						? "bg-primary text-white shadow-md shadow-primary/20 scale-[1.02]"
-						: "text-foreground hover:text-primary hover:bg-card"
-				}`.replace(/\s+/g, " ")}
+						: "text-foreground hover:text-primary hover:bg-card",
+				)}
 			>
 				General
 			</button>
@@ -28,11 +30,12 @@ const TabControl = () => {
 				name="Detailed Commodity Tab"
 				aria-label="Select detailed commodity tab"
 				onClick={() => handleChangeTab("detailed")}
-				class={`flex-1 px-6 py-2.5 rounded-md text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 ${
+				class={cn(
+					"flex-1 px-6 py-2.5 rounded-md text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2",
 					currTab() === "detailed"
 						? "bg-primary text-white shadow-md shadow-primary/20 scale-[1.02]"
-						: "text-foreground hover:text-primary hover:bg-card"
-				}`.replace(/\s+/g, " ")}
+						: "text-foreground hover:text-primary hover:bg-card",
+				)}
 			>
 				Detailed
 			</button>

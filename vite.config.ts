@@ -5,6 +5,12 @@ import { gzipSync } from "node:zlib";
 import { defineConfig, type Plugin } from "vite";
 import solid from "vite-plugin-solid";
 
+// Cloudflare Pages sets CF_PAGES=1 in its build env.
+// It serves from the domain root and compresses on the fly,
+// so no base prefix and no .gz sidecars there.
+const isCloudflarePages = !!process.env.CF_PAGES;
+const base = process.env.BASE_PATH ?? (isCloudflarePages ? "/" : "/inflation-calculator/");
+
 // Precompress dist files to .gz
 function gzip(): Plugin {
 	const compressible = /\.(js|css|json)$/;
@@ -30,7 +36,7 @@ function gzip(): Plugin {
 				files.map(async (file) => {
 					const source = await fs.readFile(file);
 
-					await fs.writeFile(`${file}.gz`, gzipSync(source, { level: 9 }));
+					await fs.writeFile(`${file}.gz`, gzipSync(source, { level: 9, windowBits: 15 }));
 				}),
 			);
 		},
@@ -38,8 +44,8 @@ function gzip(): Plugin {
 }
 
 export default defineConfig({
-	plugins: [solid(), tailwindcss(), gzip()],
-	base: "/inflation-calculator/",
+	plugins: [solid(), tailwindcss(), ...(isCloudflarePages ? [] : [gzip()])],
+	base,
 	build: {
 		target: "esnext",
 		minify: true,
@@ -49,13 +55,6 @@ export default defineConfig({
 			output: {
 				chunkFileNames: (chunkInfo) => (chunkInfo.isDynamicEntry ? "assets/[hash].js" : "assets/[name]-[hash].js"),
 				manualChunks: (id) => {
-					if (id.includes("node_modules/solid-js")) {
-						return "vendor-solid";
-					}
-					if (id.includes("node_modules/lucide-solid")) {
-						return "vendor-icons";
-					}
-
 					if (id.includes("node_modules/date-fns")) {
 						return "vendor-utils";
 					}
@@ -66,10 +65,6 @@ export default defineConfig({
 
 					if (id.includes("node_modules/d3-shape") || id.includes("node_modules/d3-path")) {
 						return "vendor-d3";
-					}
-
-					if (id.includes("src/stores")) {
-						return "vendor-states";
 					}
 				},
 			},

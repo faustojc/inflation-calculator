@@ -1,5 +1,5 @@
 import { arc as d3Arc, pie as d3Pie } from "d3-shape";
-import { createMemo, For, type JSX, onCleanup, onMount, Show } from "solid-js";
+import { createMemo, For, onCleanup, onMount, Show } from "solid-js";
 import CustomBaseSector from "@/components/graphs/custom/CustomBaseSector";
 import CustomNegativeLabel from "@/components/graphs/custom/CustomNegativeLabel";
 import CustomOverlaySector from "@/components/graphs/custom/CustomOverlaySector";
@@ -17,9 +17,6 @@ const OVERLAY_OUTER_R = VIEW_SIZE * 0.295; // 118
 const CLIP_R = VIEW_SIZE * 0.52;
 
 const PIE_DURATION = 700; // ms — rAF sweep
-const LABEL_SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
-const LABEL_DURATION = 0.25; // s — faster labels
-const LABEL_STAGGER = 0.04; // s
 
 // SVG path string for a clockwise sector from startAngle sweeping `sweep` radians, centered at (cx, cy)
 function revealSectorPath(sweep: number): string {
@@ -96,18 +93,16 @@ export function OverlayPieChart(props: {
 		hasNegatives() ? pieLayout(props.overlayPie).map((a) => ({ data: a.data, path: overlayArcGen(a) ?? "" })) : [],
 	);
 
-	const labelStyle = (i: number): JSX.CSSProperties =>
-		animationMs === 0
-			? { opacity: 1 }
-			: {
-					animation: `labelFocusIn ${LABEL_DURATION}s ${LABEL_SPRING} both`,
-					"animation-delay": `${Math.max(animationMs / 1000 - 0.05, 0) + i * LABEL_STAGGER}s`,
-				};
+	const labelGroupClass = () => {
+		if (animationMs === 0) return "";
+
+		return animationMs === PIE_DURATION ? "pie-labels pie-labels-normal" : "pie-labels pie-labels-fast";
+	};
 
 	return (
 		<div class="flex flex-col items-center w-full">
 			<div class="w-full aspect-square max-h-100 relative">
-				<svg viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`} class="w-full h-full" style={{ overflow: "visible" }}>
+				<svg viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`} class="w-full h-full overflow-visible">
 					<title>Pie Chart</title>
 
 					<defs>
@@ -154,7 +149,7 @@ export function OverlayPieChart(props: {
 					{/* LAYER 2 — Overlay pie clipped to the same growing sector */}
 					<Show when={hasNegatives()}>
 						<g clip-path={`url(#${clipPathId()})`}>
-							<g transform={`translate(${CX},${CY})`}>
+							<g transform={`translate(${CX},${CY})`} class="overlay-sectors">
 								<For each={overlayArcs()}>
 									{({ data, path }, i) => (
 										<CustomOverlaySector
@@ -172,42 +167,44 @@ export function OverlayPieChart(props: {
 						</g>
 					</Show>
 
-					{/* Positive labels — blur focus-in, staggered */}
-					<For each={baseArcs()}>
-						{({ data }, i) => (
-							<g style={labelStyle(i())}>
-								<CustomPositiveLabel
-									payload={data}
-									chartId={props.patternPrefix}
-									basePie={props.basePie}
-									overlayPie={props.overlayPie}
-									cx={CX}
-									cy={CY}
-									outerRadius={BASE_OUTER_R}
-								/>
-							</g>
-						)}
-					</For>
-
-					{/* Negative labels — continue stagger after positives */}
-					<Show when={hasNegatives()}>
-						<For each={overlayArcs()}>
-							{({ data }, i) => (
-								<g style={labelStyle(baseArcs().length + i())}>
-									<CustomNegativeLabel
+					<g class={labelGroupClass()}>
+						{/* Positive labels — blur focus-in, staggered */}
+						<For each={baseArcs()}>
+							{({ data }) => (
+								<g class="pie-label">
+									<CustomPositiveLabel
 										payload={data}
-										index={i()}
 										chartId={props.patternPrefix}
 										basePie={props.basePie}
 										overlayPie={props.overlayPie}
 										cx={CX}
 										cy={CY}
-										outerRadius={OVERLAY_OUTER_R}
+										outerRadius={BASE_OUTER_R}
 									/>
 								</g>
 							)}
 						</For>
-					</Show>
+
+						{/* Negative labels — continue stagger after positives */}
+						<Show when={hasNegatives()}>
+							<For each={overlayArcs()}>
+								{({ data }, i) => (
+									<g class="pie-label">
+										<CustomNegativeLabel
+											payload={data}
+											index={i()}
+											chartId={props.patternPrefix}
+											basePie={props.basePie}
+											overlayPie={props.overlayPie}
+											cx={CX}
+											cy={CY}
+											outerRadius={OVERLAY_OUTER_R}
+										/>
+									</g>
+								)}
+							</For>
+						</Show>
+					</g>
 				</svg>
 			</div>
 		</div>

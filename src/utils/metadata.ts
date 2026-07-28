@@ -1,5 +1,5 @@
-import type { AreaManifest, DataIndex, YearlyDataFile } from "@/lib/types";
-import type { Mode } from "@/stores/inflationStore";
+import type { AreaManifest, ChunkFile, DataIndex } from "@/lib/types";
+import type { IncomeClass, Mode } from "@/stores/inflationStore";
 export const MONTHS = [
 	"January",
 	"February",
@@ -44,8 +44,7 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"04.5": "e.g. payment for electricity consumption, kerosene, LPG, firewood",
 	"05.1": "e.g. sofa, wall clock, mattress, chair, bed frame",
 	"05.2": "e.g. blanket, bedsheet, curtain, pillowcase, mosquito net",
-	"05.3":
-		"e.g. rice cooker, refrigerator, electric fan, TV, air conditioner, gas range, repair of household appliances",
+	"05.3": "e.g. rice cooker, refrigerator, electric fan, TV, air conditioner, gas range, repair of household appliances",
 	"05.4": "e.g. drinking glass, plate, water bottle, spoon, fork",
 	"05.5": "e.g. hammer, screwdriver, shovel, garden hose, light bulb, fluorescent lamp",
 	"05.6": "e.g. dishwashing soap, laundry soap, sponge, broom, battery, domestic help services",
@@ -57,16 +56,12 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"07.2": "e.g. vehicle tire, engine oil, lubricating oil, diesel, gasoline, maintenance of motor vehicles",
 	"07.3": "e.g. transportation fare for jeepney, bus, taxi, tricycle, airplane, ship",
 	"07.4": "e.g. payment for courier services, delivery of goods, delivery of food for immediate consumption",
-	"08.1":
-		"e.g. mobile phone, television, personal computer, tablet computer, hard drive, microphone, rent of videoke machine",
-	"08.3":
-		"e.g. internet access service, landline telephone service, prepaid and postpaid mobile phone service",
+	"08.1": "e.g. mobile phone, television, personal computer, tablet computer, hard drive, microphone, rent of videoke machine",
+	"08.3": "e.g. internet access service, landline telephone service, prepaid and postpaid mobile phone service",
 	"09.1": "e.g. digital camera, video camera",
-	"09.2":
-		"e.g. chess set, scrabble set, playing cards, toy doll, toy gun, ball for basketball and volleyball",
+	"09.2": "e.g. chess set, scrabble set, playing cards, toy doll, toy gun, ball for basketball and volleyball",
 	"09.3": "e.g. fertilizer, flower pot, vegetable seeds, pet food, natural flower",
-	"09.4":
-		"e.g. admission fee for cockfight arena, payment for lotto, payment for fitness gym, entrance fee for swimming pool",
+	"09.4": "e.g. admission fee for cockfight arena, payment for lotto, payment for fitness gym, entrance fee for swimming pool",
 	"09.5": "e.g. guitar, piano, keyboards, drum set",
 	"09.6": "e.g. cable subscription, fee for cinema and theater",
 	"09.7": "e.g. textbook, dictionary, ballpen, notebook, newspaper, other school supplies",
@@ -77,8 +72,7 @@ export const SUB_CATEGORY_DESCRIPTIONS: Record<string, string> = {
 	"11.1": "e.g. meals eaten outside the home, take-away food",
 	"11.2": "e.g. payment for overnight stay in hotel, motel, and inn",
 	"12.2": "e.g. money transfer fee, ATM withdrawal fee",
-	"13.1":
-		"e.g. hair clipper, hairbrush, feminine wash, toothbrush, toothpaste, mouthwash, shampoo, conditioner, bath soap, lipstick, baby powder",
+	"13.1": "e.g. hair clipper, hairbrush, feminine wash, toothbrush, toothpaste, mouthwash, shampoo, conditioner, bath soap, lipstick, baby powder",
 	"13.2": "e.g. wallet, umbrella, fashion jewelry, wristwatch, bags",
 	"13.9": "e.g. photocopying services, fee for issuance of civil registry document, power of attorney",
 };
@@ -102,17 +96,20 @@ const COMMODITY_COLORS: Record<string, string> = {
 export const NEG_STRIPE_COLOR = "rgba(220, 38, 38, 0.35)";
 export const NEG_STROKE_COLOR = "#DC2626";
 
-// Global indexing for serialized json data
-export const GLOBAL_INDEX: DataIndex = {};
+export const GLOBAL_INDEX: Record<IncomeClass, DataIndex> = { ALL: {}, B30: {} };
 export const INDEXED_KEYS = new Set<string>();
-export const FETCH_CACHE = new Map<string, Promise<YearlyDataFile | null>>();
+// Keyed by `${area}|${incomeClass}|${chunk}`
+export const FETCH_CACHE = new Map<string, Promise<ChunkFile | null>>();
 
 export function clearGlobalIndex() {
-	for (const key of Object.keys(GLOBAL_INDEX)) {
-		delete GLOBAL_INDEX[key];
+	for (const cls of Object.keys(GLOBAL_INDEX) as IncomeClass[]) {
+		for (const key of Object.keys(GLOBAL_INDEX[cls])) {
+			delete GLOBAL_INDEX[cls][key];
+		}
 	}
-	INDEXED_KEYS.clear();
-	FETCH_CACHE.clear();
+
+	if (INDEXED_KEYS.size > 0) INDEXED_KEYS.clear();
+	if (FETCH_CACHE.size > 0) FETCH_CACHE.clear();
 }
 
 export const WEIGHTS_CACHE = new Map<string, Promise<number[] | null>>();
@@ -129,19 +126,17 @@ export function formatLocationName(str: string, locale = "en") {
 	});
 
 	const exceptions = ["de", "del", "las", "los", "y", "and", "of", "in"];
-	str = str.replaceAll(
-		new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"),
-		(match: string, offset: number) => (offset === 0 ? match : match.toLowerCase()),
+	str = str.replaceAll(new RegExp(String.raw`\b(${exceptions.join("|")})\b`, "gi"), (match: string, offset: number) =>
+		offset === 0 ? match : match.toLowerCase(),
 	);
 
 	// Fix Roman numerals (Iii -> III, Iv -> IV)
-	str = str.replaceAll(
-		/\b(i{1,3}|iv|v|vi{1,3}|vii{1,3}|viii|ix|x|xi{1,2}|xii|xiii)(-[a-z])?\b/gi,
-		(match: string) => match.toUpperCase(),
+	str = str.replaceAll(/\b(i{1,3}|iv|v|vi{1,3}|vii{1,3}|viii|ix|x|xi{1,2}|xii|xiii)(-[a-z])?\b/gi, (match: string) =>
+		match.toUpperCase(),
 	);
 
 	// Handle parentheses: Uppercase if acronym of name, otherwise keep Title Case
-	str = str.replaceAll(/\(([^)]+)\)/g, (match: string, inner: string, offset: number, fullString: string) => {
+	str = str.replaceAll(/\(([^()]+)\)/g, (match: string, inner: string, offset: number, fullString: string) => {
 		const namePart = fullString.slice(0, offset);
 		const words = namePart.split(/[\s-]+/);
 		const acronymTarget = inner.toUpperCase();
@@ -152,10 +147,7 @@ export function formatLocationName(str: string, locale = "en") {
 			.join("");
 
 		// If the content is an acronym of the name (e.g. NCR == N(ational)C(apital)R(egion))
-		if (
-			(generatedAcronym.length > 1 && acronymTarget === generatedAcronym) ||
-			acronymTarget === "CALABARZON"
-		) {
+		if ((generatedAcronym.length > 1 && acronymTarget === generatedAcronym) || acronymTarget === "CALABARZON") {
 			return `(${acronymTarget})`;
 		}
 
@@ -173,11 +165,11 @@ export function preventNonNumeric(e: KeyboardEvent) {
 
 export const getLimitValue = (m: Mode, v: number) => {
 	if (m === "percent") {
-		const val = v > 100 ? 100 : v;
+		const val = Math.min(v, 100);
 		return val;
 	}
 
-	const val = v > 500000 ? 500000 : v;
+	const val = Math.min(v, 500000);
 	return val;
 };
 

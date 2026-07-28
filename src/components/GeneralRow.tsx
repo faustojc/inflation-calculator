@@ -1,6 +1,5 @@
-﻿import { CircleAlert } from "lucide-solid";
-import { createEffect, Show } from "solid-js";
-import type { CommodityDef } from "@/lib/types";
+﻿import type { CommodityDef } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
 	generalExpenses,
 	highlightState,
@@ -10,9 +9,13 @@ import {
 	updateExpenseValue,
 } from "@/stores/inflationStore";
 import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric } from "@/utils/metadata";
+import { ImagePreviewModal, preloadImagePreview } from "@/components/imagePreview";
+import { CircleAlert } from "lucide-solid";
+import { createEffect, createSignal, Show, Suspense } from "solid-js";
 
 const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 	const m = () => mode.get();
+	const [previewOpen, setPreviewOpen] = createSignal(false);
 
 	const value = () => getLimitValue(m(), generalExpenses[props.cat.code]?.get()?.value || 0);
 	const isMatch = () => highlightState.code.get() === props.cat.code;
@@ -35,8 +38,7 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 		}
 	});
 
-	const commitValue = (nextValue: number) =>
-		updateExpenseValue(props.cat.code, props.cat.name, nextValue, "general");
+	const commitValue = (nextValue: number) => updateExpenseValue(props.cat.code, props.cat.name, nextValue, "general");
 
 	const inputLimit = () => (m() === "percent" ? 100 : 500000);
 	const displayValue = () => (value() > 0 ? String(value()) : "");
@@ -84,29 +86,39 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 	return (
 		<div
 			ref={rowRef}
-			class={`
-				grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl border transition-all duration-300
-				${
-					missingStatus()
-						? "bg-error/10 border-error/40 ring-2 ring-error/40 shadow-md"
-						: isMatch()
-							? "bg-warning/10 border-warning/40 ring-2 ring-warning/40 shadow-md"
-							: hasFilled()
-								? "bg-primary/5 border-primary/20 shadow-sm"
-								: "bg-card border-border hover:border-primary/30 hover:shadow-sm"
-				}
-			`.replace(/\s+/g, " ")}
+			class={cn(
+				"grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl border transition-all duration-300",
+				missingStatus()
+					? "bg-error/10 border-error/40 ring-2 ring-error/40 shadow-md"
+					: isMatch()
+						? "bg-warning/10 border-warning/40 ring-2 ring-warning/40 shadow-md"
+						: hasFilled()
+							? "bg-primary/5 border-primary/20 shadow-sm"
+							: "bg-card border-border hover:border-primary/30 hover:shadow-sm",
+			)}
 		>
 			<div class="col-span-2 min-w-0">
-				<div class="flex items-center gap-2 mb-0.5"> 
-					<span
-						class={`font-mono text-[0.65rem] px-1.5 py-0.5 rounded font-semibold shrink-0 ${missingStatus() ? "bg-error text-error-content" : "bg-primary text-white"}`}
+				<div class="flex items-center gap-2 mb-0.5">
+					<button
+						type="button"
+						tabIndex={-1}
+						class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+						aria-label={`View full image for ${props.cat.name}`}
+						onPointerEnter={preloadImagePreview}
+						onPointerDown={preloadImagePreview}
+						onClick={() => setPreviewOpen(true)}
 					>
-						{props.cat.code}
-					</span>
-					<h3 class={`font-semibold text-base text-wrap ${isMatch() ? "font-extrabold" : ""}`}>
-						{props.cat.name}
-					</h3>
+						<img
+							src={`major/${props.cat.code}.jpg`}
+							alt={props.cat.name}
+							width={48}
+							height={48}
+							class="w-12 h-12 block object-cover"
+							loading="lazy"
+							decoding="async"
+						/>
+					</button>
+					<h3 class={`font-semibold text-base text-wrap ${isMatch() ? "font-extrabold" : ""}`}>{props.cat.name}</h3>
 					<Show when={isMatch()}>
 						<p class="text-xs font-bold text-primary text-wrap animate-in fade-in">
 							← {highlightLabel() || "It"} belongs here
@@ -129,19 +141,16 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 						min={0}
 						max={500000}
 						placeholder="0"
-						class={`
-							input input-bordered commodity-input
-							pl-8 font-mono text-right text-sm h-9
-							${
-								missingStatus()
-									? "ring-2 ring-error border-error text-error font-semibold opacity-70 cursor-not-allowed"
-									: isMatch()
-										? "ring-2 ring-warning border-warning"
-										: hasFilled()
-											? "border-primary font-semibold"
-											: ""
-							}
-						`.replace(/\s+/g, " ")}
+						class={cn(
+							"input input-bordered commodity-input pl-8 font-mono text-right text-sm h-9",
+							missingStatus()
+								? "ring-2 ring-error border-error text-error font-semibold opacity-70 cursor-not-allowed"
+								: isMatch()
+									? "ring-2 ring-warning border-warning"
+									: hasFilled()
+										? "border-primary font-semibold"
+										: "",
+						)}
 						value={displayValue()}
 						disabled={missingStatus()}
 						onKeyDown={handleKeyDown}
@@ -163,6 +172,18 @@ const GeneralRow = (props: Readonly<{ cat: CommodityDef }>) => {
 					<CircleAlert class="w-3.5 h-3.5" />
 					<span>No official CPI data</span>
 				</div>
+			</Show>
+
+			<Show when={previewOpen()}>
+				<Suspense fallback={null}>
+					<ImagePreviewModal
+						src={`major/${props.cat.code}.jpg`}
+						alt={props.cat.name}
+						title={props.cat.name}
+						caption={MAJOR_CATEGORY_DESCRIPTIONS[props.cat.code] || "General expenses"}
+						onClose={() => setPreviewOpen(false)}
+					/>
+				</Suspense>
 			</Show>
 		</div>
 	);

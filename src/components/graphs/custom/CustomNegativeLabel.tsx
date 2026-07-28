@@ -1,8 +1,8 @@
-import { Show } from "solid-js";
 import type { PieEntry } from "@/lib/types";
 import { activeSlice, sliceId } from "@/stores/graphStore";
 import { getSmartLabelLayout } from "@/utils/labelLayoutUtility";
 import { getColor } from "@/utils/metadata";
+import { Show } from "solid-js";
 
 interface Props {
 	cx: number;
@@ -21,27 +21,22 @@ const CustomNegativeLabel = (props: Props) => {
 	const chartPrefix = () => props.chartId.charAt(0);
 	const fullId = () => chartPrefix() + sliceId(entry().code, entry().originalShare);
 	const isSelected = () => activeSlice.get() === fullId();
-	const isAnyInThisChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
+	const isChartSelected = () => activeSlice.get()?.startsWith(chartPrefix());
 
 	const layout = () =>
 		getSmartLabelLayout(props.chartId, props.basePie, props.overlayPie, props.cx, props.cy, props.outerRadius);
 	const pos = () => layout().get(`n_${entry().code}`);
 
 	const visible = () =>
-		entry().originalShare !== 0 &&
-		entry().type !== "filler" &&
-		!!props.chartId &&
-		!!props.basePie &&
-		!!props.overlayPie;
+		entry().originalShare !== 0 && entry().type !== "filler" && !!props.chartId && !!props.basePie && !!props.overlayPie;
 
 	return (
 		<Show when={visible() && pos()}>
 			{(p) => (
 				<g
-					style={{
-						opacity: isAnyInThisChartSelected() && !isSelected() ? 0.2 : 1,
-						transition: "opacity 0.2s ease-in-out",
-					}}
+					class={`transition-opacity duration-200 ease-in-out ${
+						isChartSelected() && !isSelected() ? "opacity-20" : "opacity-100"
+					}`}
 				>
 					<path
 						d={`M${p().sx},${p().sy} L${p().ex},${p().ey}`}
@@ -51,13 +46,7 @@ const CustomNegativeLabel = (props: Props) => {
 					/>
 					<Show when={props.overlayPie[props.index]}>
 						{(item) => (
-							<rect
-								x={p().ex - 4}
-								y={p().ey - 4}
-								width={9}
-								height={9}
-								fill={getColor(item().code, props.index)}
-							/>
+							<rect x={p().ex - 4} y={p().ey - 4} width={9} height={9} fill={getColor(item().code, props.index)} />
 						)}
 					</Show>
 					<text
@@ -66,8 +55,7 @@ const CustomNegativeLabel = (props: Props) => {
 						fill="#f23f1f"
 						text-anchor={p().textAnchor}
 						dominant-baseline="central"
-						class={`text-xs sm:text-sm font-semibold text-destructive ${isSelected() ? "text-base sm:text-lg" : ""}`}
-						style={{ transition: "font-size 0.2s ease-in-out" }}
+						class={`text-xs sm:text-sm font-semibold text-destructive transition-[font-size] duration-200 ease-in-out ${isSelected() ? "text-base sm:text-lg" : ""}`}
 					>
 						{`${entry().originalShare.toFixed(1)}%`}
 					</text>

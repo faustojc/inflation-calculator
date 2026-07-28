@@ -1,16 +1,7 @@
-﻿import { SearchIcon } from "lucide-solid";
+﻿import { cn } from "@/lib/utils";
+import { SearchIcon } from "lucide-solid";
 import type { ComponentProps, JSX } from "solid-js";
-import {
-	createContext,
-	createMemo,
-	createSignal,
-	onCleanup,
-	onMount,
-	Show,
-	splitProps,
-	useContext,
-} from "solid-js";
-import { cn } from "@/lib/utils";
+import { createContext, createMemo, createSignal, onCleanup, onMount, Show, splitProps, useContext } from "solid-js";
 
 type CommandContextValue = {
 	query: () => string;
@@ -33,21 +24,18 @@ export function Command(props: CommandProps) {
 
 	const shouldFilter = () => local.shouldFilter ?? true;
 	const normalizedQuery = createMemo(() => query().toLowerCase().trim());
-	const isVisible = (text: string) =>
-		!shouldFilter() || !normalizedQuery() || text.toLowerCase().includes(normalizedQuery());
+	const isVisible = (text: string) => !shouldFilter() || !normalizedQuery() || text.toLowerCase().includes(normalizedQuery());
 	const registerItem = (text: () => string) => {
 		setItems((prev) => [...prev, text]);
 		return () => setItems((prev) => prev.filter((item) => item !== text));
 	};
-	const hasMatches = createMemo(
-		() => !shouldFilter() || !normalizedQuery() || items().some((text) => isVisible(text())),
-	);
+	const hasMatches = createMemo(() => !shouldFilter() || !normalizedQuery() || items().some((text) => isVisible(text())));
 
 	const onKeyDown = (event: KeyboardEvent) => {
 		if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-		const visibleItems = Array.from(
-			rootRef.querySelectorAll<HTMLButtonElement>("[data-command-item]:not(:disabled)"),
-		).filter((el) => el.offsetParent !== null);
+		const visibleItems = Array.from(rootRef.querySelectorAll<HTMLButtonElement>("[data-command-item]:not(:disabled)")).filter(
+			(el) => el.offsetParent !== null,
+		);
 		if (visibleItems.length === 0) return;
 		event.preventDefault();
 		const active = document.activeElement;
@@ -144,9 +132,9 @@ export function CommandGroup(props: ComponentProps<"div"> & { heading?: JSX.Elem
 	);
 }
 
-export function CommandSeparator(props: ComponentProps<"div">) {
+export function CommandSeparator(props: ComponentProps<"hr">) {
 	const [local, rest] = splitProps(props, ["class"]);
-	return <div role="separator" {...rest} class={cn("bg-border -mx-1 h-px", local.class)} />;
+	return <hr {...rest} class={cn("bg-border -mx-1 h-px", local.class)} />;
 }
 
 export function CommandItem(
@@ -157,9 +145,6 @@ export function CommandItem(
 
 	onMount(() => {
 		if (!context) return;
-		// The getter is stored by registerItem and read inside a tracked memo (hasMatches),
-		// so this reactive access is intentional despite the lint heuristic.
-		// eslint-disable-next-line solid/reactivity
 		const unregister = context.registerItem(() => local.value ?? "");
 		onCleanup(unregister);
 	});
@@ -167,24 +152,25 @@ export function CommandItem(
 	const visible = () => !context || !local.value || context.isVisible(local.value);
 	const onClick: JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent> = (event) => {
 		if (typeof local.onClick === "function") local.onClick(event);
-		if (!event.currentTarget.disabled)
-			local.onSelect?.(local.value ?? event.currentTarget.textContent?.trim() ?? "");
+		if (!event.currentTarget.disabled) local.onSelect?.(local.value ?? event.currentTarget.textContent?.trim() ?? "");
 	};
 
 	return (
-		<button
-			type="button"
-			data-command-item
-			role="option"
-			onClick={onClick}
-			{...rest}
-			class={cn(
-				"focus:bg-primary/10 focus:text-foreground hover:bg-primary/10 hover:text-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-				!visible() && "hidden",
-				local.class,
-			)}
-		>
-			{local.children}
-		</button>
+		<Show when={visible()}>
+			<button
+				type="button"
+				data-command-item
+				role="option"
+				onClick={onClick}
+				{...rest}
+				class={cn(
+					"focus:bg-primary/10 focus:text-foreground hover:bg-primary/10 hover:text-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm",
+					!visible() && "hidden",
+					local.class,
+				)}
+			>
+				{local.children}
+			</button>
+		</Show>
 	);
 }

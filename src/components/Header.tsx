@@ -18,7 +18,7 @@ export const Header = () => {
 			<div class="max-w-5xl mx-auto px-2 sm:px-4 py-3">
 				<div class="flex items-center justify-between gap-1 sm:gap-2">
 					<img
-						src="/inflation-calculator/psa_header.png"
+						src={`${import.meta.env.BASE_URL}psa_header.png`}
 						alt="PSA Logo"
 						fetchpriority="high"
 						width={362.587}
@@ -29,7 +29,7 @@ export const Header = () => {
 						<img
 							width={67.55}
 							height={63}
-							src="/inflation-calculator/bagong_pilipinas_logo.svg"
+							src={`${import.meta.env.BASE_URL}bagong_pilipinas_logo.svg`}
 							alt="Bagong Pilipinas"
 							fetchpriority="high"
 							class="h-10 sm:h-12 md:h-14 w-auto object-contain max-w-21.25 sm:max-w-35 md:max-w-none"

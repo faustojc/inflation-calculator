@@ -1,4 +1,4 @@
-import { createSignal, lazy, Show, Suspense } from "solid-js";
+import { createSignal, For, lazy, Show, Suspense } from "solid-js";
 import ChartSelector from "@/components/ChartSelector";
 import CompareSelector from "@/components/CompareSelector";
 import { ContributorTable } from "@/components/ContributorTable";
@@ -6,6 +6,28 @@ import { compareOfficial } from "@/stores/graphStore";
 import type { ContributionFactor } from "@/utils/inflationCompute";
 
 const ContribInflationPie = lazy(() => import("@/components/graphs/pie/ContribInflationPie"));
+
+const BONE = "skeleton motion-reduce:animate-none";
+
+// Disc + legend rows, matching the pie chart's footprint.
+function PieSkeleton() {
+	return (
+		<output aria-busy="true" aria-label="Loading contribution chart" class="flex h-80 w-full items-center gap-6 px-2">
+			<div class={`${BONE} size-52 shrink-0 rounded-full`} />
+			<div class="flex-1 space-y-3">
+				<For each={[0, 1, 2, 3]}>
+					{() => (
+						<div class="flex items-center gap-2">
+							<div class={`${BONE} size-3 shrink-0 rounded-sm`} />
+							<div class={`${BONE} h-4 flex-1 rounded`} />
+						</div>
+					)}
+				</For>
+			</div>
+			<span class="sr-only">Loading contribution chart…</span>
+		</output>
+	);
+}
 
 const ContributorTab = (props: { contributors: ContributionFactor[] }) => {
 	const comparison = () => compareOfficial.get();
@@ -34,7 +56,7 @@ const ContributorTab = (props: { contributors: ContributionFactor[] }) => {
 			<Show
 				when={chartType() === "table"}
 				fallback={
-					<Suspense fallback={<div class="h-80 rounded-lg bg-muted/40 animate-pulse" />}>
+					<Suspense fallback={<PieSkeleton />}>
 						<ContribInflationPie personal={personal()} official={comparison()!} />
 					</Suspense>
 				}

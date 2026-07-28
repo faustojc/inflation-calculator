@@ -1,6 +1,5 @@
-﻿import { ArrowLeft, ChevronDown, ChevronRight, Equal, InfoIcon, TriangleAlert } from "lucide-solid";
-import { createEffect, createSignal, For, onCleanup, Show } from "solid-js";
-import type { DisplayNode } from "@/components/ExpenseTab";
+﻿import type { DisplayNode } from "@/components/ExpenseTab";
+import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -14,18 +13,21 @@ import {
 	toggleExpansion,
 	updateExpenseValue,
 } from "@/stores/inflationStore";
-import { getLimitValue, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
+import { getLimitValue, MAJOR_CATEGORY_DESCRIPTIONS, preventNonNumeric, SUB_CATEGORY_DESCRIPTIONS } from "@/utils/metadata";
+import { ImagePreviewModal, preloadImagePreview } from "@/components/imagePreview";
+import { ArrowLeft, ChevronDown, ChevronRight, Equal, InfoIcon, TriangleAlert } from "lucide-solid";
+import { createEffect, createSignal, For, onCleanup, Show, Suspense } from "solid-js";
 
 const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
+	const [previewOpen, setPreviewOpen] = createSignal(false);
+
 	const currMode = () => mode.get();
 	const hasChildren = () => Boolean(props.node.children && props.node.children.length > 0);
 
 	const isMatch = () => highlightState.code.get() === props.node.code;
 	const highlightLabel = () => (isMatch() ? highlightState.label.get() : "");
 	const displayValue = () =>
-		hasChildren()
-			? categoryTotals[props.node.code]?.get() || 0
-			: detailedExpenses[props.node.code]?.get()?.value || 0;
+		hasChildren() ? categoryTotals[props.node.code]?.get() || 0 : detailedExpenses[props.node.code]?.get()?.value || 0;
 	const isOpen = () => expandedNodes[props.node.code]?.get() ?? (props.level < 1 || displayValue() > 0);
 	const isMissing = () => missingDetailedItems.get().has(props.node.code);
 	const isReady = () => prefetchReady.get();
@@ -58,8 +60,7 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 		onCleanup(() => clearTimeout(timer));
 	});
 
-	const commitValue = (nextValue: number) =>
-		updateExpenseValue(props.node.code, props.node.name, nextValue, "detailed");
+	const commitValue = (nextValue: number) => updateExpenseValue(props.node.code, props.node.name, nextValue, "detailed");
 
 	const inputLimit = () => (currMode() === "percent" ? 100 : 500000);
 	const inputText = () => {
@@ -116,19 +117,18 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 			<div
 				ref={rowRef}
 				style={{ "padding-left": `${props.level * 20 + 12}px` }}
-				class={`group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300
-					${
-						missingStatus()
-							? "bg-error/10 border-error/40 ring-inset ring-1 ring-error"
-							: isMatch()
-								? "bg-warning/10 border-warning/40 ring-inset ring-1 ring-warning"
-								: hasChildren()
-									? props.level === 0
-										? "bg-primary/15 border-primary/30 hover:bg-primary/20"
-										: "bg-primary/8 border-primary/20 hover:bg-primary/12"
-									: "bg-base-100 border-border hover:bg-base-200"
-					}
-				`.replace(/\s+/g, " ")}
+				class={cn(
+					"group flex items-center gap-2 py-2 px-3 border-b transition-all duration-300",
+					missingStatus()
+						? "bg-error/10 border-error/40 ring-inset ring-1 ring-error"
+						: isMatch()
+							? "bg-warning/10 border-warning/40 ring-inset ring-1 ring-warning"
+							: hasChildren()
+								? props.level === 0
+									? "bg-primary/15 border-primary/30 hover:bg-primary/20"
+									: "bg-primary/8 border-primary/20 hover:bg-primary/12"
+								: "bg-base-100 border-border hover:bg-base-200",
+				)}
 			>
 				<Show when={hasChildren()}>
 					<button
@@ -163,6 +163,29 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 									</PopoverContent>
 								</Popover>
 							</Show>
+
+							<Show when={props.level === 0}>
+								<button
+									type="button"
+									tabIndex={-1}
+									class="shrink-0 rounded-lg overflow-hidden cursor-zoom-in transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+									aria-label={`View full image for ${props.node.name}`}
+									onPointerEnter={preloadImagePreview}
+									onPointerDown={preloadImagePreview}
+									onClick={() => setPreviewOpen(true)}
+								>
+									<img
+										src={`major/${props.node.code}.jpg`}
+										alt={props.node.name}
+										width={48}
+										height={48}
+										class="w-12 h-12 block object-cover"
+										loading="lazy"
+										decoding="async"
+									/>
+								</button>
+							</Show>
+
 							<p
 								class={`text-sm text-wrap text-left
 								${props.level === 0 ? "font-bold" : "text-foreground"}
@@ -208,15 +231,16 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 									name={props.node.name}
 									type="number"
 									aria-label={`Expense amount for ${props.node.name}`}
-									class={`input input-bordered commodity-input w-full h-8 pl-6 text-right font-mono text-sm transition-all ${
+									class={cn(
+										"input input-bordered commodity-input w-full h-8 pl-6 text-right font-mono text-sm transition-all",
 										missingStatus()
 											? "ring-2 ring-error border-error text-error font-semibold opacity-70 cursor-not-allowed"
 											: isMatch()
 												? "ring-2 ring-warning border-warning bg-base-100 scale-105"
 												: displayValue() > 0
 													? "bg-primary/10 border-primary/50 text-foreground font-semibold"
-													: "bg-base-200 border-base-300 text-foreground hover:border-primary/50 hover:bg-base-100"
-									}`.replace(/\s+/g, " ")}
+													: "bg-base-200 border-base-300 text-foreground hover:border-primary/50 hover:bg-base-100",
+									)}
 									placeholder="0"
 									value={inputText()}
 									min={0}
@@ -261,6 +285,18 @@ const ExpenseNode = (props: { node: DisplayNode; level: number }) => {
 						</div>
 					</div>
 				</div>
+			</Show>
+
+			<Show when={previewOpen()}>
+				<Suspense fallback={null}>
+					<ImagePreviewModal
+						src={`major/${props.node.code}.jpg`}
+						alt={props.node.name}
+						title={props.node.name}
+						caption={MAJOR_CATEGORY_DESCRIPTIONS[props.node.code] || "General expenses"}
+						onClose={() => setPreviewOpen(false)}
+					/>
+				</Suspense>
 			</Show>
 		</div>
 	);

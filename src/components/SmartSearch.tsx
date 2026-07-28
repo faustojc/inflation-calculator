@@ -1,13 +1,4 @@
-﻿import { LucideNavigation, Search, Tag } from "lucide-solid";
-import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "@/components/Command";
+﻿import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/Command";
 import HighlightedText from "@/components/HighlightedText";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,6 +7,8 @@ import { type FuzzyMatch, fuzzyScore } from "@/lib/fuzzySearch";
 import type { SearchOption } from "@/lib/types";
 import { dataStore } from "@/stores/dataStore";
 import { activeTab, locateCategory, missingDataItems } from "@/stores/inflationStore";
+import { LucideNavigation, Search, Tag } from "lucide-solid";
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 
 interface ScoredOption {
 	item: SearchOption;
@@ -59,8 +52,7 @@ export function SmartSearch() {
 		const currTab = activeTab.get();
 
 		for (const item of searchOptions) {
-			const currCode =
-				currTab === "general" && item.code.includes(".") ? item.code.split(".")[0]! : item.code;
+			const currCode = currTab === "general" && item.code.includes(".") ? item.code.split(".")[0]! : item.code;
 
 			if (missing.has(currCode)) continue;
 
@@ -118,11 +110,11 @@ export function SmartSearch() {
 	return (
 		<div
 			class={`sticky z-30 transition-[top] duration-300 ease-in-out motion-reduce:transition-none ${
-				isMobile() && headerHidden() ? "top-0" : "top-18 sm:top-25"
+				isMobile() && headerHidden() ? "top-0" : "top-18 sm:top-22"
 			}`}
 			id="smart-search-container"
 		>
-			<Popover open={open()} onOpenChange={setOpen}>
+			<Popover open={open()} onOpenChange={setOpen} modal={true}>
 				<PopoverTrigger asChild>
 					<button
 						id="smart-search"
@@ -144,10 +136,7 @@ export function SmartSearch() {
 						</Show>
 					</button>
 				</PopoverTrigger>
-				<PopoverContent
-					class="w-auto min-w-(--popover-trigger-width) max-w-[calc(100vw-16px)] p-0"
-					align="start"
-				>
+				<PopoverContent class="w-auto min-w-(--popover-trigger-width) max-w-[calc(100vw-16px)] p-0" align="start">
 					<Command shouldFilter={false}>
 						<CommandInput placeholder="Type to search items..." value={query()} onValueChange={setQuery} />
 						<CommandList class="w-full">

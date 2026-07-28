@@ -6,8 +6,8 @@ A personal inflation calculator for the Philippines.
 
 - Bun
 - Vite
-- React
-- Shadcn UI
+- SolidJS
+- Tailwind CSS v4 + daisyUI
 
 ## How to Run
 

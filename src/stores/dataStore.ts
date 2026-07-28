@@ -2,29 +2,20 @@ import type {
 	AreaDef,
 	AreaHierarchy,
 	AreaManifest,
+	ChunkFile,
 	CommodityDef,
 	DataIndex,
-	DataType,
 	SearchOption,
 	TreeNode,
-	YearlyDataFile,
 } from "@/lib/types";
 import type { IncomeClass } from "@/stores/inflationStore";
 import { createMemoAtom, createStoreAtom } from "@/stores/solidAtoms";
-import {
-	FETCH_CACHE,
-	formatLocationName,
-	GLOBAL_INDEX,
-	INDEXED_KEYS,
-	MANIFEST_CACHE,
-} from "@/utils/metadata";
+import { CHUNK_EPOCH, CHUNK_YEARS, chunkName, chunkRange, chunksForRange } from "@/utils/chunks";
+import { FETCH_CACHE, formatLocationName, GLOBAL_INDEX, INDEXED_KEYS, MANIFEST_CACHE } from "@/utils/metadata";
 import { fetchWithCache, invalidateIfDataChanged } from "@/utils/storage";
 
-// Static CPI data path under public/api/v2. Returned relative (no leading
-// slash) so it resolves against the app base — works whether the build is
-// served from the document root or a subfolder.
 export function cpiUrl(path: string): string {
-	return `api/v2/${path}`;
+	return `api/v3/${path}`;
 }
 
 interface DataState {
@@ -45,6 +36,9 @@ interface DataState {
 }
 
 interface Metadata {
+	schema_version: number;
+	chunk_years: number;
+	chunk_epoch: number;
 	generated_at: string;
 	year_range: {
 		official: { min: number; max: number };
@@ -75,7 +69,7 @@ export async function initializeApp() {
 
 		let [metaRes, commRes] = await Promise.all([
 			fetchWithCache(cpiUrl("metadata.json"), "network-first"),
-			fetchWithCache(cpiUrl("commodities.json"), "network-first"),
+			fetchWithCache(cpiUrl("commodities.json"), "cache-first"), // cache commodity cuz it won't change
 		]);
 
 		if (!metaRes.ok || !commRes.ok) throw new Error("Failed to load data configurations");
@@ -86,13 +80,25 @@ export async function initializeApp() {
 		if (wasInvalidated) {
 			[metaRes, commRes] = await Promise.all([
 				fetchWithCache(cpiUrl("metadata.json"), "network-first"),
-				fetchWithCache(cpiUrl("commodities.json"), "network-first"),
+				fetchWithCache(cpiUrl("commodities.json"), "cache-first"),
 			]);
 
 			if (!metaRes.ok || !commRes.ok) throw new Error("Failed to reload data after cache invalidation");
 		}
 
 		const meta: Metadata = await metaRes.json();
+
+		if (meta.schema_version !== 3 || meta.chunk_epoch !== CHUNK_EPOCH || meta.chunk_years !== CHUNK_YEARS) {
+			console.error(
+				`[Data] Format mismatch: expected schema v3 (epoch ${CHUNK_EPOCH}, span ${CHUNK_YEARS}), ` +
+					`got schema v${meta.schema_version} (epoch ${meta.chunk_epoch}, span ${meta.chunk_years}).`,
+			);
+			dataStore.error.set("Data format mismatch. Please try again later.");
+			dataStore.isLoading.set(false);
+			dataStore.isReady.set(false);
+			return;
+		}
+
 		let commodities: CommodityDef[] = await commRes.json();
 		const years: string[] = [];
 		const flatCodes: string[] = [];
@@ -155,6 +161,7 @@ export async function initializeApp() {
 		});
 
 		await setCurrentArea(meta.areas.at(1)!.key);
+		void fetchChunk(meta.areas.at(1)!.key, "ALL", chunkName(meta.year_range.official.max));
 
 		dataStore.assign({
 			areas: meta.areas,
@@ -208,12 +215,23 @@ export async function setCurrentArea(areaKey: string) {
 	}
 }
 
-function fetchYearlyData(area: string, year: number): Promise<YearlyDataFile | null> {
-	const cacheKey = `${area}|${year}`;
+export function chunkUrl(area: string, incomeClass: IncomeClass, chunk: string): string {
+	return cpiUrl(`data/${area}/${incomeClass.toLowerCase()}/${chunk}.json`);
+}
+
+async function fetchChunk(area: string, incomeClass: IncomeClass, chunk: string): Promise<ChunkFile | null> {
+	const cacheKey = `${area}|${incomeClass}|${chunk}`;
 	let promise = FETCH_CACHE.get(cacheKey);
 
 	if (!promise) {
-		promise = fetchWithCache(cpiUrl(`data/${area}/${year}.json`), "cache-first")
+		// skip chunks the generator never published (e.g. b30/1994-2001.json) without a 404 round-trip.
+		const manifest = await getAreaManifest(area);
+		if (!manifest?.chunks?.[incomeClass]?.includes(chunk)) {
+			return null;
+		}
+
+		const url = chunkUrl(area, incomeClass, chunk);
+		promise = fetchWithCache(url, "cache-first")
 			.then((r) => {
 				if (r.ok && r.headers.get("content-type")?.includes("application/json")) {
 					return r.json();
@@ -233,30 +251,46 @@ function fetchYearlyData(area: string, year: number): Promise<YearlyDataFile | n
 	return promise;
 }
 
-function indexFile(file: YearlyDataFile, incomeClass: IncomeClass) {
-	const indexKey = `${file.area}|${file.year}|${incomeClass}`;
-	if (INDEXED_KEYS.has(indexKey)) return;
+function indexChunk(file: ChunkFile, incomeClass: IncomeClass) {
+	const tree = GLOBAL_INDEX[incomeClass];
 
-	for (const type of Object.keys(file.data)) {
-		const dataType = type as DataType;
-		const dataTypeBlock = file.data[dataType];
-		if (!dataTypeBlock?.[incomeClass]) continue;
+	tree[file.area] ??= {};
+	const areaIndex = tree[file.area]!;
 
-		for (const [code, values] of Object.entries(dataTypeBlock[incomeClass])) {
-			for (let i = 0; i < values.length; i++) {
-				const val = values[i];
-				if (val !== null && val !== undefined) {
-					GLOBAL_INDEX[file.area] ??= {};
-					GLOBAL_INDEX[file.area]![file.year] ??= {};
-					GLOBAL_INDEX[file.area]![file.year]![dataType] ??= {};
-					GLOBAL_INDEX[file.area]![file.year]![dataType]![i + 1] ??= {};
-					GLOBAL_INDEX[file.area]![file.year]![dataType]![i + 1]![code] = val;
+	for (const [yearStr, types] of Object.entries(file.years)) {
+		const year = Number(yearStr);
+		const indexKey = `${file.area}|${year}|${incomeClass}`;
+
+		if (INDEXED_KEYS.has(indexKey)) continue;
+
+		areaIndex[year] ??= {};
+		const yearIndex = areaIndex[year]!;
+
+		for (const dataType of ["official", "personal"] as const) {
+			const block = types[dataType];
+			if (!block) continue;
+
+			yearIndex[dataType] ??= {};
+			const months = yearIndex[dataType]!;
+
+			for (const [code, values] of Object.entries(block)) {
+				for (let i = 0; i < 12; i++) {
+					const val = values[i];
+
+					if (val != null) {
+						let month = months[i + 1];
+						if (!month) {
+							month = {};
+							months[i + 1] = month;
+						}
+						month[code] = val;
+					}
 				}
 			}
 		}
-	}
 
-	INDEXED_KEYS.add(indexKey);
+		INDEXED_KEYS.add(indexKey);
+	}
 }
 
 export async function getCalculationData(
@@ -265,34 +299,42 @@ export async function getCalculationData(
 	startYear: number,
 	endYear: number,
 ): Promise<DataIndex> {
+	const manifests = await Promise.all(areaKeys.map((area) => getAreaManifest(area)));
 	const pending: Promise<void>[] = [];
 
-	for (const area of areaKeys) {
-		for (let y = startYear; y <= endYear; y++) {
-			const indexKey = `${area}|${y}|${incomeClass}`;
-			if (INDEXED_KEYS.has(indexKey)) continue;
+	areaKeys.forEach((area, areaIdx) => {
+		const available = new Set(manifests[areaIdx]?.chunks?.[incomeClass] ?? []);
 
+		const needed = chunksForRange(startYear, endYear)
+			.filter((c) => available.has(c))
+			.filter((c) => {
+				// Skip chunks whose every requested year is already indexed.
+				const [chunkStartYear, chunkEndYear] = chunkRange(c);
+				const from = Math.max(startYear, chunkStartYear);
+				const to = Math.min(endYear, chunkEndYear);
+				for (let y = from; y <= to; y++) {
+					if (!INDEXED_KEYS.has(`${area}|${y}|${incomeClass}`)) return true;
+				}
+				return false;
+			});
+
+		for (const chunk of needed) {
 			pending.push(
-				fetchYearlyData(area, y).then((file) => {
-					if (file?.data) {
-						indexFile(file, incomeClass);
-					}
+				fetchChunk(area, incomeClass, chunk).then((file) => {
+					if (file) indexChunk(file, incomeClass);
 				}),
 			);
 		}
-	}
+	});
 
 	if (pending.length > 0) {
 		await Promise.all(pending);
 	}
 
-	return GLOBAL_INDEX;
+	return GLOBAL_INDEX[incomeClass];
 }
 
-export async function getWeights(
-	areaKeys: string[],
-	incomeClass: IncomeClass,
-): Promise<Record<string, number[]>> {
+export async function getWeights(areaKeys: string[], incomeClass: IncomeClass): Promise<Record<string, number[]>> {
 	const results: Record<string, number[]> = {};
 	const pending: Promise<void>[] = [];
 
@@ -337,10 +379,7 @@ export function getAreaHierarchy(selectedKey: string): AreaHierarchy {
 			province = selectedArea;
 		} else {
 			province = areas.find(
-				(a) =>
-					a.regionId === selectedArea.regionId &&
-					a.provinceId === selectedArea.provinceId &&
-					a.cityId === undefined,
+				(a) => a.regionId === selectedArea.regionId && a.provinceId === selectedArea.provinceId && a.cityId === undefined,
 			);
 		}
 	}

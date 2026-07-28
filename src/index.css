@@ -3,21 +3,8 @@
 @plugin "daisyui" {
 	themes: false;
 	include:
-		properties,
-		rootcolor,
-		scrollbar,
-		svg,
-		rootscrolllock,
-		rootscrollgutter,
-		alert,
-		badge,
-		button,
-		input,
-		modal,
-		progress,
-		select,
-		table,
-		toast;
+		properties, rootcolor, scrollbar, svg, rootscrolllock, rootscrollgutter, alert, badge, button, input, modal, progress,
+		select, table, toast, tooltip;
 }
 
 @plugin "daisyui/theme" {
@@ -97,6 +84,10 @@
 		opacity: var(--tw-enter-opacity, 1);
 		transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0);
 	}
+}
+
+@utility fill-opacity-* {
+	fill-opacity: calc(--value(integer) * 1%);
 }
 
 .animate-in {
@@ -252,12 +243,6 @@ ol > li::marker {
 	background-image: radial-gradient(circle, hsl(220 20% 14% / 0.4) 1px, transparent 1px);
 }
 
-.tooltip-content {
-	width: calc(var(--tooltip-trigger-width) + 50px);
-	max-height: var(--tooltip-content-available-height);
-	transform-origin: var(--tooltip-content-transform-origin);
-}
-
 /* ── Driver.js Onboarding Tour Overrides ── */
 
 svg.driver-overlay path {
@@ -273,7 +258,12 @@ svg.driver-overlay path {
 		0 8px 32px rgba(0, 56, 168, 0.12),
 		0 2px 8px rgba(0, 0, 0, 0.06);
 	border: 1px solid rgba(0, 56, 168, 0.08);
-	font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+	font-family:
+		"Inter",
+		"Segoe UI",
+		system-ui,
+		-apple-system,
+		sans-serif;
 	width: max-content;
 	/*max-width: min(94vw, 42rem);*/
 }
@@ -598,4 +588,261 @@ path:focus {
 	to {
 		stroke-dashoffset: -9;
 	}
+}
+
+.overlay-sectors .overlay-sector {
+	--overlay-delay: 0s;
+	animation:
+		overlayFlareIn 0.6s ease-out var(--overlay-delay) backwards,
+		marchDashes 0.8s linear calc(var(--overlay-delay) + 0.6s) infinite;
+}
+
+.overlay-sectors .overlay-sector:nth-of-type(2) {
+	--overlay-delay: 0.1s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(3) {
+	--overlay-delay: 0.2s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(4) {
+	--overlay-delay: 0.3s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(5) {
+	--overlay-delay: 0.4s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(6) {
+	--overlay-delay: 0.5s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(7) {
+	--overlay-delay: 0.6s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(8) {
+	--overlay-delay: 0.7s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(9) {
+	--overlay-delay: 0.8s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(10) {
+	--overlay-delay: 0.9s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(11) {
+	--overlay-delay: 1s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(12) {
+	--overlay-delay: 1.1s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(13) {
+	--overlay-delay: 1.2s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(14) {
+	--overlay-delay: 1.3s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(15) {
+	--overlay-delay: 1.4s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(16) {
+	--overlay-delay: 1.5s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(17) {
+	--overlay-delay: 1.6s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(18) {
+	--overlay-delay: 1.7s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(19) {
+	--overlay-delay: 1.8s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(20) {
+	--overlay-delay: 1.9s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(21) {
+	--overlay-delay: 2s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(22) {
+	--overlay-delay: 2.1s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(23) {
+	--overlay-delay: 2.2s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(24) {
+	--overlay-delay: 2.3s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(25) {
+	--overlay-delay: 2.4s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(26) {
+	--overlay-delay: 2.5s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(27) {
+	--overlay-delay: 2.6s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(28) {
+	--overlay-delay: 2.7s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(29) {
+	--overlay-delay: 2.8s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(30) {
+	--overlay-delay: 2.9s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(31) {
+	--overlay-delay: 3s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(32) {
+	--overlay-delay: 3.1s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(33) {
+	--overlay-delay: 3.2s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(34) {
+	--overlay-delay: 3.3s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(35) {
+	--overlay-delay: 3.4s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(36) {
+	--overlay-delay: 3.5s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(37) {
+	--overlay-delay: 3.6s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(38) {
+	--overlay-delay: 3.7s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(39) {
+	--overlay-delay: 3.8s;
+}
+.overlay-sectors .overlay-sector:nth-of-type(40) {
+	--overlay-delay: 3.9s;
+}
+
+.pie-labels {
+	--label-base-delay: 0.65s;
+}
+
+.pie-labels-fast {
+	--label-base-delay: 0.2s;
+}
+
+.pie-labels .pie-label {
+	--label-delay-offset: 0s;
+	opacity: 0;
+	animation: labelFocusIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--label-base-delay) + var(--label-delay-offset)) both;
+}
+
+.pie-labels .pie-label:nth-of-type(2) {
+	--label-delay-offset: 0.04s;
+}
+.pie-labels .pie-label:nth-of-type(3) {
+	--label-delay-offset: 0.08s;
+}
+.pie-labels .pie-label:nth-of-type(4) {
+	--label-delay-offset: 0.12s;
+}
+.pie-labels .pie-label:nth-of-type(5) {
+	--label-delay-offset: 0.16s;
+}
+.pie-labels .pie-label:nth-of-type(6) {
+	--label-delay-offset: 0.2s;
+}
+.pie-labels .pie-label:nth-of-type(7) {
+	--label-delay-offset: 0.24s;
+}
+.pie-labels .pie-label:nth-of-type(8) {
+	--label-delay-offset: 0.28s;
+}
+.pie-labels .pie-label:nth-of-type(9) {
+	--label-delay-offset: 0.32s;
+}
+.pie-labels .pie-label:nth-of-type(10) {
+	--label-delay-offset: 0.36s;
+}
+.pie-labels .pie-label:nth-of-type(11) {
+	--label-delay-offset: 0.4s;
+}
+.pie-labels .pie-label:nth-of-type(12) {
+	--label-delay-offset: 0.44s;
+}
+.pie-labels .pie-label:nth-of-type(13) {
+	--label-delay-offset: 0.48s;
+}
+.pie-labels .pie-label:nth-of-type(14) {
+	--label-delay-offset: 0.52s;
+}
+.pie-labels .pie-label:nth-of-type(15) {
+	--label-delay-offset: 0.56s;
+}
+.pie-labels .pie-label:nth-of-type(16) {
+	--label-delay-offset: 0.6s;
+}
+.pie-labels .pie-label:nth-of-type(17) {
+	--label-delay-offset: 0.64s;
+}
+.pie-labels .pie-label:nth-of-type(18) {
+	--label-delay-offset: 0.68s;
+}
+.pie-labels .pie-label:nth-of-type(19) {
+	--label-delay-offset: 0.72s;
+}
+.pie-labels .pie-label:nth-of-type(20) {
+	--label-delay-offset: 0.76s;
+}
+.pie-labels .pie-label:nth-of-type(21) {
+	--label-delay-offset: 0.8s;
+}
+.pie-labels .pie-label:nth-of-type(22) {
+	--label-delay-offset: 0.84s;
+}
+.pie-labels .pie-label:nth-of-type(23) {
+	--label-delay-offset: 0.88s;
+}
+.pie-labels .pie-label:nth-of-type(24) {
+	--label-delay-offset: 0.92s;
+}
+.pie-labels .pie-label:nth-of-type(25) {
+	--label-delay-offset: 0.96s;
+}
+.pie-labels .pie-label:nth-of-type(26) {
+	--label-delay-offset: 1s;
+}
+.pie-labels .pie-label:nth-of-type(27) {
+	--label-delay-offset: 1.04s;
+}
+.pie-labels .pie-label:nth-of-type(28) {
+	--label-delay-offset: 1.08s;
+}
+.pie-labels .pie-label:nth-of-type(29) {
+	--label-delay-offset: 1.12s;
+}
+.pie-labels .pie-label:nth-of-type(30) {
+	--label-delay-offset: 1.16s;
+}
+.pie-labels .pie-label:nth-of-type(31) {
+	--label-delay-offset: 1.2s;
+}
+.pie-labels .pie-label:nth-of-type(32) {
+	--label-delay-offset: 1.24s;
+}
+.pie-labels .pie-label:nth-of-type(33) {
+	--label-delay-offset: 1.28s;
+}
+.pie-labels .pie-label:nth-of-type(34) {
+	--label-delay-offset: 1.32s;
+}
+.pie-labels .pie-label:nth-of-type(35) {
+	--label-delay-offset: 1.36s;
+}
+.pie-labels .pie-label:nth-of-type(36) {
+	--label-delay-offset: 1.4s;
+}
+.pie-labels .pie-label:nth-of-type(37) {
+	--label-delay-offset: 1.44s;
+}
+.pie-labels .pie-label:nth-of-type(38) {
+	--label-delay-offset: 1.48s;
+}
+.pie-labels .pie-label:nth-of-type(39) {
+	--label-delay-offset: 1.52s;
+}
+.pie-labels .pie-label:nth-of-type(40) {
+	--label-delay-offset: 1.56s;
 }

@@ -1,14 +1,7 @@
 ﻿import { Check, ChevronsUpDown } from "lucide-solid";
-import { createEffect, createMemo, createSignal, Index } from "solid-js";
+import { createEffect, createMemo, createSignal, Index, Show } from "solid-js";
 import { Button } from "@/components/Button";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "@/components/Command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/Command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/Popover";
 import { Select } from "@/components/Select";
 import { toast } from "@/components/Toast";
@@ -167,7 +160,7 @@ const DateControl = () => {
 			</div>
 
 			<div class="w-full">
-				<Popover open={openYear()} onOpenChange={setOpenYear}>
+				<Popover open={openYear()} onOpenChange={setOpenYear} modal={true}>
 					<PopoverTrigger asChild>
 						<Button
 							variant="outline"
@@ -191,13 +184,17 @@ const DateControl = () => {
 												value={year().toString()}
 												disabled={i === areaAvailableYears().size - 1}
 												onSelect={handleYearChange}
+												class={cn(
+													i === areaAvailableYears().size - 1 &&
+														"opacity-50 cursor-not-allowed pointer-events-none",
+												)}
 											>
-												<Check
-													class={cn(
-														"mr-2 h-4 w-4",
-														startDate().getFullYear() === year() ? "opacity-100" : "opacity-0",
-													)}
-												/>
+												<Show
+													when={startDate().getFullYear() === year()}
+													fallback={<div class="mr-2 h-4 w-4" />}
+												>
+													<Check class="mr-2 h-4 w-4" />
+												</Show>
 												{year()}
 											</CommandItem>
 										)}
