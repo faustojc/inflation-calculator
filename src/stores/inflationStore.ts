@@ -101,7 +101,7 @@ export function initializeExpenses() {
 	const initialExpenses: Record<string, ExpenseItem> = {};
 
 	const traverse = (nodes: CommodityDef[]) => {
-		nodes.forEach((node) => {
+		for (const node of nodes) {
 			initialExpenses[node.code] = {
 				id: node.code,
 				code: node.code,
@@ -109,17 +109,15 @@ export function initializeExpenses() {
 				value: 0,
 			};
 			if (node.children) traverse(node.children);
-		});
+		}
 	};
 
 	traverse(commodities);
-	// Each store MUST get its own deep copy. Solid's createStore/reconcile mutates
-	// the backing objects in place, so sharing the same nested item references
-	// between the two stores leaks writes across tabs (editing General also mutates
-	// Detailed), which later throws "Missing CPI value" when the leaked
-	// major-category codes are calculated against the personal (detailed) dataset.
-	const cloneExpenses = () =>
-		Object.fromEntries(Object.entries(initialExpenses).map(([code, item]) => [code, { ...item }]));
+
+	const cloneExpenses = () => Object.fromEntries(
+		Object.entries(initialExpenses)
+			  .map(([code, item]) => [code, { ...item }])
+	);
 	batch(() => {
 		generalExpenses.set(cloneExpenses());
 		detailedExpenses.set(cloneExpenses());
@@ -154,36 +152,36 @@ export async function prefetchConstraints() {
 		const missingPersonal = new Set<string>();
 		const targetMonth = startDate.getMonth() + 1;
 
-		commodities.forEach((node) => {
-			const checkCode = (code: string) => {
-				const key = hierarchy.target.key;
+		const checkCode = (code: string) => {
+			const key = hierarchy.target.key;
 
-				const officialCurrent = batchMap[key]?.[targetYear]?.official?.[targetMonth]?.[code];
-				const officialBase = batchMap[key]?.[baseYear]?.official?.[targetMonth]?.[code];
-				if (officialCurrent == null || officialCurrent === 0 || officialBase == null || officialBase === 0) {
-					missingGeneral.add(code);
-				}
+			const officialCurrent = batchMap[key]?.[targetYear]?.official?.[targetMonth]?.[code];
+			const officialBase = batchMap[key]?.[baseYear]?.official?.[targetMonth]?.[code];
+			if (officialCurrent == null || officialCurrent === 0 || officialBase == null || officialBase === 0) {
+				missingGeneral.add(code);
+			}
 
-				// Personal dataset only has leaf-level codes (e.g. 01.1), not major categories (01-13)
-				if (!code.includes(".")) return;
+			// Personal dataset only has leaf-level codes (e.g. 01.1), not major categories (01-13)
+			if (!code.includes(".")) return;
 
-				const personalCurrent = batchMap[key]?.[targetYear]?.personal?.[targetMonth]?.[code];
-				const personalBase = batchMap[key]?.[baseYear]?.personal?.[targetMonth]?.[code];
-				if (personalCurrent == null || personalCurrent === 0 || personalBase == null || personalBase === 0) {
-					missingPersonal.add(code);
-				}
-			};
+			const personalCurrent = batchMap[key]?.[targetYear]?.personal?.[targetMonth]?.[code];
+			const personalBase = batchMap[key]?.[baseYear]?.personal?.[targetMonth]?.[code];
+			if (personalCurrent == null || personalCurrent === 0 || personalBase == null || personalBase === 0) {
+				missingPersonal.add(code);
+			}
+		};
 
-			const traverse = (children: CommodityDef[]) => {
-				children.forEach((child) => {
-					checkCode(child.code);
-					if (child.children) traverse(child.children);
-				});
-			};
+		const traverse = (children: CommodityDef[]) => {
+			for (const child of children) {
+				checkCode(child.code);
+				if (child.children) traverse(child.children);
+			}
+		};
 
+		for (const node of commodities) {
 			checkCode(node.code);
 			if (node.children) traverse(node.children);
-		});
+		}
 
 		batch(() => {
 			missingGeneralItems.set(missingGeneral);
@@ -200,19 +198,19 @@ export async function prefetchConstraints() {
 			let genChanged = false;
 			let detChanged = false;
 
-			missingGeneral.forEach((code: string) => {
+			for (const code of missingGeneral) {
 				if (newGenStore[code] && newGenStore[code].value !== 0) {
 					newGenStore[code] = { ...newGenStore[code], value: 0 };
 					genChanged = true;
 				}
-			});
+			}
 
-			missingPersonal.forEach((code: string) => {
+			for (const code of missingPersonal) {
 				if (newDetStore[code] && newDetStore[code].value !== 0) {
 					newDetStore[code] = { ...newDetStore[code], value: 0 };
 					detChanged = true;
 				}
-			});
+			}
 
 			if (genChanged) generalExpenses.set(newGenStore);
 			if (detChanged) detailedExpenses.set(newDetStore);
@@ -357,14 +355,14 @@ export function setMissingItems(codes: string[]) {
 	if (codes.length > 0 && tab === "detailed") {
 		const updates = { ...expandedNodes.get() };
 
-		codes.forEach((code) => {
+		for (const code of codes) {
 			let ptr = uiParentIndex.get(code);
 
 			while (ptr) {
 				updates[ptr] = true;
 				ptr = uiParentIndex.get(ptr) || null;
 			}
-		});
+		}
 
 		expandedNodes.set(updates);
 	}
@@ -470,20 +468,20 @@ export function clearMissingExpenses() {
 	let detChanged = false;
 	const totalDeltas: { code: string; delta: number }[] = [];
 
-	genMissing.forEach((code) => {
+	for (const code of genMissing) {
 		if (newGenStore[code]) {
 			newGenStore[code] = { ...newGenStore[code], value: 0 };
 			genChanged = true;
 		}
-	});
+	}
 
-	detMissing.forEach((code) => {
+	for (const code of detMissing) {
 		if (newDetStore[code]) {
 			totalDeltas.push({ code, delta: -newDetStore[code].value });
 			newDetStore[code] = { ...newDetStore[code], value: 0 };
 			detChanged = true;
 		}
-	});
+	}
 
 	batch(() => {
 		if (genChanged) generalExpenses.set(newGenStore);

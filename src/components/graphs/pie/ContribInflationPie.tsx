@@ -60,19 +60,18 @@ function buildPieData(contributors: readonly CommodityContribution[]) {
 
 function buildLegend(contributors: readonly CommodityContribution[]): LegendItem[] {
 	const uniqueCommodities = new Map<string, LegendItem>();
+	const c = contributors.filter((c) => c.code !== "0");
 
-	contributors
-		.filter((c) => c.code !== "0")
-		.forEach((item, index) => {
-			if (item.code && !uniqueCommodities.has(item.code)) {
-				uniqueCommodities.set(item.code, {
-					code: item.code,
-					name: item.name,
-					value: item.percentShare,
-					color: getColor(item.code, index),
-				});
-			}
-		});
+	for (const [index, item] of c.entries()) {
+		if (item.code && !uniqueCommodities.has(item.code)) {
+			uniqueCommodities.set(item.code, {
+				code: item.code,
+				name: item.name,
+				value: item.percentShare,
+				color: getColor(item.code, index),
+			});
+		}
+	}
 
 	return Array.from(uniqueCommodities.values());
 }

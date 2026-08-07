@@ -150,9 +150,9 @@ const Footer = () => {
 
 			const { commodities } = dataStore.get();
 			const majorCategoryNames: Record<string, string> = {};
-			commodities.forEach((c) => {
+			for (const c of commodities) {
 				majorCategoryNames[c.code] = c.name;
-			});
+			}
 
 			const result = calculatePersonalInflation(
 				items,

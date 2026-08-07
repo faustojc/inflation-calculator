@@ -156,9 +156,9 @@ export async function initializeApp() {
 
 		extractKeywords(commodities);
 
-		meta.areas.forEach((area) => {
+		for (const area of meta.areas) {
 			area.name = formatLocationName(area.name);
-		});
+		}
 
 		await setCurrentArea(meta.areas.at(1)!.key);
 		void fetchChunk(meta.areas.at(1)!.key, "ALL", chunkName(meta.year_range.official.max));
@@ -302,7 +302,7 @@ export async function getCalculationData(
 	const manifests = await Promise.all(areaKeys.map((area) => getAreaManifest(area)));
 	const pending: Promise<void>[] = [];
 
-	areaKeys.forEach((area, areaIdx) => {
+	for (const [areaIdx, area] of areaKeys.entries()) {
 		const available = new Set(manifests[areaIdx]?.chunks?.[incomeClass] ?? []);
 
 		const needed = chunksForRange(startYear, endYear)
@@ -325,7 +325,7 @@ export async function getCalculationData(
 				}),
 			);
 		}
-	});
+	};
 
 	if (pending.length > 0) {
 		await Promise.all(pending);
@@ -400,18 +400,18 @@ export const commodityTree = createMemoAtom<TreeNode[]>(() => {
 	const nodeMap = new Map<string, TreeNode>();
 	const roots: TreeNode[] = [];
 
-	commodities.forEach((c) => {
+	for (const c of commodities) {
 		nodeMap.set(c.code, {
 			code: c.code,
 			name: c.name,
 			depth: c.code.split(".").length,
 			children: [],
 		});
-	});
+	}
 
 	const sortedCodes = commodities.map((c) => c.code).sort((a, b) => a.localeCompare(b));
 
-	sortedCodes.forEach((code) => {
+	for (const code of sortedCodes) {
 		const node = nodeMap.get(code)!;
 
 		// Logic: "01.1" parent is "01"
@@ -427,7 +427,7 @@ export const commodityTree = createMemoAtom<TreeNode[]>(() => {
 		} else {
 			roots.push(node);
 		}
-	});
+	}
 
 	return roots;
 });
