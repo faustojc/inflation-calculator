@@ -1,0 +1,8 @@
+name = "inflation-calculatorv2"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-01"
+
+# api/v3/* is served from this bucket by functions/api/v3/[[path]].ts.
+[[r2_buckets]]
+binding = "CPI_DATA"
+bucket_name = "cpi-data"
