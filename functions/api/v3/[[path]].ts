@@ -23,8 +23,8 @@ interface Context {
 export async function onRequestGet({ request, env, params }: Context): Promise<Response> {
 	const key = `api/v3/${(params.path ?? []).join("/")}`;
 	const obj = await env.CPI_DATA.get(key, { onlyIf: request.headers });
-	// Not in R2 (e.g. commodities.json, which the uploader doesn't write):
-	// serve the bundled public/api copy. _redirects makes a miss there 404.
+	// Not in R2 yet (bucket not seeded): serve the bundled public/api copy.
+	// _redirects makes a miss there 404.
 	if (!obj) return env.ASSETS.fetch(request);
 
 	// Filenames aren't versioned per publish, so keep the shared cache short;
